@@ -22,8 +22,8 @@ export class KycService {
     consent: true;
     scope?: 'identity' | 'bank_accounts';
   }): Promise<{ statusCode: number; body: JsonObject }> {
-    const fingerprintKey = process.env.PII_FINGERPRINT_KEY!;
-    const encryptionKey = process.env.DATA_ENCRYPTION_KEY!;
+    const fingerprintKey = process.env['PII_FINGERPRINT_KEY']!;
+    const encryptionKey = process.env['DATA_ENCRYPTION_KEY']!;
     const fingerprint = fingerprintSensitiveValue(input.identifier, fingerprintKey);
     const idem = await this.idempotency.begin({
       scope: `kyc:${input.type.toLowerCase()}:initiate`,

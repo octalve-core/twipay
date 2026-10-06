@@ -98,7 +98,7 @@ const providerRegistry = readFileSync(join(root, 'apps/api/src/modules/providers
 if (providerRegistry.includes("allowUnsignedSandboxWebhooks: process.env.NODE_ENV !== 'production'")) {
   findings.push('Monnify sandbox webhooks are implicitly unsigned outside production; explicit opt-in is required');
 }
-if (!providerRegistry.includes("MONNIFY_ALLOW_UNSIGNED_SANDBOX_WEBHOOKS === 'true'")) {
+if (!providerRegistry.includes("MONNIFY_ALLOW_UNSIGNED_SANDBOX_WEBHOOKS'] === 'true'")) {
   findings.push('Explicit Monnify unsigned-sandbox webhook gate is missing');
 }
 

@@ -7,10 +7,13 @@ import { ProvidersModule } from './providers/providers.module.js';
 import { FinanceModule } from './finance/finance.module.js';
 import { WebhooksModule } from './webhooks/webhooks.module.js';
 import { KycModule } from './kyc/kyc.module.js';
+import { ServicesModule } from './services/services.module.js';
+import { NotificationsModule } from './notifications/notifications.module.js';
+import { EventsModule } from './events/events.module.js';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true, ignoreEnvFile: process.env.NODE_ENV === 'production' }),
+    ConfigModule.forRoot({ isGlobal: true, ignoreEnvFile: process.env['NODE_ENV'] === 'production' }),
     DatabaseModule,
     HealthModule,
     AuthModule,
@@ -18,6 +21,9 @@ import { KycModule } from './kyc/kyc.module.js';
     FinanceModule,
     WebhooksModule,
     KycModule,
+    ServicesModule,
+    NotificationsModule,
+    EventsModule,
   ],
 })
 export class AppModule {}

@@ -12,7 +12,7 @@ export class SessionService {
   constructor(private readonly prisma: PrismaService) {}
 
   private pepper(): string {
-    const value = process.env.SESSION_HASH_PEPPER;
+    const value = process.env['SESSION_HASH_PEPPER'];
     if (!value || value.length < 32) throw new Error('SESSION_HASH_PEPPER must be configured with at least 32 characters');
     return value;
   }

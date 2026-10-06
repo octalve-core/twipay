@@ -79,7 +79,7 @@ export class PaymentService {
           ...(user.familyName ? { lastName: user.familyName } : {}),
           ...(user.phoneE164 ? { phoneE164: user.phoneE164 } : {}),
         },
-        callbackUrl: `${process.env.APP_URL}/wallet/fund/complete`,
+        callbackUrl: `${process.env['APP_URL']}/wallet/fund/complete`,
       });
       await this.prisma.$transaction(async (tx) => {
         await tx.providerOperation.update({
@@ -150,7 +150,7 @@ export class PaymentService {
               expectedAmountMinor: financial.amountMinor.toString(),
               verifiedAmountMinor: verified.amountMinor?.toString() ?? null,
               expectedCurrency: financial.currency,
-              verifiedCurrency ?? null,
+              verifiedCurrency: verified.currency ?? null,
             },
           },
         });
@@ -330,7 +330,7 @@ export class PaymentService {
         })
       : null;
     if (!virtualAccount && credit.accountNumber) {
-      const accountNumberFingerprint = fingerprintSensitiveValue(credit.accountNumber, process.env.PII_FINGERPRINT_KEY!);
+      const accountNumberFingerprint = fingerprintSensitiveValue(credit.accountNumber, process.env['PII_FINGERPRINT_KEY']!);
       virtualAccount = await this.prisma.virtualAccount.findUnique({
         where: {
           providerCode_accountNumberFingerprint: { providerCode, accountNumberFingerprint },

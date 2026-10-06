@@ -63,6 +63,17 @@ export class FinancialTransactionService {
     return updated;
   }
 
+  async settleInternalEventPurchaseWithTx(tx: Prisma.TransactionClient, id: string): Promise<void> {
+    const current = await tx.financialTransaction.findUniqueOrThrow({ where: { id } });
+    if (current.type !== 'EVENT_PURCHASE' || current.status !== 'FUNDS_RESERVED') {
+      throw new Error('INTERNAL_EVENT_SETTLEMENT_STATE_INVALID');
+    }
+    const updated = await tx.financialTransaction.update({ where: { id }, data: { status: 'SUCCEEDED' } });
+    await tx.financialTransactionStateChange.create({
+      data: { financialTransactionId: id, fromStatus: current.status, toStatus: updated.status, reason: 'INTERNAL_EVENT_SETTLEMENT', actorType: 'SYSTEM' },
+    });
+  }
+
   async moveToProviderSubmittedWithTx(tx: Prisma.TransactionClient, id: string): Promise<void> {
     let current = await tx.financialTransaction.findUniqueOrThrow({ where: { id } });
     if (current.status === 'CREATED') {

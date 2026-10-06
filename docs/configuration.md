@@ -59,3 +59,33 @@ Development, test, staging and production must not reuse secrets, databases or p
 The repository and documentation may describe **variable names and rotation procedures**, never their live values.
 
 `MONNIFY_ALLOW_UNSIGNED_SANDBOX_WEBHOOKS` is an explicit compatibility switch for sandbox-only testing and must remain `false` in production. The Monnify adapter also rejects unsigned events when pointed at the production host even if the switch is accidentally enabled.
+
+## Batch 3 service/event/notification configuration
+
+| Variable | Purpose | Secret? | Browser allowed? |
+|---|---|---:|---:|
+| `VTPASS_API_KEY` | VTpass server credential | Yes | No |
+| `VTPASS_PUBLIC_KEY` | VTpass server-side GET credential | Sensitive | No |
+| `VTPASS_SECRET_KEY` | VTpass server-side POST credential | Yes | No |
+| `VTPASS_BASE_URL` | VTpass sandbox/live host | No | No |
+| `TERMII_API_KEY` | Termii messaging credential | Yes | No |
+| `TERMII_SENDER_ID` | approved sender identity | Sensitive config | No |
+| `TERMII_CHANNEL` | Termii routing channel | No | No |
+| `TERMII_BASE_URL` | Termii regional API host | No | No |
+| `RESEND_API_KEY` | Resend server credential | Yes | No |
+| `RESEND_FROM` | verified sender address | Sensitive config | No |
+| `RESEND_BASE_URL` | Resend API host override | No | No |
+| `TICKET_SIGNING_KEYS_JSON` | version -> ticket HMAC secret key map | **Yes** | **No** |
+| `TICKET_SIGNING_CURRENT_VERSION` | currently active ticket key version | No | No |
+| `BILL_VALIDATION_TTL_MINUTES` | local reuse window for provider customer validation | No | No |
+| `BILL_RECONCILE_MAX_ATTEMPTS` | bounded same-provider automatic reconciliation count | No | No |
+| `BILL_RECONCILE_BASE_DELAY_MS` | initial reconciliation backoff | No | No |
+| `BILL_RECONCILE_MAX_DELAY_MS` | reconciliation backoff cap | No | No |
+| `EVENT_PLATFORM_FEE_BPS` | configurable event fee, defaults to `0` | No | No |
+| `EVENT_ORDER_EXPIRY_MINUTES` | checkout reservation expiry policy | No | No |
+| `WORKER_RECOVERY_SWEEP_MS` | bounded recovery sweep interval | No | No |
+| `NOTIFICATION_MAX_ATTEMPTS` | delivery retry cap | No | No |
+| `NOTIFICATION_RETRY_DELAY_MS` | notification retry delay | No | No |
+| `NOTIFICATION_PROCESSING_STALE_MS` | recovery threshold for interrupted delivery | No | No |
+
+`TICKET_SIGNING_KEYS_JSON` must never be a `NEXT_PUBLIC_*` value. Keep old key versions available while any ticket signed with them can still legitimately be presented. Key removal is an explicit operational/security migration, not routine cleanup.

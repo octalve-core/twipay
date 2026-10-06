@@ -31,7 +31,7 @@ export class RequestSecurityGuard implements CanActivate {
     const path = req.url.split('?')[0] ?? req.url;
     if (signedServerMutations.has(path)) return true;
 
-    const allowedOrigins = [process.env.APP_URL, process.env.ADMIN_URL].filter(
+    const allowedOrigins = [process.env['APP_URL'], process.env['ADMIN_URL']].filter(
       (value): value is string => Boolean(value),
     );
     const rawOrigin = req.headers.origin;
@@ -42,7 +42,7 @@ export class RequestSecurityGuard implements CanActivate {
 
     if (unauthenticatedBrowserMutations.has(path)) return true;
 
-    const production = process.env.NODE_ENV === 'production';
+    const production = process.env['NODE_ENV'] === 'production';
     const sessionToken = req.cookies[
       production ? SESSION_COOKIE_PRODUCTION : SESSION_COOKIE_LOCAL
     ];

@@ -106,6 +106,8 @@ enum ProviderOperationType {
   VIRTUAL_ACCOUNT
   PAYOUT
   IDENTITY_CHECK
+  BILL_PURCHASE
+  NOTIFICATION
 }
 
 enum ProviderOperationStatus {
@@ -173,6 +175,94 @@ enum ReconciliationCaseType {
   MISSING_PROVIDER
   DUPLICATE_EVENT
   LEDGER_MISMATCH
+  SERVICE_FULFILLMENT_MISMATCH
+  EVENT_SETTLEMENT_MISMATCH
+}
+
+
+enum BillCategory {
+  AIRTIME
+  DATA
+  ELECTRICITY
+  CABLE
+}
+
+enum BillProductStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum BillPurchaseStatus {
+  CREATED
+  VALIDATING
+  VALIDATED
+  FUNDS_RESERVED
+  PROVIDER_SUBMITTED
+  PROCESSING
+  UNKNOWN
+  SUCCEEDED
+  FAILED
+  REVERSED
+  CANCELLED
+}
+
+enum ProviderCircuitState {
+  CLOSED
+  OPEN
+  HALF_OPEN
+}
+
+enum EventOrganizerStatus {
+  ACTIVE
+  SUSPENDED
+  CLOSED
+}
+
+enum EventStatus {
+  DRAFT
+  PUBLISHED
+  SALES_PAUSED
+  SOLD_OUT
+  CANCELLED
+  COMPLETED
+}
+
+enum TicketTypeStatus {
+  ACTIVE
+  PAUSED
+  SOLD_OUT
+  CLOSED
+}
+
+enum EventOrderStatus {
+  CREATED
+  FUNDS_RESERVED
+  PAID
+  FAILED
+  CANCELLED
+  REFUNDED
+}
+
+enum TicketStatus {
+  ACTIVE
+  CHECKED_IN
+  CANCELLED
+  REFUNDED
+  VOID
+}
+
+enum NotificationChannel {
+  EMAIL
+  SMS
+}
+
+enum NotificationStatus {
+  PENDING
+  PROCESSING
+  ACCEPTED
+  DELIVERED
+  FAILED
+  UNKNOWN
 }
 
 enum ReconciliationCaseStatus {
@@ -209,6 +299,12 @@ model User {
   beneficiaries         Beneficiary[]
   identityVerifications IdentityVerification[]
   providerOperations     ProviderOperation[]
+  eventOrganizers        EventOrganizer[]
+  eventOrders            EventOrder[]
+  ticketCheckIns         TicketCheckIn[] @relation("TicketCheckInStaff")
+  notifications          Notification[]
+  billPurchases          BillPurchase[]
+  billCustomerValidations BillCustomerValidation[]
 
   @@index([status])
   @@map("users")
@@ -335,6 +431,7 @@ model LedgerAccount {
   ownerUser     User?                 @relation(fields: [ownerUserId], references: [id], onDelete: Restrict)
   wallet        Wallet?
   entries       JournalEntry[]
+  organizerSettlementProfile EventOrganizer?
 
   @@index([ownerUserId, currency])
   @@index([category, currency, status])
@@ -378,6 +475,8 @@ model FinancialTransaction {
   holds          WalletHold[]
   providerOps    ProviderOperation[]
   bankTransfer   BankTransfer?
+  billPurchase   BillPurchase?
+  eventOrder     EventOrder?
   reconciliationCases ReconciliationCase[]
 
   @@index([userId, createdAt])
@@ -639,4 +738,296 @@ model ReconciliationCase {
   @@index([status, createdAt])
   @@index([financialTransactionId])
   @@map("reconciliation_cases")
+}
+
+model BillProduct {
+  id                     String            @id @default(uuid()) @db.Uuid
+  code                   String            @unique @db.VarChar(120)
+  category               BillCategory
+  name                   String            @db.VarChar(180)
+  customerIdentifierType String            @db.VarChar(40)
+  currency               String            @db.Char(3)
+  fixedAmountMinor       BigInt?
+  minAmountMinor         BigInt?
+  maxAmountMinor         BigInt?
+  status                 BillProductStatus @default(ACTIVE)
+  metadata               Json?
+  createdAt              DateTime          @default(now()) @db.Timestamptz(6)
+  updatedAt              DateTime          @updatedAt @db.Timestamptz(6)
+  offers                 BillProviderOffer[]
+  purchases              BillPurchase[]
+
+  @@index([category, status])
+  @@map("bill_products")
+}
+
+model BillProviderOffer {
+  id                  String            @id @default(uuid()) @db.Uuid
+  productId           String            @db.Uuid
+  providerCode        String            @db.VarChar(40)
+  providerProductCode String            @db.VarChar(160)
+  providerBillerCode  String            @db.VarChar(160)
+  priority            Int               @default(0)
+  estimatedCostMinor  BigInt?
+  active              Boolean           @default(true)
+  requiresValidation  Boolean           @default(false)
+  metadata            Json?
+  lastSyncedAt        DateTime           @default(now()) @db.Timestamptz(6)
+  product             BillProduct       @relation(fields: [productId], references: [id], onDelete: Restrict)
+  purchases           BillPurchase[]
+  validations         BillCustomerValidation[]
+
+  @@unique([providerCode, providerProductCode, providerBillerCode])
+  @@index([productId, active, priority])
+  @@map("bill_provider_offers")
+}
+
+model ProviderCapabilityHealth {
+  id                  String               @id @default(uuid()) @db.Uuid
+  providerCode        String               @db.VarChar(40)
+  capability          String               @db.VarChar(80)
+  circuitState        ProviderCircuitState @default(CLOSED)
+  consecutiveFailures Int                  @default(0)
+  successCount        BigInt               @default(0)
+  failureCount        BigInt               @default(0)
+  successRateBps      Int?
+  p95LatencyMs        Int?
+  lastLatencyMs       Int?
+  openedAt            DateTime?            @db.Timestamptz(6)
+  cooldownUntil       DateTime?            @db.Timestamptz(6)
+  lastSuccessAt       DateTime?            @db.Timestamptz(6)
+  lastFailureAt       DateTime?            @db.Timestamptz(6)
+  updatedAt           DateTime             @updatedAt @db.Timestamptz(6)
+
+  @@unique([providerCode, capability])
+  @@index([capability, circuitState])
+  @@map("provider_capability_health")
+}
+
+model BillCustomerValidation {
+  id                            String   @id @default(uuid()) @db.Uuid
+  userId                        String   @db.Uuid
+  providerOfferId               String   @db.Uuid
+  providerCode                  String   @db.VarChar(40)
+  providerProductCode           String   @db.VarChar(160)
+  customerIdentifierFingerprint String  @db.Char(64)
+  customerIdentifierCiphertext  String  @db.Text
+  customerIdentifierLast4       String  @db.VarChar(4)
+  customerName                  String? @db.VarChar(180)
+  validationReferenceCiphertext String? @db.Text
+  valid                         Boolean
+  expiresAt                     DateTime @db.Timestamptz(6)
+  createdAt                     DateTime @default(now()) @db.Timestamptz(6)
+  user                          User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+  providerOffer                 BillProviderOffer @relation(fields: [providerOfferId], references: [id], onDelete: Restrict)
+
+  @@index([userId, providerOfferId, customerIdentifierFingerprint, expiresAt])
+  @@map("bill_customer_validations")
+}
+
+model BillPurchase {
+  id                            String             @id @default(uuid()) @db.Uuid
+  userId                        String             @db.Uuid
+  financialTransactionId       String             @unique @db.Uuid
+  productId                     String             @db.Uuid
+  providerOfferId               String             @db.Uuid
+  status                        BillPurchaseStatus @default(CREATED)
+  customerIdentifierCiphertext  String             @db.Text
+  customerIdentifierFingerprint String             @db.Char(64)
+  customerIdentifierLast4       String             @db.VarChar(4)
+  contactPhoneCiphertext         String?            @db.Text
+  amountMinor                   BigInt
+  currency                      String             @db.Char(3)
+  providerRequestReference      String             @db.VarChar(160)
+  providerReference             String?            @db.VarChar(160)
+  fulfillmentCiphertext         String?            @db.Text
+  commissionMinor               BigInt?
+  attempts                      Int                @default(0)
+  reconcileAttempts             Int                @default(0)
+  nextReconcileAt               DateTime?           @db.Timestamptz(6)
+  createdAt                     DateTime           @default(now()) @db.Timestamptz(6)
+  updatedAt                     DateTime           @updatedAt @db.Timestamptz(6)
+  user                          User               @relation(fields: [userId], references: [id], onDelete: Restrict)
+  financialTransaction          FinancialTransaction @relation(fields: [financialTransactionId], references: [id], onDelete: Restrict)
+  product                       BillProduct        @relation(fields: [productId], references: [id], onDelete: Restrict)
+  providerOffer                 BillProviderOffer  @relation(fields: [providerOfferId], references: [id], onDelete: Restrict)
+
+  @@index([userId, createdAt])
+  @@index([status, updatedAt])
+  @@index([providerOfferId, status])
+  @@unique([providerOfferId, providerRequestReference])
+  @@map("bill_purchases")
+}
+
+model EventOrganizer {
+  id                    String               @id @default(uuid()) @db.Uuid
+  ownerUserId           String               @db.Uuid
+  name                  String               @db.VarChar(180)
+  slug                  String               @unique @db.VarChar(120)
+  status                EventOrganizerStatus @default(ACTIVE)
+  settlementLedgerAccountId String           @unique @db.Uuid
+  createdAt             DateTime             @default(now()) @db.Timestamptz(6)
+  updatedAt             DateTime             @updatedAt @db.Timestamptz(6)
+  owner                 User                 @relation(fields: [ownerUserId], references: [id], onDelete: Restrict)
+  settlementLedgerAccount LedgerAccount      @relation(fields: [settlementLedgerAccountId], references: [id], onDelete: Restrict)
+  events                Event[]
+
+  @@index([ownerUserId, status])
+  @@map("event_organizers")
+}
+
+model Event {
+  id             String      @id @default(uuid()) @db.Uuid
+  organizerId    String      @db.Uuid
+  slug           String      @unique @db.VarChar(160)
+  title          String      @db.VarChar(220)
+  description    String?     @db.Text
+  status         EventStatus @default(DRAFT)
+  currency       String      @db.Char(3)
+  venueName      String?     @db.VarChar(220)
+  venueAddress   String?     @db.VarChar(500)
+  startsAt       DateTime    @db.Timestamptz(6)
+  endsAt         DateTime?   @db.Timestamptz(6)
+  salesStartsAt  DateTime?   @db.Timestamptz(6)
+  salesEndsAt    DateTime?   @db.Timestamptz(6)
+  createdAt      DateTime    @default(now()) @db.Timestamptz(6)
+  updatedAt      DateTime    @updatedAt @db.Timestamptz(6)
+  organizer      EventOrganizer @relation(fields: [organizerId], references: [id], onDelete: Restrict)
+  ticketTypes    EventTicketType[]
+  orders         EventOrder[]
+
+  @@index([organizerId, status, startsAt])
+  @@map("events")
+}
+
+model EventTicketType {
+  id          String           @id @default(uuid()) @db.Uuid
+  eventId     String           @db.Uuid
+  name        String           @db.VarChar(160)
+  priceMinor  BigInt
+  currency    String           @db.Char(3)
+  capacity    Int
+  status      TicketTypeStatus @default(ACTIVE)
+  salesStartsAt DateTime?      @db.Timestamptz(6)
+  salesEndsAt DateTime?        @db.Timestamptz(6)
+  createdAt   DateTime         @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime         @updatedAt @db.Timestamptz(6)
+  event       Event            @relation(fields: [eventId], references: [id], onDelete: Restrict)
+  orderItems  EventOrderItem[]
+  tickets     EventTicket[]
+
+  @@unique([eventId, name])
+  @@index([eventId, status])
+  @@map("event_ticket_types")
+}
+
+model EventOrder {
+  id                     String           @id @default(uuid()) @db.Uuid
+  reference              String           @unique @db.VarChar(100)
+  userId                 String           @db.Uuid
+  eventId                String           @db.Uuid
+  financialTransactionId String           @unique @db.Uuid
+  status                 EventOrderStatus @default(CREATED)
+  subtotalMinor          BigInt
+  platformFeeMinor       BigInt
+  totalMinor             BigInt
+  currency               String           @db.Char(3)
+  expiresAt              DateTime          @db.Timestamptz(6)
+  paidAt                 DateTime?         @db.Timestamptz(6)
+  createdAt              DateTime          @default(now()) @db.Timestamptz(6)
+  updatedAt              DateTime          @updatedAt @db.Timestamptz(6)
+  user                   User              @relation(fields: [userId], references: [id], onDelete: Restrict)
+  event                  Event             @relation(fields: [eventId], references: [id], onDelete: Restrict)
+  financialTransaction   FinancialTransaction @relation(fields: [financialTransactionId], references: [id], onDelete: Restrict)
+  items                  EventOrderItem[]
+  tickets                EventTicket[]
+
+  @@index([userId, createdAt])
+  @@index([eventId, status, expiresAt])
+  @@map("event_orders")
+}
+
+model EventOrderItem {
+  id           String          @id @default(uuid()) @db.Uuid
+  orderId      String          @db.Uuid
+  ticketTypeId String          @db.Uuid
+  quantity     Int
+  unitPriceMinor BigInt
+  lineTotalMinor BigInt
+  order        EventOrder      @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  ticketType   EventTicketType @relation(fields: [ticketTypeId], references: [id], onDelete: Restrict)
+
+  @@unique([orderId, ticketTypeId])
+  @@index([ticketTypeId])
+  @@map("event_order_items")
+}
+
+model EventTicket {
+  id              String       @id @default(uuid()) @db.Uuid
+  publicCode      String       @unique @db.VarChar(100)
+  orderId         String       @db.Uuid
+  ticketTypeId    String       @db.Uuid
+  status          TicketStatus @default(ACTIVE)
+  credentialFingerprint String @unique @db.Char(64)
+  credentialCiphertext  String       @db.Text
+  credentialKeyVersion  Int          @default(1)
+  issuedToName    String?      @db.VarChar(180)
+  issuedToEmail   String?      @db.VarChar(320)
+  createdAt       DateTime     @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime     @updatedAt @db.Timestamptz(6)
+  order           EventOrder   @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  ticketType      EventTicketType @relation(fields: [ticketTypeId], references: [id], onDelete: Restrict)
+  checkIn         TicketCheckIn?
+
+  @@index([orderId, status])
+  @@map("event_tickets")
+}
+
+model TicketCheckIn {
+  id              String      @id @default(uuid()) @db.Uuid
+  ticketId        String      @unique @db.Uuid
+  checkedInByUserId String    @db.Uuid
+  requestId       String?     @db.VarChar(64)
+  checkedInAt     DateTime    @default(now()) @db.Timestamptz(6)
+  ticket          EventTicket @relation(fields: [ticketId], references: [id], onDelete: Restrict)
+  checkedInBy     User        @relation("TicketCheckInStaff", fields: [checkedInByUserId], references: [id], onDelete: Restrict)
+
+  @@index([checkedInByUserId, checkedInAt])
+  @@map("ticket_check_ins")
+}
+
+model Notification {
+  id             String             @id @default(uuid()) @db.Uuid
+  userId         String?            @db.Uuid
+  channel        NotificationChannel
+  templateCode   String             @db.VarChar(100)
+  destinationCiphertext String      @db.Text
+  destinationFingerprint String     @db.Char(64)
+  destinationLast4 String?          @db.VarChar(4)
+  subject        String?            @db.VarChar(200)
+  bodyCiphertext String             @db.Text
+  status         NotificationStatus @default(PENDING)
+  idempotencyKey String             @unique @db.VarChar(160)
+  createdAt      DateTime           @default(now()) @db.Timestamptz(6)
+  updatedAt      DateTime           @updatedAt @db.Timestamptz(6)
+  user           User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
+  attempts       NotificationAttempt[]
+
+  @@index([status, createdAt])
+  @@index([userId, createdAt])
+  @@map("notifications")
+}
+
+model NotificationAttempt {
+  id                String             @id @default(uuid()) @db.Uuid
+  notificationId    String             @db.Uuid
+  providerCode      String             @db.VarChar(40)
+  providerReference String?            @db.VarChar(160)
+  status            NotificationStatus
+  failureCode       String?            @db.VarChar(100)
+  createdAt         DateTime           @default(now()) @db.Timestamptz(6)
+  notification      Notification       @relation(fields: [notificationId], references: [id], onDelete: Restrict)
+
+  @@index([notificationId, createdAt])
+  @@map("notification_attempts")
 }

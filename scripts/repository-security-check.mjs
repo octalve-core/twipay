@@ -31,7 +31,7 @@ for (const line of envExample.split(/\r?\n/)) {
   if (!trimmed || trimmed.startsWith('#') || !trimmed.includes('=')) continue;
   const [name, ...rest] = trimmed.split('=');
   const value = rest.join('=');
-  const secretLike = /(SECRET|PASSWORD|TOKEN|PRIVATE|DATABASE_URL|REDIS_URL|PEPPER|ENCRYPTION_KEY|API_KEY)/.test(name);
+  const secretLike = /(SECRET|PASSWORD|TOKEN|PRIVATE|DATABASE_URL|REDIS_URL|PEPPER|ENCRYPTION_KEY|API_KEY|SIGNING.*KEY)/.test(name);
   if (name.startsWith('NEXT_PUBLIC_') && secretLike) findings.push(`.env.example: secret-like variable exposed as ${name}`);
   if (secretLike && value && !['http://localhost:5432','http://localhost:6379'].includes(value)) findings.push(`.env.example: secret-like variable ${name} must be blank`);
 }

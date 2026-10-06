@@ -44,7 +44,7 @@ export class VirtualAccountService {
       where: { userId_providerCode_currency: { userId: input.userId, providerCode: input.providerCode, currency: 'NGN' } },
     });
     if (existing?.status === 'ACTIVE') {
-      const body = this.virtualAccountBody(existing, decryptSensitiveString(existing.accountNumberCiphertext, process.env.DATA_ENCRYPTION_KEY!));
+      const body = this.virtualAccountBody(existing, decryptSensitiveString(existing.accountNumberCiphertext, process.env['DATA_ENCRYPTION_KEY']!));
       await this.idempotency.complete(recordId, 200, body);
       return { statusCode: 200, body };
     }
@@ -103,10 +103,10 @@ export class VirtualAccountService {
       }
     }
 
-    const identifier = decryptSensitiveString(verification.identifierCiphertext, process.env.DATA_ENCRYPTION_KEY!);
+    const identifier = decryptSensitiveString(verification.identifierCiphertext, process.env['DATA_ENCRYPTION_KEY']!);
     const reference = createFinancialReference('va');
     const consentRecordedAt = new Date();
-    const correlationKey = fingerprintSensitiveValue(user.email.trim().toLowerCase(), process.env.PII_FINGERPRINT_KEY!);
+    const correlationKey = fingerprintSensitiveValue(user.email.trim().toLowerCase(), process.env['PII_FINGERPRINT_KEY']!);
     const operation = await this.prisma.providerOperation.create({
       data: {
         userId: input.userId,
@@ -199,7 +199,7 @@ export class VirtualAccountService {
     });
     return rows.map((row) => this.virtualAccountBody(
       row,
-      decryptSensitiveString(row.accountNumberCiphertext, process.env.DATA_ENCRYPTION_KEY!),
+      decryptSensitiveString(row.accountNumberCiphertext, process.env['DATA_ENCRYPTION_KEY']!),
     ));
   }
 
@@ -218,7 +218,7 @@ export class VirtualAccountService {
 
     const correlationKey = fingerprintSensitiveValue(
       assignment.customerEmail.trim().toLowerCase(),
-      process.env.PII_FINGERPRINT_KEY!,
+      process.env['PII_FINGERPRINT_KEY']!,
     );
     const operation = await this.prisma.providerOperation.findFirst({
       where: { providerCode, type: 'VIRTUAL_ACCOUNT', correlationKey },
@@ -330,8 +330,8 @@ export class VirtualAccountService {
     if (!result.providerAccountId || !result.accountNumber || !result.accountName || !result.bankName) {
       throw new Error('VIRTUAL_ACCOUNT_ASSIGNMENT_INCOMPLETE');
     }
-    const fingerprint = fingerprintSensitiveValue(result.accountNumber, process.env.PII_FINGERPRINT_KEY!);
-    const ciphertext = encryptSensitiveString(result.accountNumber, process.env.DATA_ENCRYPTION_KEY!);
+    const fingerprint = fingerprintSensitiveValue(result.accountNumber, process.env['PII_FINGERPRINT_KEY']!);
+    const ciphertext = encryptSensitiveString(result.accountNumber, process.env['DATA_ENCRYPTION_KEY']!);
     await tx.virtualAccount.upsert({
       where: {
         userId_providerCode_currency: {

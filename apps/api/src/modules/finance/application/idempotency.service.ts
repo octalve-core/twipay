@@ -3,6 +3,7 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import type { JsonObject, JsonValue } from '@twipay/contracts';
 import { decryptSensitiveString, encryptSensitiveString } from '@twipay/security';
 import { validateIdempotencyKey } from '@twipay/ledger';
+import type { Prisma } from '@prisma/client';
 import { PrismaService } from '../../../platform/database/prisma.service.js';
 
 function canonical(value: unknown): JsonValue {
@@ -74,7 +75,7 @@ export class IdempotencyService {
         throw new ConflictException({ code: 'IDEMPOTENCY_REQUEST_IN_PROGRESS' });
       }
       const body = existing.responseBodyCiphertext
-        ? JSON.parse(decryptSensitiveString(existing.responseBodyCiphertext, process.env.DATA_ENCRYPTION_KEY!)) as JsonObject
+        ? JSON.parse(decryptSensitiveString(existing.responseBodyCiphertext, process.env['DATA_ENCRYPTION_KEY']!)) as JsonObject
         : {};
       return { replay: { status: existing.responseStatus ?? (existing.status === 'COMPLETED' ? 200 : 409), body } };
     }
@@ -84,13 +85,28 @@ export class IdempotencyService {
     await this.prisma.idempotencyRecord.update({ where: { id: recordId }, data: { resourceType, resourceId } });
   }
 
+  async attachResourceWithTx(tx: Prisma.TransactionClient, recordId: string, resourceType: string, resourceId: string): Promise<void> {
+    await tx.idempotencyRecord.update({ where: { id: recordId }, data: { resourceType, resourceId } });
+  }
+
+  async completeWithTx(tx: Prisma.TransactionClient, recordId: string, responseStatus: number, responseBody: JsonObject): Promise<void> {
+    await tx.idempotencyRecord.update({
+      where: { id: recordId },
+      data: {
+        status: 'COMPLETED',
+        responseStatus,
+        responseBodyCiphertext: encryptSensitiveString(JSON.stringify(responseBody), process.env['DATA_ENCRYPTION_KEY']!),
+      },
+    });
+  }
+
   async complete(recordId: string, responseStatus: number, responseBody: JsonObject): Promise<void> {
     await this.prisma.idempotencyRecord.update({
       where: { id: recordId },
       data: {
         status: 'COMPLETED',
         responseStatus,
-        responseBodyCiphertext: encryptSensitiveString(JSON.stringify(responseBody), process.env.DATA_ENCRYPTION_KEY!),
+        responseBodyCiphertext: encryptSensitiveString(JSON.stringify(responseBody), process.env['DATA_ENCRYPTION_KEY']!),
       },
     });
   }
@@ -101,7 +117,7 @@ export class IdempotencyService {
       data: {
         status: 'FAILED',
         responseStatus,
-        responseBodyCiphertext: encryptSensitiveString(JSON.stringify(responseBody), process.env.DATA_ENCRYPTION_KEY!),
+        responseBodyCiphertext: encryptSensitiveString(JSON.stringify(responseBody), process.env['DATA_ENCRYPTION_KEY']!),
       },
     });
   }

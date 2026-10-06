@@ -34,11 +34,23 @@
     "@twipay/ledger": "workspace:*",
     "@twipay/provider-paystack": "workspace:*",
     "@twipay/provider-monnify": "workspace:*",
-    "@twipay/provider-mono": "workspace:*"
+    "@twipay/provider-mono": "workspace:*",
+    "@twipay/services": "workspace:*",
+    "@twipay/events": "workspace:*",
+    "@twipay/provider-vtpass": "workspace:*",
+    "@twipay/provider-monnify-bills": "workspace:*",
+    "@twipay/provider-termii": "workspace:*",
+    "@twipay/provider-resend": "workspace:*"
   },
   "devDependencies": {
     "@nestjs/testing": "12.1.2",
     "tsx": "4.23.15",
     "vitest": "5.0.3"
+  },
+  "exports": {
+    "./worker-entry": {
+      "types": "./src/worker-entry.ts",
+      "import": "./dist/worker-entry.js"
+    }
   }
 }

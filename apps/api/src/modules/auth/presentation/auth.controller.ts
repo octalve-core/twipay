@@ -32,7 +32,7 @@ const LoginSchema = z
   .object({ email: z.email().max(320), password: z.string().min(1).max(128) })
   .strict();
 
-const isProduction = () => process.env.NODE_ENV === 'production';
+const isProduction = () => process.env['NODE_ENV'] === 'production';
 const sessionCookieName = () =>
   isProduction() ? SESSION_COOKIE_PRODUCTION : SESSION_COOKIE_LOCAL;
 const csrfCookieName = () =>

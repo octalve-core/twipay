@@ -9,8 +9,9 @@ Documentation is a release artifact, not an afterthought. Each batch updates arc
 3. `adr/001-modular-monolith.md`
 4. `architecture/financial-core.md`
 5. `security/financial-security.md`
-6. `batches/batch-02.md`
-7. `legacy/erhapay-ui-inventory.md`
+6. `architecture/services-events.md`
+7. `batches/batch-03.md`
+8. `legacy/erhapay-ui-inventory.md`
 
 Development setup/debugging: `development/local-setup.md` and `development/debugging.md`.
 
@@ -29,3 +30,13 @@ Development setup/debugging: `development/local-setup.md` and `development/debug
 - Verification evidence: root `BATCH_02_VERIFICATION.md`
 
 If code and documentation ever disagree, stop and resolve the discrepancy in the same change; do not silently choose one.
+
+## Batch 3 services/events references
+
+- Architecture: `architecture/services-events.md`
+- API behavior: `api/services-events.md`
+- Security: `security/services-events-security.md`
+- Provider notes: `integrations/vtpass.md`, `integrations/monnify-bills.md`, `integrations/termii.md`, `integrations/resend.md`
+- ADRs: `adr/010-service-provider-routing.md`, `adr/011-event-ledger-and-ticket-credentials.md`
+- Runbooks: `runbooks/bill-purchase-unknown.md`, `runbooks/bill-provider-outage.md`, `runbooks/event-ticket-check-in.md`
+- Verification evidence: root `BATCH_03_VERIFICATION.md`

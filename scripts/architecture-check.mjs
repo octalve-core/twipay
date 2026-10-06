@@ -3,7 +3,7 @@ import { join, relative } from 'node:path';
 const root = new URL('..', import.meta.url).pathname;
 const required = [
   'apps/web','apps/admin','apps/api','apps/worker',
-  'packages/contracts','packages/security','packages/database','packages/ledger','packages/providers',
+  'packages/contracts','packages/security','packages/database','packages/ledger','packages/services','packages/events','packages/providers',
   'docs/adr','docs/batches','.env.example','SECURITY.md'
 ];
 const missing = required.filter((p) => !existsSync(join(root,p)));
@@ -36,6 +36,12 @@ const runtimeWorkspacePackages = [
   'packages/providers/payments/paystack',
   'packages/providers/payments/monnify',
   'packages/providers/identity/mono',
+  'packages/services',
+  'packages/events',
+  'packages/providers/bills/vtpass',
+  'packages/providers/bills/monnify',
+  'packages/providers/messaging/termii',
+  'packages/providers/email/resend',
 ];
 for (const packageDir of runtimeWorkspacePackages) {
   const manifestPath = join(root, packageDir, 'package.json');

@@ -21,7 +21,7 @@ export class SessionAuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest<AuthenticatedFastifyRequest>();
-    const cookieName = process.env.NODE_ENV === 'production' ? SESSION_COOKIE_PRODUCTION : SESSION_COOKIE_LOCAL;
+    const cookieName = process.env['NODE_ENV'] === 'production' ? SESSION_COOKIE_PRODUCTION : SESSION_COOKIE_LOCAL;
     const token = req.cookies[cookieName];
     if (!token) throw new UnauthorizedException({ code: 'AUTHENTICATION_REQUIRED' });
     const session = await this.sessions.resolve(token);

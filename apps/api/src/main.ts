@@ -14,11 +14,11 @@ async function bootstrap(): Promise<void> {
   validateEnvironment(process.env);
   const adapter = new FastifyAdapter({
     logger: buildLoggerOptions(),
-    trustProxy: process.env.TRUST_PROXY === 'true',
+    trustProxy: process.env['TRUST_PROXY'] === 'true',
   });
   const app = await NestFactory.create<NestFastifyApplication>(AppModule, adapter, { bufferLogs: true, rawBody: true });
-  const production = process.env.NODE_ENV === 'production';
-  const allowedOrigins = [process.env.APP_URL, process.env.ADMIN_URL].filter((v): v is string => Boolean(v));
+  const production = process.env['NODE_ENV'] === 'production';
+  const allowedOrigins = [process.env['APP_URL'], process.env['ADMIN_URL']].filter((v): v is string => Boolean(v));
 
   await app.register(cookie, { hook: 'onRequest' });
   await app.register(cors, {
@@ -60,12 +60,12 @@ async function bootstrap(): Promise<void> {
     .addCookieAuth(production ? '__Host-twipay_session' : 'twipay_session')
     .build();
   const document = SwaggerModule.createDocument(app, openApi);
-  const docsEnabled = !production || process.env.OPENAPI_DOCS_ENABLED === 'true';
+  const docsEnabled = !production || process.env['OPENAPI_DOCS_ENABLED'] === 'true';
   if (docsEnabled) {
     SwaggerModule.setup('docs', app, document, { swaggerOptions: { persistAuthorization: false } });
   }
 
-  const port = Number(process.env.API_PORT ?? 4000);
+  const port = Number(process.env['API_PORT'] ?? 4000);
   await app.listen(port, '0.0.0.0');
 }
 

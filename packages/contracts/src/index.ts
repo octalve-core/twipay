@@ -196,12 +196,88 @@ export interface PaymentProviderPort {
   verifyWebhook(input: RawWebhookRequest): Promise<VerifiedWebhook>;
 }
 
+export type BillCategory = 'AIRTIME' | 'DATA' | 'ELECTRICITY' | 'CABLE';
+export type BillCustomerIdentifierType = 'PHONE' | 'METER' | 'SMARTCARD';
+
+export interface BillProductDescriptor {
+  providerCode: string;
+  providerProductCode: string;
+  providerBillerCode: string;
+  category: BillCategory;
+  name: string;
+  customerIdentifierType: BillCustomerIdentifierType;
+  currency: CurrencyCode;
+  fixedAmountMinor?: bigint;
+  minAmountMinor?: bigint;
+  maxAmountMinor?: bigint;
+  requiresCustomerValidation: boolean;
+  metadata?: JsonObject;
+}
+
+export interface ListBillProductsInput {
+  category: BillCategory;
+  providerBillerCode?: string;
+}
+
+export interface BillCustomerValidationInput {
+  category: BillCategory;
+  providerProductCode: string;
+  providerBillerCode: string;
+  customerIdentifier: string;
+}
+
+export interface BillCustomerValidationResult {
+  providerCode: string;
+  valid: boolean;
+  customerName?: string;
+  validationReference?: string;
+  requiresValidationReference: boolean;
+  rawStatus?: string;
+  metadata?: JsonObject;
+}
+
+export interface BillPurchaseInput {
+  reference: string;
+  /** Provider-side request/query reference allocated before any network submission. */
+  providerRequestReference: string;
+  category: BillCategory;
+  providerProductCode: string;
+  providerBillerCode: string;
+  customerIdentifier: string;
+  contactPhoneE164?: string;
+  amountMinor: bigint;
+  currency: CurrencyCode;
+  validationReference?: string;
+}
+
+export interface BillPurchaseResult {
+  providerCode: string;
+  merchantReference: string;
+  providerReference?: string;
+  providerRequestReference?: string;
+  status: NormalizedProviderStatus;
+  amountMinor?: bigint;
+  currency?: CurrencyCode;
+  fulfillmentValue?: string;
+  commissionMinor?: bigint;
+  rawStatus?: string;
+  metadata?: JsonObject;
+}
+
+export interface BillQueryInput {
+  merchantReference: string;
+  providerReference?: string;
+  providerRequestReference?: string;
+}
+
 export interface BillProviderPort {
   readonly code: string;
-  getProducts(input: JsonObject): Promise<JsonObject>;
-  validateCustomer(input: JsonObject): Promise<JsonObject>;
-  purchase(input: JsonObject): Promise<JsonObject>;
-  queryTransaction(providerReference: string): Promise<JsonObject>;
+  /** Must be deterministic/stable for the purchase attempt and generated before submission. */
+  createPurchaseRequestReference(merchantReference: string): string;
+  listProducts(input: ListBillProductsInput): Promise<readonly BillProductDescriptor[]>;
+  validateCustomer(input: BillCustomerValidationInput): Promise<BillCustomerValidationResult>;
+  purchase(input: BillPurchaseInput): Promise<BillPurchaseResult>;
+  queryTransaction(input: BillQueryInput): Promise<BillPurchaseResult>;
 }
 
 export type IdentityCheckType = 'BVN' | 'NIN' | 'BANK_ACCOUNT' | 'CAC';
@@ -238,7 +314,28 @@ export interface IdentityVerificationProviderPort {
   continueIdentityCheck(input: ContinueIdentityCheckInput): Promise<IdentityCheckResult>;
 }
 
+export type NotificationChannel = 'EMAIL' | 'SMS';
+
+export interface SendNotificationInput {
+  idempotencyKey: string;
+  channel: NotificationChannel;
+  destination: string;
+  subject?: string;
+  text: string;
+  html?: string;
+  sender?: string;
+  metadata?: JsonObject;
+}
+
+export interface NotificationDeliveryResult {
+  providerCode: string;
+  providerReference?: string;
+  status: 'ACCEPTED' | 'DELIVERED' | 'FAILED' | 'UNKNOWN';
+  rawStatus?: string;
+}
+
 export interface NotificationProviderPort {
   readonly code: string;
-  send(input: JsonObject): Promise<JsonObject>;
+  readonly channels: readonly NotificationChannel[];
+  send(input: SendNotificationInput): Promise<NotificationDeliveryResult>;
 }

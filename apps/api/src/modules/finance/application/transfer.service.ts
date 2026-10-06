@@ -65,8 +65,8 @@ export class TransferService {
     }
 
     const wallet = await this.wallets.ensureUserWallet(input.userId, input.currency);
-    const accountNumberFingerprint = fingerprintSensitiveValue(input.accountNumber, process.env.PII_FINGERPRINT_KEY!);
-    const accountNumberCiphertext = encryptSensitiveString(input.accountNumber, process.env.DATA_ENCRYPTION_KEY!);
+    const accountNumberFingerprint = fingerprintSensitiveValue(input.accountNumber, process.env['PII_FINGERPRINT_KEY']!);
+    const accountNumberCiphertext = encryptSensitiveString(input.accountNumber, process.env['DATA_ENCRYPTION_KEY']!);
     const accountNumberLast4 = input.accountNumber.slice(-4);
     const reference = createFinancialReference('xfer');
     let prepared: { financial: { id: string }; hold: { id: string }; operation: { id: string } };
