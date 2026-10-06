@@ -1,0 +1,27 @@
+services:
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: twipay
+      POSTGRES_PASSWORD: local_development_only
+      POSTGRES_DB: twipay
+    ports: ["5432:5432"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U twipay -d twipay"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    volumes: ["twipay_postgres:/var/lib/postgresql/data"]
+  redis:
+    image: redis:8-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    ports: ["6379:6379"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    volumes: ["twipay_redis:/data"]
+volumes:
+  twipay_postgres:
+  twipay_redis:

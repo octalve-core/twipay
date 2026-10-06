@@ -1,0 +1,169 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  CLOSED
+}
+
+enum IdentityProvider {
+  GOOGLE
+}
+
+enum SessionStatus {
+  ACTIVE
+  REVOKED
+  EXPIRED
+}
+
+enum SecurityEventType {
+  REGISTERED
+  LOGIN_SUCCEEDED
+  LOGIN_FAILED
+  LOGOUT
+  SESSION_REVOKED
+  PASSWORD_CHANGED
+  PASSWORD_RESET_REQUESTED
+  PASSWORD_RESET_COMPLETED
+  GOOGLE_IDENTITY_LINKED
+  MFA_ENABLED
+  MFA_DISABLED
+  ACCOUNT_SUSPENDED
+}
+
+model User {
+  id              String        @id @default(uuid()) @db.Uuid
+  email           String        @unique @db.VarChar(320)
+  emailVerifiedAt DateTime?     @db.Timestamptz(6)
+  givenName       String?       @db.VarChar(100)
+  familyName      String?       @db.VarChar(100)
+  phoneE164       String?       @unique @db.VarChar(20)
+  phoneVerifiedAt DateTime?     @db.Timestamptz(6)
+  status          UserStatus    @default(PENDING)
+  lastLoginAt     DateTime?     @db.Timestamptz(6)
+  createdAt       DateTime      @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime      @updatedAt @db.Timestamptz(6)
+
+  passwordCredential PasswordCredential?
+  oauthIdentities    OAuthIdentity[]
+  sessions           Session[]
+  securityEvents     SecurityEvent[]
+  roleAssignments    UserRole[]
+
+  @@index([status])
+  @@map("users")
+}
+
+model PasswordCredential {
+  userId       String   @id @db.Uuid
+  passwordHash String   @db.Text
+  changedAt    DateTime @default(now()) @db.Timestamptz(6)
+  createdAt    DateTime @default(now()) @db.Timestamptz(6)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("password_credentials")
+}
+
+model OAuthIdentity {
+  id              String           @id @default(uuid()) @db.Uuid
+  userId          String           @db.Uuid
+  provider        IdentityProvider
+  providerSubject String           @db.VarChar(255)
+  providerEmail   String?          @db.VarChar(320)
+  createdAt       DateTime         @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime         @updatedAt @db.Timestamptz(6)
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerSubject])
+  @@index([userId])
+  @@map("oauth_identities")
+}
+
+model Session {
+  id              String        @id @default(uuid()) @db.Uuid
+  userId          String        @db.Uuid
+  tokenHash       String        @unique @db.Char(64)
+  csrfTokenHash   String        @db.Char(64)
+  status          SessionStatus @default(ACTIVE)
+  userAgent       String?       @db.VarChar(512)
+  ipHash          String?       @db.Char(64)
+  mfaSatisfiedAt  DateTime?     @db.Timestamptz(6)
+  lastSeenAt      DateTime      @default(now()) @db.Timestamptz(6)
+  expiresAt       DateTime      @db.Timestamptz(6)
+  revokedAt       DateTime?     @db.Timestamptz(6)
+  revokeReason    String?       @db.VarChar(120)
+  createdAt       DateTime      @default(now()) @db.Timestamptz(6)
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+model SecurityEvent {
+  id          String            @id @default(uuid()) @db.Uuid
+  userId      String?           @db.Uuid
+  type        SecurityEventType
+  ipHash      String?           @db.Char(64)
+  userAgent   String?           @db.VarChar(512)
+  requestId   String?           @db.VarChar(64)
+  metadata    Json?
+  occurredAt  DateTime          @default(now()) @db.Timestamptz(6)
+  user        User?             @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId, occurredAt])
+  @@index([type, occurredAt])
+  @@map("security_events")
+}
+
+model Role {
+  id          String           @id @default(uuid()) @db.Uuid
+  code        String           @unique @db.VarChar(80)
+  name        String           @db.VarChar(120)
+  description String?          @db.VarChar(500)
+  system      Boolean          @default(false)
+  createdAt   DateTime         @default(now()) @db.Timestamptz(6)
+  users       UserRole[]
+  permissions RolePermission[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id          String           @id @default(uuid()) @db.Uuid
+  code        String           @unique @db.VarChar(120)
+  description String?          @db.VarChar(500)
+  roles       RolePermission[]
+
+  @@map("permissions")
+}
+
+model UserRole {
+  userId     String   @db.Uuid
+  roleId     String   @db.Uuid
+  assignedAt DateTime @default(now()) @db.Timestamptz(6)
+  assignedBy String?  @db.Uuid
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role       Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+  @@map("user_roles")
+}
+
+model RolePermission {
+  roleId       String     @db.Uuid
+  permissionId String     @db.Uuid
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@map("role_permissions")
+}

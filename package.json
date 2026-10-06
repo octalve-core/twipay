@@ -1,0 +1,32 @@
+{
+  "name": "twipay",
+  "version": "0.1.0",
+  "private": true,
+  "description": "TwiPay financial, utility and event orchestration platform by Octalve.",
+  "license": "UNLICENSED",
+  "packageManager": "pnpm@12.9.1",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "test": "turbo test",
+    "test:repo": "node scripts/repository-security-check.mjs && node scripts/architecture-check.mjs",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "db:generate": "pnpm --filter @twipay/database prisma:generate",
+    "db:migrate": "pnpm --filter @twipay/database prisma:migrate",
+    "db:studio": "pnpm --filter @twipay/database prisma:studio"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.1",
+    "eslint": "10.10.0",
+    "prettier": "3.9.9",
+    "turbo": "2.11.2",
+    "typescript": "~5.8.3",
+    "typescript-eslint": "8.71.0"
+  }
+}
