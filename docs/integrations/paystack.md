@@ -1,6 +1,6 @@
 # Paystack payment adapter
 
-**Batch activated:** 2  
+**Batch activated:** 2
 **Boundary:** `packages/providers/payments/paystack`
 
 ## Capabilities

@@ -1,6 +1,6 @@
 # Mono identity verification adapter
 
-**Batch activated:** 2  
+**Batch activated:** 2
 **Boundary:** `packages/providers/identity/mono`
 
 ## Capabilities
