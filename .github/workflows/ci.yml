@@ -8,14 +8,54 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: twipay
+          POSTGRES_PASSWORD: twipay_ci_password
+          POSTGRES_DB: twipay_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U twipay -d twipay_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:8-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      NODE_ENV: test
+      APP_URL: http://localhost:3000
+      ADMIN_URL: http://localhost:3001
+      API_URL: http://localhost:4000
+      DATABASE_URL: postgresql://twipay:twipay_ci_password@localhost:5432/twipay_test?schema=public
+      REDIS_URL: redis://localhost:6379
+      SESSION_HASH_PEPPER: ci-only-session-pepper-change-me-000000000000
+      DATA_ENCRYPTION_KEY: BwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwc=
+      PII_FINGERPRINT_KEY: ci-only-fingerprint-key-change-me-000000000
+      LOG_LEVEL: silent
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: pnpm
       - run: corepack enable
+      # A committed pnpm-lock.yaml is a release prerequisite. The execution
+      # environment used for Batch 1/2 could not access the npm registry, so
+      # the lock must be generated/committed from a normal networked checkout.
+      - run: test -f pnpm-lock.yaml || (echo 'pnpm-lock.yaml is required; run pnpm install and commit the generated lockfile' && exit 1)
       - run: pnpm install --frozen-lockfile
+      - run: pnpm db:generate
+      - run: pnpm --filter @twipay/database prisma:validate
+      - run: pnpm --filter @twipay/database prisma:deploy
       - run: pnpm test:repo
       - run: pnpm format:check
       - run: pnpm lint

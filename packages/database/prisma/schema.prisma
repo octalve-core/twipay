@@ -39,6 +39,150 @@ enum SecurityEventType {
   ACCOUNT_SUSPENDED
 }
 
+enum LedgerAccountCategory {
+  ASSET
+  LIABILITY
+  EQUITY
+  REVENUE
+  EXPENSE
+}
+
+enum LedgerNormalBalance {
+  DEBIT
+  CREDIT
+}
+
+enum LedgerAccountStatus {
+  ACTIVE
+  FROZEN
+  CLOSED
+}
+
+enum JournalEntrySide {
+  DEBIT
+  CREDIT
+}
+
+enum WalletStatus {
+  ACTIVE
+  RESTRICTED
+  FROZEN
+  CLOSED
+}
+
+enum WalletHoldStatus {
+  ACTIVE
+  CAPTURED
+  RELEASED
+  EXPIRED
+}
+
+enum FinancialTransactionType {
+  FUNDING
+  TRANSFER
+  BILL_PAYMENT
+  EVENT_PURCHASE
+  REFUND
+  REVERSAL
+  FEE
+  ADJUSTMENT
+}
+
+enum FinancialTransactionStatus {
+  CREATED
+  AUTHORIZED
+  FUNDS_RESERVED
+  PROVIDER_SUBMITTED
+  PROCESSING
+  UNKNOWN
+  SUCCEEDED
+  FAILED
+  REVERSED
+  CANCELLED
+}
+
+enum ProviderOperationType {
+  COLLECTION
+  VIRTUAL_ACCOUNT
+  PAYOUT
+  IDENTITY_CHECK
+}
+
+enum ProviderOperationStatus {
+  PENDING
+  PROCESSING
+  REQUIRES_ACTION
+  SUCCEEDED
+  FAILED
+  REVERSED
+  UNKNOWN
+}
+
+enum IdempotencyStatus {
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum VirtualAccountStatus {
+  PENDING
+  ACTIVE
+  INACTIVE
+  FAILED
+}
+
+enum BankTransferStatus {
+  CREATED
+  VALIDATED
+  PROCESSING
+  UNKNOWN
+  SUCCEEDED
+  FAILED
+  REVERSED
+}
+
+enum WebhookEventStatus {
+  RECEIVED
+  VERIFIED
+  PROCESSING
+  PROCESSED
+  FAILED
+  IGNORED
+}
+
+enum IdentityCheckType {
+  BVN
+  NIN
+  BANK_ACCOUNT
+  CAC
+}
+
+enum IdentityCheckStatus {
+  CREATED
+  AWAITING_CONSENT
+  PENDING
+  VERIFIED
+  FAILED
+  EXPIRED
+}
+
+enum ReconciliationCaseType {
+  PROVIDER_STATUS_MISMATCH
+  AMOUNT_MISMATCH
+  MISSING_INTERNAL
+  MISSING_PROVIDER
+  DUPLICATE_EVENT
+  LEDGER_MISMATCH
+}
+
+enum ReconciliationCaseStatus {
+  OPEN
+  AUTO_REPAIRED
+  NEEDS_REVIEW
+  RESOLVED
+  IGNORED
+}
+
 model User {
   id              String        @id @default(uuid()) @db.Uuid
   email           String        @unique @db.VarChar(320)
@@ -52,11 +196,19 @@ model User {
   createdAt       DateTime      @default(now()) @db.Timestamptz(6)
   updatedAt       DateTime      @updatedAt @db.Timestamptz(6)
 
-  passwordCredential PasswordCredential?
-  oauthIdentities    OAuthIdentity[]
-  sessions           Session[]
-  securityEvents     SecurityEvent[]
-  roleAssignments    UserRole[]
+  passwordCredential    PasswordCredential?
+  oauthIdentities       OAuthIdentity[]
+  sessions              Session[]
+  securityEvents        SecurityEvent[]
+  roleAssignments       UserRole[]
+  wallets               Wallet[]
+  ledgerAccounts        LedgerAccount[]
+  financialTransactions FinancialTransaction[]
+  idempotencyRecords    IdempotencyRecord[]
+  virtualAccounts       VirtualAccount[]
+  beneficiaries         Beneficiary[]
+  identityVerifications IdentityVerification[]
+  providerOperations     ProviderOperation[]
 
   @@index([status])
   @@map("users")
@@ -166,4 +318,325 @@ model RolePermission {
 
   @@id([roleId, permissionId])
   @@map("role_permissions")
+}
+
+model LedgerAccount {
+  id            String                @id @default(uuid()) @db.Uuid
+  code          String                @unique @db.VarChar(160)
+  name          String                @db.VarChar(160)
+  category      LedgerAccountCategory
+  normalBalance LedgerNormalBalance
+  currency      String                @db.Char(3)
+  status        LedgerAccountStatus   @default(ACTIVE)
+  system        Boolean               @default(false)
+  ownerUserId   String?               @db.Uuid
+  metadata      Json?
+  createdAt     DateTime              @default(now()) @db.Timestamptz(6)
+  ownerUser     User?                 @relation(fields: [ownerUserId], references: [id], onDelete: Restrict)
+  wallet        Wallet?
+  entries       JournalEntry[]
+
+  @@index([ownerUserId, currency])
+  @@index([category, currency, status])
+  @@map("ledger_accounts")
+}
+
+model Wallet {
+  id              String       @id @default(uuid()) @db.Uuid
+  userId          String       @db.Uuid
+  currency        String       @db.Char(3)
+  status          WalletStatus @default(ACTIVE)
+  ledgerAccountId String       @unique @db.Uuid
+  version         Int          @default(0)
+  createdAt       DateTime     @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime     @updatedAt @db.Timestamptz(6)
+  user            User         @relation(fields: [userId], references: [id], onDelete: Restrict)
+  ledgerAccount   LedgerAccount @relation(fields: [ledgerAccountId], references: [id], onDelete: Restrict)
+  holds           WalletHold[]
+
+  @@unique([userId, currency])
+  @@index([status])
+  @@map("wallets")
+}
+
+model FinancialTransaction {
+  id             String                     @id @default(uuid()) @db.Uuid
+  reference      String                     @unique @db.VarChar(80)
+  userId         String?                    @db.Uuid
+  type           FinancialTransactionType
+  status         FinancialTransactionStatus @default(CREATED)
+  currency       String                     @db.Char(3)
+  amountMinor    BigInt
+  feeMinor       BigInt                     @default(0)
+  description    String?                    @db.VarChar(255)
+  metadata       Json?
+  createdAt      DateTime                   @default(now()) @db.Timestamptz(6)
+  updatedAt      DateTime                   @updatedAt @db.Timestamptz(6)
+  user           User?                      @relation(fields: [userId], references: [id], onDelete: SetNull)
+  stateChanges   FinancialTransactionStateChange[]
+  journals       JournalTransaction[]
+  holds          WalletHold[]
+  providerOps    ProviderOperation[]
+  bankTransfer   BankTransfer?
+  reconciliationCases ReconciliationCase[]
+
+  @@index([userId, createdAt])
+  @@index([status, createdAt])
+  @@map("financial_transactions")
+}
+
+model FinancialTransactionStateChange {
+  id                     String                     @id @default(uuid()) @db.Uuid
+  financialTransactionId String                     @db.Uuid
+  fromStatus             FinancialTransactionStatus?
+  toStatus               FinancialTransactionStatus
+  reason                 String?                    @db.VarChar(255)
+  actorType              String                     @default("SYSTEM") @db.VarChar(40)
+  actorId                 String?                    @db.VarChar(100)
+  createdAt               DateTime                  @default(now()) @db.Timestamptz(6)
+  financialTransaction   FinancialTransaction       @relation(fields: [financialTransactionId], references: [id], onDelete: Restrict)
+
+  @@index([financialTransactionId, createdAt])
+  @@map("financial_transaction_state_changes")
+}
+
+model JournalTransaction {
+  id                     String                @id @default(uuid()) @db.Uuid
+  reference              String                @unique @db.VarChar(100)
+  financialTransactionId String?               @db.Uuid
+  reversalOfId           String?               @unique @db.Uuid
+  currency               String                @db.Char(3)
+  description            String?               @db.VarChar(255)
+  metadata               Json?
+  postedAt               DateTime?             @db.Timestamptz(6)
+  financialTransaction   FinancialTransaction? @relation(fields: [financialTransactionId], references: [id], onDelete: Restrict)
+  reversalOf             JournalTransaction?   @relation("JournalReversals", fields: [reversalOfId], references: [id], onDelete: Restrict)
+  reversal               JournalTransaction?   @relation("JournalReversals")
+  entries                JournalEntry[]
+
+  @@index([financialTransactionId])
+  @@map("journal_transactions")
+}
+
+model JournalEntry {
+  id                   String             @id @default(uuid()) @db.Uuid
+  journalTransactionId String             @db.Uuid
+  ledgerAccountId      String             @db.Uuid
+  sequence             Int
+  side                 JournalEntrySide
+  amountMinor          BigInt
+  memo                 String?            @db.VarChar(255)
+  createdAt            DateTime           @default(now()) @db.Timestamptz(6)
+  journalTransaction   JournalTransaction @relation(fields: [journalTransactionId], references: [id], onDelete: Restrict)
+  ledgerAccount        LedgerAccount      @relation(fields: [ledgerAccountId], references: [id], onDelete: Restrict)
+
+  @@unique([journalTransactionId, sequence])
+  @@index([ledgerAccountId, createdAt])
+  @@map("journal_entries")
+}
+
+model WalletHold {
+  id                     String           @id @default(uuid()) @db.Uuid
+  walletId               String           @db.Uuid
+  financialTransactionId String           @db.Uuid
+  amountMinor            BigInt
+  status                 WalletHoldStatus @default(ACTIVE)
+  expiresAt              DateTime?        @db.Timestamptz(6)
+  capturedAt             DateTime?        @db.Timestamptz(6)
+  releasedAt             DateTime?        @db.Timestamptz(6)
+  createdAt              DateTime         @default(now()) @db.Timestamptz(6)
+  updatedAt              DateTime         @updatedAt @db.Timestamptz(6)
+  wallet                 Wallet           @relation(fields: [walletId], references: [id], onDelete: Restrict)
+  financialTransaction   FinancialTransaction @relation(fields: [financialTransactionId], references: [id], onDelete: Restrict)
+
+  @@unique([financialTransactionId, walletId])
+  @@index([walletId, status])
+  @@map("wallet_holds")
+}
+
+model IdempotencyRecord {
+  id             String            @id @default(uuid()) @db.Uuid
+  userId         String            @db.Uuid
+  scope          String            @db.VarChar(120)
+  key            String            @db.VarChar(128)
+  requestHash    String            @db.Char(64)
+  status         IdempotencyStatus @default(PROCESSING)
+  resourceType   String?           @db.VarChar(80)
+  resourceId     String?           @db.VarChar(100)
+  responseStatus Int?
+  responseBodyCiphertext String?          @db.Text
+  expiresAt      DateTime          @db.Timestamptz(6)
+  createdAt      DateTime          @default(now()) @db.Timestamptz(6)
+  updatedAt      DateTime          @updatedAt @db.Timestamptz(6)
+  user           User              @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@unique([userId, scope, key])
+  @@index([expiresAt])
+  @@map("idempotency_records")
+}
+
+model ProviderOperation {
+  id                     String                  @id @default(uuid()) @db.Uuid
+  financialTransactionId String?                 @db.Uuid
+  userId                 String?                 @db.Uuid
+  type                   ProviderOperationType
+  providerCode           String                  @db.VarChar(40)
+  merchantReference      String                  @db.VarChar(100)
+  providerReference      String?                 @db.VarChar(160)
+  status                 ProviderOperationStatus @default(PENDING)
+  rawStatus              String?                 @db.VarChar(120)
+  requestHash            String?                 @db.Char(64)
+  correlationKey         String?                 @db.Char(64)
+  createdAt              DateTime                @default(now()) @db.Timestamptz(6)
+  updatedAt              DateTime                @updatedAt @db.Timestamptz(6)
+  financialTransaction   FinancialTransaction?   @relation(fields: [financialTransactionId], references: [id], onDelete: Restrict)
+  user                   User?                    @relation(fields: [userId], references: [id], onDelete: Restrict)
+  reconciliationCases    ReconciliationCase[]
+
+  @@unique([providerCode, merchantReference])
+  @@unique([providerCode, type, providerReference])
+  @@index([userId, type, status])
+  @@index([providerCode, providerReference])
+  @@index([status, createdAt])
+  @@map("provider_operations")
+}
+
+model VirtualAccount {
+  id                String               @id @default(uuid()) @db.Uuid
+  userId            String               @db.Uuid
+  providerCode      String               @db.VarChar(40)
+  providerAccountId String               @db.VarChar(160)
+  accountReference  String               @db.VarChar(100)
+  accountNumberCiphertext String          @db.Text
+  accountNumberFingerprint String         @db.Char(64)
+  accountNumberLast4 String                @db.VarChar(4)
+  keyVersion        Int                  @default(1)
+  accountName       String               @db.VarChar(180)
+  bankCode          String?              @db.VarChar(40)
+  bankName          String               @db.VarChar(120)
+  currency          String               @db.Char(3)
+  status            VirtualAccountStatus @default(PENDING)
+  consentRecordedAt DateTime             @db.Timestamptz(6)
+  createdAt         DateTime             @default(now()) @db.Timestamptz(6)
+  updatedAt         DateTime             @updatedAt @db.Timestamptz(6)
+  user              User                 @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@unique([providerCode, providerAccountId])
+  @@unique([providerCode, accountReference])
+  @@unique([providerCode, accountNumberFingerprint])
+  @@unique([userId, providerCode, currency])
+  @@index([userId, status])
+  @@map("virtual_accounts")
+}
+
+model Beneficiary {
+  id            String   @id @default(uuid()) @db.Uuid
+  userId        String   @db.Uuid
+  currency      String   @db.Char(3)
+  bankCode      String   @db.VarChar(40)
+  accountNumberCiphertext String @db.Text
+  accountNumberFingerprint String @db.Char(64)
+  accountNumberLast4 String @db.VarChar(4)
+  keyVersion    Int      @default(1)
+  accountName   String   @db.VarChar(180)
+  createdAt     DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt     DateTime @updatedAt @db.Timestamptz(6)
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  providerRefs  BeneficiaryProviderReference[]
+  transfers     BankTransfer[]
+
+  @@unique([userId, bankCode, accountNumberFingerprint, currency])
+  @@map("beneficiaries")
+}
+
+model BeneficiaryProviderReference {
+  id              String      @id @default(uuid()) @db.Uuid
+  beneficiaryId   String      @db.Uuid
+  providerCode    String      @db.VarChar(40)
+  providerRef     String      @db.VarChar(160)
+  createdAt       DateTime    @default(now()) @db.Timestamptz(6)
+  beneficiary     Beneficiary @relation(fields: [beneficiaryId], references: [id], onDelete: Cascade)
+
+  @@unique([beneficiaryId, providerCode])
+  @@unique([providerCode, providerRef])
+  @@map("beneficiary_provider_references")
+}
+
+model BankTransfer {
+  id                     String             @id @default(uuid()) @db.Uuid
+  financialTransactionId String             @unique @db.Uuid
+  beneficiaryId          String             @db.Uuid
+  status                 BankTransferStatus @default(CREATED)
+  narration              String             @db.VarChar(160)
+  createdAt              DateTime           @default(now()) @db.Timestamptz(6)
+  updatedAt              DateTime           @updatedAt @db.Timestamptz(6)
+  financialTransaction   FinancialTransaction @relation(fields: [financialTransactionId], references: [id], onDelete: Restrict)
+  beneficiary            Beneficiary        @relation(fields: [beneficiaryId], references: [id], onDelete: Restrict)
+
+  @@index([beneficiaryId, createdAt])
+  @@map("bank_transfers")
+}
+
+model WebhookEvent {
+  id                String             @id @default(uuid()) @db.Uuid
+  providerCode      String             @db.VarChar(40)
+  deduplicationKey  String             @db.Char(64)
+  externalEventId   String?            @db.VarChar(160)
+  eventType         String             @db.VarChar(120)
+  merchantReference String?            @db.VarChar(100)
+  providerReference String?            @db.VarChar(160)
+  payloadHash       String             @db.Char(64)
+  normalizedPayload Json?
+  status            WebhookEventStatus @default(RECEIVED)
+  failureCode       String?            @db.VarChar(100)
+  receivedAt        DateTime           @default(now()) @db.Timestamptz(6)
+  processedAt       DateTime?          @db.Timestamptz(6)
+
+  @@unique([providerCode, deduplicationKey])
+  @@index([providerCode, externalEventId])
+  @@index([status, receivedAt])
+  @@map("webhook_events")
+}
+
+model IdentityVerification {
+  id                    String              @id @default(uuid()) @db.Uuid
+  userId                String              @db.Uuid
+  type                  IdentityCheckType
+  status                IdentityCheckStatus @default(CREATED)
+  providerCode          String              @db.VarChar(40)
+  merchantReference     String              @unique @db.VarChar(100)
+  providerReference     String?             @db.VarChar(160)
+  identifierFingerprint String              @db.Char(64)
+  identifierCiphertext  String              @db.Text
+  keyVersion            Int                 @default(1)
+  identifierLast4       String?             @db.VarChar(4)
+  consentRecordedAt     DateTime            @db.Timestamptz(6)
+  result                Json?
+  expiresAt             DateTime?           @db.Timestamptz(6)
+  createdAt             DateTime            @default(now()) @db.Timestamptz(6)
+  updatedAt             DateTime            @updatedAt @db.Timestamptz(6)
+  user                  User                @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([userId, type, status])
+  @@index([providerCode, providerReference])
+  @@map("identity_verifications")
+}
+
+model ReconciliationCase {
+  id                     String                   @id @default(uuid()) @db.Uuid
+  type                   ReconciliationCaseType
+  status                 ReconciliationCaseStatus @default(OPEN)
+  financialTransactionId String?                  @db.Uuid
+  providerOperationId    String?                  @db.Uuid
+  summary                String                   @db.VarChar(255)
+  evidence               Json?
+  resolution             Json?
+  createdAt              DateTime                 @default(now()) @db.Timestamptz(6)
+  resolvedAt             DateTime?                @db.Timestamptz(6)
+  financialTransaction   FinancialTransaction?    @relation(fields: [financialTransactionId], references: [id], onDelete: Restrict)
+  providerOperation      ProviderOperation?       @relation(fields: [providerOperationId], references: [id], onDelete: Restrict)
+
+  @@index([status, createdAt])
+  @@index([financialTransactionId])
+  @@map("reconciliation_cases")
 }

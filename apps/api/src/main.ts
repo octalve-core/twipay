@@ -16,7 +16,7 @@ async function bootstrap(): Promise<void> {
     logger: buildLoggerOptions(),
     trustProxy: process.env.TRUST_PROXY === 'true',
   });
-  const app = await NestFactory.create<NestFastifyApplication>(AppModule, adapter, { bufferLogs: true });
+  const app = await NestFactory.create<NestFastifyApplication>(AppModule, adapter, { bufferLogs: true, rawBody: true });
   const production = process.env.NODE_ENV === 'production';
   const allowedOrigins = [process.env.APP_URL, process.env.ADMIN_URL].filter((v): v is string => Boolean(v));
 
@@ -44,6 +44,13 @@ async function bootstrap(): Promise<void> {
     referrerPolicy: { policy: 'no-referrer' },
   });
 
+  // Financial, identity and session responses can contain user-specific state.
+  // Prevent intermediary/browser caches from retaining API responses by default.
+  app.getHttpAdapter().getInstance().addHook('onSend', async (_request, reply, payload) => {
+    reply.header('Cache-Control', 'no-store');
+    return payload;
+  });
+
   app.setGlobalPrefix('v1');
 
   const openApi = new DocumentBuilder()
@@ -53,7 +60,10 @@ async function bootstrap(): Promise<void> {
     .addCookieAuth(production ? '__Host-twipay_session' : 'twipay_session')
     .build();
   const document = SwaggerModule.createDocument(app, openApi);
-  SwaggerModule.setup('docs', app, document, { swaggerOptions: { persistAuthorization: false } });
+  const docsEnabled = !production || process.env.OPENAPI_DOCS_ENABLED === 'true';
+  if (docsEnabled) {
+    SwaggerModule.setup('docs', app, document, { swaggerOptions: { persistAuthorization: false } });
+  }
 
   const port = Number(process.env.API_PORT ?? 4000);
   await app.listen(port, '0.0.0.0');

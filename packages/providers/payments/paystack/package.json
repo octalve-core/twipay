@@ -1,0 +1,24 @@
+{
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "echo provider-lint-covered-by-root",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@twipay/contracts": "workspace:*"
+  },
+  "devDependencies": {
+    "vitest": "5.0.3"
+  },
+  "name": "@twipay/provider-paystack",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./dist/index.js"
+    }
+  }
+}

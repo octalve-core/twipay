@@ -5,8 +5,8 @@ import { AuthService } from './application/auth.service.js';
 import { PasswordHasher } from './infrastructure/password-hasher.js';
 import { SessionService } from './application/session.service.js';
 import { GoogleOidcService } from './infrastructure/google-oidc.service.js';
-import { PrismaService } from '../../platform/database/prisma.service.js';
 import { RequestSecurityGuard } from './presentation/request-security.guard.js';
+import { SessionAuthGuard } from './presentation/session-auth.guard.js';
 
 @Module({
   controllers: [AuthController],
@@ -15,9 +15,10 @@ import { RequestSecurityGuard } from './presentation/request-security.guard.js';
     PasswordHasher,
     SessionService,
     GoogleOidcService,
-    PrismaService,
+    SessionAuthGuard,
     RequestSecurityGuard,
     { provide: APP_GUARD, useExisting: RequestSecurityGuard },
   ],
+  exports: [SessionService, SessionAuthGuard],
 })
 export class AuthModule {}

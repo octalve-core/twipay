@@ -1,3 +1,5 @@
-# paystack
+# @twipay/provider-paystack
 
-Adapter boundary reserved for `paystack`. Provider-specific SDKs, payloads and credentials must remain inside this adapter package and must not leak into TwiPay domain/application modules. Activation occurs in the batch that owns this capability.
+Active Batch 2 adapter implementing the provider-neutral `PaymentProviderPort` for Paystack. Provider payloads, authentication and webhook-signature rules remain inside this package.
+
+See `docs/integrations/paystack.md`. Do not import this package outside `apps/api/src/modules/providers/`.

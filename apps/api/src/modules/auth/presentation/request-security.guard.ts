@@ -16,7 +16,9 @@ import {
 } from '@twipay/security';
 import { SessionService } from '../application/session.service.js';
 
-const unauthenticatedMutations = new Set(['/v1/auth/register', '/v1/auth/login']);
+const unauthenticatedBrowserMutations = new Set(['/v1/auth/register', '/v1/auth/login']);
+// These routes authenticate the calling provider cryptographically and therefore do not use browser Origin/CSRF controls.
+const signedServerMutations = new Set(['/v1/webhooks/paystack', '/v1/webhooks/monnify']);
 
 @Injectable()
 export class RequestSecurityGuard implements CanActivate {
@@ -25,6 +27,9 @@ export class RequestSecurityGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest<FastifyRequest>();
     if (!isUnsafeMethod(req.method)) return true;
+
+    const path = req.url.split('?')[0] ?? req.url;
+    if (signedServerMutations.has(path)) return true;
 
     const allowedOrigins = [process.env.APP_URL, process.env.ADMIN_URL].filter(
       (value): value is string => Boolean(value),
@@ -35,8 +40,7 @@ export class RequestSecurityGuard implements CanActivate {
       throw new ForbiddenException({ code: 'ORIGIN_NOT_ALLOWED' });
     }
 
-    const path = req.url.split('?')[0] ?? req.url;
-    if (unauthenticatedMutations.has(path)) return true;
+    if (unauthenticatedBrowserMutations.has(path)) return true;
 
     const production = process.env.NODE_ENV === 'production';
     const sessionToken = req.cookies[

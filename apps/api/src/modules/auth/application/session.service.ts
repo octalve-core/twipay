@@ -27,8 +27,8 @@ export class SessionService {
         userId,
         tokenHash: hash(token, this.pepper()),
         csrfTokenHash: hash(csrfToken, this.pepper()),
-        userAgent: userAgent?.slice(0, 512),
-        ipHash: ip ? hash(ip, this.pepper()) : null,
+        ...(userAgent ? { userAgent: userAgent.slice(0, 512) } : {}),
+        ...(ip ? { ipHash: hash(ip, this.pepper()) } : {}),
         expiresAt,
       },
       select: { id: true, expiresAt: true },
@@ -41,7 +41,7 @@ export class SessionService {
       where: { tokenHash: hash(token, this.pepper()) },
       include: { user: { include: { roleAssignments: { include: { role: true } } } } },
     });
-    if (!session || session.status !== 'ACTIVE' || session.expiresAt <= new Date()) throw new UnauthorizedException();
+    if (!session || session.status !== 'ACTIVE' || session.expiresAt <= new Date() || session.user.status !== 'ACTIVE') throw new UnauthorizedException();
     return session;
   }
 

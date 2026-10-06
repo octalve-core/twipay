@@ -21,7 +21,13 @@ export class AuthService {
     const passwordHash = await this.passwords.hash(input.password);
     const user = await this.prisma.$transaction(async (tx) => {
       const created = await tx.user.create({
-        data: { email, givenName: input.givenName, familyName: input.familyName, status: 'ACTIVE', passwordCredential: { create: { passwordHash } } },
+        data: {
+          email,
+          ...(input.givenName ? { givenName: input.givenName } : {}),
+          ...(input.familyName ? { familyName: input.familyName } : {}),
+          status: 'ACTIVE',
+          passwordCredential: { create: { passwordHash } },
+        },
         select: { id: true, email: true, givenName: true, familyName: true, status: true },
       });
       await tx.securityEvent.create({ data: { userId: created.id, type: 'REGISTERED' } });

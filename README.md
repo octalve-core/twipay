@@ -2,9 +2,9 @@
 
 TwiPay is an Octalve-owned financial, utility-payment, and event-ticketing platform designed to operate at `twipay.co` while remaining provider-independent and licensable/white-label capable.
 
-## Batch 1 status
+## Batch 2 status
 
-Batch 1 establishes the production architecture: monorepo boundaries, Next.js web/admin applications, NestJS/Fastify API, background worker, PostgreSQL/Prisma schema, Redis contract, secure identity/session model, Google OIDC boundary, OpenAPI, local Docker services, repository security checks, CI definitions, and living engineering documentation.
+Batch 1 established the platform/identity foundation. Batch 2 adds the financial core: immutable double-entry ledger, derived wallets and holds, user-scoped idempotency, funding/payout/virtual-account orchestration, Paystack and Monnify payment adapters, Mono BVN/NIN verification, signed webhook inbox/deduplication and reconciliation foundations.
 
 The previous ErhaPay UI is **reference material only**. The legacy API is **reference material only**. New TwiPay business logic must not depend on either legacy architecture.
 
@@ -15,7 +15,8 @@ The previous ErhaPay UI is **reference material only**. The legacy API is **refe
 - `apps/api` — core HTTP API
 - `apps/worker` — asynchronous jobs/reconciliation workers
 - `packages/database` — Prisma schema and migrations
-- `packages/security` — shared security contracts/invariants
+- `packages/ledger` — pure money/state invariants
+- `packages/security` — shared security contracts/invariants and sensitive-value cryptography
 - `packages/contracts` — provider-neutral API/domain contracts
 - `packages/providers` — external provider adapters only
 - `docs` — architecture, ADRs, security, runbooks and batch records
@@ -50,4 +51,4 @@ pnpm build
 pnpm test:repo
 ```
 
-See `docs/README.md`, `docs/batches/batch-01.md`, and `SECURITY.md` before changing authentication, sessions, authorization, provider code, or financial logic.
+See `docs/README.md`, `docs/batches/batch-01.md`, `docs/batches/batch-02.md`, `docs/architecture/financial-core.md`, and `SECURITY.md` before changing authentication, sessions, authorization, provider code, ledger/accounting, KYC, or financial logic.
