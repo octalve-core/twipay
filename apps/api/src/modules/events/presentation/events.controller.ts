@@ -1,10 +1,11 @@
-import { BadRequestException, Body, Controller, Get, Headers, Param, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Headers, Param, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import type { FastifyReply } from 'fastify';
 import { z } from 'zod';
 import { ZodValidationPipe } from '../../../platform/http/zod-validation.pipe.js';
 import { SessionAuthGuard, requirePrincipal, type AuthenticatedFastifyRequest } from '../../auth/presentation/session-auth.guard.js';
 import { EventService } from '../application/event.service.js';
+import { ProductConfigService } from '../../product/application/product-config.service.js';
 
 const Slug = z.string().trim().min(3).max(160).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
 const DateTime = z.string().refine((value) => Number.isFinite(Date.parse(value)), 'invalid datetime');
@@ -24,6 +25,7 @@ const CheckoutSchema = z.object({
   issuedToName: z.string().trim().min(2).max(180).optional(),
 }).strict();
 const CheckInSchema = z.object({ qrPayload: z.string().min(60).max(300), requestId: z.string().trim().min(8).max(64).optional() }).strict();
+const StaffSchema = z.object({ email: z.email().max(320) }).strict();
 
 function requireIdempotencyKey(value: string | undefined): string {
   if (!value) throw new BadRequestException({ code: 'IDEMPOTENCY_KEY_REQUIRED' });
@@ -46,16 +48,18 @@ function serializeEvent(event: {
 @ApiTags('events')
 @Controller('events')
 export class EventsController {
-  constructor(private readonly events: EventService) {}
+  constructor(private readonly events: EventService, private readonly product: ProductConfigService) {}
 
   @Get()
   async list() {
+    await this.product.assertFeatureEnabled('events.marketplace', true);
     const events = await this.events.listPublished();
     return { events: events.map(serializeEvent) };
   }
 
   @Get(':slug')
   async one(@Param('slug') slug: string) {
+    await this.product.assertFeatureEnabled('events.marketplace', true);
     const event = await this.events.publishedBySlug(slug);
     return { event: event ? serializeEvent(event) : null };
   }
@@ -111,6 +115,7 @@ export class EventsController {
     @Req() req: AuthenticatedFastifyRequest,
     @Res({ passthrough: true }) res: FastifyReply,
   ) {
+    await this.product.assertFeatureEnabled('events.marketplace', true);
     const principal = requirePrincipal(req);
     const result = await this.events.checkout({
       userId: principal.userId, idempotencyKey: requireIdempotencyKey(idempotencyKey), eventId: body.eventId, items: body.items,
@@ -120,11 +125,55 @@ export class EventsController {
     return result.body;
   }
 
+
+  @Get('orders')
+  @UseGuards(SessionAuthGuard)
+  async orders(@Req() req: AuthenticatedFastifyRequest) {
+    const principal = requirePrincipal(req);
+    return { orders: await this.events.listOrdersForUser(principal.userId) };
+  }
+
+  @Get('organizers/me')
+  @UseGuards(SessionAuthGuard)
+  async myOrganizers(@Req() req: AuthenticatedFastifyRequest) {
+    const principal = requirePrincipal(req);
+    return { organizers: await this.events.listOrganizersForUser(principal.userId) };
+  }
+
+  @Get('organizers/:organizerId/events')
+  @UseGuards(SessionAuthGuard)
+  async organizerEvents(@Param('organizerId') organizerId: string, @Req() req: AuthenticatedFastifyRequest) {
+    const principal = requirePrincipal(req);
+    return { events: await this.events.listOrganizerEvents(principal.userId, organizerId) };
+  }
+
   @Get('orders/:reference')
   @UseGuards(SessionAuthGuard)
   async order(@Param('reference') reference: string, @Req() req: AuthenticatedFastifyRequest) {
     const principal = requirePrincipal(req);
     return { order: await this.events.getOrderForUser(principal.userId, reference) };
+  }
+
+
+  @Post(':eventId/staff')
+  @UseGuards(SessionAuthGuard)
+  async assignStaff(@Param('eventId') eventId: string, @Body(new ZodValidationPipe(StaffSchema)) body: z.infer<typeof StaffSchema>, @Req() req: AuthenticatedFastifyRequest) {
+    const principal = requirePrincipal(req);
+    return { assignment: await this.events.assignCheckInStaff({ ownerUserId: principal.userId, eventId, staffEmail: body.email }) };
+  }
+
+  @Get(':eventId/staff')
+  @UseGuards(SessionAuthGuard)
+  async eventStaff(@Param('eventId') eventId: string, @Req() req: AuthenticatedFastifyRequest) {
+    const principal = requirePrincipal(req);
+    return { assignments: await this.events.listEventStaff(principal.userId, eventId) };
+  }
+
+  @Delete(':eventId/staff/:assignmentId')
+  @UseGuards(SessionAuthGuard)
+  async revokeStaff(@Param('eventId') eventId: string, @Param('assignmentId') assignmentId: string, @Req() req: AuthenticatedFastifyRequest) {
+    const principal = requirePrincipal(req);
+    return { assignment: await this.events.revokeEventStaff({ ownerUserId: principal.userId, eventId, assignmentId }) };
   }
 
   @Post('tickets/check-in')

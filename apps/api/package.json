@@ -40,7 +40,8 @@
     "@twipay/provider-vtpass": "workspace:*",
     "@twipay/provider-monnify-bills": "workspace:*",
     "@twipay/provider-termii": "workspace:*",
-    "@twipay/provider-resend": "workspace:*"
+    "@twipay/provider-resend": "workspace:*",
+    "@twipay/operations": "workspace:*"
   },
   "devDependencies": {
     "@nestjs/testing": "12.1.2",

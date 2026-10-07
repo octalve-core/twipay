@@ -1,12 +1,14 @@
-import { BadRequestException, Body, Controller, ForbiddenException, Get, Headers, Param, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Headers, Param, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import type { FastifyReply } from 'fastify';
 import { z } from 'zod';
 import type { BillCategory } from '@twipay/contracts';
 import { ZodValidationPipe } from '../../../platform/http/zod-validation.pipe.js';
 import { SessionAuthGuard, requirePrincipal, type AuthenticatedFastifyRequest } from '../../auth/presentation/session-auth.guard.js';
+import { PermissionGuard, RequirePermissions } from '../../auth/presentation/permission.guard.js';
 import { BillCatalogService } from '../application/catalog.service.js';
 import { BillService } from '../application/bill.service.js';
+import { ProductConfigService } from '../../product/application/product-config.service.js';
 
 const CategorySchema = z.enum(['AIRTIME', 'DATA', 'ELECTRICITY', 'CABLE']);
 const ValidateSchema = z.object({ productCode: z.string().trim().min(3).max(120), customerIdentifier: z.string().trim().min(3).max(64) }).strict();
@@ -22,21 +24,16 @@ function requireIdempotencyKey(value: string | undefined): string {
   if (!value) throw new BadRequestException({ code: 'IDEMPOTENCY_KEY_REQUIRED' });
   return value;
 }
-function requireOperationsRole(req: AuthenticatedFastifyRequest): void {
-  const principal = requirePrincipal(req);
-  if (!principal.roles.some((role) => ['SUPER_ADMIN', 'OPERATIONS', 'OPERATIONS_AGENT'].includes(role))) {
-    throw new ForbiddenException({ code: 'OPERATIONS_ROLE_REQUIRED' });
-  }
-}
 
 @ApiTags('services')
 @UseGuards(SessionAuthGuard)
 @Controller('services')
 export class ServicesController {
-  constructor(private readonly catalog: BillCatalogService, private readonly bills: BillService) {}
+  constructor(private readonly catalog: BillCatalogService, private readonly bills: BillService, private readonly product: ProductConfigService) {}
 
   @Get('products')
   async products(@Query('category') categoryValue?: string) {
+    await this.product.assertFeatureEnabled('services.utilities', true);
     const parsed = categoryValue ? CategorySchema.safeParse(categoryValue) : undefined;
     if (parsed && !parsed.success) throw new BadRequestException({ code: 'INVALID_BILL_CATEGORY' });
     const products = await this.catalog.list(parsed?.data as BillCategory | undefined);
@@ -56,6 +53,7 @@ export class ServicesController {
 
   @Post('validations')
   async validate(@Body(new ZodValidationPipe(ValidateSchema)) body: z.infer<typeof ValidateSchema>, @Req() req: AuthenticatedFastifyRequest) {
+    await this.product.assertFeatureEnabled('services.utilities', true);
     const principal = requirePrincipal(req);
     const result = await this.bills.validateCustomer({ userId: principal.userId, productCode: body.productCode, customerIdentifier: body.customerIdentifier });
     return { validation: result };
@@ -68,6 +66,7 @@ export class ServicesController {
     @Req() req: AuthenticatedFastifyRequest,
     @Res({ passthrough: true }) res: FastifyReply,
   ) {
+    await this.product.assertFeatureEnabled('services.utilities', true);
     const principal = requirePrincipal(req);
     const result = await this.bills.purchase({
       userId: principal.userId,
@@ -82,6 +81,13 @@ export class ServicesController {
     return result.body;
   }
 
+
+  @Get('purchases')
+  async purchases(@Req() req: AuthenticatedFastifyRequest) {
+    const principal = requirePrincipal(req);
+    return { purchases: await this.bills.listForUser(principal.userId) };
+  }
+
   @Get('purchases/:reference')
   async purchaseByReference(@Param('reference') reference: string, @Req() req: AuthenticatedFastifyRequest) {
     const principal = requirePrincipal(req);
@@ -89,8 +95,10 @@ export class ServicesController {
   }
 
   @Post('catalog/sync/:provider/:category')
+  @UseGuards(PermissionGuard)
+  @RequirePermissions('ops.providers.manage')
   async sync(@Param('provider') provider: string, @Param('category') category: string, @Req() req: AuthenticatedFastifyRequest) {
-    requireOperationsRole(req);
+    requirePrincipal(req);
     if (provider !== 'vtpass' && provider !== 'monnify') throw new BadRequestException({ code: 'BILL_PROVIDER_NOT_ENABLED' });
     const parsed = CategorySchema.safeParse(category);
     if (!parsed.success) throw new BadRequestException({ code: 'INVALID_BILL_CATEGORY' });

@@ -10,6 +10,8 @@ import { KycModule } from './kyc/kyc.module.js';
 import { ServicesModule } from './services/services.module.js';
 import { NotificationsModule } from './notifications/notifications.module.js';
 import { EventsModule } from './events/events.module.js';
+import { ProductModule } from './product/product.module.js';
+import { OperationsModule } from './operations/operations.module.js';
 
 @Module({
   imports: [
@@ -24,6 +26,8 @@ import { EventsModule } from './events/events.module.js';
     ServicesModule,
     NotificationsModule,
     EventsModule,
+    ProductModule,
+    OperationsModule,
   ],
 })
 export class AppModule {}

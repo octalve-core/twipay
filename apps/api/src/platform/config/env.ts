@@ -19,6 +19,7 @@ const EnvSchema = z.object({
   DATABASE_URL: z.string().min(1),
   REDIS_URL: z.string().min(1),
   SESSION_HASH_PEPPER: z.string().min(32),
+  MFA_STEP_UP_MAX_AGE_SECONDS: z.coerce.number().int().min(60).max(3600).default(600),
   DATA_ENCRYPTION_KEY: aes256Key,
   PII_FINGERPRINT_KEY: z.string().min(32),
   PAYSTACK_SECRET_KEY: optionalSecret,

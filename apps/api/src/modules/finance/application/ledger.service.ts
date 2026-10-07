@@ -70,7 +70,7 @@ export class LedgerService {
     return balance;
   }
 
-  async reverseWithTx(tx: Prisma.TransactionClient, journalId: string, reference: string, description: string) {
+  async reverseWithTx(tx: Prisma.TransactionClient, journalId: string, reference: string, description: string, financialTransactionId?: string) {
     const existing = await tx.journalTransaction.findUniqueOrThrow({
       where: { id: journalId },
       include: { entries: { orderBy: { sequence: 'asc' } } },
@@ -81,7 +81,7 @@ export class LedgerService {
     return this.postWithTx(tx, {
       reference,
       reversalOfId: existing.id,
-      ...(existing.financialTransactionId ? { financialTransactionId: existing.financialTransactionId } : {}),
+      ...((financialTransactionId ?? existing.financialTransactionId) ? { financialTransactionId: financialTransactionId ?? existing.financialTransactionId! } : {}),
       currency: existing.currency,
       description,
       entries: existing.entries.map((entry) => ({

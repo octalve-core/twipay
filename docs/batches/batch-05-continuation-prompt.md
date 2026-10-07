@@ -1,0 +1,7 @@
+# Batch 5 continuation contract
+
+Continue TwiPay from the exact Batch 4 handoff HEAD/tag recorded in `BATCH_04_VERIFICATION.md`.
+
+Execute Batch 5 — Production Hardening & Release exactly according to the approved architecture, ADRs and Batch 1–4 verification records. Use Node 24 LTS in a network-enabled environment and perform a clean package install. Run full lint/typecheck/unit/integration/E2E/build gates; generate/validate Prisma; execute all migrations against PostgreSQL 18; run Redis/BullMQ and worker integration tests; exercise duplicate/idempotent/concurrent wallet, bill, event checkout, refund, organizer payout, webhook and reconciliation cases; complete and verify the real MFA enrollment/challenge/step-up journey before enabling high-risk flags; verify maker/checker/MFA/RBAC/BOLA/CSRF/CSP/rate-limit/security-log behavior; run dependency, secret, SAST and DAST checks; load/failure-test provider boundaries without using live customer money; verify backup/restore and deployment rollback; finalize Cloudflare and initial production hosting configuration; complete staging smoke tests and production runbooks; remove any remaining mock/placeholder product data; and produce a clean release repository/ZIP plus exact production activation checklist.
+
+Do not insert live provider/database/secrets into source, chat artifacts or documentation. Do not waive a failed check. Do not call the system production-ready until environment-blocked Batch 1–4 checks have been rerun and passed or repaired.

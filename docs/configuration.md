@@ -87,5 +87,18 @@ The repository and documentation may describe **variable names and rotation proc
 | `NOTIFICATION_MAX_ATTEMPTS` | delivery retry cap | No | No |
 | `NOTIFICATION_RETRY_DELAY_MS` | notification retry delay | No | No |
 | `NOTIFICATION_PROCESSING_STALE_MS` | recovery threshold for interrupted delivery | No | No |
+| `MFA_STEP_UP_MAX_AGE_SECONDS` | maximum age in seconds of MFA assurance accepted for step-up protected actions; default `600`, allowed `60–3600` | No | No |
 
 `TICKET_SIGNING_KEYS_JSON` must never be a `NEXT_PUBLIC_*` value. Keep old key versions available while any ticket signed with them can still legitimately be presented. Key removal is an explicit operational/security migration, not routine cleanup.
+
+## Batch 4 database-backed product configuration
+
+The following are **not secrets** and are stored/audited in PostgreSQL rather than deployment environment variables:
+
+- public product/legal name, domain, support email, logo URL and constrained colors;
+- feature flags such as `services.utilities`, `events.marketplace`, `events.refunds` and `operations.organizer_payouts`;
+- deployment profile edition/licensee/module/support metadata.
+
+`events.refunds` and `operations.organizer_payouts` are both seeded disabled. Do not enable either merely because code is deployed; complete a real MFA enrollment/challenge and step-up test, finance-role/maker-checker verification, migration/integration tests, and the relevant runbook first.
+
+Real provider keys, database credentials, encryption keys and session secrets remain server-only environment/secret-manager values and are never stored in these configuration tables.

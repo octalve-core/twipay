@@ -274,6 +274,40 @@ export class EventService {
     }
   }
 
+
+  async listOrdersForUser(userId: string) {
+    const orders = await this.prisma.eventOrder.findMany({
+      where: { userId }, orderBy: { createdAt: 'desc' }, take: 100,
+      include: { event: { select: { title: true, slug: true, startsAt: true, venueName: true } }, tickets: { select: { publicCode: true, status: true, ticketType: { select: { name: true } } } } },
+    });
+    return orders.map((order) => ({
+      reference: order.reference, status: order.status, event: order.event,
+      subtotalMinor: order.subtotalMinor.toString(), platformFeeMinor: order.platformFeeMinor.toString(), totalMinor: order.totalMinor.toString(), currency: order.currency,
+      paidAt: order.paidAt, createdAt: order.createdAt,
+      tickets: order.tickets.map((ticket) => ({ publicCode: ticket.publicCode, status: ticket.status, ticketType: ticket.ticketType.name })),
+    }));
+  }
+
+  async listOrganizersForUser(ownerUserId: string) {
+    const organizers = await this.prisma.eventOrganizer.findMany({
+      where: { ownerUserId }, orderBy: { createdAt: 'desc' }, take: 50,
+      include: { _count: { select: { events: true } } },
+    });
+    return Promise.all(organizers.map(async (organizer) => ({
+      id: organizer.id, name: organizer.name, slug: organizer.slug, status: organizer.status, eventCount: organizer._count.events,
+      settlement: await this.organizerSettlement(ownerUserId, organizer.id),
+    })));
+  }
+
+  async listOrganizerEvents(ownerUserId: string, organizerId: string) {
+    await this.ownedOrganizer(organizerId, ownerUserId);
+    const events = await this.prisma.event.findMany({
+      where: { organizerId }, orderBy: { startsAt: 'desc' }, take: 100,
+      include: { ticketTypes: true, _count: { select: { orders: true } } },
+    });
+    return events.map((event) => ({ ...event, ticketTypes: event.ticketTypes.map((ticket) => ({ ...ticket, priceMinor: ticket.priceMinor.toString() })), orderCount: event._count.orders }));
+  }
+
   async getOrderForUser(userId: string, reference: string): Promise<JsonObject | null> {
     const order = await this.prisma.eventOrder.findFirst({
       where: { userId, reference },
@@ -288,6 +322,37 @@ export class EventService {
     };
   }
 
+
+  async assignCheckInStaff(input: { ownerUserId: string; eventId: string; staffEmail: string }) {
+    const event = await this.prisma.event.findUnique({ where: { id: input.eventId }, include: { organizer: true } });
+    if (!event || event.organizer.ownerUserId !== input.ownerUserId) throw new NotFoundException({ code: 'EVENT_NOT_FOUND' });
+    const staff = await this.prisma.user.findUnique({ where: { email: input.staffEmail.trim().toLowerCase() }, select: { id: true, email: true, givenName: true, familyName: true, status: true } });
+    if (!staff || staff.status !== 'ACTIVE') throw new NotFoundException({ code: 'EVENT_STAFF_USER_NOT_FOUND' });
+    if (staff.id === input.ownerUserId) throw new ConflictException({ code: 'ORGANIZER_OWNER_ALREADY_AUTHORIZED' });
+    const assignment = await this.prisma.eventStaffAssignment.upsert({
+      where: { eventId_userId_role: { eventId: event.id, userId: staff.id, role: 'CHECK_IN' } },
+      create: { eventId: event.id, userId: staff.id, role: 'CHECK_IN', invitedByUserId: input.ownerUserId },
+      update: { status: 'ACTIVE' },
+    });
+    return { id: assignment.id, eventId: assignment.eventId, role: assignment.role, status: assignment.status, staff };
+  }
+
+  async listEventStaff(ownerUserId: string, eventId: string) {
+    const event = await this.prisma.event.findUnique({ where: { id: eventId }, include: { organizer: true } });
+    if (!event || event.organizer.ownerUserId !== ownerUserId) throw new NotFoundException({ code: 'EVENT_NOT_FOUND' });
+    return this.prisma.eventStaffAssignment.findMany({
+      where: { eventId }, orderBy: { createdAt: 'asc' },
+      include: { user: { select: { id: true, email: true, givenName: true, familyName: true } } },
+    });
+  }
+
+  async revokeEventStaff(input: { ownerUserId: string; eventId: string; assignmentId: string }) {
+    const assignment = await this.prisma.eventStaffAssignment.findUnique({ where: { id: input.assignmentId }, include: { event: { include: { organizer: true } } } });
+    if (!assignment || assignment.eventId !== input.eventId || assignment.event.organizer.ownerUserId !== input.ownerUserId) throw new NotFoundException({ code: 'EVENT_STAFF_ASSIGNMENT_NOT_FOUND' });
+    if (assignment.status === 'REVOKED') return assignment;
+    return this.prisma.eventStaffAssignment.update({ where: { id: assignment.id }, data: { status: 'REVOKED' } });
+  }
+
   async checkIn(input: { staffUserId: string; qrPayload: string; requestId?: string }) {
     const publicCode = extractTicketPublicCode(input.qrPayload);
     return this.prisma.$transaction(async (tx) => {
@@ -296,7 +361,10 @@ export class EventService {
         where: { publicCode },
         include: { order: { include: { event: { include: { organizer: true } } } }, ticketType: true, checkIn: true },
       });
-      if (!ticket || ticket.order.event.organizer.ownerUserId !== input.staffUserId) throw new NotFoundException({ code: 'TICKET_NOT_FOUND' });
+      if (!ticket) throw new NotFoundException({ code: 'TICKET_NOT_FOUND' });
+      const organizerOwns = ticket.order.event.organizer.ownerUserId === input.staffUserId;
+      const delegated = organizerOwns ? null : await tx.eventStaffAssignment.findFirst({ where: { eventId: ticket.order.event.id, userId: input.staffUserId, role: 'CHECK_IN', status: 'ACTIVE' }, select: { id: true } });
+      if (!organizerOwns && !delegated) throw new NotFoundException({ code: 'TICKET_NOT_FOUND' });
       const ticketSigning = ticketSigningConfig();
       const signingKey = ticketSigning.keys.get(ticket.credentialKeyVersion);
       if (!signingKey) throw new ConflictException({ code: 'TICKET_SIGNING_KEY_VERSION_UNAVAILABLE' });

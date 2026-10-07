@@ -10,7 +10,7 @@ import {
 interface CreateFinancialTransactionInput {
   reference: string;
   userId?: string;
-  type: 'FUNDING' | 'TRANSFER' | 'BILL_PAYMENT' | 'EVENT_PURCHASE' | 'REFUND' | 'REVERSAL' | 'FEE' | 'ADJUSTMENT';
+  type: 'FUNDING' | 'TRANSFER' | 'BILL_PAYMENT' | 'EVENT_PURCHASE' | 'REFUND' | 'REVERSAL' | 'FEE' | 'ADJUSTMENT' | 'ORGANIZER_PAYOUT';
   currency: string;
   amountMinor: bigint;
   feeMinor?: bigint;
@@ -61,6 +61,19 @@ export class FinancialTransactionService {
       },
     });
     return updated;
+  }
+
+  async settleInternalRefundWithTx(tx: Prisma.TransactionClient, id: string): Promise<void> {
+    const current = await tx.financialTransaction.findUniqueOrThrow({ where: { id } });
+    if (current.type !== 'REFUND' || current.status !== 'AUTHORIZED') {
+      throw new Error('INTERNAL_REFUND_SETTLEMENT_STATE_INVALID');
+    }
+    const postedJournal = await tx.journalTransaction.findFirst({ where: { financialTransactionId: id, postedAt: { not: null } }, select: { id: true } });
+    if (!postedJournal) throw new Error('INTERNAL_REFUND_REQUIRES_POSTED_JOURNAL');
+    const updated = await tx.financialTransaction.update({ where: { id }, data: { status: 'SUCCEEDED' } });
+    await tx.financialTransactionStateChange.create({
+      data: { financialTransactionId: id, fromStatus: current.status, toStatus: updated.status, reason: 'INTERNAL_COMPENSATING_REFUND', actorType: 'SYSTEM' },
+    });
   }
 
   async settleInternalEventPurchaseWithTx(tx: Prisma.TransactionClient, id: string): Promise<void> {

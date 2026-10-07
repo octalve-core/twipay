@@ -121,4 +121,15 @@ export class IdempotencyService {
       },
     });
   }
+
+  /**
+   * Releases an idempotency key only while no durable result/resource has been
+   * committed. This is used for transient pre-commit failures so a network or
+   * database outage does not poison a client key for the full TTL.
+   */
+  async releaseProcessing(recordId: string): Promise<void> {
+    await this.prisma.idempotencyRecord.deleteMany({
+      where: { id: recordId, status: 'PROCESSING', resourceId: null },
+    });
+  }
 }

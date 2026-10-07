@@ -20,14 +20,14 @@ const eventTransitions: Readonly<Record<EventStatus, readonly EventStatus[]>> = 
 const orderTransitions: Readonly<Record<EventOrderStatus, readonly EventOrderStatus[]>> = {
   CREATED: ['FUNDS_RESERVED', 'FAILED', 'CANCELLED'],
   FUNDS_RESERVED: ['PAID', 'FAILED', 'CANCELLED'],
-  PAID: [],
+  PAID: ['REFUNDED'],
   FAILED: [],
   CANCELLED: [],
   REFUNDED: [],
 };
 
 const ticketTransitions: Readonly<Record<TicketStatus, readonly TicketStatus[]>> = {
-  ACTIVE: ['CHECKED_IN', 'CANCELLED', 'VOID'],
+  ACTIVE: ['CHECKED_IN', 'CANCELLED', 'REFUNDED', 'VOID'],
   CHECKED_IN: [],
   CANCELLED: [],
   REFUNDED: [],

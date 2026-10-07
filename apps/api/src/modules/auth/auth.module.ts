@@ -7,6 +7,7 @@ import { SessionService } from './application/session.service.js';
 import { GoogleOidcService } from './infrastructure/google-oidc.service.js';
 import { RequestSecurityGuard } from './presentation/request-security.guard.js';
 import { SessionAuthGuard } from './presentation/session-auth.guard.js';
+import { PermissionGuard } from './presentation/permission.guard.js';
 
 @Module({
   controllers: [AuthController],
@@ -16,9 +17,10 @@ import { SessionAuthGuard } from './presentation/session-auth.guard.js';
     SessionService,
     GoogleOidcService,
     SessionAuthGuard,
+    PermissionGuard,
     RequestSecurityGuard,
     { provide: APP_GUARD, useExisting: RequestSecurityGuard },
   ],
-  exports: [SessionService, SessionAuthGuard],
+  exports: [SessionService, SessionAuthGuard, PermissionGuard],
 })
 export class AuthModule {}

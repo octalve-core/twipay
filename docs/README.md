@@ -40,3 +40,18 @@ If code and documentation ever disagree, stop and resolve the discrepancy in the
 - ADRs: `adr/010-service-provider-routing.md`, `adr/011-event-ledger-and-ticket-credentials.md`
 - Runbooks: `runbooks/bill-purchase-unknown.md`, `runbooks/bill-provider-outage.md`, `runbooks/event-ticket-check-in.md`
 - Verification evidence: root `BATCH_03_VERIFICATION.md`
+
+## Batch 4 additions
+
+- `architecture/product-operations.md`
+- `security/product-operations-security.md`
+- `api/product-operations.md`
+- `adr/012-refunds-and-maker-checker.md`
+- `adr/013-standalone-white-label-configuration.md`
+- `runbooks/event-refund.md`
+- `runbooks/organizer-payout.md`
+- `runbooks/provider-routing-change.md`
+- `batches/batch-04.md`
+
+- Verification evidence: root `BATCH_04_VERIFICATION.md`
+- Batch 5 continuation contract: `batches/batch-05-continuation-prompt.md`

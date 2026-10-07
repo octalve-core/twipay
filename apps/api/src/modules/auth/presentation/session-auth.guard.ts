@@ -3,6 +3,7 @@ import type { FastifyRequest } from 'fastify';
 import {
   SESSION_COOKIE_LOCAL,
   SESSION_COOKIE_PRODUCTION,
+  isRecentMfaAssurance,
 } from '@twipay/security';
 import { SessionService } from '../application/session.service.js';
 
@@ -10,6 +11,7 @@ export interface TwiPayRequestPrincipal {
   userId: string;
   sessionId: string;
   roles: readonly string[];
+  permissions: readonly string[];
   mfaSatisfied: boolean;
 }
 
@@ -29,7 +31,8 @@ export class SessionAuthGuard implements CanActivate {
       userId: session.userId,
       sessionId: session.id,
       roles: session.user.roleAssignments.map((assignment) => assignment.role.code),
-      mfaSatisfied: Boolean(session.mfaSatisfiedAt),
+      permissions: [...new Set(session.user.roleAssignments.flatMap((assignment) => assignment.role.permissions.map((item) => item.permission.code)))],
+      mfaSatisfied: isRecentMfaAssurance(session.mfaSatisfiedAt, Number(process.env['MFA_STEP_UP_MAX_AGE_SECONDS'] ?? 600)),
     };
     return true;
   }

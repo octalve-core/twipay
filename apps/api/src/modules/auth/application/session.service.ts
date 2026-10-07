@@ -39,7 +39,7 @@ export class SessionService {
   async resolve(token: string) {
     const session = await this.prisma.session.findUnique({
       where: { tokenHash: hash(token, this.pepper()) },
-      include: { user: { include: { roleAssignments: { include: { role: true } } } } },
+      include: { user: { include: { roleAssignments: { include: { role: { include: { permissions: { include: { permission: true } } } } } } } } },
     });
     if (!session || session.status !== 'ACTIVE' || session.expiresAt <= new Date() || session.user.status !== 'ACTIVE') throw new UnauthorizedException();
     return session;

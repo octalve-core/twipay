@@ -41,7 +41,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
         return;
       }
       // Authentication is in an HttpOnly cookie. Do not persist access/session tokens in browser storage.
-      router.push('/');
+      router.push('/dashboard');
       router.refresh();
     } catch {
       setError('Unable to reach TwiPay securely. Please try again.');

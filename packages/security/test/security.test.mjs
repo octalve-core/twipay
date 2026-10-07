@@ -6,6 +6,7 @@ import {
   fingerprintSensitiveValue,
   isAllowedBrowserOrigin,
   isUnsafeMethod,
+  isRecentMfaAssurance,
   validatePasswordPolicy,
 } from '../.test-dist/index.js';
 
@@ -41,4 +42,13 @@ test('PII fingerprint is deterministic but not plaintext', () => {
   assert.equal(a, b);
   assert.notEqual(a, '12345678901');
   assert.equal(a.length, 64);
+});
+
+
+test('MFA assurance is bounded by a short step-up window', () => {
+  const now = new Date('2026-10-07T00:00:00.000Z');
+  assert.equal(isRecentMfaAssurance(new Date('2026-10-06T23:55:00.000Z'), 600, now), true);
+  assert.equal(isRecentMfaAssurance(new Date('2026-10-06T23:40:00.000Z'), 600, now), false);
+  assert.equal(isRecentMfaAssurance(new Date('2026-10-07T00:01:00.000Z'), 600, now), false);
+  assert.equal(isRecentMfaAssurance(null, 600, now), false);
 });

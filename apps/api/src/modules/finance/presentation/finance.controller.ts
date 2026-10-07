@@ -187,6 +187,23 @@ export class FinanceController {
     return result.body;
   }
 
+
+  @Get('transactions')
+  async transactions(@Req() req: AuthenticatedFastifyRequest) {
+    const principal = requirePrincipal(req);
+    const transactions = await this.prisma.financialTransaction.findMany({
+      where: { userId: principal.userId },
+      orderBy: { createdAt: 'desc' },
+      take: 100,
+      include: { providerOps: { select: { providerCode: true }, take: 1 } },
+    });
+    return { transactions: transactions.map((transaction) => ({
+      reference: transaction.reference, type: transaction.type, status: transaction.status, currency: transaction.currency,
+      amountMinor: transaction.amountMinor.toString(), feeMinor: transaction.feeMinor.toString(), description: transaction.description,
+      provider: transaction.providerOps[0]?.providerCode ?? null, createdAt: transaction.createdAt, updatedAt: transaction.updatedAt,
+    })) };
+  }
+
   @Get('transactions/:reference')
   async transaction(@Param('reference') reference: string, @Req() req: AuthenticatedFastifyRequest) {
     const principal = requirePrincipal(req);

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {
   assertCapacityAvailable,
   assertEventOrderTransition,
+  assertTicketTransition,
   calculatePlatformFeeMinor,
   calculateSettlement,
   createTicketCredential,
@@ -15,9 +16,16 @@ test('capacity rejects oversell', () => {
   assert.throws(() => assertCapacityAvailable(100, 91, 10), /capacity exceeded/);
 });
 
-test('event order terminal state cannot move back to paid', () => {
+test('paid event orders can only move forward through the controlled refund state', () => {
   assert.doesNotThrow(() => assertEventOrderTransition('FUNDS_RESERVED', 'PAID'));
+  assert.doesNotThrow(() => assertEventOrderTransition('PAID', 'REFUNDED'));
   assert.throws(() => assertEventOrderTransition('FAILED', 'PAID'), /invalid event order transition/);
+  assert.throws(() => assertEventOrderTransition('REFUNDED', 'PAID'), /invalid event order transition/);
+});
+
+test('only unused active tickets can be marked refunded', () => {
+  assert.doesNotThrow(() => assertTicketTransition('ACTIVE', 'REFUNDED'));
+  assert.throws(() => assertTicketTransition('CHECKED_IN', 'REFUNDED'), /invalid ticket transition/);
 });
 
 test('basis-point fee uses integer minor-unit floor rounding', () => {

@@ -86,6 +86,7 @@ enum FinancialTransactionType {
   REVERSAL
   FEE
   ADJUSTMENT
+  ORGANIZER_PAYOUT
 }
 
 enum FinancialTransactionStatus {
@@ -177,6 +178,8 @@ enum ReconciliationCaseType {
   LEDGER_MISMATCH
   SERVICE_FULFILLMENT_MISMATCH
   EVENT_SETTLEMENT_MISMATCH
+  REFUND_MISMATCH
+  ORGANIZER_PAYOUT_MISMATCH
 }
 
 
@@ -273,6 +276,48 @@ enum ReconciliationCaseStatus {
   IGNORED
 }
 
+enum DisputeStatus {
+  OPEN
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  RESOLVED
+  CANCELLED
+}
+
+enum RefundStatus {
+  REQUESTED
+  UNDER_REVIEW
+  APPROVED
+  PROCESSING
+  SUCCEEDED
+  FAILED
+  UNKNOWN
+  REJECTED
+}
+
+enum OrganizerPayoutStatus {
+  REQUESTED
+  PENDING_APPROVAL
+  APPROVED
+  PROVIDER_SUBMITTED
+  PROCESSING
+  UNKNOWN
+  SUCCEEDED
+  FAILED
+  REJECTED
+  REVERSED
+}
+
+enum EventStaffRole {
+  CHECK_IN
+}
+
+enum EventStaffStatus {
+  ACTIVE
+  REVOKED
+}
+
 model User {
   id              String        @id @default(uuid()) @db.Uuid
   email           String        @unique @db.VarChar(320)
@@ -302,9 +347,23 @@ model User {
   eventOrganizers        EventOrganizer[]
   eventOrders            EventOrder[]
   ticketCheckIns         TicketCheckIn[] @relation("TicketCheckInStaff")
+  eventStaffMemberships  EventStaffAssignment[] @relation("EventStaffMember")
+  eventStaffAssignmentsMade EventStaffAssignment[] @relation("EventStaffInviter")
   notifications          Notification[]
   billPurchases          BillPurchase[]
   billCustomerValidations BillCustomerValidation[]
+  disputes              Dispute[]
+  refundRequests        RefundRequest[] @relation("RefundRequester")
+  refundReviews         RefundRequest[] @relation("RefundReviewer")
+  refundApprovals       RefundRequest[] @relation("RefundApprover")
+  payoutRequests        OrganizerPayout[] @relation("PayoutRequester")
+  payoutPreparations    OrganizerPayout[] @relation("PayoutPreparer")
+  payoutApprovals       OrganizerPayout[] @relation("PayoutApprover")
+  operationalAuditEvents OperationalAuditEvent[]
+  offerEquivalenceVerifications BillOfferEquivalenceVerification[]
+  featureFlagsUpdated   FeatureFlag[]
+  brandConfigurationsUpdated BrandConfiguration[]
+  deploymentProfilesUpdated DeploymentProfile[]
 
   @@index([status])
   @@map("users")
@@ -478,6 +537,10 @@ model FinancialTransaction {
   billPurchase   BillPurchase?
   eventOrder     EventOrder?
   reconciliationCases ReconciliationCase[]
+  disputes       Dispute[]
+  refundsAgainst  RefundRequest[] @relation("RefundOriginalTransaction")
+  refundTransaction RefundRequest? @relation("RefundFinancialTransaction")
+  organizerPayout OrganizerPayout?
 
   @@index([userId, createdAt])
   @@index([status, createdAt])
@@ -591,6 +654,7 @@ model ProviderOperation {
   financialTransaction   FinancialTransaction?   @relation(fields: [financialTransactionId], references: [id], onDelete: Restrict)
   user                   User?                    @relation(fields: [userId], references: [id], onDelete: Restrict)
   reconciliationCases    ReconciliationCase[]
+  organizerPayout        OrganizerPayout?
 
   @@unique([providerCode, merchantReference])
   @@unique([providerCode, type, providerReference])
@@ -643,6 +707,7 @@ model Beneficiary {
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   providerRefs  BeneficiaryProviderReference[]
   transfers     BankTransfer[]
+  organizerPayouts OrganizerPayout[]
 
   @@unique([userId, bankCode, accountNumberFingerprint, currency])
   @@map("beneficiaries")
@@ -756,6 +821,8 @@ model BillProduct {
   updatedAt              DateTime          @updatedAt @db.Timestamptz(6)
   offers                 BillProviderOffer[]
   purchases              BillPurchase[]
+  equivalencePrevious    BillOfferEquivalenceVerification[] @relation("EquivalencePreviousProduct")
+  equivalenceCanonical   BillOfferEquivalenceVerification[] @relation("EquivalenceCanonicalProduct")
 
   @@index([category, status])
   @@map("bill_products")
@@ -776,6 +843,7 @@ model BillProviderOffer {
   product             BillProduct       @relation(fields: [productId], references: [id], onDelete: Restrict)
   purchases           BillPurchase[]
   validations         BillCustomerValidation[]
+  equivalenceVerifications BillOfferEquivalenceVerification[]
 
   @@unique([providerCode, providerProductCode, providerBillerCode])
   @@index([productId, active, priority])
@@ -871,6 +939,7 @@ model EventOrganizer {
   owner                 User                 @relation(fields: [ownerUserId], references: [id], onDelete: Restrict)
   settlementLedgerAccount LedgerAccount      @relation(fields: [settlementLedgerAccountId], references: [id], onDelete: Restrict)
   events                Event[]
+  payouts               OrganizerPayout[]
 
   @@index([ownerUserId, status])
   @@map("event_organizers")
@@ -895,6 +964,7 @@ model Event {
   organizer      EventOrganizer @relation(fields: [organizerId], references: [id], onDelete: Restrict)
   ticketTypes    EventTicketType[]
   orders         EventOrder[]
+  staffAssignments EventStaffAssignment[]
 
   @@index([organizerId, status, startsAt])
   @@map("events")
@@ -919,6 +989,25 @@ model EventTicketType {
   @@unique([eventId, name])
   @@index([eventId, status])
   @@map("event_ticket_types")
+}
+
+model EventStaffAssignment {
+  id              String           @id @default(uuid()) @db.Uuid
+  eventId         String           @db.Uuid
+  userId          String           @db.Uuid
+  role            EventStaffRole   @default(CHECK_IN)
+  status          EventStaffStatus @default(ACTIVE)
+  invitedByUserId String           @db.Uuid
+  createdAt       DateTime         @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime         @updatedAt @db.Timestamptz(6)
+  event           Event            @relation(fields: [eventId], references: [id], onDelete: Restrict)
+  user            User             @relation("EventStaffMember", fields: [userId], references: [id], onDelete: Restrict)
+  invitedBy       User             @relation("EventStaffInviter", fields: [invitedByUserId], references: [id], onDelete: Restrict)
+
+  @@unique([eventId, userId, role])
+  @@index([userId, status])
+  @@index([eventId, status, role])
+  @@map("event_staff_assignments")
 }
 
 model EventOrder {
@@ -996,6 +1085,163 @@ model TicketCheckIn {
   @@map("ticket_check_ins")
 }
 
+model Dispute {
+  id                     String        @id @default(uuid()) @db.Uuid
+  reference              String        @unique @db.VarChar(100)
+  userId                 String        @db.Uuid
+  financialTransactionId String        @db.Uuid
+  status                 DisputeStatus @default(OPEN)
+  category               String        @db.VarChar(80)
+  reasonCode             String        @db.VarChar(80)
+  detailsCiphertext      String        @db.Text
+  resolutionCiphertext   String?       @db.Text
+  assignedToUserId       String?       @db.Uuid
+  openedAt               DateTime      @default(now()) @db.Timestamptz(6)
+  resolvedAt             DateTime?     @db.Timestamptz(6)
+  updatedAt              DateTime      @updatedAt @db.Timestamptz(6)
+  user                   User          @relation(fields: [userId], references: [id], onDelete: Restrict)
+  financialTransaction   FinancialTransaction @relation(fields: [financialTransactionId], references: [id], onDelete: Restrict)
+  refundRequest          RefundRequest?
+
+  @@index([userId, openedAt])
+  @@index([status, openedAt])
+  @@index([financialTransactionId, status])
+  @@map("disputes")
+}
+
+model RefundRequest {
+  id                            String       @id @default(uuid()) @db.Uuid
+  reference                     String       @unique @db.VarChar(100)
+  disputeId                     String?      @unique @db.Uuid
+  originalFinancialTransactionId String      @unique @db.Uuid
+  refundFinancialTransactionId   String?     @unique @db.Uuid
+  requestedByUserId             String       @db.Uuid
+  reviewedByUserId              String?      @db.Uuid
+  approvedByUserId              String?      @db.Uuid
+  status                        RefundStatus @default(REQUESTED)
+  amountMinor                   BigInt
+  currency                      String       @db.Char(3)
+  reasonCode                    String       @db.VarChar(80)
+  reviewNoteCiphertext          String?      @db.Text
+  createdAt                     DateTime     @default(now()) @db.Timestamptz(6)
+  updatedAt                     DateTime     @updatedAt @db.Timestamptz(6)
+  completedAt                   DateTime?    @db.Timestamptz(6)
+  dispute                       Dispute?     @relation(fields: [disputeId], references: [id], onDelete: Restrict)
+  originalFinancialTransaction  FinancialTransaction @relation("RefundOriginalTransaction", fields: [originalFinancialTransactionId], references: [id], onDelete: Restrict)
+  refundFinancialTransaction    FinancialTransaction? @relation("RefundFinancialTransaction", fields: [refundFinancialTransactionId], references: [id], onDelete: Restrict)
+  requestedBy                   User         @relation("RefundRequester", fields: [requestedByUserId], references: [id], onDelete: Restrict)
+  reviewedBy                    User?        @relation("RefundReviewer", fields: [reviewedByUserId], references: [id], onDelete: Restrict)
+  approvedBy                    User?        @relation("RefundApprover", fields: [approvedByUserId], references: [id], onDelete: Restrict)
+
+  @@index([status, createdAt])
+  @@index([originalFinancialTransactionId])
+  @@map("refund_requests")
+}
+
+model OrganizerPayout {
+  id                     String                @id @default(uuid()) @db.Uuid
+  reference              String                @unique @db.VarChar(100)
+  organizerId            String                @db.Uuid
+  beneficiaryId          String                @db.Uuid
+  financialTransactionId String?               @unique @db.Uuid
+  providerOperationId    String?               @unique @db.Uuid
+  status                 OrganizerPayoutStatus @default(REQUESTED)
+  amountMinor            BigInt
+  currency               String                @db.Char(3)
+  providerCode           String                @db.VarChar(40)
+  narration              String                @db.VarChar(160)
+  requestedByUserId      String                @db.Uuid
+  preparedByUserId       String?               @db.Uuid
+  approvedByUserId       String?               @db.Uuid
+  rejectionReason        String?               @db.VarChar(255)
+  createdAt              DateTime              @default(now()) @db.Timestamptz(6)
+  updatedAt              DateTime              @updatedAt @db.Timestamptz(6)
+  completedAt            DateTime?             @db.Timestamptz(6)
+  organizer              EventOrganizer        @relation(fields: [organizerId], references: [id], onDelete: Restrict)
+  beneficiary            Beneficiary           @relation(fields: [beneficiaryId], references: [id], onDelete: Restrict)
+  financialTransaction   FinancialTransaction? @relation(fields: [financialTransactionId], references: [id], onDelete: Restrict)
+  providerOperation      ProviderOperation?      @relation(fields: [providerOperationId], references: [id], onDelete: Restrict)
+  requestedBy            User                  @relation("PayoutRequester", fields: [requestedByUserId], references: [id], onDelete: Restrict)
+  preparedBy             User?                 @relation("PayoutPreparer", fields: [preparedByUserId], references: [id], onDelete: Restrict)
+  approvedBy             User?                 @relation("PayoutApprover", fields: [approvedByUserId], references: [id], onDelete: Restrict)
+
+  @@index([organizerId, status, createdAt])
+  @@index([status, createdAt])
+  @@map("organizer_payouts")
+}
+
+model OperationalAuditEvent {
+  id          String   @id @default(uuid()) @db.Uuid
+  actorUserId String   @db.Uuid
+  action      String   @db.VarChar(120)
+  targetType  String   @db.VarChar(80)
+  targetId    String   @db.VarChar(120)
+  reason      String?  @db.VarChar(500)
+  requestId   String?  @db.VarChar(64)
+  beforeState Json?
+  afterState  Json?
+  occurredAt  DateTime @default(now()) @db.Timestamptz(6)
+  actor       User     @relation(fields: [actorUserId], references: [id], onDelete: Restrict)
+
+  @@index([actorUserId, occurredAt])
+  @@index([targetType, targetId, occurredAt])
+  @@index([action, occurredAt])
+  @@map("operational_audit_events")
+}
+
+model BillOfferEquivalenceVerification {
+  id                 String   @id @default(uuid()) @db.Uuid
+  providerOfferId    String   @db.Uuid
+  previousProductId  String   @db.Uuid
+  canonicalProductId String   @db.Uuid
+  verifiedByUserId   String   @db.Uuid
+  evidence           Json
+  createdAt          DateTime @default(now()) @db.Timestamptz(6)
+  providerOffer      BillProviderOffer @relation(fields: [providerOfferId], references: [id], onDelete: Restrict)
+  previousProduct    BillProduct @relation("EquivalencePreviousProduct", fields: [previousProductId], references: [id], onDelete: Restrict)
+  canonicalProduct   BillProduct @relation("EquivalenceCanonicalProduct", fields: [canonicalProductId], references: [id], onDelete: Restrict)
+  verifiedBy         User @relation(fields: [verifiedByUserId], references: [id], onDelete: Restrict)
+
+  @@index([providerOfferId, createdAt])
+  @@index([canonicalProductId, createdAt])
+  @@map("bill_offer_equivalence_verifications")
+}
+
+model FeatureFlag {
+  key             String   @id @db.VarChar(120)
+  enabled         Boolean  @default(false)
+  public          Boolean  @default(false)
+  description     String?  @db.VarChar(500)
+  config          Json?
+  updatedByUserId String?  @db.Uuid
+  createdAt       DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime @updatedAt @db.Timestamptz(6)
+  updatedBy       User?    @relation(fields: [updatedByUserId], references: [id], onDelete: SetNull)
+
+  @@index([public, enabled])
+  @@map("feature_flags")
+}
+
+model BrandConfiguration {
+  key             String   @id @default("default") @db.VarChar(80)
+  productName     String   @default("TwiPay") @db.VarChar(120)
+  legalName       String   @default("Octalve Ltd") @db.VarChar(180)
+  domain          String   @default("twipay.co") @db.VarChar(255)
+  supportEmail    String   @default("support@twipay.co") @db.VarChar(320)
+  logoUrl         String?  @db.VarChar(1000)
+  primaryColor    String   @default("#5B2A86") @db.Char(7)
+  accentColor     String   @default("#C59A35") @db.Char(7)
+  privacyUrl      String?  @db.VarChar(1000)
+  termsUrl        String?  @db.VarChar(1000)
+  metadata        Json?
+  updatedByUserId String?  @db.Uuid
+  createdAt       DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime @updatedAt @db.Timestamptz(6)
+  updatedBy       User?    @relation(fields: [updatedByUserId], references: [id], onDelete: SetNull)
+
+  @@map("brand_configurations")
+}
+
 model Notification {
   id             String             @id @default(uuid()) @db.Uuid
   userId         String?            @db.Uuid
@@ -1030,4 +1276,23 @@ model NotificationAttempt {
 
   @@index([notificationId, createdAt])
   @@map("notification_attempts")
+}
+
+
+model DeploymentProfile {
+  key             String   @id @db.VarChar(80)
+  productSlug     String   @db.VarChar(120)
+  edition         String   @db.VarChar(40)
+  licensedTo      String   @db.VarChar(180)
+  status          String   @db.VarChar(30)
+  allowedModules  Json?
+  supportMode     String   @db.VarChar(40)
+  licenseReference String? @db.VarChar(160)
+  validUntil      DateTime? @db.Timestamptz(6)
+  updatedByUserId String?  @db.Uuid
+  createdAt       DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime @updatedAt @db.Timestamptz(6)
+  updatedBy       User?    @relation(fields: [updatedByUserId], references: [id], onDelete: SetNull)
+
+  @@map("deployment_profiles")
 }

@@ -141,5 +141,7 @@ export function normalizeProviderBillStatus(status: NormalizedProviderStatus): B
     case 'PENDING':
     case 'REQUIRES_ACTION': return 'PROCESSING';
     case 'UNKNOWN': return 'UNKNOWN';
+    default:
+      throw new ServiceInvariantError(`unsupported provider status: ${String(status)}`);
   }
 }

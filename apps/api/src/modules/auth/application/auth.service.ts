@@ -36,6 +36,18 @@ export class AuthService {
     return { user, session: await this.sessions.create(user.id, context.userAgent, context.ip) };
   }
 
+
+  async updateProfile(userId: string, input: { givenName?: string | null; familyName?: string | null }) {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        ...(input.givenName !== undefined ? { givenName: input.givenName || null } : {}),
+        ...(input.familyName !== undefined ? { familyName: input.familyName || null } : {}),
+      },
+      select: { id: true, email: true, givenName: true, familyName: true, status: true },
+    });
+  }
+
   async login(input: { email: string; password: string }, context: { userAgent?: string; ip?: string }) {
     const email = normalizeEmail(input.email);
     const user = await this.prisma.user.findUnique({ where: { email }, include: { passwordCredential: true } });

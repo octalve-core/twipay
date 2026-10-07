@@ -250,7 +250,7 @@ test('Batch 3 only permits direct internal financial settlement for EVENT_PURCHA
   assert.equal(settled.status, 'SUCCEEDED');
 });
 
-test('Batch 3 event order items and ticket credentials remain immutable and refunds are not enabled', async () => {
+test('Batch 4 event order items and ticket credentials remain immutable and direct unaudited refunds are rejected', async () => {
   const user = await prisma.user.create({ data: { email: `event-guard-${suffix}@example.com`, status: 'ACTIVE' } });
   const settlement = await prisma.ledgerAccount.create({
     data: { code: `event-settlement-${suffix}`, name: 'Event settlement', category: 'LIABILITY', normalBalance: 'CREDIT', currency: 'NGN', system: true },

@@ -3,9 +3,11 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
   Req,
   Res,
   UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import type { FastifyReply, FastifyRequest } from 'fastify';
@@ -15,9 +17,11 @@ import {
   CSRF_COOKIE_PRODUCTION,
   SESSION_COOKIE_LOCAL,
   SESSION_COOKIE_PRODUCTION,
+  isRecentMfaAssurance,
 } from '@twipay/security';
 import { ZodValidationPipe } from '../../../platform/http/zod-validation.pipe.js';
 import { AuthService } from '../application/auth.service.js';
+import { SessionAuthGuard, requirePrincipal, type AuthenticatedFastifyRequest } from './session-auth.guard.js';
 import { SessionService } from '../application/session.service.js';
 
 const RegisterSchema = z
@@ -28,6 +32,7 @@ const RegisterSchema = z
     familyName: z.string().trim().min(1).max(100).optional(),
   })
   .strict();
+const ProfileSchema = z.object({ givenName: z.string().trim().min(1).max(100).nullable().optional(), familyName: z.string().trim().min(1).max(100).nullable().optional() }).strict().refine((value) => value.givenName !== undefined || value.familyName !== undefined, 'at least one field must change');
 const LoginSchema = z
   .object({ email: z.email().max(320), password: z.string().min(1).max(128) })
   .strict();
@@ -103,6 +108,13 @@ export class AuthController {
     return { ok: true };
   }
 
+  @Patch('me')
+  @UseGuards(SessionAuthGuard)
+  async updateMe(@Body(new ZodValidationPipe(ProfileSchema)) body: z.infer<typeof ProfileSchema>, @Req() req: AuthenticatedFastifyRequest) {
+    const principal = requirePrincipal(req);
+    return { user: await this.auth.updateProfile(principal.userId, body) };
+  }
+
   @Get('me')
   async me(@Req() req: FastifyRequest) {
     const token = req.cookies[sessionCookieName()];
@@ -117,7 +129,8 @@ export class AuthController {
         status: session.user.status,
       },
       roles: session.user.roleAssignments.map((assignment) => assignment.role.code),
-      mfaSatisfied: Boolean(session.mfaSatisfiedAt),
+      permissions: [...new Set(session.user.roleAssignments.flatMap((assignment) => assignment.role.permissions.map((item) => item.permission.code)))],
+      mfaSatisfied: isRecentMfaAssurance(session.mfaSatisfiedAt, Number(process.env['MFA_STEP_UP_MAX_AGE_SECONDS'] ?? 600)),
     };
   }
 

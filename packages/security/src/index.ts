@@ -33,6 +33,19 @@ export function isUnsafeMethod(method: string): boolean {
   return !['GET', 'HEAD', 'OPTIONS'].includes(method.toUpperCase());
 }
 
+/** Returns true only when MFA was satisfied recently enough for a high-risk step-up action. */
+export function isRecentMfaAssurance(
+  satisfiedAt: Date | string | null | undefined,
+  maxAgeSeconds: number,
+  now = new Date(),
+): boolean {
+  if (!satisfiedAt || !Number.isInteger(maxAgeSeconds) || maxAgeSeconds < 1) return false;
+  const at = satisfiedAt instanceof Date ? satisfiedAt : new Date(satisfiedAt);
+  if (!Number.isFinite(at.getTime())) return false;
+  const ageMs = now.getTime() - at.getTime();
+  return ageMs >= 0 && ageMs <= maxAgeSeconds * 1000;
+}
+
 export const SENSITIVE_LOG_PATHS = Object.freeze([
   'req.headers.authorization',
   'req.headers.cookie',

@@ -363,6 +363,15 @@ export class BillService {
     return rows.length;
   }
 
+
+  async listForUser(userId: string): Promise<JsonObject[]> {
+    const purchases = await this.prisma.billPurchase.findMany({
+      where: { userId }, orderBy: { createdAt: 'desc' }, take: 100,
+      include: { financialTransaction: true, product: true, providerOffer: true },
+    });
+    return purchases.map((purchase) => this.serializePurchase(purchase));
+  }
+
   async getForUser(userId: string, reference: string): Promise<JsonObject | null> {
     const purchase = await this.prisma.billPurchase.findFirst({
       where: { userId, financialTransaction: { reference } },
