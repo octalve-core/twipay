@@ -1,6 +1,6 @@
 {
-  "timestamp": "2026-10-08T21:43:29.107Z",
-  "gitHead": "5174c0ddd49acb670d47a75e2e8ad5803978ff26",
+  "timestamp": "2026-10-08T21:43:50.854Z",
+  "gitHead": "d7cc57868f33b2fd16917cc4073f61a2ccd7f929",
   "runtime": {
     "node": "v22.16.0",
     "pnpm": null,
@@ -18,7 +18,7 @@
     {
       "name": "Batch A–F isolated source/unit tests",
       "status": "PASS",
-      "evidence": "# Subtest: ticket credential integrity is verified and reads are recorded without storing the secret\nok 104 - ticket credential integrity is verified and reads are recorded without storing the secret\n  ---\n  duration_ms: 0.27157\n  type: 'test'\n  ...\n1..104\n# tests 104\n# suites 0\n# pass 104\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 757.814733"
+      "evidence": "# Subtest: ticket credential integrity is verified and reads are recorded without storing the secret\nok 104 - ticket credential integrity is verified and reads are recorded without storing the secret\n  ---\n  duration_ms: 0.417767\n  type: 'test'\n  ...\n1..104\n# tests 104\n# suites 0\n# pass 104\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 721.286748"
     },
     {
       "name": "scripts/typescript-syntax-check.mjs",
@@ -58,7 +58,7 @@
     {
       "name": "scripts/git-history-secret-check.mjs",
       "status": "PASS",
-      "evidence": "Git history secret check PASS (859 tracked paths, full reachable patch history scanned)"
+      "evidence": "Git history secret check PASS (867 tracked paths, full reachable patch history scanned)"
     },
     {
       "name": "Node 24 toolchain",

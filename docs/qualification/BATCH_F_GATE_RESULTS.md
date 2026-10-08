@@ -1,7 +1,7 @@
 # TwiPay Batch F — Evidence-Based Qualification
 
-Generated: 2026-10-08T21:43:29.107Z
-Git HEAD at execution: 5174c0ddd49acb670d47a75e2e8ad5803978ff26
+Generated: 2026-10-08T21:43:50.854Z
+Git HEAD at execution: d7cc57868f33b2fd16917cc4073f61a2ccd7f929
 Node: v22.16.0
 
 **Status: NOT PRODUCTION QUALIFIED**
@@ -39,7 +39,7 @@ Blocked gates are not successful tests. TCP reachability alone does not prove a 
 # Subtest: ticket credential integrity is verified and reads are recorded without storing the secret
 ok 104 - ticket credential integrity is verified and reads are recorded without storing the secret
   ---
-  duration_ms: 0.27157
+  duration_ms: 0.417767
   type: 'test'
   ...
 1..104
@@ -50,7 +50,7 @@ ok 104 - ticket credential integrity is verified and reads are recorded without 
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 757.814733
+# duration_ms 721.286748
 ```
 
 ## Required external qualification
