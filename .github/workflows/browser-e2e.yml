@@ -58,6 +58,7 @@ jobs:
           node-version: 24.21.0
       - run: corepack enable
       - run: test -f pnpm-lock.yaml || (echo 'E2E requires the committed genuine lockfile' && exit 1)
+      - run: node scripts/qualification/phase1-3-preflight.mjs --check-lock
       - run: pnpm install --frozen-lockfile
       - run: pnpm db:generate && pnpm --filter @twipay/database prisma:deploy
       - run: pnpm exec playwright install --with-deps chromium

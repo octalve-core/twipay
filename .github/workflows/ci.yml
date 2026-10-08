@@ -66,6 +66,7 @@ jobs:
       - run: corepack enable
       - name: Require genuine lockfile
         run: test -f pnpm-lock.yaml || (echo 'pnpm-lock.yaml is required; run a genuine pnpm install and commit its generated lockfile' && exit 1)
+      - run: node scripts/qualification/phase1-3-preflight.mjs --check-lock
       - run: pnpm install --frozen-lockfile
       - run: pnpm db:generate
       - run: pnpm --filter @twipay/database prisma:validate

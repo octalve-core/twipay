@@ -22,7 +22,9 @@
     "db:studio": "pnpm --filter @twipay/database prisma:studio",
     "e2e": "playwright test",
     "test:history-secrets": "node scripts/git-history-secret-check.mjs",
-    "test:phase1": "node --test docs/integration/test/phase1-reconciliation.test.mjs"
+    "test:phase1": "node --test docs/integration/test/phase1-reconciliation.test.mjs",
+    "test:phase1-3": "node --test docs/integration/test/phase1-toolchain.test.mjs",
+    "qualify:phase1-3": "node scripts/qualification/phase1-3-preflight.mjs"
   },
   "devDependencies": {
     "@types/node": "24.19.1",

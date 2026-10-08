@@ -36,8 +36,15 @@ test('Newer bank and virtual-account access controls survive', () => {
   assert.match(text('apps/api/src/modules/finance/application/virtual-account.service.ts'),/listProvisioningForUser/);
 });
 test('Developer export lockfile not misrepresented as current frozen-lockfile evidence', () => {
-  assert.ok(!file('pnpm-lock.yaml'));
+  // A genuine complete root lockfile is expected in Phase 1.3. The developer
+  // export's root-only lockfile remains a historical reference, not a basis for install.
   assert.ok(file('docs/integration/developer-export-lockfile.reference.yaml'));
+  if (file('pnpm-lock.yaml')) {
+    const lock = text('pnpm-lock.yaml');
+    assert.match(lock, /importers:/);
+    assert.match(lock, /apps\/customer-ui:/);
+    assert.match(lock, /packages\/database:/);
+  }
   const d=JSON.parse(text('docs/integration/PHASE1_SOURCE_RECONCILIATION.json'));
   assert.equal(d.baseline.changed,48);assert.equal(d.decisions.length,59);
   assert.equal(d.decisions.filter(x=>x.decision==='PROVENANCE_ONLY_LOCK_INVALID').length,1);
