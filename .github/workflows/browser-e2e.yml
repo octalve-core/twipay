@@ -34,6 +34,19 @@ jobs:
       ADMIN_URL: http://127.0.0.1:3001
       API_URL: http://127.0.0.1:4000
       NEXT_PUBLIC_API_URL: http://127.0.0.1:4000
+      VITE_TWIPAY_API_URL: http://127.0.0.1:4000
+      VITE_TWIPAY_FUNDING_SANDBOX_ENABLED: 'false'
+      VITE_TWIPAY_TRANSFER_SANDBOX_ENABLED: 'false'
+      VITE_TWIPAY_VIRTUAL_ACCOUNT_SANDBOX_ENABLED: 'false'
+      VITE_TWIPAY_BILLS_SANDBOX_ENABLED: 'false'
+      VITE_TWIPAY_EVENT_CHECKOUT_SANDBOX_ENABLED: 'false'
+      EVENT_TICKET_QR_SANDBOX_ENABLED: 'false'
+      WALLET_COLLECTIONS_SANDBOX_ENABLED: 'false'
+      BANK_TRANSFERS_SANDBOX_ENABLED: 'false'
+      VIRTUAL_ACCOUNTS_SANDBOX_ENABLED: 'false'
+      BILL_PURCHASES_SANDBOX_ENABLED: 'false'
+      EVENT_CHECKOUT_SANDBOX_ENABLED: 'false'
+      HIGH_RISK_FEATURES_RELEASE_QUALIFIED: 'false'
       DATABASE_URL: postgresql://twipay:twipay_e2e_password@127.0.0.1:5432/twipay_e2e?schema=public
       REDIS_URL: redis://127.0.0.1:6379
       SESSION_HASH_PEPPER: e2e-only-session-pepper-change-me-000000000
@@ -57,16 +70,18 @@ jobs:
         with:
           node-version: 24.21.0
       - run: corepack enable
+      - run: node scripts/qualification/phase1-4-6-gates.mjs
       - run: test -f pnpm-lock.yaml || (echo 'E2E requires the committed genuine lockfile' && exit 1)
       - run: node scripts/qualification/phase1-3-preflight.mjs --check-lock
       - run: pnpm install --frozen-lockfile
       - run: pnpm db:generate && pnpm --filter @twipay/database prisma:deploy
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm build
-      - name: Start API/web/admin
+      - name: Start API/worker/ErhaPay-derived customer UI/admin
         run: |
           pnpm --filter @twipay/api start > /tmp/twipay-api.log 2>&1 &
-          pnpm --filter @twipay/web start > /tmp/twipay-web.log 2>&1 &
+          pnpm --filter @twipay/worker start > /tmp/twipay-worker.log 2>&1 &
+          pnpm --filter @twipay/customer-ui preview > /tmp/twipay-customer-ui.log 2>&1 &
           pnpm --filter @twipay/admin start > /tmp/twipay-admin.log 2>&1 &
       - name: Wait for stack
         run: node scripts/wait-for-stack.mjs
@@ -77,3 +92,12 @@ jobs:
         with:
           name: e2e-service-logs
           path: /tmp/twipay-*.log
+      - name: Upload Playwright trace and screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: customer-erhapay-e2e-evidence
+          path: |
+            test-results/
+            playwright-report/
+            docs/tests/screenshots/anonymous/

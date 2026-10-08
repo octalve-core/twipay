@@ -64,6 +64,8 @@ jobs:
         with:
           node-version: 24.21.0
       - run: corepack enable
+      - name: Verify ErhaPay-based customer CI, visual assets and inactive financial flags
+        run: node scripts/qualification/phase1-4-6-gates.mjs
       - name: Require genuine lockfile
         run: test -f pnpm-lock.yaml || (echo 'pnpm-lock.yaml is required; run a genuine pnpm install and commit its generated lockfile' && exit 1)
       - run: node scripts/qualification/phase1-3-preflight.mjs --check-lock
@@ -73,6 +75,12 @@ jobs:
       - run: pnpm --filter @twipay/database prisma:deploy
       - run: pnpm test:repo
       - run: node scripts/git-history-secret-check.mjs
+      - name: Isolated ErhaPay and integration-contract regression tests
+        run: |
+          pnpm test:isolated-regression
+          pnpm test:phase1
+          pnpm test:phase1-3
+          pnpm test:phase1-4-6
       - run: pnpm format:check
       - run: pnpm lint
       - run: pnpm typecheck
@@ -82,3 +90,9 @@ jobs:
       - name: Redis/BullMQ worker integration
         run: pnpm --filter @twipay/worker test:integration
       - run: pnpm build
+      - name: Upload qualification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase1-source-policy-evidence
+          path: out/phase1-4-6-gates.json

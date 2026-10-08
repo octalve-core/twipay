@@ -4,8 +4,8 @@
 set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")/../.."
 MODE="${1:-}"
-if [[ "$MODE" != --prepare-lock && "$MODE" != --qualify ]]; then
-  echo 'Usage: scripts/qualification/phase1-3-run-local.sh --prepare-lock|--qualify' >&2; exit 2
+if [[ "$MODE" != --prepare-lock && "$MODE" != --qualify && "$MODE" != --smoke ]]; then
+  echo 'Usage: scripts/qualification/phase1-3-run-local.sh --prepare-lock|--qualify|--smoke' >&2; exit 2
 fi
 if [[ "$(node -p 'process.versions.node.split(".")[0]')" != 24 ]]; then
   echo 'BLOCKED: Node 24 required. Do not bypass package engine checks.' >&2; exit 2
@@ -50,9 +50,30 @@ export REDIS_URL="redis://127.0.0.1:${PHASE13_REDIS_PORT}"
 export WALLET_COLLECTIONS_SANDBOX_ENABLED=false BANK_TRANSFERS_SANDBOX_ENABLED=false
 export VIRTUAL_ACCOUNTS_SANDBOX_ENABLED=false BILL_PURCHASES_SANDBOX_ENABLED=false
 export EVENT_CHECKOUT_SANDBOX_ENABLED=false EVENT_TICKET_QR_SANDBOX_ENABLED=false
+export VITE_TWIPAY_FUNDING_SANDBOX_ENABLED=false VITE_TWIPAY_TRANSFER_SANDBOX_ENABLED=false
+export VITE_TWIPAY_VIRTUAL_ACCOUNT_SANDBOX_ENABLED=false VITE_TWIPAY_BILLS_SANDBOX_ENABLED=false
+export VITE_TWIPAY_EVENT_CHECKOUT_SANDBOX_ENABLED=false
+export APP_URL=http://127.0.0.1:3000 ADMIN_URL=http://127.0.0.1:3001 API_URL=http://127.0.0.1:4000
+export VITE_TWIPAY_API_URL="$API_URL"
+export API_BIND_HOST=127.0.0.1
+# Only disposable, random secrets for local read-only smoke; no real provider keys.
+if [[ "$MODE" == --smoke ]]; then
+  export SESSION_HASH_PEPPER="$(openssl rand -hex 32)"
+  export MFA_RECOVERY_HMAC_KEY="$(openssl rand -hex 32)"
+  export DATA_ENCRYPTION_KEY="$(openssl rand -base64 32 | tr -d '\n')"
+  export PII_FINGERPRINT_KEY="$(openssl rand -hex 32)"
+  export TICKET_SIGNING_KEYS_JSON="{\"1\":\"$(openssl rand -hex 32)\"}"
+  export TICKET_SIGNING_CURRENT_VERSION=1
+  export LOG_LEVEL=silent
+fi
 PROJECT="twipayqual$(date +%s)$$"
 COMPOSE=(docker compose --project-name "$PROJECT" -f scripts/qualification/compose.phase1-3.yaml)
-cleanup() { "${COMPOSE[@]}" down --volumes --remove-orphans >/dev/null 2>&1 || true; }
+SERVICE_PIDS=()
+cleanup() {
+  for pid in "${SERVICE_PIDS[@]}"; do kill "$pid" >/dev/null 2>&1 || true; done
+  for pid in "${SERVICE_PIDS[@]}"; do wait "$pid" >/dev/null 2>&1 || true; done
+  "${COMPOSE[@]}" down --volumes --remove-orphans >/dev/null 2>&1 || true
+}
 trap cleanup EXIT
 # Refuse to overwrite occupied host ports. Compose itself will also reject any race.
 node - <<'JS'
@@ -80,4 +101,19 @@ pnpm test:phase1
 pnpm test:phase1-3
 pnpm typecheck
 pnpm build
-echo 'Phase 1.3 local runtime gates PASSED. This does not qualify browser, provider or production gates.'
+if [[ "$MODE" == --smoke ]]; then
+  # Read-only browser journey, not provider testing. Refuse preexisting app ports.
+  mkdir -p out
+  node scripts/qualification/assert-loopback-ports-free.mjs 3000 3001 4000
+  pnpm --filter @twipay/api start > out/phase15-api.log 2>&1 & SERVICE_PIDS+=("$!")
+  pnpm --filter @twipay/worker start > out/phase15-worker.log 2>&1 & SERVICE_PIDS+=("$!")
+  pnpm --filter @twipay/customer-ui preview > out/phase15-customer-ui.log 2>&1 & SERVICE_PIDS+=("$!")
+  pnpm --filter @twipay/admin exec next start -H 127.0.0.1 -p 3001 > out/phase15-admin.log 2>&1 & SERVICE_PIDS+=("$!")
+  node scripts/wait-for-stack.mjs
+  kill -0 "${SERVICE_PIDS[1]}" || { echo 'FAIL: background reconciliation worker exited' >&2; exit 1; }
+  pnpm e2e
+  echo 'Phase 1.5 isolated stack and customer read-only browser smoke PASSED.'
+  echo 'Phase 1.6 complete authorization, provider, concurrency and penetration gates remain outstanding.'
+else
+  echo 'Phase 1.3 local runtime gates PASSED. This does not qualify browser, provider or production gates.'
+fi

@@ -20,12 +20,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Enforce staging HTTPS target
-        shell: bash
         env:
           TARGET: ${{ inputs.target }}
-        run: |
-          [[ "$TARGET" =~ ^https://[^/?#]+(/[^?#]*)?$ ]] || { echo 'Target must be an HTTPS staging URL without query/fragment secrets'; exit 1; }
-          [[ "$TARGET" != *"twipay.co"* || "$TARGET" == *"staging"* ]] || { echo 'Refusing an ambiguous production-like target'; exit 1; }
+          TWIPAY_APPROVED_STAGING_HOST: ${{ vars.TWIPAY_APPROVED_STAGING_HOST }}
+        run: node scripts/qualification/check-staging-target.mjs
       - name: OWASP ZAP baseline
         uses: zaproxy/action-baseline@v0.15.0
         with:
