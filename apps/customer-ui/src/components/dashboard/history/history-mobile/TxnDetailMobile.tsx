@@ -1,6 +1,6 @@
 import Loader from "@/components/Loader";
-import { Transaction } from "@/lib/api/dashboard-apis/txnHistoryApis";
-import { copyToClipboard, formatAmount, formatDateTime, getTxnTime } from "@/lib/utils";
+import { Transaction, formatTransactionAmount } from "@/lib/api/dashboard-apis/txnHistoryApis";
+import { copyToClipboard, formatDateTime, getTxnTime } from "@/lib/utils";
 import { parseISO } from "date-fns";
 import { ArrowLeft, Check } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -77,7 +77,7 @@ const TxnDetailMobile = ({txnDetails, fetchingDetails}:{txnDetails: Transaction 
             <section className="bg-white mx-auto w-[90vw] mt-5 rounded-lg p-2.5 flex flex-col gap-3">
                 <div className="flex items-center justify-between text-sm text-[#464E60]">
                     <p className="">Total amount</p>
-                    <p className="font-medium">{txnDetails?.metadata?.country?.currencySymbol ? `${txnDetails.metadata.country.currencySymbol}${txnDetails.amount} ` : formatAmount(txnDetails?.amount as number)}</p>
+                    <p className="font-medium">{txnDetails ? formatTransactionAmount(txnDetails) : "—"}</p>
                 </div>
                 <div className="flex items-center justify-between text-sm text-[#464E60]">
                     <p className="">Transaction type</p>
@@ -111,14 +111,9 @@ const TxnDetailMobile = ({txnDetails, fetchingDetails}:{txnDetails: Transaction 
                     <p className="">Smartcard Number</p>
                     <p className="font-medium capitalize">{txnDetails.metadata?.smartCardNumber}</p>
                 </div>}
-                {/* Betting */}
-                {txnDetails?.metadata?.customerId && <div className="flex items-center justify-between text-sm text-[#464E60]">
+{txnDetails?.metadata?.customerId && <div className="flex items-center justify-between text-sm text-[#464E60]">
                     <p className="">Customer ID</p>
                     <p className="font-medium capitalize">{txnDetails.metadata?.customerId}</p>
-                </div>}
-                {(txnDetails?.type === "betting" && txnDetails?.metadata?.serviceCode) && <div className="flex items-center justify-between text-sm text-[#464E60]">
-                    <p className="">Platform</p>
-                    <p className="font-medium capitalize">{txnDetails.metadata?.serviceCode}</p>
                 </div>}
                 {/* Wallet Transactions */}
                 {txnDetails?.metadata?.accountName && <div className="flex items-center justify-between text-sm text-[#464E60]">

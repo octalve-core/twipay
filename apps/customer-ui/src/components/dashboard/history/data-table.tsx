@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/table"
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { Transaction } from "@/lib/api/dashboard-apis/txnHistoryApis"
+import { Transaction, formatTransactionAmount } from "@/lib/api/dashboard-apis/txnHistoryApis"
 import TxnHistoryTablePagination from "@/routes/dashboard/TxnHistoryTablePagination"
 import EmptyState from "../EmptyState"
 import { LuDownload } from "react-icons/lu"
@@ -23,7 +23,7 @@ import CustomButton from "@/components/CustomButton"
 
 import BackButton from "@/components/Authentication/BackButton";
 import Filterbutton from "./Filterbutton"
-import { formatAmount, formatDateTime } from "@/lib/utils"
+import { formatDateTime } from "@/lib/utils"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -100,7 +100,7 @@ const exportToCsv = (rows: TData[], fileName: string) => {
       productName ||
       "";
 
-    const formattedAmount = formatAmount(txn.amount);
+    const formattedAmount = formatTransactionAmount(txn);
     const formattedDate = formatDateTime(txn.createdAt);
 
     return [
@@ -118,7 +118,11 @@ const exportToCsv = (rows: TData[], fileName: string) => {
     "data:text/csv;charset=utf-8,\uFEFF" +
     csvHeaders.join(",") +
     "\n" +
-    csvRows.map((row) => row.map((v) => `"${v}"`).join(",")).join("\n");
+    csvRows.map((row) => row.map((v) => {
+      const safe = String(v ?? "");
+      const escaped = /^[\s\u0000-\u001f]*[=+@-]/.test(safe) ? `'${safe}` : safe;
+      return `"${escaped.replaceAll('"', '""')}"`;
+    }).join(",")).join("\n");
 
   const encodedUri = encodeURI(csvContent);
   const link = document.createElement("a");

@@ -11,6 +11,7 @@ const TransactionHistory = () => {
     const {
         data: txnHistoryData,
         isLoading: fetchingHistory,
+        isError,
     } = useQuery<TransactionHistoryResponse, Error>({
         queryKey: ["transaction-history"],
         queryFn: () => getTxnHistory({per_page: 6}),
@@ -29,7 +30,7 @@ const TransactionHistory = () => {
         </div>
         <div className="mt-2 py-5 px-5 flex flex-col gap-6 rounded-xl bg-white border border-[#F0F2F5]">
           {
-            fetchingHistory ? Array.from({length: 6}).map((_, i) => (
+            isError ? <p role="alert" className="text-red-600">Unable to load transaction history.</p> : fetchingHistory ? Array.from({length: 6}).map((_, i) => (
               <div key={i} className="flex justify-between items-center animate-pulse">
                 <div className="flex items-center gap-2.5">
                   <div className="size-10 bg-[#E7F6EC] rounded-full grid place-items-center">

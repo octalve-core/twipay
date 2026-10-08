@@ -1,13 +1,13 @@
 import BackButton from "@/components/Authentication/BackButton"
 import Loader from "@/components/Loader";
-import { cn, copyToClipboard, formatAmount, formatDate, formatDateTime } from "@/lib/utils";
+import { cn, copyToClipboard, formatDate, formatDateTime } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 
 import CustomButton from "@/components/CustomButton";
 import { LuDownload } from "react-icons/lu";
-import { Transaction } from "@/lib/api/dashboard-apis/txnHistoryApis";
+import { Transaction, formatTransactionAmount } from "@/lib/api/dashboard-apis/txnHistoryApis";
 import { useState } from "react";
 import { Check } from "lucide-react";
 import { RxCopy } from "react-icons/rx";
@@ -72,12 +72,12 @@ const TxnDetailDesktop = ({txnDetails, fetchingDetails}:{txnDetails: Transaction
 
             <section className="w-full text-center bg-white border border-[#1018281A] rounded-xl p-[26px]">
                 <h1 className="text-[#717171] mb-3.5 capitalize">{txnDetails?.purpose?.replaceAll("_", " ")} - <span className={cn("", txnDetails?.status === "success" ? "text-[#008000]" : (txnDetails?.status === "pending" || txnDetails?.status === "processing") ? "text-yellow-500" : "text-[#fb2c36]" )}>{txnDetails?.status}!</span></h1>
-                <p className="text-[#101828] font-bold text-xl">{txnDetails?.metadata?.country?.currencySymbol ? `${txnDetails.metadata.country.currencySymbol}${txnDetails.amount} ` : formatAmount(txnDetails?.amount as number)}</p>
+                <p className="text-[#101828] font-bold text-xl">{txnDetails ? formatTransactionAmount(txnDetails) : "—"}</p>
 
                 <div className="mt-11 w-full flex flex-col justify-center gap-5 text-sm">
                     <div className="flex justify-center gap-5">
                         <p className="w-full text-[#717171] text-right">Amount</p>
-                        <p className="w-full text-left text-[#101828] font-medium">{txnDetails?.metadata?.country?.currencySymbol ? `${txnDetails.metadata.country.currencySymbol}${txnDetails.amount} ` : formatAmount(txnDetails?.amount as number)}</p>
+                        <p className="w-full text-left text-[#101828] font-medium">{txnDetails ? formatTransactionAmount(txnDetails) : "—"}</p>
                     </div>
                     {/* Airtime & Data */}
                     {(txnDetails?.metadata?.phone && txnDetails?.type !== "e_pin") && <div className="flex justify-center gap-5">
@@ -102,14 +102,9 @@ const TxnDetailDesktop = ({txnDetails, fetchingDetails}:{txnDetails: Transaction
                         <p className="w-full text-[#717171] text-right">Profile Id</p>
                         <p className="w-full text-left text-[#101828] font-medium capitalize">{txnDetails.metadata?.profileId}</p>
                     </div>}
-                    {/* Betting */}
-                    {txnDetails?.metadata?.customerId && <div className="flex justify-center gap-5">
+{txnDetails?.metadata?.customerId && <div className="flex justify-center gap-5">
                         <p className="w-full text-[#717171] text-right">Customer ID</p>
                         <p className="w-full text-left text-[#101828] font-medium capitalize">{txnDetails.metadata?.customerId}</p>
-                    </div>}
-                    {(txnDetails?.metadata?.serviceCode && txnDetails.type==="betting") && <div className="flex justify-center gap-5">
-                        <p className="w-full text-[#717171] text-right">Platform</p>
-                        <p className="w-full text-left text-[#101828] font-medium capitalize">{txnDetails.metadata?.serviceCode}</p>
                     </div>}
                     {/* Cable/Tv */}
                     {txnDetails?.metadata?.smartCardNumber && <div className="flex justify-center gap-5">
@@ -170,7 +165,8 @@ const TxnDetailDesktop = ({txnDetails, fetchingDetails}:{txnDetails: Transaction
                 </div>
             </section>
         </div>
-        <CustomButton onClick={() => downloadReceipt()} className="flex items-center gap-3 w-full mt-9 justify-center font-medium md:text-lg">
+        {txnDetails && txnDetails.status !== "success" && <p role="status" className="mt-5 text-amber-700">This transaction is {txnDetails.status}. This record is not proof of successful payment.</p>}
+        <CustomButton disabled={!txnDetails || txnDetails.status !== "success"} onClick={() => downloadReceipt()} className="flex items-center gap-3 w-full mt-9 justify-center font-medium md:text-lg">
             <LuDownload className="size-6" />
             <span>Download Receipt</span>
         </CustomButton>

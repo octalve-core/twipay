@@ -1,7 +1,8 @@
-import { Transaction } from "@/lib/api/dashboard-apis/txnHistoryApis"
+import { formatNgnMinorUnits } from "@/lib/money";
+import { Transaction, formatTransactionAmount } from "@/lib/api/dashboard-apis/txnHistoryApis"
 import { FaLongArrowAltDown, FaLongArrowAltUp } from "react-icons/fa";
 import Loader from "../Loader";
-import { copyToClipboard, formatAmount, formatDateTime } from "@/lib/utils";
+import { copyToClipboard, formatDateTime } from "@/lib/utils";
 import { useState } from "react";
 import { Check } from "lucide-react";
 import { RxCopy } from "react-icons/rx";
@@ -53,13 +54,16 @@ const MobileReceipt = ({txnDetails, fetchingDetails}:{txnDetails: Transaction | 
 
         <section className="flex flex-col mt-4 p-2.5 gap-3 text-sm text-[#464E60]">
                 <div className="flex items-center justify-between text-sm text-[#464E60]">
-                    <p className="">Total amount</p>
-                    <p className="font-medium">{txnDetails?.metadata?.country?.currencySymbol ? `${txnDetails.metadata.country.currencySymbol}${txnDetails.amount} ` : formatAmount(txnDetails?.amount as number)}</p>
+                    <p className="">Transaction amount</p>
+                    <p className="font-medium">{txnDetails ? formatTransactionAmount(txnDetails) : "—"}</p>
                 </div>
                 <div className="flex items-center justify-between text-sm text-[#464E60]">
                     <p className="">Transaction type</p>
                     <p className="font-medium capitalize">{txnDetails?.purpose.replaceAll("_", " ")}</p>
                 </div>
+                {txnDetails?.feeMinor && txnDetails.feeMinor !== "0" && <div className="flex items-center justify-between text-sm text-[#464E60]">
+                    <p>Fee</p><p className="font-medium">{formatNgnMinorUnits(txnDetails.feeMinor)}</p>
+                </div>}
                 {/* Electricity */}
                 {txnDetails?.metadata?.meterNumber && <div className="flex items-center justify-between text-sm text-[#464E60]">
                     <p className="">Meter Number</p>
@@ -88,14 +92,9 @@ const MobileReceipt = ({txnDetails, fetchingDetails}:{txnDetails: Transaction | 
                     <p className="">Smartcard Number</p>
                     <p className="font-medium capitalize">{txnDetails.metadata?.smartCardNumber}</p>
                 </div>}
-                {/* Betting */}
-                {txnDetails?.metadata?.customerId && <div className="flex items-center justify-between text-sm text-[#464E60]">
+{txnDetails?.metadata?.customerId && <div className="flex items-center justify-between text-sm text-[#464E60]">
                     <p className="">Customer ID</p>
                     <p className="font-medium capitalize">{txnDetails.metadata?.customerId}</p>
-                </div>}
-                {(txnDetails?.type === "betting" && txnDetails?.metadata?.serviceCode) && <div className="flex items-center justify-between text-sm text-[#464E60]">
-                    <p className="">Platform</p>
-                    <p className="font-medium capitalize">{txnDetails.metadata?.serviceCode}</p>
                 </div>}
                 {/* Wallet Transactions */}
                 {txnDetails?.metadata?.accountName && <div className="flex items-center justify-between text-sm text-[#464E60]">

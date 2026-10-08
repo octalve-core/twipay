@@ -11,6 +11,7 @@ import { useSearchParams } from "react-router-dom";
 import useIsMobile from "@/hooks/useIsMobile";
 import BackButton from "@/components/Authentication/BackButton";
 import Filterbutton from "@/components/dashboard/history/Filterbutton";
+import TxnHistoryTablePagination from "./TxnHistoryTablePagination";
 
 const History = () => {
     // const [txnHistory, setTxnHistory] = useState<Transaction[]>([]);
@@ -33,13 +34,14 @@ const History = () => {
     const {
         data: txnHistory,
         isLoading: fetchingHistory,
+        isError: hasHistoryError,
+        error: historyError,
     } = useQuery<TransactionHistoryResponse, Error>({
-        queryKey: ["transaction-history", page, status, startDate, endDate,  startPrice, endPrice, type],
+        queryKey: ["transaction-history", page, per_page, status, startDate, endDate,  startPrice, endPrice, type],
         queryFn: () => getTxnHistory({page, per_page, status, startDate, endDate,  startPrice, endPrice, type}),
     })
 
-    const totalItems = txnHistory?.pagination.total || 0;
-    const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+    const totalPages = txnHistory?.pagination.totalPages ?? 0;
 
     (void 0)
 
@@ -50,8 +52,10 @@ const History = () => {
           <p className="text-[#667085] font-medium text-xl w-full text-center">History</p>
           <Filterbutton />
       </div>
-      {(txnHistory && !fetchingHistory) ? <DataTable totalPages={totalPages} selectRows={selectRows} columns={columns} data={txnHistory.data} /> : <Loader className="max-md:hidden w-full h-full" />}
-      <TxnHistoryMobile fetchingHistory={fetchingHistory} txnHistoryData={txnHistory?.data} />
+      {hasHistoryError && <p role="alert" className="mb-4 text-red-600">Unable to load transaction history: {historyError?.message}</p>}
+      {!hasHistoryError && (txnHistory && !fetchingHistory) ? <DataTable totalPages={totalPages} selectRows={selectRows} columns={columns} data={txnHistory.data} /> : <Loader className="max-md:hidden w-full h-full" />}
+      {!hasHistoryError && <TxnHistoryMobile fetchingHistory={fetchingHistory} txnHistoryData={txnHistory?.data} />}
+      {!hasHistoryError && totalPages > 1 && <div className="md:hidden"><TxnHistoryTablePagination totalPages={totalPages} /></div>}
     </div>
   )
 }

@@ -1,4 +1,4 @@
-import { formatAmount, formatDateTime } from "@/lib/utils";
+import { formatDateTime } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table"
 
 import {
@@ -11,7 +11,7 @@ import {
   import { BiDotsVerticalRounded } from "react-icons/bi";
   // import { Checkbox } from "@/components/ui/checkbox";
 import CustomButton from "@/components/CustomButton";
-import { Transaction } from "@/lib/api/dashboard-apis/txnHistoryApis";
+import { Transaction, formatTransactionAmount } from "@/lib/api/dashboard-apis/txnHistoryApis";
 import { PiArrowBendLeftUpBold, PiArrowBendRightDownBold, PiArrowsDownUpBold } from "react-icons/pi";
 
 export const columns: ColumnDef<Transaction>[] = [
@@ -90,8 +90,7 @@ export const columns: ColumnDef<Transaction>[] = [
     accessorKey: "amount",
     header: () => <div className="text-[#344054] text-left font-medium text-xs capitalize">Amount</div>,
     cell: ({row}) => {
-        const amount = row.original.amount;
-        const formattedAmount = row.original.metadata.country?.currencySymbol ? `${row.original.metadata.country?.currencySymbol}${amount}` : formatAmount(amount);
+        const formattedAmount = formatTransactionAmount(row.original);
 
         return <div className="text-sm text-[#344054]">{formattedAmount}</div>
     }
@@ -136,27 +135,5 @@ export const columns: ColumnDef<Transaction>[] = [
                 {status}
             </div>
     }
-  },
-  {
-    id: "actions",
-    cell: () => {
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <div className="border-b border-[#E4E7EC] grid place-items-center w-[67px] h-[82px]">
-                <button onClick={(e) => e.stopPropagation()} className="size-8 rounded-lg border border-[#E4E7EC] grid place-items-center cursor-pointer">
-                    <BiDotsVerticalRounded />
-                </button>
-            </div>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="bg-white border-0" align="end">
-            <DropdownMenuItem asChild>
-                <CustomButton variant="primary" className="text-red-500 text-sm cursor-pointer w-full text-left">Delete</CustomButton>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )
-    },
   },
 ]

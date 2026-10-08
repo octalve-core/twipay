@@ -6,6 +6,7 @@ import {
   Headers,
   Param,
   Post,
+  Query,
   Req,
   Res,
   UseGuards,
@@ -13,6 +14,7 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import type { FastifyReply } from 'fastify';
 import { z } from 'zod';
+import type { FinancialTransactionStatus, Prisma } from '@prisma/client';
 import { ZodValidationPipe } from '../../../platform/http/zod-validation.pipe.js';
 import {
   SessionAuthGuard,
@@ -55,6 +57,24 @@ const VirtualAccountSchema = z.discriminatedUnion('provider', [
     preferredBank: z.string().trim().min(2).max(80).optional(),
   }).strict(),
 ]);
+
+// Bounded, owner-scoped read-only transaction history. Never accept userId from query.
+const TransactionTypeSchema = z.enum(['FUNDING', 'TRANSFER', 'BILL_PAYMENT', 'EVENT_PURCHASE', 'REFUND', 'REVERSAL', 'FEE', 'ADJUSTMENT', 'ORGANIZER_PAYOUT']);
+const TransactionStatusSchema = z.enum(['CREATED', 'AUTHORIZED', 'FUNDS_RESERVED', 'PROVIDER_SUBMITTED', 'PROCESSING', 'UNKNOWN', 'SUCCEEDED', 'FAILED', 'REVERSED', 'CANCELLED']);
+const DbMinorAmountSchema = z.string().regex(/^(0|[1-9]\d*)$/).max(19)
+  .refine((value) => BigInt(value) <= 9223372036854775807n, 'Amount filter out of range');
+const DateOnlySchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine((value) => !Number.isNaN(Date.parse(value)) && new Date(value).toISOString().slice(0, 10) === value);
+const HistoryQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).max(10000).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(50),
+  status: z.union([TransactionStatusSchema, z.literal('PENDING'), z.literal('IN_FLIGHT')]).optional(),
+  type: TransactionTypeSchema.optional(),
+  startDate: DateOnlySchema.optional(),
+  endDate: DateOnlySchema.optional(),
+  minAmountMinor: DbMinorAmountSchema.optional(),
+  maxAmountMinor: DbMinorAmountSchema.optional(),
+}).strict().refine((v) => !v.startDate || !v.endDate || v.startDate <= v.endDate, 'Invalid date range')
+  .refine((v) => !v.minAmountMinor || !v.maxAmountMinor || BigInt(v.minAmountMinor) <= BigInt(v.maxAmountMinor), 'Invalid amount range');
 
 function maskAccountNumber(accountNumber: string): string {
   return accountNumber.length <= 4 ? accountNumber : `${'*'.repeat(accountNumber.length - 4)}${accountNumber.slice(-4)}`;
@@ -189,19 +209,45 @@ export class FinanceController {
 
 
   @Get('transactions')
-  async transactions(@Req() req: AuthenticatedFastifyRequest) {
+  async transactions(
+    @Query(new ZodValidationPipe(HistoryQuerySchema)) query: z.infer<typeof HistoryQuerySchema>,
+    @Req() req: AuthenticatedFastifyRequest,
+  ) {
     const principal = requirePrincipal(req);
-    const transactions = await this.prisma.financialTransaction.findMany({
-      where: { userId: principal.userId },
-      orderBy: { createdAt: 'desc' },
-      take: 100,
-      include: { providerOps: { select: { providerCode: true }, take: 1 } },
-    });
-    return { transactions: transactions.map((transaction) => ({
-      reference: transaction.reference, type: transaction.type, status: transaction.status, currency: transaction.currency,
-      amountMinor: transaction.amountMinor.toString(), feeMinor: transaction.feeMinor.toString(), description: transaction.description,
-      provider: transaction.providerOps[0]?.providerCode ?? null, createdAt: transaction.createdAt, updatedAt: transaction.updatedAt,
-    })) };
+    const where: Prisma.FinancialTransactionWhereInput = {
+      userId: principal.userId,
+      ...(query.type ? { type: query.type } : {}),
+      ...(query.status ? { status: query.status === 'PENDING' ? { in: ['CREATED', 'AUTHORIZED', 'FUNDS_RESERVED'] as FinancialTransactionStatus[] }
+        : query.status === 'IN_FLIGHT' ? { in: ['PROVIDER_SUBMITTED', 'PROCESSING'] as FinancialTransactionStatus[] } : query.status } : {}),
+      ...(query.startDate || query.endDate ? { createdAt: {
+        ...(query.startDate ? { gte: new Date(`${query.startDate}T00:00:00.000Z`) } : {}),
+        ...(query.endDate ? { lt: new Date(Date.parse(`${query.endDate}T00:00:00.000Z`) + 86400000) } : {}),
+      } } : {}),
+      ...(query.minAmountMinor || query.maxAmountMinor ? { amountMinor: {
+        ...(query.minAmountMinor ? { gte: BigInt(query.minAmountMinor) } : {}),
+        ...(query.maxAmountMinor ? { lte: BigInt(query.maxAmountMinor) } : {}),
+      } } : {}),
+    };
+    const [total, transactions] = await this.prisma.$transaction([
+      this.prisma.financialTransaction.count({ where }),
+      this.prisma.financialTransaction.findMany({
+        where, orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+        skip: (query.page - 1) * query.limit, take: query.limit,
+        include: { providerOps: { select: { providerCode: true }, take: 1 } },
+      }),
+    ]);
+    const totalPages = Math.ceil(total / query.limit);
+    return {
+      transactions: transactions.map((transaction) => ({
+        reference: transaction.reference, type: transaction.type, status: transaction.status, currency: transaction.currency,
+        amountMinor: transaction.amountMinor.toString(), feeMinor: transaction.feeMinor.toString(), description: transaction.description,
+        provider: transaction.providerOps[0]?.providerCode ?? null, createdAt: transaction.createdAt, updatedAt: transaction.updatedAt,
+      })),
+      pagination: {
+        total, page: query.page, limit: query.limit, totalPages,
+        hasNext: query.page < totalPages, hasPrev: query.page > 1,
+      },
+    };
   }
 
   @Get('transactions/:reference')
@@ -209,7 +255,7 @@ export class FinanceController {
     const principal = requirePrincipal(req);
     const transaction = await this.prisma.financialTransaction.findFirst({
       where: { reference, userId: principal.userId },
-      include: { providerOps: true, bankTransfer: { include: { beneficiary: true } } },
+      include: { providerOps: { select: { providerCode: true }, take: 1 }, bankTransfer: { include: { beneficiary: true } } },
     });
     if (!transaction) return { transaction: null };
     return {
@@ -220,6 +266,7 @@ export class FinanceController {
         currency: transaction.currency,
         amountMinor: transaction.amountMinor.toString(),
         feeMinor: transaction.feeMinor.toString(),
+        description: transaction.description,
         createdAt: transaction.createdAt,
         updatedAt: transaction.updatedAt,
         provider: transaction.providerOps[0]?.providerCode ?? null,

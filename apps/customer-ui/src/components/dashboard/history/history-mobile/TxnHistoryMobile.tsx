@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-import { Transaction } from "@/lib/api/dashboard-apis/txnHistoryApis";
-import { formatAmount, groupTransactionsByDate } from "@/lib/utils";
+import { Transaction, formatTransactionAmount } from "@/lib/api/dashboard-apis/txnHistoryApis";
+import { groupTransactionsByDate } from "@/lib/utils";
 import Loader from "@/components/Loader";
 import { FaLongArrowAltDown, FaLongArrowAltUp } from "react-icons/fa";
 import EmptyState from "../../EmptyState";
@@ -53,7 +53,7 @@ const TxnHistoryMobile = ({txnHistoryData, fetchingHistory}: TTxnHistoryMobile) 
                   return (
                     <Link to={`/dashboard/history/${txn.reference}`} key={txn.id} className="flex items-center gap-[13px] py-[9.5px]">
                         <div className="grid place-items-center size-[50px] rounded-full shrink-0 bg-[#E7F6EC]">
-                          {(purpose === "wallet_to_wallet_transfer" || purpose=== "deposit" || type === "wallet_funding" || purpose === "bank_transfer") && <>
+                          {(purpose === "wallet_to_wallet_transfer" || purpose=== "deposit" || type === "wallet_funding" || type === "wallet_transfer" || purpose === "bank_transfer") && <>
                               {
                                 txnDirection === "CREDIT" ? (
                                 <div className="size-full bg-[#E7F6EC] rounded-full grid place-items-center">
@@ -78,7 +78,7 @@ const TxnHistoryMobile = ({txnHistoryData, fetchingHistory}: TTxnHistoryMobile) 
                           </h3>
                           <p className="text-[#344054] text-sm">{time} / <span style={{color: textColor}}>{status}</span></p>
                         </div>
-                        <p className="text-[#344054] font-medium ml-auto shrink-0">{status === "success" && <span>{txnDirection === "CREDIT" ? "+" : txnDirection === "DEBIT" ? "-" : null}</span>} {txn?.metadata?.country?.currencySymbol ? `${txn.metadata.country.currencySymbol}${txn.amount} ` : formatAmount(txn?.amount as number)}</p>
+                        <p className="text-[#344054] font-medium ml-auto shrink-0">{status === "success" && <span>{txnDirection === "CREDIT" ? "+" : txnDirection === "DEBIT" ? "-" : null}</span>} {txn ? formatTransactionAmount(txn) : "—"}</p>
                     </Link>
                 )})
               }

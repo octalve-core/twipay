@@ -10,7 +10,8 @@ const TxnHistoryDetail = () => {
   const {
       data: txnDetails,
       isLoading: fetchingDetails,
-      // error: fetchDetailsError,
+      isError,
+      error,
       } = useQuery<Transaction, Error, Transaction, [string, string]>({
       queryKey: ['transaction-details', id as string],
       queryFn: getTxnHistoryDetail,
@@ -19,9 +20,10 @@ const TxnHistoryDetail = () => {
 
   return (
     <div className="grid place-items-center min-h-full w-full">
+        {isError && <p role="alert" className="text-red-600">{error?.message || "Unable to load transaction details"}</p>}
         <section className="w-full max-w-[440px] flex flex-col items-center">
-            <TxnDetailMobile fetchingDetails={fetchingDetails} txnDetails={txnDetails} />
-            <TxnDetailDesktop fetchingDetails={fetchingDetails} txnDetails={txnDetails} />
+            {!isError && <TxnDetailMobile fetchingDetails={fetchingDetails} txnDetails={txnDetails} />}
+            {!isError && <TxnDetailDesktop fetchingDetails={fetchingDetails} txnDetails={txnDetails} />}
         </section>
     </div>
   )

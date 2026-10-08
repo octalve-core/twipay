@@ -6,7 +6,7 @@ const publicAuth = new Set(["/auth/register", "/auth/login", "/auth/logout", "/a
 
 export function isAllowedIntegratedRoute(url: string | undefined): boolean {
   const path = url?.split("?")[0] ?? "";
-  return publicAuth.has(path) || /^\/kyc\/verifications\/[0-9a-fA-F-]{36}\/continue$/.test(path);
+  return publicAuth.has(path) || path === "/transactions" || /^\/transactions\/[A-Za-z0-9._:-]{1,80}$/.test(path) || /^\/kyc\/verifications\/[0-9a-fA-F-]{36}\/continue$/.test(path);
 }
 
 api.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {

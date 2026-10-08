@@ -6,7 +6,7 @@ import CalenderIcon from "@/assets/dashboard/calendar.svg"
 import CustomButton from "@/components/CustomButton";
 import { useSearchParams } from "react-router-dom";
 
-const services = ["airtime", "betting", "data", "internationalAirtime", "internationalData", "electricity", "education", "tv_subscription", "wallet_transfer", "withdrawal", "flight"]
+const services = ["wallet_funding", "wallet_transfer", "bill_payment", "event_purchase", "refund", "reversal", "fee", "adjustment", "organizer_payout"]
 
 const ApplyFilters = ({setOpen}: {setOpen: React.Dispatch<React.SetStateAction<boolean>>}) => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -203,7 +203,7 @@ const ApplyFilters = ({setOpen}: {setOpen: React.Dispatch<React.SetStateAction<b
                 <p className="text-[#98A0B4] text-sm mb-2">Status</p>
                 <div className="flex flex-col gap-4">
                     {
-                        ["successful", "failed", "pending", "reversed"].map((status) => (
+                        ["successful", "failed", "pending", "processing", "unknown", "reversed", "cancelled"].map((status) => (
                             <div key={status} className="flex items-center">
                                 <input checked={selectedStatus === status} onClick={() => setSelectedStatus(status)} id={status} type="checkbox" className="w-5 h-5 accent-[#112929] cursor-pointer border border-[#D0D5DD]" />
                                 <label htmlFor={status} className="text-[#344054] text-sm ml-2.5 capitalize">{status}</label>

@@ -1,4 +1,4 @@
-import { Transaction } from "@/lib/api/dashboard-apis/txnHistoryApis";
+import { Transaction, formatTransactionAmount } from "@/lib/api/dashboard-apis/txnHistoryApis";
 import { formatAmount } from "@/lib/utils";
 import { FaLongArrowAltDown, FaLongArrowAltUp } from "react-icons/fa";
 import { Link } from "react-router-dom";
@@ -19,7 +19,7 @@ const TransactionHistoryCard = ({transaction}: TTransactionHistoryCard) => {
   const bankTransferRecepient = bankName && accountNumber ? `${accountNumber} / ${bankName}` : null;
   const recipientName = transaction?.metadata?.recipientName;
   const senderUsername = transaction?.metadata?.senderUsername;
-  const service = productName || serviceCode || bankTransferRecepient || recipientName || senderUsername || null;
+  const service = productName || serviceCode || bankTransferRecepient || recipientName || senderUsername || transaction.description;
 
   const purpose = transaction?.purpose;
   const type = transaction?.type;
@@ -56,7 +56,7 @@ const TransactionHistoryCard = ({transaction}: TTransactionHistoryCard) => {
       </div>
       <p className="text-sm font-medium shrink-0">
         {status === "success" && <span>{txnDirection === "CREDIT" ? "+" : txnDirection === "DEBIT" ? "-" : null}</span>}
-        {transaction?.metadata?.country?.currencySymbol ? `${transaction.metadata.country.currencySymbol}${transaction.amount} ` : formatAmount(transaction?.amount as number)}
+        {transaction ? formatTransactionAmount(transaction) : "—"}
       </p>
     </Link>
   )

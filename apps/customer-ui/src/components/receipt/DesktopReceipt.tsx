@@ -1,7 +1,8 @@
-import { Transaction } from "@/lib/api/dashboard-apis/txnHistoryApis"
+import { formatNgnMinorUnits } from "@/lib/money";
+import { Transaction, formatTransactionAmount } from "@/lib/api/dashboard-apis/txnHistoryApis"
 import SiteLogo from "../../assets/main-pages/logo.png"
 import Loader from "../Loader";
-import { cn, copyToClipboard, formatAmount, formatDate } from "@/lib/utils";
+import { cn, copyToClipboard, formatDate } from "@/lib/utils";
 import { useState } from "react";
 import { Check } from "lucide-react";
 import { RxCopy } from "react-icons/rx";
@@ -33,18 +34,22 @@ const DesktopReceipt = ({txnDetails, fetchingDetails}:{txnDetails: Transaction |
         <section className="w-full max-w-[440px] flex flex-col items-center">
             <div className="w-full flex items-center gap-2 rounded-md text-center py-6 px-4 md:px-16 mb-9 bg-[#F0F5FB]">
                 <img className="object-cover w-[91.5px] h-10" src={SiteLogo} alt="TwiPay" />
-                <h1 className="text-2xl text-[#112929] font-medium">Transaction receipt</h1>
+                <h1 className="text-2xl text-[#112929] font-medium">{txnDetails?.status === "success" ? "Transaction receipt" : "Transaction record"}</h1>
             </div>
 
             <section className="w-full text-center bg-white border border-[#1018281A] rounded-xl p-[26px]">
-                <h1 className="text-[#717171] mb-3.5 capitalize">{txnDetails?.purpose.replaceAll("_", " ")} - <span className={cn("", txnDetails?.status === "success" ? "text-[#008000]" : "text-[#fb2c36]")}>{txnDetails?.status}!</span></h1>
-                <p className="text-[#101828] font-bold text-xl">{txnDetails?.metadata?.country?.currencySymbol ? `${txnDetails.metadata.country.currencySymbol}${txnDetails.amount} ` : formatAmount(txnDetails?.amount as number)}</p>
+                <h1 className="text-[#717171] mb-3.5 capitalize">{txnDetails?.purpose.replaceAll("_", " ")} - <span className={cn("", txnDetails?.status === "success" ? "text-[#008000]" : ["pending", "processing", "unknown"].includes(txnDetails?.status ?? "") ? "text-amber-600" : "text-[#fb2c36]")}>{txnDetails?.status}!</span></h1>
+                <p className="text-[#101828] font-bold text-xl">{txnDetails ? formatTransactionAmount(txnDetails) : "—"}</p>
 
                 <div className="mt-11 w-full flex flex-col justify-center gap-5 text-sm">
                     <div className="flex justify-center gap-5">
                         <p className="w-full text-[#717171] text-right">Amount</p>
-                        <p className="w-full text-left text-[#101828] font-medium">{txnDetails?.metadata?.country?.currencySymbol ? `${txnDetails.metadata.country.currencySymbol}${txnDetails.amount} ` : formatAmount(txnDetails?.amount as number)}</p>
+                        <p className="w-full text-left text-[#101828] font-medium">{txnDetails ? formatTransactionAmount(txnDetails) : "—"}</p>
                     </div>
+                    {txnDetails?.feeMinor && txnDetails.feeMinor !== "0" && <div className="flex justify-center gap-5">
+                        <p className="w-full text-[#717171] text-right">Fee</p>
+                        <p className="w-full text-left text-[#101828] font-medium">{formatNgnMinorUnits(txnDetails.feeMinor)}</p>
+                    </div>}
                     {/* Airtime & Data */}
                     {(txnDetails?.metadata?.phone && txnDetails?.type !== "e_pin") && <div className="flex justify-center gap-5">
                         <p className="w-full text-[#717171] text-right">Phone number</p>
@@ -68,14 +73,9 @@ const DesktopReceipt = ({txnDetails, fetchingDetails}:{txnDetails: Transaction |
                         <p className="w-full text-[#717171] text-right">Profile Id</p>
                         <p className="w-full text-left text-[#101828] font-medium capitalize">{txnDetails.metadata?.profileId}</p>
                     </div>}
-                    {/* Betting */}
-                    {txnDetails?.metadata?.customerId && <div className="flex justify-center gap-5">
+{txnDetails?.metadata?.customerId && <div className="flex justify-center gap-5">
                         <p className="w-full text-[#717171] text-right">Customer ID</p>
                         <p className="w-full text-left text-[#101828] font-medium capitalize">{txnDetails.metadata?.customerId}</p>
-                    </div>}
-                    {(txnDetails?.metadata?.serviceCode && txnDetails.type==="betting") && <div className="flex justify-center gap-5">
-                        <p className="w-full text-[#717171] text-right">Platform</p>
-                        <p className="w-full text-left text-[#101828] font-medium capitalize">{txnDetails.metadata?.serviceCode}</p>
                     </div>}
                     {/* Cable/Tv */}
                     {txnDetails?.metadata?.smartCardNumber && <div className="flex justify-center gap-5">
