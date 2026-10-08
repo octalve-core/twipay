@@ -27,6 +27,24 @@ export function imageHashInventory(base = root) {
   return assetFiles(base).map(file => ({file,sha256:createHash('sha256').update(readFileSync(join(base,file))).digest('hex')}));
 }
 
+/** Git enforces LF for text; original SVGs may contain CRLF. Accept only
+ * the exact original SHA or its explicitly pinned LF-normalized SHA. Raster
+ * images must still match their original bytes. Never rewrite the baseline. */
+export function visualAssetIntegrity(base=root) {
+  const expected=JSON.parse(read('docs/integration/PHASE14_VISUAL_ASSETS.json',base));
+  const original=JSON.parse(read('docs/design/ERHAPAY_ORIGINAL_VISUAL_ASSETS.json',base));
+  const approved=new Map(original.assets.map(asset=>[`apps/customer-ui/${asset.path}`,asset]));
+  const current=imageHashInventory(base);
+  const match=expected.length===current.length && expected.every((saved,i)=>{
+    const actual=current[i];
+    if(!actual || actual.file!==saved.file) return false;
+    const baseline=approved.get(saved.file);
+    if(!baseline || saved.sha256!==baseline.originalSha256) return false;
+    return actual.sha256===saved.sha256 || (baseline.kind==='svg' && actual.sha256===baseline.normalizedSha256);
+  });
+  return {match,expected,current};
+}
+
 export function sourceGates(base=root) {
   const workflow=read('.github/workflows/browser-e2e.yml',base);
   const config=read('playwright.config.ts',base);
@@ -43,8 +61,7 @@ export function sourceGates(base=root) {
   const api=read('apps/api/src/main.ts',base);
   const customerApp=read('apps/customer-ui/src/App.tsx',base);
   const legacySpecs=existsSync(join(base,'tests/e2e/release-security.spec.ts')) && existsSync(join(base,'tests/e2e/browser-surface.spec.ts'));
-  const expectedAssets=JSON.parse(read('docs/integration/PHASE14_VISUAL_ASSETS.json',base));
-  const currentAssets=imageHashInventory(base);
+  const {match:assetIntegrity, current:currentAssets}=visualAssetIntegrity(base);
   const gates=[
     rule('Real customer app is CI browser target', workflow.includes('pnpm --filter @twipay/customer-ui preview') && !workflow.includes('pnpm --filter @twipay/web start') && /testMatch:\s*['"]\*\*\/customer-ui\/\*\.spec\.ts/.test(config), 'Customer browser gate targets original React/Vite shell; Next reference cannot qualify it.'),
     rule('Customer API URL supplied before Vite build', workflow.includes('VITE_TWIPAY_API_URL: http://127.0.0.1:4000') && workflow.includes('pnpm build') && customerPackage.scripts.preview.includes('vite preview'), 'Vite production bundle receives the locally isolated API URL.'),
@@ -58,7 +75,7 @@ export function sourceGates(base=root) {
     rule('Actual API and reconciliation worker started', workflow.includes('pnpm --filter @twipay/api start') && workflow.includes('pnpm --filter @twipay/worker start') && workerPackage.scripts.start === 'node dist/main.js', 'Browser job starts the real API and worker rather than only static frontends.'),
     rule('Application identity readiness enforced', readiness.includes('isErhaPayCustomerShell') && stack.includes('UNEXPECTED_SERVICE_IDENTITY') && stack.includes('id=["\']root'), 'An unrelated HTTP 200 server cannot pass as ErhaPay-derived customer UI.'),
     rule('Legacy Next-only tests preserved separately', legacySpecs && legacy.includes('browser-surface.spec.ts') && legacy.includes('release-security.spec.ts') && rootPackage.scripts['e2e:legacy-web-reference'], 'Historical test coverage is not silently deleted or misrepresented as customer UI coverage.'),
-    rule('ErhaPay visual assets byte-for-byte preserved', expectedAssets.length>100 && JSON.stringify(expectedAssets)===JSON.stringify(currentAssets), `${currentAssets.length} assets match the committed Phase 1.4 SHA-256 baseline.`),
+    rule('ErhaPay original visual asset content preserved', currentAssets.length>100 && assetIntegrity, `${currentAssets.length} assets match exact or manifest-pinned SVG LF-normalized SHA-256; other bytes must match the original.`),
     rule('Local full-stack smoke isolated and fail-closed', isolated.includes('--smoke') && isolated.includes('API_BIND_HOST=127.0.0.1') && isolated.includes('down --volumes') && isolated.includes('VITE_TWIPAY_EVENT_CHECKOUT_SANDBOX_ENABLED=false') && isolated.includes('pnpm e2e') && api.includes("process.env['API_BIND_HOST']"), 'Disposable PostgreSQL/Redis and localhost-only app ports; no provider operations.'),
     rule('Existing event and finance controls retained', customerApp.includes('DeferredFeatureGuard') && existsSync(join(base,'scripts/financial-invariant-check.mjs')) && existsSync(join(base,'scripts/production-hardening-invariant-check.mjs')), 'Finance and deferred route source gates still exist; separate scanners run in CI.'),
     rule('Deployment requires approved same-site HTTPS hosts and inactive financial switches', hosting.includes('CROSS_SITE_STRICT_COOKIES_NOT_SUPPORTED') && hosting.includes('PRODUCTION_FLAG_NOT_DISABLED') && hostingWorkflow.includes('workflow_dispatch:') && hostingWorkflow.includes('check-customer-hosting.mjs') && vercel.rewrites?.some(r=>r.destination==='/index.html') && existsSync(join(base,'apps/api/test/session-csrf-concurrency.test.ts')), 'Hosting approval is a dedicated no-deployment gate and real CSRF concurrency tests are prepared.'),

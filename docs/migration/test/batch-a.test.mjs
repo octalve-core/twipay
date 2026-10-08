@@ -11,10 +11,19 @@ const text=(path)=>readFileSync(join(app,path),'utf8');
 const sha=(v)=>createHash('sha256').update(v).digest('hex');
 const backend=(name)=>readFileSync(join(root,name),'utf8');
 
-test('original asset binaries stay byte-for-byte intact',()=>{
+test('original asset contents remain intact, allowing only the repository-mandated SVG CRLF normalization',()=>{
  const assetFiles=original.files.filter(f=>f.path.startsWith('src/assets/') || f.path.startsWith('public/'));
+ const approved=JSON.parse(readFileSync(join(root,'docs/design/ERHAPAY_ORIGINAL_VISUAL_ASSETS.json'),'utf8'));
+ const svgByPath=new Map(approved.assets.filter(f=>f.kind==='svg').map(f=>[f.path,f]));
  assert.ok(assetFiles.length>100);
- for(const file of assetFiles) assert.equal(sha(readFileSync(join(app,file.path))),file.sha256,file.path);
+ for(const file of assetFiles) {
+   const data=readFileSync(join(app,file.path));
+   if(sha(data)===file.sha256) continue; // including ALL original binary/font assets
+   const svg=svgByPath.get(file.path);
+   assert.ok(svg, `only a manifest-pinned original SVG may be normalized: ${file.path}`);
+   assert.equal(svg.originalSha256,file.sha256,`unaltered original SHA required: ${file.path}`);
+   assert.equal(sha(Buffer.from(data.toString('utf8').replace(/\r\n/g,'\n'))),svg.normalizedSha256,`content changed: ${file.path}`);
+ }
 });
 test('the original ErhaPay logo remains unchanged',()=>{
  const logo=original.files.find(f=>f.path==='src/assets/main-pages/logo.png');

@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {join} from 'node:path';
-import {sourceGates, assetFiles, imageHashInventory, qualification, root} from '../../../scripts/qualification/phase1-4-6-gates.mjs';
+import {sourceGates, assetFiles, visualAssetIntegrity, qualification, root} from '../../../scripts/qualification/phase1-4-6-gates.mjs';
 import {validateStagingTarget} from '../../../scripts/qualification/check-staging-target.mjs';
 import {assertPortsFree} from '../../../scripts/qualification/assert-loopback-ports-free.mjs';
 import net from 'node:net';
@@ -40,7 +40,10 @@ test('visual asset baseline records every current image from customer source/pub
   const files=assetFiles();
   const manifest=JSON.parse(read('docs/integration/PHASE14_VISUAL_ASSETS.json'));
   assert.ok(files.length>100);
-  assert.deepEqual(manifest,imageHashInventory());
+  const {match, expected, current}=visualAssetIntegrity();
+  assert.equal(match,true,'Every original visual asset must match original SHA or the frozen approved SVG-LF SHA');
+  assert.deepEqual(expected,manifest);
+  assert.deepEqual(current.map(x=>x.file),manifest.map(x=>x.file));
 });
 test('stack readiness rejects a wrong 200 app shell before any Playwright tests',()=>{
   assert.match(read('scripts/wait-for-stack.mjs'),/isErhaPayCustomerShell/);
