@@ -12,6 +12,7 @@ const forbiddenSdkImports = ['paystack','monnify','vtpass','flutterwave','stripe
 const findings=[];
 function walk(d){
   for(const n of readdirSync(d)){
+    if (['node_modules', 'dist', '.test-dist', '.next'].includes(n)) continue;
     const p=join(d,n); const s=statSync(p);
     if(s.isDirectory()) walk(p);
     else if(/\.(ts|tsx)$/.test(p)){

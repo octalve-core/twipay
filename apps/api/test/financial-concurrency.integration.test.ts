@@ -1,5 +1,6 @@
 import 'reflect-metadata';
-import { NestFactory, type INestApplicationContext } from '@nestjs/core';
+import { NestFactory } from '@nestjs/core';
+import type { INestApplicationContext } from '@nestjs/common';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { AppModule } from '../src/modules/app.module.js';
 import { PrismaService } from '../src/platform/database/prisma.service.js';

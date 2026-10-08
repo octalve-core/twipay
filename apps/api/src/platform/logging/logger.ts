@@ -14,5 +14,5 @@ export function buildLoggerOptions() {
         return { method: request.method, path: request.url?.split(/[?#]/, 1)[0], requestId: request.id };
       },
     },
-  } as const;
+  };
 }

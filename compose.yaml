@@ -5,7 +5,7 @@ services:
       POSTGRES_USER: twipay
       POSTGRES_PASSWORD: local_development_only
       POSTGRES_DB: twipay
-    ports: ["127.0.0.1:5432:5432"]
+    ports: ["127.0.0.1:${POSTGRES_PORT:-5435}:5432"]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U twipay -d twipay"]
       interval: 5s
@@ -15,7 +15,7 @@ services:
   redis:
     image: redis:8-alpine
     command: ["redis-server", "--appendonly", "yes"]
-    ports: ["127.0.0.1:6379:6379"]
+    ports: ["127.0.0.1:${REDIS_PORT:-6382}:6379"]
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s

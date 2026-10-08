@@ -28,7 +28,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
         };
 
     try {
-      const api = process.env.NEXT_PUBLIC_API_URL;
+      const api = process.env['NEXT_PUBLIC_API_URL'];
       if (!api) throw new Error('TwiPay API is not configured.');
       const response = await fetch(`${api}/v1/auth/${mode === 'login' ? 'login' : 'register'}`, {
         method: 'POST',

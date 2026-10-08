@@ -1,9 +1,16 @@
 import {
   ConflictException,
+  HttpException,
+  HttpStatus,
   Injectable,
-  TooManyRequestsException,
   UnauthorizedException,
 } from '@nestjs/common';
+
+class TooManyRequestsException extends HttpException {
+  constructor(response?: string | Record<string, unknown>) {
+    super(response ?? 'Too Many Requests', HttpStatus.TOO_MANY_REQUESTS);
+  }
+}
 import {
   buildTotpOtpAuthUri,
   decryptSensitiveString,

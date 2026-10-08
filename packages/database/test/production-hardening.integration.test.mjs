@@ -1,19 +1,26 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import crypto from 'node:crypto';
 import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
 
-const prisma=new PrismaClient();
-const suffix=`${Date.now()}-${Math.random().toString(16).slice(2)}`;
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) throw new Error('DATABASE_URL must be set to run TwiPay database integration tests');
+if (process.env.NODE_ENV === 'production') throw new Error('Database integration tests must not run in production');
+const adapter = new PrismaPg({ connectionString });
+const prisma = new PrismaClient({ adapter });
+const suffix = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+const hash = (seed) => crypto.createHash('sha256').update(`${suffix}-${seed}`).digest('hex');
 test.after(async()=>prisma.$disconnect());
 
 async function user(label){return prisma.user.create({data:{email:`${label}-${suffix}@example.com`,status:'ACTIVE'}})}
 
 test('Batch 5 sessions enforce immutable identity/assurance and one-way lifecycle',async()=>{
   const u=await user('session');
-  const session=await prisma.session.create({data:{userId:u.id,tokenHash:'a'.repeat(64),csrfTokenHash:'b'.repeat(64),expiresAt:new Date(Date.now()+3600000)}});
+  const session=await prisma.session.create({data:{userId:u.id,tokenHash:hash('session-a'),csrfTokenHash:hash('session-b'),expiresAt:new Date(Date.now()+3600000)}});
   await prisma.session.update({where:{id:session.id},data:{lastSeenAt:new Date()}});
   await assert.rejects(prisma.session.update({where:{id:session.id},data:{mfaSatisfiedAt:new Date()}}),/rotate the session instead/);
-  await assert.rejects(prisma.session.update({where:{id:session.id},data:{tokenHash:'c'.repeat(64)}}),/immutable/);
+  await assert.rejects(prisma.session.update({where:{id:session.id},data:{tokenHash:hash('session-c')}}),/immutable/);
   await prisma.session.update({where:{id:session.id},data:{status:'REVOKED',revokedAt:new Date(),revokeReason:'TEST'}});
   await assert.rejects(prisma.session.update({where:{id:session.id},data:{status:'ACTIVE'}}),/Invalid TwiPay session transition/);
   await assert.rejects(prisma.session.delete({where:{id:session.id}}),/cannot be deleted/);
@@ -34,7 +41,7 @@ test('Batch 5 MFA credential is auditable, secret-immutable and TOTP timestep is
 test('Batch 5 recovery codes are one-way consumed and cannot be deleted/reset',async()=>{
   const u=await user('recovery');
   const credential=await prisma.mfaCredential.create({data:{userId:u.id,secretCiphertext:'encrypted-test-value'}});
-  const recovery=await prisma.mfaRecoveryCode.create({data:{credentialId:credential.id,codeHash:'d'.repeat(64)}});
+  const recovery=await prisma.mfaRecoveryCode.create({data:{credentialId:credential.id,codeHash:hash('recovery-d')}});
   const usedAt=new Date();
   await prisma.mfaRecoveryCode.update({where:{id:recovery.id},data:{usedAt}});
   await assert.rejects(prisma.mfaRecoveryCode.update({where:{id:recovery.id},data:{usedAt:null}}),/cannot be replayed or reset/);
@@ -64,7 +71,7 @@ test('concurrent redemption of one MFA recovery code has exactly one winner', as
     data: { userId: u.id, secretCiphertext: 'encrypted-test-value' },
   });
   const recovery = await prisma.mfaRecoveryCode.create({
-    data: { credentialId: credential.id, codeHash: 'e'.repeat(64) },
+    data: { credentialId: credential.id, codeHash: hash('race-e') },
   });
   const results = await Promise.all(Array.from({ length: 8 }, () =>
     prisma.mfaRecoveryCode.updateMany({
@@ -81,8 +88,8 @@ test('concurrent claims of the same session permit at most one rotation winner',
   const session = await prisma.session.create({
     data: {
       userId: u.id,
-      tokenHash: 'f'.repeat(64),
-      csrfTokenHash: '0'.repeat(64),
+      tokenHash: hash('race-f'),
+      csrfTokenHash: hash('race-0'),
       expiresAt: new Date(Date.now() + 3_600_000),
     },
   });

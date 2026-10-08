@@ -9,7 +9,7 @@
     "start": "node dist/main.js",
     "lint": "eslint src --max-warnings=0",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run"
+    "test": "node --env-file-if-exists=../../.env ./node_modules/vitest/vitest.mjs run"
   },
   "dependencies": {
     "@fastify/cookie": "11.1.2",
@@ -41,7 +41,11 @@
     "@twipay/provider-monnify-bills": "workspace:*",
     "@twipay/provider-termii": "workspace:*",
     "@twipay/provider-resend": "workspace:*",
-    "@twipay/operations": "workspace:*"
+    "@twipay/operations": "workspace:*",
+    "@prisma/adapter-pg": "7.10.0",
+    "pg": "8.23.1",
+    "@types/pg": "8.23.1",
+    "@fastify/static": "^10.1.5"
   },
   "devDependencies": {
     "@nestjs/testing": "12.1.2",
@@ -50,7 +54,7 @@
   },
   "exports": {
     "./worker-entry": {
-      "types": "./src/worker-entry.ts",
+      "types": "./dist/worker-entry.d.ts",
       "import": "./dist/worker-entry.js"
     }
   }

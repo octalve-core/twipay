@@ -60,3 +60,7 @@ PostgreSQL 18 migrations/integration/concurrency, Redis/BullMQ, browser E2E, pro
 High-risk flags `events.refunds` and `operations.organizer_payouts` are fail-closed and must remain disabled until the complete MFA/RBAC/maker-checker/accounting/provider/integration/E2E/staging activation gates pass.
 
 Start with `TWIPAY_NEW_CHAT_CONTINUATION_BRIEF.md` when present in a handoff, then `BATCH_04_VERIFICATION.md`, `docs/README.md`, `SECURITY.md`, architecture/security ADRs, migrations and the latest Batch 5 verification/release records before changing authentication, financial or provider behavior.
+
+## Master integration checkpoint
+
+See [`docs/integration/PHASE1_BATCH11_12_IMPLEMENTATION.md`](docs/integration/PHASE1_BATCH11_12_IMPLEMENTATION.md) and [`docs/integration/PHASE1_SOURCE_RECONCILIATION.json`](docs/integration/PHASE1_SOURCE_RECONCILIATION.json) for the audited developer-code merge, preserved ErhaPay design authority, mandatory Google authorization-code OIDC and transaction PIN requirements, and blocked real-runtime gates. This is not a production release.

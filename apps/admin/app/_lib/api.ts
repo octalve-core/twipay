@@ -1,4 +1,4 @@
-export const API_BASE=process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/,'')??'';
+export const API_BASE = process.env['NEXT_PUBLIC_API_URL']?.replace(/\/$/, '') ?? '';
 export class OpsApiError extends Error{constructor(public status:number,public code:string){super(code)}}
 async function decode(r:Response){const t=await r.text();try{return t?JSON.parse(t):{}}catch{return {}}}
 export async function opsGet<T>(path:string):Promise<T>{if(!API_BASE)throw new OpsApiError(500,'API_NOT_CONFIGURED');const r=await fetch(`${API_BASE}/v1${path}`,{credentials:'include',cache:'no-store'});const b=await decode(r);if(!r.ok)throw new OpsApiError(r.status,b?.code??'REQUEST_FAILED');return b as T}

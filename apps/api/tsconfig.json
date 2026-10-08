@@ -6,7 +6,9 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "isolatedModules": false,
-    "types": ["node"]
+    "types": ["node"],
+    "exactOptionalPropertyTypes": false,
+    "declaration": true
   },
   "include": ["src/**/*.ts"]
 }

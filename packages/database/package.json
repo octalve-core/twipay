@@ -7,7 +7,7 @@
     "build": "prisma generate",
     "typecheck": "echo database-types-generated-by-prisma",
     "lint": "echo database-lint-covered-by-schema-validation",
-    "test": "node --test test/*.test.mjs",
+    "test": "node --env-file-if-exists=../../.env --test test/*.test.mjs",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
@@ -15,7 +15,10 @@
     "prisma:deploy": "prisma migrate deploy"
   },
   "dependencies": {
-    "@prisma/client": "7.10.0"
+    "@prisma/client": "7.10.0",
+    "@prisma/adapter-pg": "7.10.0",
+    "pg": "8.23.1",
+    "@types/pg": "8.23.1"
   },
   "devDependencies": {
     "prisma": "7.10.0"

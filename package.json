@@ -21,7 +21,8 @@
     "db:migrate": "pnpm --filter @twipay/database prisma:migrate",
     "db:studio": "pnpm --filter @twipay/database prisma:studio",
     "e2e": "playwright test",
-    "test:history-secrets": "node scripts/git-history-secret-check.mjs"
+    "test:history-secrets": "node scripts/git-history-secret-check.mjs",
+    "test:phase1": "node --test docs/integration/test/phase1-reconciliation.test.mjs"
   },
   "devDependencies": {
     "@types/node": "24.19.1",

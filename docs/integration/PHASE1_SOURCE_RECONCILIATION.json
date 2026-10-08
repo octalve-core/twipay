@@ -1,0 +1,429 @@
+{
+  "source_archive_manifest": {
+    "developer": {
+      "filename": "twipay-master.zip",
+      "sha256": "f535852ba8717f5a96a2260d9f8299593365b2f2f880c27930a4a8cdcaf6c7ae",
+      "bytes": 541219
+    },
+    "erhapay": {
+      "filename": "erhapay-source(2).zip",
+      "sha256": "aec7912e7d67e1d0db481f79544a048263dffae456198fa7adc6f2b19b0c84c6",
+      "bytes": 13082392
+    },
+    "master": {
+      "filename": "TWIPAY_PROVISIONAL_MASTER_CURRENT.zip",
+      "sha256": "619c488c470cc4868f1e186a976994dd50512fb9b093aff47a29b36d62f15c5a",
+      "bytes": 28469845
+    }
+  },
+  "baseline": {
+    "changed": 48,
+    "developer_only": 11,
+    "master_only": 523,
+    "identical": 300
+  },
+  "decisions": [
+    {
+      "path": ".env.example",
+      "decision": "PRESERVED_NEWER_MASTER",
+      "reason": "Keep six default-off sandbox switches and blank secrets; developer lacks later switches.",
+      "developer_sha256": "ac0e734f3b87bc2b7943b9f016a6ea23fb52bd809098130ad393251d3cec308d",
+      "integrated_sha256": "7eed731ca7a0a2d77cc70fc23c9b5bf6792f8edbbf0380839521358272e67169"
+    },
+    {
+      "path": ".gitignore",
+      "decision": "MERGED_DEVELOPER_CHANGE",
+      "reason": "Added out/ ignore without losing existing Git ignore rules.",
+      "developer_sha256": "c40bbae8da02582f00d181a7c6094fa1f75a68c0799369847a26bfe0b32f0553",
+      "integrated_sha256": "c40bbae8da02582f00d181a7c6094fa1f75a68c0799369847a26bfe0b32f0553"
+    },
+    {
+      "path": "README.md",
+      "decision": "PRESERVED_NEWER_MASTER",
+      "reason": "Keep later migration/financial notes; add phase1 link separately.",
+      "developer_sha256": "669f154174ef78601e4f9b6231f7ae087dfc983bef22b351c7ab15efd2d9573c",
+      "integrated_sha256": "a035d8b668fbcd8218b75e16ccc567b16e091b344f37521a9a2ef047eaabb34e"
+    },
+    {
+      "path": "apps/admin/app/_lib/api.ts",
+      "decision": "MERGED_DEVELOPER_CHANGE",
+      "reason": "Imported narrow TypeScript env-index signature correction.",
+      "developer_sha256": "0415f7710e0a0747ac8eb7bacb2f852c0ba06686a5973654c1f3d7ebb43cfad8",
+      "integrated_sha256": "0415f7710e0a0747ac8eb7bacb2f852c0ba06686a5973654c1f3d7ebb43cfad8"
+    },
+    {
+      "path": "apps/admin/app/config/page.tsx",
+      "decision": "MERGED_DEVELOPER_CHANGE",
+      "reason": "Imported readonly tuple and null-safe branding access for type safety; RBAC preserved.",
+      "developer_sha256": "0db6e6bdc6d739354d9588dc6256e51f944250d0dceb39524762ac73737d46aa",
+      "integrated_sha256": "0db6e6bdc6d739354d9588dc6256e51f944250d0dceb39524762ac73737d46aa"
+    },
+    {
+      "path": "apps/admin/next-env.d.ts",
+      "decision": "PRESERVED_NEWER_MASTER",
+      "reason": "Keep project Next-generated declaration; can regenerate only with installed toolchain.",
+      "developer_sha256": "1862ac4bbbc5192d4bf562161df66ea547ed3e67173100656ab606ae9797db2b",
+      "integrated_sha256": "879741880b6ab48da99dcc06dcc674d381c9826137b0496bf7bb368f302de9fc"
+    },
+    {
+      "path": "apps/admin/next.config.ts",
+      "decision": "MERGED_DEVELOPER_CHANGE",
+      "reason": "Imported env-index signature correction; security headers unchanged.",
+      "developer_sha256": "65d6368489034d9ec5a947dd09c511edf58fb7d4d71d513f3e3a15aa3efaef1f",
+      "integrated_sha256": "65d6368489034d9ec5a947dd09c511edf58fb7d4d71d513f3e3a15aa3efaef1f"
+    },
+    {
+      "path": "apps/admin/proxy.ts",
+      "decision": "MERGED_DEVELOPER_CHANGE",
+      "reason": "Imported env-index signature correction; CSP nonce and origin checks unchanged.",
+      "developer_sha256": "9bfc8b71f0b19dc92aac8c4d423fd26492a2ad59327c1f3bce42c4441e64edd1",
+      "integrated_sha256": "9bfc8b71f0b19dc92aac8c4d423fd26492a2ad59327c1f3bce42c4441e64edd1"
+    },
+    {
+      "path": "apps/api/package.json",
+      "decision": "MERGED_DEVELOPER_CHANGE",
+      "reason": "Merged PrismaPg/pg/@fastify/static dependencies; preserved all newer workspace provider packages.",
+      "developer_sha256": "5d7390406f6c39c3d4215cb16c5ed2ffe09c2bfdfe1dfe02db95bd74459ef921",
+      "integrated_sha256": "c60c098400ac9709b19ff87eaf1f4bcd44e9f8e13491c7c7dc90ca5e56a7b843"
+    },
+    {
+      "path": "apps/api/src/modules/auth/application/mfa.service.ts",
+      "decision": "MERGED_DEVELOPER_CHANGE",
+      "reason": "Imported compatible NestJS HTTP 429 exception shim; TOTP lockout behaviour preserved.",
+      "developer_sha256": "a075d9e926e9b47456e9dc4ec30cc05750601942ba5b714500d8281c11fa6062",
+      "integrated_sha256": "a075d9e926e9b47456e9dc4ec30cc05750601942ba5b714500d8281c11fa6062"
+    },
+    {
+      "path": "apps/api/src/modules/events/application/event.service.ts",
+      "decision": "PRESERVED_NEWER_MASTER",
+      "reason": "Keep latest master event quote, expected amount, QR redaction and idempotency protections; old developer version exposes qrPayload.",
+      "developer_sha256": "5297de17355961ecd938c0dbfbde81de60f21eea67a359680fe1c539ce6d9bff",
+      "integrated_sha256": "39623c5c115c41a97de4757cde562d91d82fd115b18257580f9e0fba8665905e"
+    },
+    {
+      "path": "apps/api/src/modules/events/presentation/events.controller.ts",
+      "decision": "PRESERVED_NEWER_MASTER",
+      "reason": "Keep newer quote, status and ticket credential endpoints, with default-off sandbox guard.",
+      "developer_sha256": "8e16aa32ff34c454f7e952c2e68d36dff76699f93b137abd3b42bc8688f9c57c",
+      "integrated_sha256": "c0538f56b1621be410152a7616cbb3bf009492c7198c31b39e718b8f1553c4fb"
+    },
+    {
+      "path": "apps/api/src/modules/finance/application/reference.ts",
+      "decision": "MERGED_DEVELOPER_CHANGE",
+      "reason": "Added narrow reference prefix typing used by developer; UUID reference generator unchanged.",
+      "developer_sha256": "50dcf5713425b8f7814974d9afd65f934cc7def4520817a8c58fe698ded3c486",
+      "integrated_sha256": "50dcf5713425b8f7814974d9afd65f934cc7def4520817a8c58fe698ded3c486"
+    },
+    {
+      "path": "apps/api/src/modules/finance/application/transfer.service.ts",
+      "decision": "PRESERVED_NEWER_MASTER",
+      "reason": "Keep newer bank-directory and verified-beneficiary safeguards.",
+      "developer_sha256": "8735ac57999ffb9249b8b1760d1ab17965bc9e63c4bd58d1935b95e6eecf6886",
+      "integrated_sha256": "ab1c9255f377a6f19300eab63788022bfdb9c935a6533f43f9e1314219c71f52"
+    },
+    {
+      "path": "apps/api/src/modules/finance/application/virtual-account.service.ts",
+      "decision": "PRESERVED_NEWER_MASTER",
+      "reason": "Keep newer owner-scoped provisioning status and sandbox protection.",
+      "developer_sha256": "f586631dacd0edb85cd78754403da9c5c5cd96e3c1b6931604d5696d523b9d43",
+      "integrated_sha256": "99e3cc4b840dc63e14b1b40000c84caee25edb403705a16f78cd89e529db1aa3"
+    },
+    {
+      "path": "apps/api/src/modules/finance/presentation/finance.controller.ts",
+      "decision": "PRESERVED_NEWER_MASTER",
+      "reason": "Keep newer transfer/bank-list/virtual-account endpoints and default-off controls.",
+      "developer_sha256": "5c4eec05c9948c8da0fe77ae2c182d7d239bbcb36485a5421215a28c0daf5c18",
+      "integrated_sha256": "602313f38c72b99a9a8eb622f2b522121643df1940b056af5b9f8262c8694045"
+    },
+    {
+      "path": "apps/api/src/modules/kyc/application/kyc.service.ts",
+      "decision": "MERGED_DEVELOPER_CHANGE",
+      "reason": "Imported bracketed index access for optional attributes; KYC behaviour preserved.",
+      "developer_sha256": "586bef58abd794a147f5ba358f8c724eb10eaeb4df9e764d4890f3b3dd2a3fa4",
+      "integrated_sha256": "586bef58abd794a147f5ba358f8c724eb10eaeb4df9e764d4890f3b3dd2a3fa4"
+    },
+    {
+      "path": "apps/api/src/modules/notifications/application/notification.service.ts",
+      "decision": "PRESERVED_NEWER_MASTER",
+      "reason": "Keep newer owner-scoped delivery history without sensitive content.",
+      "developer_sha256": "b1fb11e7b5dbff5cf663c2c0dc7e980f9703f6829fbc391ff5839d320050637a",
+      "integrated_sha256": "0fa1e74940470c0a35defb599e436509e51bca52e083570bed5939235b6684f8"
+    },
+    {
+      "path": "apps/api/src/modules/notifications/notifications.module.ts",
+      "decision": "PRESERVED_NEWER_MASTER",
+      "reason": "Keep new notification controller and AuthModule dependency.",
+      "developer_sha256": "fe609a711ff409200d048eafe9796b40cc4d05b4c7929c9903cde4354c502f4e",
+      "integrated_sha256": "9805dcd10e7b56548a18c1e53b757c1a70f6b1f5c01ee7bb955303eb2ac06c89"
+    },
+    {
+      "path": "apps/api/src/modules/product/presentation/product.controller.ts",
+      "decision": "PRESERVED_NEWER_MASTER",
+      "reason": "Keep stronger type safety; developer uses any cast on high-risk feature mutation.",
+      "developer_sha256": "309807ecfcd8365f19efaa2e65f1cf107dbaad02e660a0f29a1b826dfe76b47c",
+      "integrated_sha256": "956677382ded4a486020436b637e4c8f4a39a3a8af26172c40132149137f714e"
+    },
+    {
+      "path": "apps/api/src/modules/services/presentation/services.controller.ts",
+      "decision": "PRESERVED_NEWER_MASTER",
+      "reason": "Keep newer validated bill service and sandbox controls.",
+      "developer_sha256": "cb4501830533fbf14e45b885e7bbd910cd1aae89075c98949d2cc95fb827e3fb",
+      "integrated_sha256": "d9ebc77cc60c7c13033eed79a1399c04666bafc13155ff56b2908cebc3479200"
+    },
+    {
+      "path": "apps/api/src/platform/config/env.ts",
+      "decision": "PRESERVED_NEWER_MASTER",
+      "reason": "Keep additional six fail-closed financial and ticket sandbox switches; old developer file lacks them.",
+      "developer_sha256": "692559984a10db3040a6338c552e152d913fee2464096908268058061539775a",
+      "integrated_sha256": "9ca07b41d2a2b346e1037cbf06e097ca7b1f0ace663deec5a341b5b08b593e30"
+    },
+    {
+      "path": "apps/api/src/platform/database/prisma.service.ts",
+      "decision": "MERGED_DEVELOPER_CHANGE",
+      "reason": "Imported PrismaPg adapter, replaced developer hardcoded DB password fallback with required DATABASE_URL.",
+      "developer_sha256": "67981a94b3b9c7ad1eda10d5541454811cd3163b7cf72451fae88121dafcad9a",
+      "integrated_sha256": "008e411dd3b61af7961da1f66c57e93c969927b3bad9e985b1c42f586dc38bd9"
+    },
+    {
+      "path": "apps/api/src/platform/logging/logger.ts",
+      "decision": "MERGED_DEVELOPER_CHANGE",
+      "reason": "Imported narrow typing adjustment; redaction logic not removed.",
+      "developer_sha256": "eebbd402b74185d6967d8077e985fa9be760646db54c91ab7b6d2823d2449f24",
+      "integrated_sha256": "eebbd402b74185d6967d8077e985fa9be760646db54c91ab7b6d2823d2449f24"
+    },
+    {
+      "path": "apps/api/test/financial-concurrency.integration.test.ts",
+      "decision": "MERGED_DEVELOPER_CHANGE",
+      "reason": "Corrected INestApplicationContext type import; financial assertions preserved.",
+      "developer_sha256": "bf681f836fba8637bd96e71e737b4ca12bcf12ff1a89eafa39d1881f59bce72a",
+      "integrated_sha256": "bf681f836fba8637bd96e71e737b4ca12bcf12ff1a89eafa39d1881f59bce72a"
+    },
+    {
+      "path": "apps/api/test/risk-rate-policy.test.mjs",
+      "decision": "MERGED_DEVELOPER_CHANGE",
+      "reason": "Converted node:test assertions to Vitest for the app test runner.",
+      "developer_sha256": "ee677ad73283757301c410f4802ef47b7d5e6e71ebadaeae184aebd0a298a09a",
+      "integrated_sha256": "ee677ad73283757301c410f4802ef47b7d5e6e71ebadaeae184aebd0a298a09a"
+    },
+    {
+      "path": "apps/api/tsconfig.json",
+      "decision": "MERGED_DEVELOPER_CHANGE",
+      "reason": "Imported declaration emit and exactOptionalPropertyTypes override for compiled API/worker typing.",
+      "developer_sha256": "37fc7cb3c3dbbb236e8c1274a68324164d917f002679b87f445997c4e0c331cf",
+      "integrated_sha256": "37fc7cb3c3dbbb236e8c1274a68324164d917f002679b87f445997c4e0c331cf"
+    },
+    {
+      "path": "apps/web/app/_components/auth-form.tsx",
+      "decision": "MERGED_DEVELOPER_CHANGE",
+      "reason": "Imported harmless env-index type correction; reference-only legacy Next customer app.",
+      "developer_sha256": "ebb42d6f146c647cd97ad2e309db45e92de5b21c43e7b9375110e2bdbbd33927",
+      "integrated_sha256": "ebb42d6f146c647cd97ad2e309db45e92de5b21c43e7b9375110e2bdbbd33927"
+    },
+    {
+      "path": "apps/web/app/_lib/api.ts",
+      "decision": "MERGED_DEVELOPER_CHANGE",
+      "reason": "Imported env-index and safe destructuring type correction; existing API contract preserved.",
+      "developer_sha256": "5e411558b1c375b36b5696de6049518013354aa4f7a9277775394883e52e3efc",
+      "integrated_sha256": "5e411558b1c375b36b5696de6049518013354aa4f7a9277775394883e52e3efc"
+    },
+    {
+      "path": "apps/web/next-env.d.ts",
+      "decision": "PRESERVED_NEWER_MASTER",
+      "reason": "Keep project Next-generated declaration; can regenerate only with installed toolchain.",
+      "developer_sha256": "1862ac4bbbc5192d4bf562161df66ea547ed3e67173100656ab606ae9797db2b",
+      "integrated_sha256": "879741880b6ab48da99dcc06dcc674d381c9826137b0496bf7bb368f302de9fc"
+    },
+    {
+      "path": "apps/web/next.config.ts",
+      "decision": "MERGED_DEVELOPER_CHANGE",
+      "reason": "Imported env-index type correction; security headers unchanged.",
+      "developer_sha256": "65d6368489034d9ec5a947dd09c511edf58fb7d4d71d513f3e3a15aa3efaef1f",
+      "integrated_sha256": "65d6368489034d9ec5a947dd09c511edf58fb7d4d71d513f3e3a15aa3efaef1f"
+    },
+    {
+      "path": "apps/web/proxy.ts",
+      "decision": "MERGED_DEVELOPER_CHANGE",
+      "reason": "Imported env-index type correction; CSP unchanged.",
+      "developer_sha256": "9bfc8b71f0b19dc92aac8c4d423fd26492a2ad59327c1f3bce42c4441e64edd1",
+      "integrated_sha256": "9bfc8b71f0b19dc92aac8c4d423fd26492a2ad59327c1f3bce42c4441e64edd1"
+    },
+    {
+      "path": "apps/worker/package.json",
+      "decision": "MERGED_DEVELOPER_CHANGE",
+      "reason": "Merged ioredis deps and Node env-file-if-exists Vitest runner; preserved workspace API linkage.",
+      "developer_sha256": "03ab2f9836e1e3e03a8bac111444cd5ac1fea9ce3c8aaddf4c398a52bdf523b1",
+      "integrated_sha256": "99bbb1dd0d27051e45dceacddf04cb7d32626744718c9224f73bd204d30a032c"
+    },
+    {
+      "path": "apps/worker/test/recovery-sweep.test.mjs",
+      "decision": "MERGED_DEVELOPER_CHANGE",
+      "reason": "Converted node:test assertions to Vitest; test logic retained.",
+      "developer_sha256": "d4e13f00f79aef5871a61bfe84968a1f323a2dd03a64d5d48577f6f9a0ee4d68",
+      "integrated_sha256": "d4e13f00f79aef5871a61bfe84968a1f323a2dd03a64d5d48577f6f9a0ee4d68"
+    },
+    {
+      "path": "apps/worker/tsconfig.json",
+      "decision": "MERGED_DEVELOPER_CHANGE",
+      "reason": "Imported decorator and compiler output options from tested developer configuration.",
+      "developer_sha256": "923ff8b664a54d9f21a43e4481203bfd7bbfaa79ebceb804f96784f8b732aa8d",
+      "integrated_sha256": "923ff8b664a54d9f21a43e4481203bfd7bbfaa79ebceb804f96784f8b732aa8d"
+    },
+    {
+      "path": "compose.yaml",
+      "decision": "MERGED_DEVELOPER_CHANGE",
+      "reason": "Imported host-isolated ports 5435/6382 while preserving our local-only development password.",
+      "developer_sha256": "814e75c2f8795972fb81996ffda5ac18dc7d4f4d587ebe97f739f62d88dd7e73",
+      "integrated_sha256": "693ed297c14222c9b0fba497ee379c0a2d3da59de1b26d335a6c9eae54619455"
+    },
+    {
+      "path": "docs/README.md",
+      "decision": "PRESERVED_NEWER_MASTER",
+      "reason": "Keep newer Batch A\u2013F documentation links.",
+      "developer_sha256": "9fc2af782bf6395acf4403d198d810e0b33e9794615c716d34e8b2328f6b914d",
+      "integrated_sha256": "dd275cae15de48537054a5ea23b821396241124a24808b1fbf253137d941edaa"
+    },
+    {
+      "path": "packages/contracts/src/index.ts",
+      "decision": "PRESERVED_NEWER_MASTER",
+      "reason": "Keep extended bank provider interfaces and newer contracts.",
+      "developer_sha256": "eaf47c607e6c5fa421934b53a27216411747529c43d7e259b94b37ec416ec59c",
+      "integrated_sha256": "309dbb9e95b81d10a12441307dc1229468969342011ab3d5d0ae1e43951b6e04"
+    },
+    {
+      "path": "packages/database/package.json",
+      "decision": "MERGED_DEVELOPER_CHANGE",
+      "reason": "Merged Prisma 7 driver adapter and pg dependencies, optional env-file for integration tests.",
+      "developer_sha256": "8c92794414f168623cfade8aea17285b5572f5f2443930ecc5e12a44015c3167",
+      "integrated_sha256": "bee963d93afc12e31d6cf738507ad051d906c1d4f9dfd437a5e72aba5fc06cd1"
+    },
+    {
+      "path": "packages/database/prisma/schema.prisma",
+      "decision": "MERGED_DEVELOPER_CHANGE",
+      "reason": "Moved datasource URL to Prisma 7 config; preserved all post-developer migrations/models.",
+      "developer_sha256": "e91a0cf76102b215344bac3bd4679d416cdceccf2a58fc11858ee51dc1e1eb03",
+      "integrated_sha256": "e91a0cf76102b215344bac3bd4679d416cdceccf2a58fc11858ee51dc1e1eb03"
+    },
+    {
+      "path": "packages/database/test/financial-core.integration.test.mjs",
+      "decision": "MERGED_DEVELOPER_CHANGE",
+      "reason": "Imported PrismaPg test adapter and per-run unique fixture hashes; removed unsafe DB credential fallback.",
+      "developer_sha256": "8823f2e7ba9af85268a50e0e324127f0db9e3a7c7a8dc773f5dfe1b344dc4f90",
+      "integrated_sha256": "716ce0719bd7cdd0f2f972e79b1853431e1bcc1901974638d7f12d700ad810b9"
+    },
+    {
+      "path": "packages/database/test/product-operations.integration.test.mjs",
+      "decision": "MERGED_DEVELOPER_CHANGE",
+      "reason": "Imported PrismaPg adapter and test fixture corrections; removed unsafe DB credential fallback.",
+      "developer_sha256": "1518d438e6550fef27a401c165b8596446e28b815927881c126d2ce5d96680f8",
+      "integrated_sha256": "82b3f58ad2e2331ace67bfaa43781baa2c3eff44316dcfcd8494775457d2259c"
+    },
+    {
+      "path": "packages/database/test/production-hardening.integration.test.mjs",
+      "decision": "MERGED_DEVELOPER_CHANGE",
+      "reason": "Imported PrismaPg adapter and per-run hashes; removed unsafe DB credential fallback.",
+      "developer_sha256": "bb578ac23df80df8adacb3a7a65d638a04a12b62eb72e96fc30edd5a7605d947",
+      "integrated_sha256": "d8c2f750b3bce7f6f03cbbff65f44a2ab4246f703626f6ee077ce0a4610d09f4"
+    },
+    {
+      "path": "packages/providers/payments/monnify/src/index.ts",
+      "decision": "PRESERVED_NEWER_MASTER",
+      "reason": "Keep verified bank-directory adapter instead of removing it.",
+      "developer_sha256": "9fc49deeec2db4b3cb5f8a59f9cc94723f70f1fc479ed836af388db2eb1a45c0",
+      "integrated_sha256": "47c3119e4cc22d388be4916a009fdc0a745e70e4e469448767c46c3c7f592bdb"
+    },
+    {
+      "path": "packages/providers/payments/paystack/src/index.ts",
+      "decision": "PRESERVED_NEWER_MASTER",
+      "reason": "Keep cursor-paginated Paystack bank-directory adapter instead of removing it.",
+      "developer_sha256": "10e2b4ec462669956f5fdc5904b1de60bb9827e1a9c033e3f37f7a26012fad7d",
+      "integrated_sha256": "cb7f0320dd13ec7e726554db0445156717ed0ffef0e65d32540810e12e4d50d0"
+    },
+    {
+      "path": "pnpm-workspace.yaml",
+      "decision": "MERGED_DEVELOPER_CHANGE",
+      "reason": "Imported allowBuilds with scarf script explicitly denied rather than unresolved placeholder.",
+      "developer_sha256": "c6b7da11cb34293fcd505b79eabb79ed240a4f9e7f8dba07bc436cee94a55341",
+      "integrated_sha256": "c06ed6e62172dda673d1e8a05fb6d3de0b34dd45b45301fa623c6c79304b91ad"
+    },
+    {
+      "path": "scripts/architecture-check.mjs",
+      "decision": "MERGED_DEVELOPER_CHANGE",
+      "reason": "Exclude generated build dirs to avoid false source-code scanner positives.",
+      "developer_sha256": "5a2ba7797b5f4e625cc86300804a57833f75ddc44e332a582a2bd72a72b9933b",
+      "integrated_sha256": "5a2ba7797b5f4e625cc86300804a57833f75ddc44e332a582a2bd72a72b9933b"
+    },
+    {
+      "path": "scripts/repository-security-check.mjs",
+      "decision": "MERGED_DEVELOPER_CHANGE",
+      "reason": "Detect committed .env using Git rather than rejecting ignored developer local .env; history scan still runs.",
+      "developer_sha256": "faa59c7c51366a83e26892fed8724465f6885678f4b70e1aa3e39e8a45335977",
+      "integrated_sha256": "3fb355070c2c1f16fdd1ad9de77f1f77433e789b2d475d1c1d7beb98ea00b9de"
+    },
+    {
+      "path": "docs/adr/016-prisma-7-driver-adapter-and-docker-backing-services.md",
+      "decision": "IMPORTED_ADR",
+      "reason": "Developer architecture decision imported as source evidence; qualified claims remain separate.",
+      "developer_sha256": "2cd5680f57b8245ceed8eecdfbf4bad7fd10b2ff3560815f6219e12e9ccdbd2d"
+    },
+    {
+      "path": "docs/adr/017-transactional-advisory-locking-and-concurrency.md",
+      "decision": "IMPORTED_ADR",
+      "reason": "Developer architecture decision imported as source evidence; qualified claims remain separate.",
+      "developer_sha256": "e6a755d1aaa5b6434ab253e98fe8cccca0de73000844158aa9fba5d77a30befd"
+    },
+    {
+      "path": "docs/adr/018-test-suite-isolation-and-dynamic-qualification.md",
+      "decision": "IMPORTED_ADR",
+      "reason": "Developer architecture decision imported as source evidence; qualified claims remain separate.",
+      "developer_sha256": "b34fdd3bcc9d2e381097f524f5d52586c6ebe04b3a59387c3ec84ce4fa50f2b0"
+    },
+    {
+      "path": "docs/tasks/current_tasks.md",
+      "decision": "EVIDENCE_OUTSIDE_REPOSITORY",
+      "reason": "Developer operations journal may include local demo credentials; retained solely in immutable source snapshot pending sanitization.",
+      "developer_sha256": "c2f852842476c906e34eb853d87af7ceb8c3700f56ed2320cd2b82d67250e794"
+    },
+    {
+      "path": "docs/tasks/index.md",
+      "decision": "EVIDENCE_OUTSIDE_REPOSITORY",
+      "reason": "Developer operations journal may include local demo credentials; retained solely in immutable source snapshot pending sanitization.",
+      "developer_sha256": "d89f882d168ffe83c5e6fdf5ffc0621c11c51cfbf1bb5dc197d47e1011d486d4"
+    },
+    {
+      "path": "docs/tasks/prev_tasks_00.md",
+      "decision": "EVIDENCE_OUTSIDE_REPOSITORY",
+      "reason": "Developer operations journal may include local demo credentials; retained solely in immutable source snapshot pending sanitization.",
+      "developer_sha256": "f643f757c55d68243362badeb2645fdd27afd0f15663dd988f1a6185774a3fa3"
+    },
+    {
+      "path": "docs/tasks/prev_tasks_01.md",
+      "decision": "EVIDENCE_OUTSIDE_REPOSITORY",
+      "reason": "Developer operations journal may include local demo credentials; retained solely in immutable source snapshot pending sanitization.",
+      "developer_sha256": "f52c2fce60fdea97d6c8dd29c4430ba96b3a73776d2d7390655932c4778624df"
+    },
+    {
+      "path": "docs/tasks/prev_tasks_02.md",
+      "decision": "EVIDENCE_OUTSIDE_REPOSITORY",
+      "reason": "Developer operations journal may include local demo credentials; retained solely in immutable source snapshot pending sanitization.",
+      "developer_sha256": "ecd1cb664e08d2d3e0d7dde7c02ae1a1f25efa6b6ad07cbb9fee5419f6708400"
+    },
+    {
+      "path": "docs/tasks/prev_tasks_03.md",
+      "decision": "EVIDENCE_OUTSIDE_REPOSITORY",
+      "reason": "Developer operations journal may include local demo credentials; retained solely in immutable source snapshot pending sanitization.",
+      "developer_sha256": "3e2da39c3b1e77b47a999ae513e99a643bb2dc1d70e26e458bd2a579b122d789"
+    },
+    {
+      "path": "packages/database/prisma.config.ts",
+      "decision": "IMPORTED_AND_HARDENED",
+      "reason": "Prisma 7 config imported; hardcoded fallback password removed.",
+      "developer_sha256": "edbabca10c11e42a3b9b31712197eaa27004d70014f11834c817f5347bbc3155"
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "decision": "PROVENANCE_ONLY_LOCK_INVALID",
+      "reason": "Only root importer exists; NOT installed as valid full workspace lockfile; keep reference in docs/integration.",
+      "developer_sha256": "e8a76307fbe4f79682c12f0bf3a2a7247c3c14cac33d07a1b8f84d8666ccc5b9"
+    }
+  ]
+}
