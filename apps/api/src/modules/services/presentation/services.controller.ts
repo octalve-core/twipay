@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Headers, Param, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Body, Controller, Get, Headers, Param, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import type { FastifyReply } from 'fastify';
 import { z } from 'zod';
@@ -15,7 +15,7 @@ const ValidateSchema = z.object({ productCode: z.string().trim().min(3).max(120)
 const PurchaseSchema = z.object({
   productCode: z.string().trim().min(3).max(120),
   customerIdentifier: z.string().trim().min(3).max(64),
-  amountMinor: z.string().regex(/^[1-9]\d{0,17}$/),
+  amountMinor: z.string().regex(/^[1-9]\d{0,17}$/).refine((value) => BigInt(value) <= BigInt(Number.MAX_SAFE_INTEGER), 'amount exceeds provider-safe integer range'),
   validationId: z.uuid().optional(),
   contactPhoneE164: z.string().regex(/^\+[1-9]\d{7,14}$/).optional(),
 }).strict();
@@ -51,9 +51,31 @@ export class ServicesController {
     };
   }
 
+  private assertSandboxPurchasesEnabled(): void {
+    if (process.env['NODE_ENV'] === 'production' || process.env['BILL_PURCHASES_SANDBOX_ENABLED'] !== 'true') {
+      throw new ForbiddenException({ code: 'BILL_PURCHASES_NOT_QUALIFIED' });
+    }
+    // A developer enabling the sandbox flag cannot accidentally vend through live
+    // provider endpoints by supplying a production base URL.
+    for (const [variable, hostname] of [
+      ['VTPASS_BASE_URL', 'sandbox.vtpass.com'],
+      ['MONNIFY_BASE_URL', 'sandbox.monnify.com'],
+    ] as const) {
+      const configured = process.env[variable] ?? `https://${hostname}`;
+      let parsed: URL;
+      try { parsed = new URL(configured); }
+      catch { throw new ForbiddenException({ code: 'BILL_PROVIDER_SANDBOX_REQUIRED' }); }
+      if (parsed.protocol !== 'https:' || parsed.hostname !== hostname || parsed.port
+          || parsed.username || parsed.password || parsed.pathname !== '/' || parsed.search || parsed.hash) {
+        throw new ForbiddenException({ code: 'BILL_PROVIDER_SANDBOX_REQUIRED' });
+      }
+    }
+  }
+
   @Post('validations')
   async validate(@Body(new ZodValidationPipe(ValidateSchema)) body: z.infer<typeof ValidateSchema>, @Req() req: AuthenticatedFastifyRequest) {
     await this.product.assertFeatureEnabled('services.utilities', true);
+    this.assertSandboxPurchasesEnabled();
     const principal = requirePrincipal(req);
     const result = await this.bills.validateCustomer({ userId: principal.userId, productCode: body.productCode, customerIdentifier: body.customerIdentifier });
     return { validation: result };
@@ -67,6 +89,7 @@ export class ServicesController {
     @Res({ passthrough: true }) res: FastifyReply,
   ) {
     await this.product.assertFeatureEnabled('services.utilities', true);
+    this.assertSandboxPurchasesEnabled();
     const principal = requirePrincipal(req);
     const result = await this.bills.purchase({
       userId: principal.userId,

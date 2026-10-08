@@ -2,11 +2,11 @@ import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
 
 const base = import.meta.env.VITE_TWIPAY_API_URL?.replace(/\/$/, "");
 const api = axios.create({ baseURL: base ? `${base}/v1` : undefined, withCredentials: true, timeout: 15000 });
-const publicAuth = new Set(["/payments/collections", "/transfers", "/transfers/resolve-account", "/transfers/banks", "/auth/register", "/auth/login", "/auth/logout", "/auth/me", "/kyc/verifications", "/wallets", "/virtual-accounts", "/virtual-accounts/validation-banks", "/auth/csrf", "/auth/mfa/status", "/auth/mfa/challenge", "/auth/mfa/enroll", "/auth/mfa/enroll/confirm", "/auth/mfa/recovery-codes/regenerate", "/auth/mfa/disable"]);
+const publicAuth = new Set(["/payments/collections", "/transfers", "/transfers/resolve-account", "/transfers/banks", "/auth/register", "/auth/login", "/auth/logout", "/auth/me", "/kyc/verifications", "/wallets", "/virtual-accounts", "/virtual-accounts/validation-banks", "/auth/csrf", "/auth/mfa/status", "/auth/mfa/challenge", "/auth/mfa/enroll", "/auth/mfa/enroll/confirm", "/auth/mfa/recovery-codes/regenerate", "/auth/mfa/disable", "/services/products", "/services/validations", "/services/purchases"]);
 
 export function isAllowedIntegratedRoute(url: string | undefined): boolean {
   const path = url?.split("?")[0] ?? "";
-  return publicAuth.has(path) || path === "/transactions" || /^\/transactions\/[A-Za-z0-9._:-]{1,80}$/.test(path) || /^\/kyc\/verifications\/[0-9a-fA-F-]{36}\/continue$/.test(path);
+  return publicAuth.has(path) || path === "/transactions" || /^\/transactions\/[A-Za-z0-9._:-]{1,80}$/.test(path) || /^\/kyc\/verifications\/[0-9a-fA-F-]{36}\/continue$/.test(path) || /^\/services\/purchases\/[A-Za-z0-9._:-]{1,80}$/.test(path);
 }
 
 api.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
