@@ -147,11 +147,11 @@ describe('SessionService runtime expiry and rotation', () => {
     expect(fixture.securityEvents).toHaveLength(0);
   });
 
-  it('rejects CSRF rotation after a concurrent revocation', async () => {
+  it('rejects legacy CSRF migration after a concurrent revocation', async () => {
     const fixture = fakePrisma(activeSession());
     fixture.prisma.session.updateMany.mockResolvedValueOnce({ count: 0 });
     const service = new SessionService(fixture.prisma as never);
-    await expect(service.rotateCsrf('opaque-token')).rejects.toBeInstanceOf(UnauthorizedException);
+    await expect(service.issueCsrf('opaque-token')).rejects.toBeInstanceOf(UnauthorizedException);
   });
 
   it('rejects an idle-touch request if concurrent revocation wins', async () => {

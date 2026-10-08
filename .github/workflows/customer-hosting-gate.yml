@@ -1,0 +1,39 @@
+name: Customer hosting security gate
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_environment:
+        description: Approved staging or production configuration to validate (no deployment)
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+
+permissions:
+  contents: read
+
+jobs:
+  hosting-contract:
+    name: Validate ErhaPay customer/API hosting topology
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.target_environment }}
+    timeout-minutes: 5
+    env:
+      TWIPAY_APPROVED_SITE_HOST: ${{ vars.TWIPAY_APPROVED_SITE_HOST }}
+      APP_URL: ${{ vars.TWIPAY_APP_URL }}
+      ADMIN_URL: ${{ vars.TWIPAY_ADMIN_URL }}
+      VITE_TWIPAY_API_URL: ${{ vars.TWIPAY_PUBLIC_API_URL }}
+      VITE_TWIPAY_FUNDING_SANDBOX_ENABLED: 'false'
+      VITE_TWIPAY_TRANSFER_SANDBOX_ENABLED: 'false'
+      VITE_TWIPAY_VIRTUAL_ACCOUNT_SANDBOX_ENABLED: 'false'
+      VITE_TWIPAY_BILLS_SANDBOX_ENABLED: 'false'
+      VITE_TWIPAY_EVENT_CHECKOUT_SANDBOX_ENABLED: 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.21.0
+      - name: Reject cross-site cookies, wrong SPA fallback, public secrets and enabled financial features
+        run: node scripts/qualification/check-customer-hosting.mjs

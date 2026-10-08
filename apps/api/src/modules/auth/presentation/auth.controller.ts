@@ -75,7 +75,7 @@ export class AuthController {
   ) {
     const token = req.cookies[sessionCookieName()];
     if (!token) throw new UnauthorizedException();
-    const csrfToken = await this.sessions.rotateCsrf(token);
+    const csrfToken = await this.sessions.issueCsrf(token);
     res.setCookie(csrfCookieName(), csrfToken, {
       httpOnly: false,
       secure: process.env['NODE_ENV'] === 'production',

@@ -31,6 +31,9 @@ export function sourceGates(base=root) {
   const workflow=read('.github/workflows/browser-e2e.yml',base);
   const config=read('playwright.config.ts',base);
   const legacy=read('playwright.legacy-web.config.ts',base);
+  const hosting=read('scripts/qualification/check-customer-hosting.mjs',base);
+  const hostingWorkflow=read('.github/workflows/customer-hosting-gate.yml',base);
+  const vercel=JSON.parse(read('apps/customer-ui/vercel.json',base));
   const rootPackage=JSON.parse(read('package.json',base));
   const customerPackage=JSON.parse(read('apps/customer-ui/package.json',base));
   const workerPackage=JSON.parse(read('apps/worker/package.json',base));
@@ -58,6 +61,7 @@ export function sourceGates(base=root) {
     rule('ErhaPay visual assets byte-for-byte preserved', expectedAssets.length>100 && JSON.stringify(expectedAssets)===JSON.stringify(currentAssets), `${currentAssets.length} assets match the committed Phase 1.4 SHA-256 baseline.`),
     rule('Local full-stack smoke isolated and fail-closed', isolated.includes('--smoke') && isolated.includes('API_BIND_HOST=127.0.0.1') && isolated.includes('down --volumes') && isolated.includes('VITE_TWIPAY_EVENT_CHECKOUT_SANDBOX_ENABLED=false') && isolated.includes('pnpm e2e') && api.includes("process.env['API_BIND_HOST']"), 'Disposable PostgreSQL/Redis and localhost-only app ports; no provider operations.'),
     rule('Existing event and finance controls retained', customerApp.includes('DeferredFeatureGuard') && existsSync(join(base,'scripts/financial-invariant-check.mjs')) && existsSync(join(base,'scripts/production-hardening-invariant-check.mjs')), 'Finance and deferred route source gates still exist; separate scanners run in CI.'),
+    rule('Deployment requires approved same-site HTTPS hosts and inactive financial switches', hosting.includes('CROSS_SITE_STRICT_COOKIES_NOT_SUPPORTED') && hosting.includes('PRODUCTION_FLAG_NOT_DISABLED') && hostingWorkflow.includes('workflow_dispatch:') && hostingWorkflow.includes('check-customer-hosting.mjs') && vercel.rewrites?.some(r=>r.destination==='/index.html') && existsSync(join(base,'apps/api/test/session-csrf-concurrency.test.ts')), 'Hosting approval is a dedicated no-deployment gate and real CSRF concurrency tests are prepared.'),
     rule('Read-only security browser boundary present', existsSync(join(base,'tests/e2e/customer-ui/phase1-live-boundary.spec.ts')), 'Unauthenticated money requests and untrusted Origin tested against isolated API.'),
   ];
   return {gates,assets:currentAssets.length};
@@ -70,7 +74,7 @@ export function qualification(base=root) {
     blocked('PostgreSQL 18 migrations and concurrency', 'Disposable database-backed finance, locks, virtual account and oversell tests required.'),
     blocked('Redis 8 / BullMQ live recovery', 'Run real job processing, retries and worker shutdown tests.'),
     blocked('Actual ErhaPay browser/visual regressions', 'Run Playwright on real API, worker, React/Vite app and admin; compare approved ErhaPay screenshots.'),
-    blocked('Full backend authorization and CSRF concurrency', 'Session CSRF rotation under concurrent browser mutations is not yet addressed in Phase 3.'),
+    blocked('Live backend authorization and CSRF concurrency', 'Stable session-bound CSRF source fix is in place; real simultaneous cookie/origin/API requests and revocation races must be executed on PostgreSQL/browser.'),
     blocked('External provider sandbox settlement', 'Do not enable or run without separate approved credential-isolated test plan.'),
     blocked('OIDC Google sign-in and mandatory transaction PIN', 'Accepted Phase 3/4 requirements; not implemented or qualified yet.'),
     blocked('Admin RBAC and deployment security', 'Need real role sessions, request-origin/CSP verification and independent DAST.'),

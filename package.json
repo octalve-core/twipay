@@ -25,7 +25,7 @@
     "test:history-secrets": "node scripts/git-history-secret-check.mjs",
     "test:phase1": "node --test docs/integration/test/phase1-reconciliation.test.mjs",
     "test:phase1-3": "node --test docs/integration/test/phase1-toolchain.test.mjs",
-    "test:phase1-4-6": "node --test docs/integration/test/phase1-4-6.test.mjs scripts/test/stack-readiness.test.mjs",
+    "test:phase1-4-6": "node --test docs/integration/test/phase1-4-6.test.mjs docs/integration/test/phase1-csrf-hosting.test.mjs scripts/test/stack-readiness.test.mjs",
     "test:isolated-regression": "node --experimental-strip-types --test docs/migration/test/*.test.mjs docs/qualification/batch-f-ticket-security.test.mjs",
     "qualify:phase1-3": "node scripts/qualification/phase1-3-preflight.mjs",
     "qualify:phase1-4-6": "node scripts/qualification/phase1-4-6-gates.mjs"

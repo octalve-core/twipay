@@ -16,7 +16,8 @@ api.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
   }
   if (!["GET", "HEAD", "OPTIONS"].includes((config.method ?? "GET").toUpperCase())
       && !["/auth/register", "/auth/login"].includes(config.url ?? "")) {
-    // Session-bound CSRF is rotated by the TwiPay API; do not manufacture an auth token.
+    // Each active session has one stable, server-verified CSRF token.
+    // Concurrent mutations must not invalidate one another. Never mint tokens client-side.
     const res = await fetch(`${base}/v1/auth/csrf`, {credentials: "include", cache: "no-store"});
     if (!res.ok) throw new AxiosError("Cannot obtain CSRF authorization", "CSRF_UNAVAILABLE", config);
     const body = await res.json() as {csrfToken?: string};
