@@ -19,10 +19,15 @@ const TicketTypeSchema = z.object({
   name: z.string().trim().min(2).max(160), priceMinor: z.string().regex(/^[1-9]\d{0,17}$/), capacity: z.number().int().min(1).max(1_000_000),
   salesStartsAt: DateTime.optional(), salesEndsAt: DateTime.optional(),
 }).strict();
+const QuoteSchema = z.object({
+  eventId: z.uuid(),
+  items: z.array(z.object({ ticketTypeId: z.uuid(), quantity: z.number().int().min(1).max(20) }).strict()).min(1).max(10),
+}).strict();
 const CheckoutSchema = z.object({
   eventId: z.uuid(),
   items: z.array(z.object({ ticketTypeId: z.uuid(), quantity: z.number().int().min(1).max(20) }).strict()).min(1).max(10),
   issuedToName: z.string().trim().min(2).max(180).optional(),
+  expectedTotalMinor: z.string().regex(/^[1-9]\d{0,18}$/),
 }).strict();
 const CheckInSchema = z.object({ qrPayload: z.string().min(60).max(300), requestId: z.string().trim().min(8).max(64).optional() }).strict();
 const StaffSchema = z.object({ email: z.email().max(320) }).strict();
@@ -107,6 +112,14 @@ export class EventsController {
     return { event: await this.events.publish(principal.userId, eventId) };
   }
 
+  /** Server-calculated exact quote. Not a reservation; checkout revalidates pricing and capacity. */
+  @Post('quote')
+  @UseGuards(SessionAuthGuard)
+  async quote(@Body(new ZodValidationPipe(QuoteSchema)) body: z.infer<typeof QuoteSchema>) {
+    await this.product.assertFeatureEnabled('events.marketplace', true);
+    return { quote: await this.events.quoteCheckout(body.eventId, body.items) };
+  }
+
   @Post('checkout')
   @UseGuards(SessionAuthGuard)
   async checkout(
@@ -116,15 +129,28 @@ export class EventsController {
     @Res({ passthrough: true }) res: FastifyReply,
   ) {
     await this.product.assertFeatureEnabled('events.marketplace', true);
+    // A feature flag exposed through the browser must never authorize a financial debit.
+    if (process.env['NODE_ENV'] === 'production' || process.env['EVENT_CHECKOUT_SANDBOX_ENABLED'] !== 'true') {
+      throw new BadRequestException({ code: 'EVENT_CHECKOUT_NOT_QUALIFIED' });
+    }
     const principal = requirePrincipal(req);
     const result = await this.events.checkout({
       userId: principal.userId, idempotencyKey: requireIdempotencyKey(idempotencyKey), eventId: body.eventId, items: body.items,
       ...(body.issuedToName ? { issuedToName: body.issuedToName } : {}),
+      expectedTotalMinor: body.expectedTotalMinor,
     });
     res.status(result.statusCode);
     return result.body;
   }
 
+
+  @Get('checkout-intents/:key')
+  @UseGuards(SessionAuthGuard)
+  async checkoutIntent(@Param('key') key: string, @Req() req: AuthenticatedFastifyRequest) {
+    if (!/^twipay-event:[0-9a-f-]{36}$/.test(key)) throw new BadRequestException({ code: 'EVENT_INTENT_KEY_INVALID' });
+    const principal = requirePrincipal(req);
+    return { intent: await this.events.checkoutIntentStatus(principal.userId, key) };
+  }
 
   @Get('orders')
   @UseGuards(SessionAuthGuard)

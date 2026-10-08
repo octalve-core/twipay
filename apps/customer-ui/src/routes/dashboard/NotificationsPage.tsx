@@ -1,6 +1,6 @@
 import useBackButtonStore from "@/stores/useBackButtonStore";
 import { useEffect, useState } from "react";
-import { TNotification } from "@/lib/api/dashboard-apis/notificationsApi";
+import type { TNotification } from "@/lib/api/dashboard-apis/notificationsApi";
 import NotificationList from "@/components/dashboard/notifications/NotificationList";
 import NotificationDetails from "@/components/dashboard/notifications/NotificationDetails";
 import useIsMobile from "@/hooks/useIsMobile";

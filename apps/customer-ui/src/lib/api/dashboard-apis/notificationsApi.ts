@@ -1,41 +1,12 @@
-import { QueryFunction } from "@tanstack/react-query";
-import api from "../axios";
-
-export interface NotificationData {
-  amount: string | number;
-  balance: number;
-  reason?: string;
-  reference: string;
-  transactionType?: string;
-  pin?: string;
-}
-
-export interface TNotification {
-  _id: string;
-  type: string; // e.g., "wallet_debit", "wallet_credit", "transaction_success"
-  notifiableType: string; // e.g., "User"
-  notifiableId: string;
-  title: string;
-  message: string;
-  data: NotificationData;
-  read: boolean;
-  createdAt: string; // ISO date string
-  updatedAt: string; // ISO date string
-  __v: number;
-}
-
-export const getAllNotifications = async () => {
-    const res = await api.get("/notifications?page=1&limit=100")
-    return res.data.data;
-}
-
-export const viewNotification: QueryFunction<TNotification[], [_: string, notificationId: number]> = async ({queryKey}) => {
-    const [, notificationId] = queryKey;
-    const res = await api.get(`/notifications/${notificationId}`)
-    return res.data.data;
-}
-
-export const markAsRead = async (id: string) => {
-    const res = await api.put(`/notifications/${id}/read`)
-    return res.data.data;
+import api from '../axios';
+export type TNotification = {id:string;title:string;templateCode:string;channel:string;deliveryStatus:string;createdAt:string;updatedAt:string};
+/** These are TwiPay notification delivery records, not read/unread inbox messages. */
+export async function getAllNotifications():Promise<TNotification[]> {
+ const {data}=await api.get('/notifications');if(!Array.isArray(data?.notifications)||data.notifications.length>100)throw new TypeError('Invalid TwiPay notification history');
+ return data.notifications.map((raw:unknown)=>{
+  if(!raw||typeof raw!=='object')throw new TypeError('Invalid notification entry');
+  const v=raw as Record<string,unknown>;
+  if(typeof v.id!=='string'||typeof v.title!=='string'||typeof v.deliveryStatus!=='string'||typeof v.createdAt!=='string'||typeof v.channel!=='string'||!Number.isFinite(Date.parse(v.createdAt)))throw new TypeError('Invalid notification data');
+  return {id:v.id,title:v.title,templateCode:String(v.templateCode),channel:v.channel,deliveryStatus:v.deliveryStatus,createdAt:v.createdAt,updatedAt:String(v.updatedAt)} as TNotification;
+ });
 }

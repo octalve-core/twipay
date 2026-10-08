@@ -138,9 +138,35 @@ export class EventService {
     });
   }
 
+  async quoteCheckout(eventId: string, rawItems: readonly { ticketTypeId: string; quantity: number }[]) {
+    if (rawItems.length < 1 || rawItems.length > 10) throw new BadRequestException({ code: 'EVENT_ORDER_ITEMS_INVALID' });
+    const consolidated = new Map<string, number>();
+    for (const item of rawItems) consolidated.set(item.ticketTypeId, (consolidated.get(item.ticketTypeId) ?? 0) + item.quantity);
+    const items = [...consolidated.entries()].map(([ticketTypeId, quantity]) => ({ ticketTypeId, quantity }));
+    if (items.length < 1 || items.some((item) => !Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > 20)) {
+      throw new BadRequestException({ code: 'EVENT_ORDER_ITEMS_INVALID' });
+    }
+    const event = await this.prisma.event.findUnique({ where: { id: eventId }, include: { ticketTypes: true } });
+    if (!event || event.status !== 'PUBLISHED' || event.startsAt <= new Date()) throw new NotFoundException({ code: 'EVENT_NOT_ON_SALE' });
+    const now = new Date();
+    if ((event.salesStartsAt && event.salesStartsAt > now) || (event.salesEndsAt && event.salesEndsAt <= now)) throw new ConflictException({ code: 'EVENT_NOT_ON_SALE' });
+    let subtotalMinor = 0n;
+    for (const item of items) {
+      const type = event.ticketTypes.find((ticket) => ticket.id === item.ticketTypeId);
+      if (!type || type.status !== 'ACTIVE' || type.currency !== 'NGN' || type.priceMinor <= 0n) throw new ConflictException({ code: 'EVENT_TICKET_TYPE_NOT_AVAILABLE' });
+      if ((type.salesStartsAt && type.salesStartsAt > now) || (type.salesEndsAt && type.salesEndsAt <= now)) throw new ConflictException({ code: 'EVENT_TICKET_SALES_NOT_AVAILABLE' });
+      const sold = await this.prisma.eventTicket.count({ where: { ticketTypeId: type.id, status: { in: ['ACTIVE', 'CHECKED_IN'] } } });
+      assertCapacityAvailable(type.capacity, sold, item.quantity);
+      subtotalMinor += type.priceMinor * BigInt(item.quantity);
+    }
+    const platformFeeMinor = calculatePlatformFeeMinor(subtotalMinor, eventFeeBps());
+    if (subtotalMinor + platformFeeMinor > 9_223_372_036_854_775_807n) throw new BadRequestException({ code: 'EVENT_TOTAL_OUT_OF_RANGE' });
+    return { eventId, currency: 'NGN', items, subtotalMinor: subtotalMinor.toString(), platformFeeMinor: platformFeeMinor.toString(), totalMinor: (subtotalMinor + platformFeeMinor).toString() };
+  }
+
   async checkout(input: {
     userId: string; idempotencyKey: string; eventId: string;
-    items: readonly { ticketTypeId: string; quantity: number }[]; issuedToName?: string;
+    items: readonly { ticketTypeId: string; quantity: number }[]; issuedToName?: string; expectedTotalMinor: string;
   }): Promise<{ statusCode: number; body: JsonObject }> {
     const consolidated = new Map<string, number>();
     for (const item of input.items) consolidated.set(item.ticketTypeId, (consolidated.get(item.ticketTypeId) ?? 0) + item.quantity);
@@ -148,7 +174,7 @@ export class EventService {
     if (items.length < 1 || items.length > 10 || items.some((item) => !Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > 20)) {
       throw new BadRequestException({ code: 'EVENT_ORDER_ITEMS_INVALID' });
     }
-    const idem = await this.idempotency.begin({ scope: 'event:checkout', key: input.idempotencyKey, userId: input.userId, request: { eventId: input.eventId, items, issuedToName: input.issuedToName } });
+    const idem = await this.idempotency.begin({ scope: 'event:checkout', key: input.idempotencyKey, userId: input.userId, request: { eventId: input.eventId, items, issuedToName: input.issuedToName, expectedTotalMinor: input.expectedTotalMinor } });
     if (idem.replay) return { statusCode: idem.replay.status, body: idem.replay.body };
     const idemId = idem.recordId!;
 
@@ -185,6 +211,9 @@ export class EventService {
 
         const platformFeeMinor = calculatePlatformFeeMinor(subtotalMinor, eventFeeBps());
         const totalMinor = subtotalMinor + platformFeeMinor;
+        if (totalMinor > 9_223_372_036_854_775_807n) throw new BadRequestException({ code: 'EVENT_TOTAL_OUT_OF_RANGE' });
+        // The customer must explicitly approve the final quoted total before funds are reserved.
+        if (totalMinor.toString() !== input.expectedTotalMinor) throw new ConflictException({ code: 'EVENT_QUOTE_CHANGED' });
         const settlement = calculateSettlement({ grossMinor: totalMinor, platformFeeMinor });
         if (settlement.organizerMinor !== subtotalMinor) throw new Error('EVENT_SETTLEMENT_CALCULATION_MISMATCH');
 
@@ -274,6 +303,18 @@ export class EventService {
     }
   }
 
+
+  /** Resumable read-only status for uncertain checkout attempts; never returns encrypted ticket credentials. */
+  async checkoutIntentStatus(userId: string, key: string) {
+    const record = await this.prisma.idempotencyRecord.findUnique({ where: { userId_scope_key: { userId, scope: 'event:checkout', key } }, select: { status: true, expiresAt: true, resourceType: true, resourceId: true } });
+    if (!record || record.expiresAt <= new Date()) return { status: 'NOT_FOUND' as const };
+    if (record.status === 'PROCESSING') return { status: 'PROCESSING' as const };
+    if (record.status === 'FAILED') return { status: 'FAILED' as const };
+    if (record.resourceType !== 'event_order' || !record.resourceId) return { status: 'UNKNOWN' as const };
+    const order = await this.prisma.eventOrder.findFirst({ where: { id: record.resourceId, userId }, select: { reference: true, status: true } });
+    if (!order) return { status: 'UNKNOWN' as const };
+    return { status: order.status, reference: order.reference };
+  }
 
   async listOrdersForUser(userId: string) {
     const orders = await this.prisma.eventOrder.findMany({

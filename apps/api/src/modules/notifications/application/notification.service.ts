@@ -20,6 +20,15 @@ function notificationRetryPolicy(): { maxAttempts: number; retryDelayMs: number;
 export class NotificationService {
   constructor(private readonly prisma: PrismaService, private readonly providers: NotificationProviderRegistry) {}
 
+  /** Owner-scoped delivery metadata; sensitive destination and encrypted body are intentionally excluded. */
+  async listDeliveryHistory(userId: string) {
+    const rows = await this.prisma.notification.findMany({
+      where: { userId }, orderBy: { createdAt: 'desc' }, take: 100,
+      select: { id: true, templateCode: true, subject: true, channel: true, status: true, createdAt: true, updatedAt: true },
+    });
+    return rows.map((n) => ({ id: n.id, title: n.subject ?? n.templateCode.replaceAll('_', ' '), templateCode: n.templateCode, channel: n.channel, deliveryStatus: n.status, createdAt: n.createdAt, updatedAt: n.updatedAt }));
+  }
+
   async enqueue(input: {
     userId?: string;
     channel: NotificationChannel;

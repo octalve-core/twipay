@@ -8,23 +8,12 @@ import useBackButtonStore from "@/stores/useBackButtonStore";
 import { cn } from "@/lib/utils";
 import Logo from "../navbar/Logo";
 import MobileNavigation from "./MobileNavigation";
-import { useQuery } from "@tanstack/react-query";
-import { getAllNotifications, TNotification } from "@/lib/api/dashboard-apis/notificationsApi";
 import { useAuth } from "@/context/AuthContext";
 
 const DashboardHeader = () => {
     const {buttonUrl, onClick} = useBackButtonStore();
     const location = useLocation();
     const {user} = useAuth();
-
-    const {
-        data: notifications,
-    } = useQuery<TNotification[], Error>({
-        queryKey: ["notifications"],
-        queryFn: getAllNotifications,
-    })
-
-    const unreadNotifCount = (notifications && notifications.length) && notifications?.filter((notif) => !notif.read).length || 0;
 
     const isDashboardPage = location.pathname === "/dashboard"
 
@@ -45,7 +34,6 @@ const DashboardHeader = () => {
                 <div className="w-[1px] h-full bg-[#E4E7EC]" />
                 <Link to={"/dashboard/notifications"} className=" relative cursor-pointer ml-8 mr-7">
                     <GoBellFill className="text-[#667185] hover:text-[#112929] hover:scale-110 transition size-8" />
-                    {unreadNotifCount > 0 && <div className="size-3.5 rounded-full grid place-items-center text-[10px] absolute top-0 right-0 bg-[#112929] text-white">{unreadNotifCount}</div>}
                 </Link>
                 <Link to="/dashboard/settings/account" className="hover:opacity-65 transition">
                     <div className="relative size-8">

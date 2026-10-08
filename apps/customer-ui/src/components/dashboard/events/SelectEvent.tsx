@@ -13,7 +13,7 @@ const SelectEvent = () => {
                 <p className="text-[#667085] font-medium text-xl w-full text-center mr-6">Events</p>
             </div>
 
-            <div className="flex md:gap-16">
+            <div className="flex flex-col md:flex-row md:gap-16">
                 <EventsList />
                 <div className="h-[80vh] w-[1px] self-start bg-[#6670854D] sticky top-0 hidden md:block" />
                 <EventDetails />
