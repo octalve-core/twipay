@@ -3,7 +3,6 @@ import { Link, useLocation } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import { GoBellFill } from "react-icons/go";
 
-import VerifiedIcon from "@/assets/dashboard/verified_tick.png";
 import useBackButtonStore from "@/stores/useBackButtonStore";
 import { cn } from "@/lib/utils";
 import Logo from "../navbar/Logo";
@@ -32,13 +31,13 @@ const DashboardHeader = () => {
             
             <div className="flex items-center h-full ml-auto">
                 <div className="w-[1px] h-full bg-[#E4E7EC]" />
-                <Link to={"/dashboard/notifications"} className=" relative cursor-pointer ml-8 mr-7">
+                <Link to={"/dashboard/notifications"} aria-label="Notifications" className=" relative cursor-pointer ml-8 mr-7 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#112929] rounded-md">
                     <GoBellFill className="text-[#667185] hover:text-[#112929] hover:scale-110 transition size-8" />
                 </Link>
-                <Link to="/dashboard/settings/account" className="hover:opacity-65 transition">
+                <Link to="/dashboard/settings/account" aria-label="Account settings" className="hover:opacity-65 transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#112929] rounded-md">
                     <div className="relative size-8">
-                        <img src={user?.avatar || ""} className="size-full rounded-full object-cover bg-blue-100" />
-                        <img src={VerifiedIcon} className="size-3 object-cover absolute right-0 bottom-0" />
+                        <img src={user?.avatar || ""} alt="" className="size-full rounded-full object-cover bg-blue-100" />
+                        {/* No verification badge until an authoritative server status is exposed here. */}
                     </div>
                 </Link>
                 <div className="md:hidden ml-7 grid place-items-center">

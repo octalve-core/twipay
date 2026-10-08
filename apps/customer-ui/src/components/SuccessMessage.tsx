@@ -20,7 +20,7 @@ const SuccessMessage = ({message}: TSuccessMessage) => {
   return (
     <div className='grid place-items-center min-h-screen'>
         <div className="max-w-[702px] text-center flex flex-col items-center">
-            <img src={CheckMark} className="object-cover w-[248px] h-[226px]" />
+            <img src={CheckMark} alt="" className="object-cover w-[248px] h-[226px]" />
             <h2 className="text-black font-medium text-4xl mt-5 mb-4">{message}</h2>
             <p className="text-[#717171]">Redirecting to home...</p>
         </div>

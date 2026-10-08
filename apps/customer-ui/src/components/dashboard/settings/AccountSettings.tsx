@@ -1,4 +1,3 @@
-import { Check } from "lucide-react";
 import AccountSettingForm from "./AccountSettingForm";
 import ImageAddIcon from "@/assets/dashboard/image-add.png";
 import BackButton from "@/components/Authentication/BackButton";
@@ -24,7 +23,7 @@ export default function AccountSettings() {
           </div>
           <div className="relative size-[6.25rem] md:size-[7.5rem]">
             {user?.avatar ? <img src={user.avatar} alt="Your avatar" className="size-full rounded-full object-cover" /> : <FaCircleUser aria-label="Default user avatar" className="size-full text-[#667085]" />}
-            <div className="size-8 md:size-[37.5px] grid place-items-center bg-blue-600 rounded-full text-white absolute right-0 bottom-0"><Check className="size-4 md:size-5" /></div>
+            {/* The old unconditional check implied verified identity. Only the KYC API can establish that status. */}
           </div>
           <div>
             <button type="button" disabled aria-describedby="avatar-unavailable" className="flex items-center rounded-lg border-[1.5px] border-[#F56630] py-2 px-3 gap-2.5 text-sm font-bold text-[#F56630] disabled:cursor-not-allowed disabled:opacity-60">

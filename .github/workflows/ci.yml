@@ -69,7 +69,7 @@ jobs:
       - name: Original ErhaPay source design and visual asset integrity
         run: |
           node scripts/design/erhapay-ui-inventory.mjs --check
-          node --test docs/design/test/batch-21-design.test.mjs
+          node --test docs/design/test/*.test.mjs
       - name: Require genuine lockfile
         run: test -f pnpm-lock.yaml || (echo 'pnpm-lock.yaml is required; run a genuine pnpm install and commit its generated lockfile' && exit 1)
       - run: node scripts/qualification/phase1-3-preflight.mjs --check-lock

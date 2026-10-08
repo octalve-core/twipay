@@ -70,28 +70,28 @@ const SignUpForm = () => {
         <form onSubmit={handleSubmit(onSubmit)} className="mt-8">
             <div className="w-full">
                 <label className="text-[#344054] text-sm font-medium" htmlFor="firstname">First name</label>
-                <input id="firstname" {...register("firstname")} placeholder="Enter your First name" className="w-full outline-0 bg-white py-2.5 px-3.5 border border-[#D0D5DD] shadow-[#1018280D] placeholder:text-[#667085] rounded-md mt-1.5 focus:border-[#112929] transition" />
-                {errors.firstname && <p className="text-red-500 text-sm mt-1">{errors.firstname.message}</p>}
+                <input id="firstname" autoComplete="given-name" aria-invalid={!!errors.firstname} aria-describedby={errors.firstname ? "firstname-error" : undefined} {...register("firstname")} placeholder="Enter your First name" className="w-full outline-0 bg-white py-2.5 px-3.5 border border-[#D0D5DD] shadow-[#1018280D] placeholder:text-[#667085] rounded-md mt-1.5 focus:border-[#112929] transition" />
+                {errors.firstname && <p id="firstname-error" role="alert" className="text-red-500 text-sm mt-1">{errors.firstname.message}</p>}
             </div>
             <div className="w-full mt-5">
                 <label className="text-[#344054] text-sm font-medium" htmlFor="lastname">Last name</label>
-                <input id="lastname" {...register("lastname")} placeholder="Enter your Last name" className="w-full outline-0 bg-white py-2.5 px-3.5 border border-[#D0D5DD] shadow-[#1018280D] placeholder:text-[#667085] rounded-md mt-1.5 focus:border-[#112929] transition" />
-                {errors.lastname && <p className="text-red-500 text-sm mt-1">{errors.lastname.message}</p>}
+                <input id="lastname" autoComplete="family-name" aria-invalid={!!errors.lastname} aria-describedby={errors.lastname ? "lastname-error" : undefined} {...register("lastname")} placeholder="Enter your Last name" className="w-full outline-0 bg-white py-2.5 px-3.5 border border-[#D0D5DD] shadow-[#1018280D] placeholder:text-[#667085] rounded-md mt-1.5 focus:border-[#112929] transition" />
+                {errors.lastname && <p id="lastname-error" role="alert" className="text-red-500 text-sm mt-1">{errors.lastname.message}</p>}
             </div>
             <div className="w-full mt-5">
                 <label className="text-[#344054] text-sm font-medium" htmlFor="email">Email address</label>
-                <input id="email" {...register("email")} type="email" placeholder="Enter your email address" className="w-full outline-0 bg-white py-2.5 px-3.5 border border-[#D0D5DD] shadow-[#1018280D] placeholder:text-[#667085] rounded-md mt-1.5 focus:border-[#112929] transition" />
-                {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
+                <input id="email" autoComplete="email" aria-invalid={!!errors.email} aria-describedby={errors.email ? "email-error" : undefined} {...register("email")} type="email" placeholder="Enter your email address" className="w-full outline-0 bg-white py-2.5 px-3.5 border border-[#D0D5DD] shadow-[#1018280D] placeholder:text-[#667085] rounded-md mt-1.5 focus:border-[#112929] transition" />
+                {errors.email && <p id="email-error" role="alert" className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
             </div>
             <div className="w-full mt-5">
                 <label className="text-sm text-[#344054] font-medium" htmlFor="password">Password</label>
                 <div className="w-full h-fit relative mt-1.5">
-                    <input {...register("password")} placeholder="••••••••" className="w-full border-[0.5px] border-[#D0D5DD] rounded-md py-2.5 px-3.5 pr-10 bg-white outline-none focus:border-[#112929] placeholder:text-sm placeholder:text-[#667085]" type={showPassword ? "text" : "password"} id="password" />
-                    <button onClick={() => setShowPassword(prev => !prev)} type="button" className="absolute cursor-pointer text-[#98A2B3] right-3.5 top-1/2 -translate-y-1/2">
+                    <input {...register("password")} placeholder="••••••••" className="w-full border-[0.5px] border-[#D0D5DD] rounded-md py-2.5 px-3.5 pr-10 bg-white outline-none focus:border-[#112929] placeholder:text-sm placeholder:text-[#667085]" type={showPassword ? "text" : "password"} id="password" autoComplete="new-password" aria-invalid={!!errors.password} aria-describedby={errors.password ? "password-error" : undefined} />
+                    <button onClick={() => setShowPassword(prev => !prev)} type="button" aria-label={showPassword ? "Hide password" : "Show password"} aria-controls="password" className="absolute cursor-pointer text-[#98A2B3] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#112929] rounded-sm right-3.5 top-1/2 -translate-y-1/2">
                         {showPassword ? <IoEyeOffOutline /> : <IoEyeOutline />}
                     </button>
                 </div>
-                {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>}
+                {errors.password && <p id="password-error" role="alert" className="text-red-500 text-sm mt-1">{errors.password.message}</p>}
             </div>
             <div className="w-full mt-5">
                 <label className="text-[#344054] text-sm font-medium" htmlFor="referral">Referral code (not yet available)</label>

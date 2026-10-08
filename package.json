@@ -30,7 +30,7 @@
     "qualify:phase1-3": "node scripts/qualification/phase1-3-preflight.mjs",
     "qualify:phase1-4-6": "node scripts/qualification/phase1-4-6-gates.mjs",
     "design:inventory": "node scripts/design/erhapay-ui-inventory.mjs --check",
-    "test:design": "node --test docs/design/test/batch-21-design.test.mjs"
+    "test:design": "node --test docs/design/test/*.test.mjs"
   },
   "devDependencies": {
     "@types/node": "24.19.1",

@@ -66,3 +66,9 @@ New ErhaPay pages should use `ErhaPageFrame`, `ErhaPageHeading`, `ErhaSettingsPa
 **Phase 2.1 source-inventory checkpoint:** source/asset inventory and additive page primitives pass the eight focused local tests; the original Batch A–F and Phase 1 suites also pass after the clean-checkout SVG LF test correction.
 
 **Not yet qualified:** CSS/React build under Node 24, pixel visual comparison, viewport navigation, real accessibility audit, authenticated UI against API, and Phase 1 PostgreSQL/Redis security gates. These remain explicitly BLOCKED until executed. This is **not** Phase 1 sign-off or Phase 2 visual approval.
+
+## 7. Phase 2.2 follow-up — minimal control refinement (2026-10-09)
+
+Batch 2.2 addresses specific keyboard and disabled-state defects **inside existing ErhaPay components**, not new screen designs. `CustomButton` keeps its original appearance and default submit behaviour; disabled/loading links now fail closed and loading native buttons are disabled. `BackButton` has accessible names and safe button semantics. Mobile sheets receive proper screen-reader titles and scroll handling. Login/signup errors have explicit field associations; unavailable remember-me/password-reset controls are no longer falsely actionable. Unconditional profile verification marks are removed until the API can attest to status. Original icon/raster asset content is unchanged. See `docs/design/BATCH_2_2_CONTROL_REFINEMENT_2026-10-09.md` for the exact change and qualification matrix.
+
+Screenshot and real accessibility evidence still require a working browser and the isolated original reference build. This source review must not be mistaken for browser or release approval.
