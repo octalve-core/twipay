@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Patch, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, ForbiddenException, Get, Patch, Req, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { z } from 'zod';
 import { ZodValidationPipe } from '../../../platform/http/zod-validation.pipe.js';
@@ -33,7 +33,12 @@ export class ProductController {
   @RequirePermissions('ops.feature_flags.manage')
   async updateFlag(@Body(new ZodValidationPipe(FlagSchema)) body: z.infer<typeof FlagSchema>, @Req() req: AuthenticatedFastifyRequest) {
     const principal = requirePrincipal(req);
-    if (body.enabled && ['events.refunds', 'operations.organizer_payouts'].includes(body.key)) requireMfa(req);
+    if (body.enabled && ['events.refunds', 'operations.organizer_payouts'].includes(body.key)) {
+      if (process.env['HIGH_RISK_FEATURES_RELEASE_QUALIFIED'] !== 'true') {
+        throw new ForbiddenException({ code: 'RELEASE_QUALIFICATION_REQUIRED' });
+      }
+      requireMfa(req);
+    }
     const { reason, ...flag } = body;
     return { flag: await this.product.upsertFlag({ ...flag, actorUserId: principal.userId, reason, requestId: req.id }) };
   }

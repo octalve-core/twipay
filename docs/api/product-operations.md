@@ -79,3 +79,7 @@ Restricted:
 - `PATCH /product/admin/deployment`
 
 Configuration writes require an attributable reason and are recorded in the operational audit trail.
+
+## Batch 5 Task 4 authorization note
+
+Organizer payout requests, event refund approvals and organizer payout approvals now have an additional **transaction-level** session/assurance check using the authenticated server-side session ID. Finance approvals also recheck their permission inside the transaction. This does not replace the HTTP authentication/permission/CSRF guards or the existing maker/checker and DB invariant checks. See `docs/verification/TASK_04_AUTHORIZATION.md` for the complete endpoint inventory, scope limitations and blocked PostgreSQL race tests.

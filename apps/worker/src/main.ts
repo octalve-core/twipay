@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import { Worker, type ConnectionOptions } from 'bullmq';
 import pino from 'pino';
+import { createRecoverySweep } from './recovery-sweep.js';
 import { AppModule, BillService, NotificationService, validateEnvironment } from '@twipay/api/worker-entry';
 
 validateEnvironment(process.env);
@@ -51,31 +52,28 @@ const worker = new Worker('twipay-domain', async (job) => {
 worker.on('failed', (job, error) => logger.error({ jobId: job?.id, jobName: job?.name, errorName: error.name }, 'TwiPay domain job failed'));
 worker.on('error', (error) => logger.error({ errorName: error.name }, 'TwiPay worker error'));
 
-let sweepRunning = false;
-async function recoverySweep(): Promise<void> {
-  if (sweepRunning) return;
-  sweepRunning = true;
-  try {
-    const [billCount, notificationCount] = await Promise.all([bills.reconcileDue(25), notifications.processPending(25)]);
-    if (billCount || notificationCount) logger.info({ billCount, notificationCount }, 'TwiPay recovery sweep processed pending work');
-  } catch (error) {
-    logger.error({ errorName: error instanceof Error ? error.name : 'UnknownError' }, 'TwiPay recovery sweep failed');
-  } finally {
-    sweepRunning = false;
-  }
-}
+const sweep = createRecoverySweep(async () => {
+  const [billCount, notificationCount] = await Promise.all([bills.reconcileDue(25), notifications.processPending(25)]);
+  if (billCount || notificationCount) logger.info({ billCount, notificationCount }, 'TwiPay recovery sweep processed pending work');
+}, (error) => {
+  logger.error({ errorName: error instanceof Error ? error.name : 'UnknownError' }, 'TwiPay recovery sweep failed');
+});
 
 const sweepMs = Number(process.env['WORKER_RECOVERY_SWEEP_MS'] ?? '60000');
 if (!Number.isInteger(sweepMs) || sweepMs < 10_000 || sweepMs > 3_600_000) throw new Error('WORKER_RECOVERY_SWEEP_MS_INVALID');
-await recoverySweep();
-const timer = setInterval(() => { void recoverySweep(); }, sweepMs);
+await sweep.runOnce();
+const timer = setInterval(() => { void sweep.runOnce(); }, sweepMs);
 timer.unref();
 logger.info({ service: 'twipay-worker', sweepMs }, 'TwiPay worker started');
 
+let shutdownStarted = false;
 async function shutdown(signal: string): Promise<void> {
+  if (shutdownStarted) return;
+  shutdownStarted = true;
   logger.info({ signal }, 'TwiPay worker shutting down');
   clearInterval(timer);
   await worker.close();
+  await sweep.drain();
   await app.close();
   process.exit(0);
 }

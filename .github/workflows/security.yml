@@ -1,0 +1,89 @@
+name: Security gates
+
+on:
+  pull_request:
+  push:
+    branches: [main, develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  source-and-supply-chain:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.21.0
+      - run: corepack enable
+      - name: Require genuine lockfile
+        run: test -f pnpm-lock.yaml || (echo 'Security qualification requires the committed genuine pnpm lockfile' && exit 1)
+      - run: pnpm install --frozen-lockfile
+      - run: node scripts/repository-security-check.mjs
+      - run: node scripts/git-history-secret-check.mjs
+      - name: Dependency audit
+        run: pnpm audit --audit-level high
+      - name: Generate SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          path: .
+          format: cyclonedx-json
+          output-file: sbom.cdx.json
+          upload-artifact: true
+
+  codeql:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: javascript-typescript
+      - uses: github/codeql-action/analyze@v4
+        with:
+          category: /language:javascript-typescript
+
+  filesystem-scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: table
+          severity: HIGH,CRITICAL
+          ignore-unfixed: false
+          exit-code: '1'
+
+  container-scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        service: [api, worker, web, admin]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.21.0
+      - run: corepack enable
+      - name: Require genuine lockfile
+        run: test -f pnpm-lock.yaml || (echo 'Container qualification requires the committed genuine pnpm lockfile' && exit 1)
+      - name: Build image
+        run: docker build -f infrastructure/docker/Dockerfile.${{ matrix.service }} -t twipay-${{ matrix.service }}:security .
+      - uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: twipay-${{ matrix.service }}:security
+          format: table
+          severity: HIGH,CRITICAL
+          ignore-unfixed: false
+          exit-code: '1'

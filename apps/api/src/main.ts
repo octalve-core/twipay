@@ -9,6 +9,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './modules/app.module.js';
 import { buildLoggerOptions } from './platform/logging/logger.js';
 import { validateEnvironment } from './platform/config/env.js';
+import { riskRatePolicy } from './platform/http/risk-rate-limit.js';
 
 async function bootstrap(): Promise<void> {
   validateEnvironment(process.env);
@@ -32,14 +33,22 @@ async function bootstrap(): Promise<void> {
   });
   await app.register(rateLimit, {
     global: true,
-    max: 120,
-    timeWindow: '1 minute',
+    max: async (request) => riskRatePolicy(request).max,
+    timeWindow: async (request) => riskRatePolicy(request).timeWindowMs,
+    keyGenerator: (request) => `${riskRatePolicy(request).bucket}:${request.ip}`,
     ban: 2,
     skipOnError: false,
   });
   await app.register(helmet, {
     global: true,
-    contentSecurityPolicy: false,
+    contentSecurityPolicy: production ? {
+      directives: {
+        defaultSrc: ["'none'"],
+        baseUri: ["'none'"],
+        frameAncestors: ["'none'"],
+        formAction: ["'none'"],
+      },
+    } : false,
     hsts: production ? { maxAge: 31_536_000, includeSubDomains: true, preload: true } : false,
     referrerPolicy: { policy: 'no-referrer' },
   });
@@ -48,6 +57,9 @@ async function bootstrap(): Promise<void> {
   // Prevent intermediary/browser caches from retaining API responses by default.
   app.getHttpAdapter().getInstance().addHook('onSend', async (_request, reply, payload) => {
     reply.header('Cache-Control', 'no-store');
+    reply.header('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
+    reply.header('Cross-Origin-Opener-Policy', 'same-origin');
+    reply.header('Cross-Origin-Resource-Policy', 'same-origin');
     return payload;
   });
 

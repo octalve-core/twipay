@@ -4,6 +4,7 @@ import type { FastifyReply } from 'fastify';
 import { z } from 'zod';
 import { ZodValidationPipe } from '../../../platform/http/zod-validation.pipe.js';
 import { SessionAuthGuard, requirePrincipal, type AuthenticatedFastifyRequest } from '../../auth/presentation/session-auth.guard.js';
+import { requireMfa } from '../../auth/presentation/permission.guard.js';
 import { DisputeRefundService } from '../application/dispute-refund.service.js';
 import { OrganizerPayoutService } from '../application/organizer-payout.service.js';
 
@@ -38,8 +39,9 @@ export class CustomerOperationsController {
 
   @Post('events/organizers/:organizerId/payouts')
   async requestPayout(@Param('organizerId') organizerId: string, @Body(new ZodValidationPipe(PayoutRequestSchema)) body: z.infer<typeof PayoutRequestSchema>, @Headers('idempotency-key') key: string|undefined, @Req() req: AuthenticatedFastifyRequest, @Res({ passthrough: true }) res: FastifyReply) {
+    requireMfa(req);
     const principal = requirePrincipal(req);
-    const result = await this.payouts.request({ ownerUserId: principal.userId, organizerId, providerCode: body.provider, amountMinor: BigInt(body.amountMinor), bankCode: body.bankCode, accountNumber: body.accountNumber, narration: body.narration, idempotencyKey: idem(key) });
+    const result = await this.payouts.request({ ownerUserId: principal.userId, sessionId: principal.sessionId, organizerId, providerCode: body.provider, amountMinor: BigInt(body.amountMinor), bankCode: body.bankCode, accountNumber: body.accountNumber, narration: body.narration, idempotencyKey: idem(key) });
     res.status(result.statusCode); return result.body;
   }
 

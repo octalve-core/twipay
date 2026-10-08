@@ -13,7 +13,7 @@ test('operations API helper uses cookie credentials and CSRF without browser tok
 });
 
 test('required operations surfaces are present', () => {
-  for (const path of ['page.tsx','refunds/page.tsx','payouts/page.tsx','providers/page.tsx','compliance/page.tsx','reports/page.tsx','config/page.tsx','audit/page.tsx']) {
+  for (const path of ['page.tsx','refunds/page.tsx','payouts/page.tsx','providers/page.tsx','compliance/page.tsx','reports/page.tsx','config/page.tsx','security/page.tsx','audit/page.tsx']) {
     assert.ok(existsSync(new URL(`../app/${path}`, import.meta.url)), path);
   }
 });
@@ -48,3 +48,15 @@ test('payout operations surface exposes rejection before checker approval', () =
   assert.match(source, /Maker\/checker/);
   assert.match(source, /MFA-satisfied/);
 });
+
+test('operations surface uses nonce CSP without wildcard or unsafe-inline script execution', () => {
+  const source = read('proxy.ts');
+  assert.match(source, /nonce-\$\{nonce\}/);
+  assert.match(source, /strict-dynamic/);
+  assert.match(source, /frame-ancestors 'none'/);
+  assert.doesNotMatch(source, /script-src[^\n]*unsafe-inline/);
+  assert.doesNotMatch(source, /default-src[^\n]*\*/);
+});
+
+
+test('operations security surface exposes real MFA enrollment, step-up, recovery and disable actions', () => { const source=read('app/security/page.tsx'); for (const path of ['/auth/mfa/enroll','/auth/mfa/enroll/confirm','/auth/mfa/challenge','/auth/mfa/recovery-codes/regenerate','/auth/mfa/disable']) assert.match(source,new RegExp(path.replaceAll('/','\\/'))); });

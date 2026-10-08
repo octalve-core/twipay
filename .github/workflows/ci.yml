@@ -1,13 +1,17 @@
 name: CI
+
 on:
   pull_request:
   push:
     branches: [main, develop]
+
 permissions:
   contents: read
+
 jobs:
   verify:
     runs-on: ubuntu-latest
+    timeout-minutes: 35
     services:
       postgres:
         image: postgres:18-alpine
@@ -33,32 +37,47 @@ jobs:
           --health-retries 10
     env:
       NODE_ENV: test
-      APP_URL: http://localhost:3000
-      ADMIN_URL: http://localhost:3001
-      API_URL: http://localhost:4000
-      DATABASE_URL: postgresql://twipay:twipay_ci_password@localhost:5432/twipay_test?schema=public
-      REDIS_URL: redis://localhost:6379
+      APP_URL: http://127.0.0.1:3000
+      ADMIN_URL: http://127.0.0.1:3001
+      API_URL: http://127.0.0.1:4000
+      NEXT_PUBLIC_API_URL: http://127.0.0.1:4000
+      DATABASE_URL: postgresql://twipay:twipay_ci_password@127.0.0.1:5432/twipay_test?schema=public
+      REDIS_URL: redis://127.0.0.1:6379
       SESSION_HASH_PEPPER: ci-only-session-pepper-change-me-000000000000
+      SESSION_ABSOLUTE_TTL_SECONDS: '604800'
+      SESSION_IDLE_TTL_SECONDS: '86400'
+      SESSION_TOUCH_INTERVAL_SECONDS: '300'
+      MFA_STEP_UP_MAX_AGE_SECONDS: '600'
+      MFA_RECOVERY_HMAC_KEY: ci-only-mfa-recovery-key-change-me-000000000
+      MFA_TOTP_ISSUER: TwiPay-CI
+      MFA_ENROLLMENT_TTL_SECONDS: '600'
+      MFA_MAX_FAILED_ATTEMPTS: '5'
+      MFA_LOCK_SECONDS: '300'
       DATA_ENCRYPTION_KEY: BwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwc=
       PII_FINGERPRINT_KEY: ci-only-fingerprint-key-change-me-000000000
+      TICKET_SIGNING_KEYS_JSON: '{"1":"ci-only-ticket-signing-key-change-me-000000000"}'
+      TICKET_SIGNING_CURRENT_VERSION: '1'
       LOG_LEVEL: silent
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 24.21.0
       - run: corepack enable
-      # A committed pnpm-lock.yaml is a release prerequisite. The execution
-      # environment used for Batch 1/2 could not access the npm registry, so
-      # the lock must be generated/committed from a normal networked checkout.
-      - run: test -f pnpm-lock.yaml || (echo 'pnpm-lock.yaml is required; run pnpm install and commit the generated lockfile' && exit 1)
+      - name: Require genuine lockfile
+        run: test -f pnpm-lock.yaml || (echo 'pnpm-lock.yaml is required; run a genuine pnpm install and commit its generated lockfile' && exit 1)
       - run: pnpm install --frozen-lockfile
       - run: pnpm db:generate
       - run: pnpm --filter @twipay/database prisma:validate
       - run: pnpm --filter @twipay/database prisma:deploy
       - run: pnpm test:repo
+      - run: node scripts/git-history-secret-check.mjs
       - run: pnpm format:check
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm test
+      - name: PostgreSQL hardening integration
+        run: pnpm --filter @twipay/database test
+      - name: Redis/BullMQ worker integration
+        run: pnpm --filter @twipay/worker test:integration
       - run: pnpm build

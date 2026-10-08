@@ -109,3 +109,4 @@ export function fingerprintSensitiveValue(value: string, fingerprintKey: string)
   if (fingerprintKey.length < 32) throw new Error('PII_FINGERPRINT_KEY must contain at least 32 characters');
   return createHmac('sha256', fingerprintKey).update(value).digest('hex');
 }
+export * from './mfa.js';

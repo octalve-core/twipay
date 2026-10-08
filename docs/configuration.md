@@ -88,6 +88,15 @@ The repository and documentation may describe **variable names and rotation proc
 | `NOTIFICATION_RETRY_DELAY_MS` | notification retry delay | No | No |
 | `NOTIFICATION_PROCESSING_STALE_MS` | recovery threshold for interrupted delivery | No | No |
 | `MFA_STEP_UP_MAX_AGE_SECONDS` | maximum age in seconds of MFA assurance accepted for step-up protected actions; default `600`, allowed `60–3600` | No | No |
+| `SESSION_ABSOLUTE_TTL_SECONDS` | maximum absolute server-session lifetime; default `604800` | No | No |
+| `SESSION_IDLE_TTL_SECONDS` | idle timeout enforced by the session resolver; default `86400` | No | No |
+| `SESSION_TOUCH_INTERVAL_SECONDS` | minimum interval before refreshing `lastSeenAt`; default `300` | No | No |
+| `MFA_RECOVERY_HMAC_KEY` | keyed HMAC secret for one-way recovery-code lookup | **Yes** | **No** |
+| `MFA_TOTP_ISSUER` | issuer label embedded in the `otpauth://` enrollment URI | No | No |
+| `MFA_ENROLLMENT_TTL_SECONDS` | pending-enrollment lifetime; default `600` | No | No |
+| `MFA_MAX_FAILED_ATTEMPTS` | bounded failures before temporary lock; default `5` | No | No |
+| `MFA_LOCK_SECONDS` | MFA temporary-lock duration; default `300` | No | No |
+| `HIGH_RISK_FEATURES_RELEASE_QUALIFIED` | server-side release latch; must remain `false` until the complete production qualification matrix passes | No | No |
 
 `TICKET_SIGNING_KEYS_JSON` must never be a `NEXT_PUBLIC_*` value. Keep old key versions available while any ticket signed with them can still legitimately be presented. Key removal is an explicit operational/security migration, not routine cleanup.
 

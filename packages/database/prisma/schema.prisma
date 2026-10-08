@@ -24,6 +24,12 @@ enum SessionStatus {
   EXPIRED
 }
 
+enum MfaCredentialStatus {
+  PENDING
+  ACTIVE
+  DISABLED
+}
+
 enum SecurityEventType {
   REGISTERED
   LOGIN_SUCCEEDED
@@ -34,8 +40,14 @@ enum SecurityEventType {
   PASSWORD_RESET_REQUESTED
   PASSWORD_RESET_COMPLETED
   GOOGLE_IDENTITY_LINKED
+  MFA_ENROLLMENT_STARTED
   MFA_ENABLED
+  MFA_CHALLENGE_SUCCEEDED
+  MFA_CHALLENGE_FAILED
+  MFA_RECOVERY_USED
   MFA_DISABLED
+  SESSION_ROTATED
+  SESSION_EXPIRED
   ACCOUNT_SUSPENDED
 }
 
@@ -335,6 +347,7 @@ model User {
   oauthIdentities       OAuthIdentity[]
   sessions              Session[]
   securityEvents        SecurityEvent[]
+  mfaCredentials        MfaCredential[]
   roleAssignments       UserRole[]
   wallets               Wallet[]
   ledgerAccounts        LedgerAccount[]
@@ -413,6 +426,40 @@ model Session {
   @@index([userId, status])
   @@index([expiresAt])
   @@map("sessions")
+}
+
+model MfaCredential {
+  id                   String              @id @default(uuid()) @db.Uuid
+  userId               String              @db.Uuid
+  status               MfaCredentialStatus @default(PENDING)
+  secretCiphertext     String              @db.Text
+  lastAcceptedTimeStep BigInt?             @db.BigInt
+  failedAttempts       Int                 @default(0)
+  lockedUntil          DateTime?           @db.Timestamptz(6)
+  enrollmentStartedAt  DateTime            @default(now()) @db.Timestamptz(6)
+  enabledAt            DateTime?           @db.Timestamptz(6)
+  disabledAt           DateTime?           @db.Timestamptz(6)
+  disabledReason       String?             @db.VarChar(160)
+  createdAt            DateTime            @default(now()) @db.Timestamptz(6)
+  updatedAt            DateTime            @updatedAt @db.Timestamptz(6)
+  user                 User                @relation(fields: [userId], references: [id], onDelete: Restrict)
+  recoveryCodes        MfaRecoveryCode[]
+
+  @@index([userId, status])
+  @@index([lockedUntil])
+  @@map("mfa_credentials")
+}
+
+model MfaRecoveryCode {
+  id           String        @id @default(uuid()) @db.Uuid
+  credentialId String        @db.Uuid
+  codeHash     String        @unique @db.Char(64)
+  usedAt       DateTime?     @db.Timestamptz(6)
+  createdAt    DateTime      @default(now()) @db.Timestamptz(6)
+  credential   MfaCredential @relation(fields: [credentialId], references: [id], onDelete: Restrict)
+
+  @@index([credentialId, usedAt])
+  @@map("mfa_recovery_codes")
 }
 
 model SecurityEvent {

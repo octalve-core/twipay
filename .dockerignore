@@ -1,0 +1,15 @@
+.git
+node_modules
+**/node_modules
+**/dist
+**/.next
+**/.test-dist
+.env
+.env.*
+!.env.example
+*.zip
+*.tar
+*.tar.gz
+coverage
+playwright-report
+test-results

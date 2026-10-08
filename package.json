@@ -14,12 +14,14 @@
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
     "test": "turbo test",
-    "test:repo": "node scripts/typescript-syntax-check.mjs && node scripts/repository-security-check.mjs && node scripts/architecture-check.mjs && node scripts/financial-invariant-check.mjs && node scripts/services-events-invariant-check.mjs && node scripts/product-operations-invariant-check.mjs",
+    "test:repo": "node scripts/typescript-syntax-check.mjs && node scripts/repository-security-check.mjs && node scripts/architecture-check.mjs && node scripts/financial-invariant-check.mjs && node scripts/services-events-invariant-check.mjs && node scripts/product-operations-invariant-check.mjs && node scripts/production-hardening-invariant-check.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "db:generate": "pnpm --filter @twipay/database prisma:generate",
     "db:migrate": "pnpm --filter @twipay/database prisma:migrate",
-    "db:studio": "pnpm --filter @twipay/database prisma:studio"
+    "db:studio": "pnpm --filter @twipay/database prisma:studio",
+    "e2e": "playwright test",
+    "test:history-secrets": "node scripts/git-history-secret-check.mjs"
   },
   "devDependencies": {
     "@types/node": "24.19.1",
@@ -27,6 +29,7 @@
     "prettier": "3.9.9",
     "turbo": "2.11.2",
     "typescript": "~5.8.3",
-    "typescript-eslint": "8.71.0"
+    "typescript-eslint": "8.71.0",
+    "@playwright/test": "1.63.0"
   }
 }

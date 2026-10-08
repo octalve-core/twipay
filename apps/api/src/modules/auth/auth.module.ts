@@ -8,11 +8,14 @@ import { GoogleOidcService } from './infrastructure/google-oidc.service.js';
 import { RequestSecurityGuard } from './presentation/request-security.guard.js';
 import { SessionAuthGuard } from './presentation/session-auth.guard.js';
 import { PermissionGuard } from './presentation/permission.guard.js';
+import { MfaService } from './application/mfa.service.js';
+import { MfaController } from './presentation/mfa.controller.js';
 
 @Module({
-  controllers: [AuthController],
+  controllers: [AuthController, MfaController],
   providers: [
     AuthService,
+    MfaService,
     PasswordHasher,
     SessionService,
     GoogleOidcService,

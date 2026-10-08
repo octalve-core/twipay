@@ -12,17 +12,12 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
-import {
-  CSRF_COOKIE_LOCAL,
-  CSRF_COOKIE_PRODUCTION,
-  SESSION_COOKIE_LOCAL,
-  SESSION_COOKIE_PRODUCTION,
-  isRecentMfaAssurance,
-} from '@twipay/security';
+import { isRecentMfaAssurance } from '@twipay/security';
 import { ZodValidationPipe } from '../../../platform/http/zod-validation.pipe.js';
 import { AuthService } from '../application/auth.service.js';
 import { SessionAuthGuard, requirePrincipal, type AuthenticatedFastifyRequest } from './session-auth.guard.js';
 import { SessionService } from '../application/session.service.js';
+import { clearSessionCookies, csrfCookieName, sessionCookieName, setSessionCookies } from './session-cookie.js';
 
 const RegisterSchema = z
   .object({
@@ -36,12 +31,6 @@ const ProfileSchema = z.object({ givenName: z.string().trim().min(1).max(100).nu
 const LoginSchema = z
   .object({ email: z.email().max(320), password: z.string().min(1).max(128) })
   .strict();
-
-const isProduction = () => process.env['NODE_ENV'] === 'production';
-const sessionCookieName = () =>
-  isProduction() ? SESSION_COOKIE_PRODUCTION : SESSION_COOKIE_LOCAL;
-const csrfCookieName = () =>
-  isProduction() ? CSRF_COOKIE_PRODUCTION : CSRF_COOKIE_LOCAL;
 
 @ApiTags('authentication')
 @Controller('auth')
@@ -61,7 +50,7 @@ export class AuthController {
       userAgent: req.headers['user-agent'],
       ip: req.ip,
     });
-    this.setSessionCookies(res, result.session);
+    setSessionCookies(res, result.session);
     return { user: result.user, csrfToken: result.session.csrfToken };
   }
 
@@ -75,7 +64,7 @@ export class AuthController {
       userAgent: req.headers['user-agent'],
       ip: req.ip,
     });
-    this.setSessionCookies(res, result.session);
+    setSessionCookies(res, result.session);
     return { user: result.user, csrfToken: result.session.csrfToken };
   }
 
@@ -89,7 +78,7 @@ export class AuthController {
     const csrfToken = await this.sessions.rotateCsrf(token);
     res.setCookie(csrfCookieName(), csrfToken, {
       httpOnly: false,
-      secure: isProduction(),
+      secure: process.env['NODE_ENV'] === 'production',
       sameSite: 'strict',
       path: '/',
     });
@@ -103,8 +92,7 @@ export class AuthController {
   ) {
     const token = req.cookies[sessionCookieName()];
     if (token) await this.sessions.revokeByToken(token);
-    res.clearCookie(sessionCookieName(), { path: '/' });
-    res.clearCookie(csrfCookieName(), { path: '/' });
+    clearSessionCookies(res);
     return { ok: true };
   }
 
@@ -132,25 +120,5 @@ export class AuthController {
       permissions: [...new Set(session.user.roleAssignments.flatMap((assignment) => assignment.role.permissions.map((item) => item.permission.code)))],
       mfaSatisfied: isRecentMfaAssurance(session.mfaSatisfiedAt, Number(process.env['MFA_STEP_UP_MAX_AGE_SECONDS'] ?? 600)),
     };
-  }
-
-  private setSessionCookies(
-    res: FastifyReply,
-    session: { token: string; csrfToken: string; expiresAt: Date },
-  ): void {
-    res.setCookie(sessionCookieName(), session.token, {
-      httpOnly: true,
-      secure: isProduction(),
-      sameSite: 'strict',
-      path: '/',
-      expires: session.expiresAt,
-    });
-    res.setCookie(csrfCookieName(), session.csrfToken, {
-      httpOnly: false,
-      secure: isProduction(),
-      sameSite: 'strict',
-      path: '/',
-      expires: session.expiresAt,
-    });
   }
 }

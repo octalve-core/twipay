@@ -13,6 +13,7 @@ import { PaymentProviderRegistry, type EnabledPaymentProvider } from '../../prov
 import { ProductConfigService } from '../../product/application/product-config.service.js';
 import { AuditService } from './audit.service.js';
 import { deterministicFailure, toOperationsHttpError } from './operations-errors.js';
+import { assertTransactionalAuthorization } from './transaction-authorization.js';
 
 const RESERVED_STATUSES = ['REQUESTED','PENDING_APPROVAL','APPROVED','PROVIDER_SUBMITTED','PROCESSING','UNKNOWN'] as const;
 function providerStatus(status: NormalizedProviderStatus): 'PROCESSING'|'SUCCEEDED'|'FAILED'|'UNKNOWN'|'REVERSED' {
@@ -38,7 +39,7 @@ export class OrganizerPayoutService {
     private readonly audit: AuditService,
   ) {}
 
-  async request(input: { ownerUserId: string; organizerId: string; providerCode: EnabledPaymentProvider; amountMinor: bigint; bankCode: string; accountNumber: string; narration: string; idempotencyKey: string }): Promise<{ statusCode: number; body: JsonObject }> {
+  async request(input: { ownerUserId: string; sessionId: string; organizerId: string; providerCode: EnabledPaymentProvider; amountMinor: bigint; bankCode: string; accountNumber: string; narration: string; idempotencyKey: string }): Promise<{ statusCode: number; body: JsonObject }> {
     await this.product.assertFeatureEnabled('operations.organizer_payouts', false);
     const idem = await this.idempotency.begin({ scope: 'organizer:payout-request', key: input.idempotencyKey, userId: input.ownerUserId, request: { organizerId: input.organizerId, providerCode: input.providerCode, amountMinor: input.amountMinor.toString(), bankCode: input.bankCode, accountNumberFingerprint: fingerprintSensitiveValue(input.accountNumber, process.env['PII_FINGERPRINT_KEY']!), narration: input.narration } });
     if (idem.replay) return { statusCode: idem.replay.status, body: idem.replay.body };
@@ -47,6 +48,7 @@ export class OrganizerPayoutService {
       const resolved = await this.providers.get(input.providerCode).resolveBankAccount({ bankCode: input.bankCode, accountNumber: input.accountNumber, currency: 'NGN' });
       if (resolved.accountNumber !== input.accountNumber || resolved.currency !== 'NGN') throw new ConflictException({ code: 'BENEFICIARY_VERIFICATION_MISMATCH' });
       const result = await this.prisma.$transaction(async (tx) => {
+        await assertTransactionalAuthorization(tx, { userId: input.ownerUserId, sessionId: input.sessionId, recentMfa: true });
         await tx.$queryRaw`SELECT "id" FROM "event_organizers" WHERE "id"=${input.organizerId}::uuid FOR UPDATE`;
         const organizer = await tx.eventOrganizer.findFirst({ where: { id: input.organizerId, ownerUserId: input.ownerUserId } });
         if (!organizer) throw new NotFoundException({ code: 'EVENT_ORGANIZER_NOT_FOUND' });
@@ -121,10 +123,11 @@ export class OrganizerPayoutService {
     });
   }
 
-  async approveAndSubmit(input: { reference: string; checkerUserId: string; mfaSatisfied: boolean; requestId?: string }) {
+  async approveAndSubmit(input: { reference: string; checkerUserId: string; sessionId: string; mfaSatisfied: boolean; requestId?: string }) {
     if (!input.mfaSatisfied) throw new ConflictException({ code: 'MFA_STEP_UP_REQUIRED' });
     await this.product.assertFeatureEnabled('operations.organizer_payouts', false);
     const prepared = await this.prisma.$transaction(async (tx) => {
+      await assertTransactionalAuthorization(tx, { userId: input.checkerUserId, sessionId: input.sessionId, permission: 'ops.payouts.approve', recentMfa: true });
       const payout = await tx.organizerPayout.findUniqueOrThrow({ where: { reference: input.reference }, include: { organizer: true, beneficiary: true } });
       if (payout.status !== 'PENDING_APPROVAL' || !payout.preparedByUserId) throw new ConflictException({ code: 'PAYOUT_NOT_PREPARED' });
       enforceInvariant(() => assertMakerChecker(payout.preparedByUserId!, input.checkerUserId), 'MAKER_CHECKER_SEPARATION_REQUIRED');

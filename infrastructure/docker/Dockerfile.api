@@ -1,0 +1,18 @@
+FROM node:24.21.0-bookworm-slim AS build
+WORKDIR /app
+ENV COREPACK_HOME=/corepack
+RUN corepack enable
+COPY package.json pnpm-workspace.yaml turbo.json tsconfig.base.json pnpm-lock.yaml ./
+COPY apps ./apps
+COPY packages ./packages
+RUN pnpm install --frozen-lockfile
+RUN pnpm db:generate && pnpm --filter @twipay/api build
+
+FROM node:24.21.0-bookworm-slim AS runtime
+WORKDIR /app
+ENV NODE_ENV=production
+RUN corepack enable && groupadd --system twipay && useradd --system --gid twipay --home /app twipay
+COPY --from=build --chown=twipay:twipay /app /app
+USER twipay
+EXPOSE 4000
+CMD ["node","apps/api/dist/main.js"]

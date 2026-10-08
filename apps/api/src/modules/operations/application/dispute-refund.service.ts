@@ -11,6 +11,7 @@ import { createFinancialReference } from '../../finance/application/reference.js
 import { ProductConfigService } from '../../product/application/product-config.service.js';
 import { AuditService } from './audit.service.js';
 import { deterministicFailure, toOperationsHttpError } from './operations-errors.js';
+import { assertTransactionalAuthorization } from './transaction-authorization.js';
 
 function safeCode(value: string): string {
   if (!/^[A-Z0-9_]{3,80}$/.test(value)) throw new ConflictException({ code: 'INVALID_REASON_CODE' });
@@ -125,9 +126,10 @@ export class DisputeRefundService {
     });
   }
 
-  async approveAndExecuteEventRefund(input: { reference: string; approverUserId: string; mfaSatisfied: boolean; requestId?: string }) {
+  async approveAndExecuteEventRefund(input: { reference: string; approverUserId: string; sessionId: string; mfaSatisfied: boolean; requestId?: string }) {
     if (!input.mfaSatisfied) throw new ConflictException({ code: 'MFA_STEP_UP_REQUIRED' });
     return this.prisma.$transaction(async (tx) => {
+      await assertTransactionalAuthorization(tx, { userId: input.approverUserId, sessionId: input.sessionId, permission: 'ops.refunds.approve', recentMfa: true });
       const refund = await tx.refundRequest.findUniqueOrThrow({ where: { reference: input.reference } });
       if (refund.status !== 'UNDER_REVIEW' || !refund.reviewedByUserId) throw new ConflictException({ code: 'REFUND_NOT_PREPARED' });
       enforceInvariant(() => assertMakerChecker(refund.reviewedByUserId!, input.approverUserId), 'MAKER_CHECKER_SEPARATION_REQUIRED');

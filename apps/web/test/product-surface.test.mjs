@@ -42,3 +42,12 @@ test('organizer surface exposes controlled payout request/history without browse
   assert.match(source, /maker\/checker separation/);
   assert.doesNotMatch(source, /SECRET_KEY|API_KEY|accountNumberCiphertext/);
 });
+
+test('customer surface uses nonce CSP without wildcard or unsafe-inline script execution', () => {
+  const source = read('proxy.ts');
+  assert.match(source, /nonce-\$\{nonce\}/);
+  assert.match(source, /strict-dynamic/);
+  assert.match(source, /frame-ancestors 'none'/);
+  assert.doesNotMatch(source, /script-src[^\n]*unsafe-inline/);
+  assert.doesNotMatch(source, /default-src[^\n]*\*/);
+});

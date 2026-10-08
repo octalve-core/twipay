@@ -34,7 +34,7 @@ export class OperationsController {
   async rejectRefund(@Param('reference') reference: string, @Body(new ZodValidationPipe(Reason)) body: z.infer<typeof Reason>, @Req() req: AuthenticatedFastifyRequest) { const p=requirePrincipal(req); return { refund: await this.disputes.rejectRefund({ reference, actorUserId:p.userId, reason:body.reason, requestId:req.id }) }; }
 
   @Post('refunds/:reference/approve') @RequirePermissions('ops.refunds.approve')
-  async approveRefund(@Param('reference') reference: string, @Req() req: AuthenticatedFastifyRequest) { requireMfa(req); const p=requirePrincipal(req); return { refund: await this.disputes.approveAndExecuteEventRefund({ reference, approverUserId:p.userId, mfaSatisfied:p.mfaSatisfied, requestId:req.id }) }; }
+  async approveRefund(@Param('reference') reference: string, @Req() req: AuthenticatedFastifyRequest) { requireMfa(req); const p=requirePrincipal(req); return { refund: await this.disputes.approveAndExecuteEventRefund({ reference, approverUserId:p.userId, sessionId:p.sessionId, mfaSatisfied:p.mfaSatisfied, requestId:req.id }) }; }
 
   @Get('payouts') @RequirePermissions('ops.dashboard.read') async payoutQueue() { return { payouts: await this.payouts.queue() }; }
   @Post('payouts/:reference/prepare') @RequirePermissions('ops.payouts.prepare')
@@ -42,7 +42,7 @@ export class OperationsController {
   @Post('payouts/:reference/reject') @RequirePermissions('ops.payouts.prepare')
   async rejectPayout(@Param('reference') reference:string,@Body(new ZodValidationPipe(Reason)) body:z.infer<typeof Reason>,@Req() req:AuthenticatedFastifyRequest){const p=requirePrincipal(req);return {payout:await this.payouts.reject({reference,actorUserId:p.userId,reason:body.reason,requestId:req.id})};}
   @Post('payouts/:reference/approve') @RequirePermissions('ops.payouts.approve')
-  async approvePayout(@Param('reference') reference:string,@Req() req:AuthenticatedFastifyRequest){requireMfa(req);const p=requirePrincipal(req);return {payout:await this.payouts.approveAndSubmit({reference,checkerUserId:p.userId,mfaSatisfied:p.mfaSatisfied,requestId:req.id})};}
+  async approvePayout(@Param('reference') reference:string,@Req() req:AuthenticatedFastifyRequest){requireMfa(req);const p=requirePrincipal(req);return {payout:await this.payouts.approveAndSubmit({reference,checkerUserId:p.userId,sessionId:p.sessionId,mfaSatisfied:p.mfaSatisfied,requestId:req.id})};}
   @Post('payouts/:reference/reconcile') @RequirePermissions('ops.payouts.prepare') async reconcile(@Param('reference') reference:string,@Req() req:AuthenticatedFastifyRequest){const p=requirePrincipal(req);return {payout:await this.payouts.reconcile(reference,p.userId,req.id)};}
 
   @Get('providers') @RequirePermissions('ops.dashboard.read') async providerSnapshot(){return this.providers.snapshot();}

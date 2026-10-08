@@ -9,7 +9,9 @@ export function buildLoggerOptions() {
     },
     serializers: {
       req(request: { method?: string; url?: string; id?: string }) {
-        return { method: request.method, url: request.url, requestId: request.id };
+        // Query strings may contain credentials or identity values despite URL policy.
+        // Never serialize them into persistent access logs.
+        return { method: request.method, path: request.url?.split(/[?#]/, 1)[0], requestId: request.id };
       },
     },
   } as const;

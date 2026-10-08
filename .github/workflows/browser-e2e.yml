@@ -1,0 +1,78 @@
+name: Browser E2E
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: twipay
+          POSTGRES_PASSWORD: twipay_e2e_password
+          POSTGRES_DB: twipay_e2e
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U twipay -d twipay_e2e"
+          --health-interval 10s --health-timeout 5s --health-retries 10
+      redis:
+        image: redis:8-alpine
+        ports: ['6379:6379']
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s --health-timeout 5s --health-retries 10
+    env:
+      NODE_ENV: test
+      APP_URL: http://127.0.0.1:3000
+      ADMIN_URL: http://127.0.0.1:3001
+      API_URL: http://127.0.0.1:4000
+      NEXT_PUBLIC_API_URL: http://127.0.0.1:4000
+      DATABASE_URL: postgresql://twipay:twipay_e2e_password@127.0.0.1:5432/twipay_e2e?schema=public
+      REDIS_URL: redis://127.0.0.1:6379
+      SESSION_HASH_PEPPER: e2e-only-session-pepper-change-me-000000000
+      SESSION_ABSOLUTE_TTL_SECONDS: '3600'
+      SESSION_IDLE_TTL_SECONDS: '900'
+      SESSION_TOUCH_INTERVAL_SECONDS: '60'
+      MFA_STEP_UP_MAX_AGE_SECONDS: '600'
+      MFA_RECOVERY_HMAC_KEY: e2e-only-mfa-recovery-key-change-me-000000000
+      MFA_TOTP_ISSUER: TwiPay-E2E
+      MFA_ENROLLMENT_TTL_SECONDS: '600'
+      MFA_MAX_FAILED_ATTEMPTS: '5'
+      MFA_LOCK_SECONDS: '300'
+      DATA_ENCRYPTION_KEY: BwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwc=
+      PII_FINGERPRINT_KEY: e2e-only-fingerprint-key-change-me-000000000
+      TICKET_SIGNING_KEYS_JSON: '{"1":"e2e-only-ticket-signing-key-change-me-000000000"}'
+      TICKET_SIGNING_CURRENT_VERSION: '1'
+      LOG_LEVEL: silent
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.21.0
+      - run: corepack enable
+      - run: test -f pnpm-lock.yaml || (echo 'E2E requires the committed genuine lockfile' && exit 1)
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm db:generate && pnpm --filter @twipay/database prisma:deploy
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm build
+      - name: Start API/web/admin
+        run: |
+          pnpm --filter @twipay/api start > /tmp/twipay-api.log 2>&1 &
+          pnpm --filter @twipay/web start > /tmp/twipay-web.log 2>&1 &
+          pnpm --filter @twipay/admin start > /tmp/twipay-admin.log 2>&1 &
+      - name: Wait for stack
+        run: node scripts/wait-for-stack.mjs
+      - run: pnpm e2e
+      - name: Upload service logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-service-logs
+          path: /tmp/twipay-*.log
