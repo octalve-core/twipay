@@ -1,4 +1,4 @@
-export const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '') ?? '';
+export const API_BASE = process.env['NEXT_PUBLIC_API_URL']?.replace(/\/$/, '') ?? '';
 
 export class ApiError extends Error {
   constructor(public readonly status: number, public readonly code: string, message?: string) { super(message ?? code); }
@@ -43,7 +43,7 @@ export function parseNgnMajorToMinor(value: string): string {
   if (!/^\d+(?:\.\d{1,2})?$/.test(normalized)) {
     throw new ApiError(400, 'INVALID_NGN_AMOUNT', 'Use a valid NGN amount with at most two decimal places.');
   }
-  const [major, fraction = ''] = normalized.split('.');
+  const [major = '0', fraction = ''] = normalized.split('.');
   const minor = BigInt(major) * 100n + BigInt((fraction + '00').slice(0, 2));
   if (minor <= 0n) throw new ApiError(400, 'INVALID_NGN_AMOUNT', 'Amount must be greater than zero.');
   return minor.toString();

@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 function apiOrigin(): string | null {
-  const raw = process.env.NEXT_PUBLIC_API_URL;
+  const raw = process.env['NEXT_PUBLIC_API_URL'];
   if (!raw) return null;
   try { return new URL(raw).origin; } catch { return null; }
 }
@@ -10,7 +10,7 @@ function apiOrigin(): string | null {
 export function proxy(request: NextRequest) {
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
   const connect = ["'self'", apiOrigin()].filter((value): value is string => Boolean(value)).join(' ');
-  const upgrade = process.env.NODE_ENV === 'production' ? ' upgrade-insecure-requests;' : '';
+  const upgrade = process.env['NODE_ENV'] === 'production' ? ' upgrade-insecure-requests;' : '';
   const csp = [
     "default-src 'self'",
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,

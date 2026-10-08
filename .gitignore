@@ -1,4 +1,6 @@
 node_modules/
+out/*
+!out/tasks.md
 .pnpm-store/
 .next/
 dist/

@@ -9,39 +9,43 @@
     "start": "node dist/main.js",
     "lint": "eslint src --max-warnings=0",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run"
+    "test": "node --env-file=../../.env ./node_modules/vitest/vitest.mjs run"
   },
   "dependencies": {
     "@fastify/cookie": "11.1.2",
     "@fastify/cors": "11.3.0",
     "@fastify/helmet": "13.1.1",
+    "@fastify/rate-limit": "11.2.0",
+    "@fastify/static": "^10.1.5",
     "@nestjs/common": "12.1.2",
     "@nestjs/config": "12.0.1",
     "@nestjs/core": "12.1.2",
     "@nestjs/platform-fastify": "12.1.2",
     "@nestjs/swagger": "12.0.2",
+    "@prisma/adapter-pg": "^7.10.0",
     "@prisma/client": "7.10.0",
+    "@twipay/contracts": "workspace:*",
+    "@twipay/events": "workspace:*",
+    "@twipay/ledger": "workspace:*",
+    "@twipay/operations": "workspace:*",
+    "@twipay/provider-monnify": "workspace:*",
+    "@twipay/provider-monnify-bills": "workspace:*",
+    "@twipay/provider-mono": "workspace:*",
+    "@twipay/provider-paystack": "workspace:*",
+    "@twipay/provider-resend": "workspace:*",
+    "@twipay/provider-termii": "workspace:*",
+    "@twipay/provider-vtpass": "workspace:*",
     "@twipay/security": "workspace:*",
+    "@twipay/services": "workspace:*",
+    "@types/pg": "^8.23.1",
     "argon2": "0.45.1",
+    "fastify": "5.12.5",
     "openid-client": "6.8.8",
+    "pg": "^8.23.1",
     "pino": "10.4.0",
     "reflect-metadata": "0.2.2",
     "rxjs": "7.8.2",
-    "zod": "4.6.5",
-    "@fastify/rate-limit": "11.2.0",
-    "fastify": "5.12.5",
-    "@twipay/contracts": "workspace:*",
-    "@twipay/ledger": "workspace:*",
-    "@twipay/provider-paystack": "workspace:*",
-    "@twipay/provider-monnify": "workspace:*",
-    "@twipay/provider-mono": "workspace:*",
-    "@twipay/services": "workspace:*",
-    "@twipay/events": "workspace:*",
-    "@twipay/provider-vtpass": "workspace:*",
-    "@twipay/provider-monnify-bills": "workspace:*",
-    "@twipay/provider-termii": "workspace:*",
-    "@twipay/provider-resend": "workspace:*",
-    "@twipay/operations": "workspace:*"
+    "zod": "4.6.5"
   },
   "devDependencies": {
     "@nestjs/testing": "12.1.2",
@@ -50,7 +54,7 @@
   },
   "exports": {
     "./worker-entry": {
-      "types": "./src/worker-entry.ts",
+      "types": "./dist/worker-entry.d.ts",
       "import": "./dist/worker-entry.js"
     }
   }

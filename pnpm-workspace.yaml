@@ -2,3 +2,10 @@ packages:
   - "apps/*"
   - "packages/*"
   - "packages/providers/*/*"
+allowBuilds:
+  '@prisma/engines': true
+  '@scarf/scarf': set this to true or false
+  argon2: true
+  esbuild: true
+  msgpackr-extract: true
+  prisma: true

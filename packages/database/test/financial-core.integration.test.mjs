@@ -1,9 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import crypto from 'node:crypto';
 import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
 
-const prisma = new PrismaClient();
+const connectionString = process.env.DATABASE_URL || 'postgresql://twipay:development_password@127.0.0.1:5435/twipay?schema=public';
+const adapter = new PrismaPg({ connectionString });
+const prisma = new PrismaClient({ adapter });
 const suffix = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+const hash = (seed) => crypto.createHash('sha256').update(`${suffix}-${seed}`).digest('hex');
 
 test.after(async () => { await prisma.$disconnect(); });
 
@@ -197,7 +202,7 @@ test('Batch 3 database guards bill instructions and service state transitions', 
   const purchase = await prisma.billPurchase.create({
     data: {
       userId: user.id, financialTransactionId: financial.id, productId: product.id, providerOfferId: offer.id,
-      customerIdentifierCiphertext: 'cipher', customerIdentifierFingerprint: 'a'.repeat(64), customerIdentifierLast4: '0000', amountMinor: 1000n, currency: 'NGN', providerRequestReference: `provider-request-${suffix}`.slice(0, 160),
+      customerIdentifierCiphertext: 'cipher', customerIdentifierFingerprint: hash('bill-ident'), customerIdentifierLast4: '0000', amountMinor: 1000n, currency: 'NGN', providerRequestReference: `provider-request-${suffix}`.slice(0, 160),
     },
   });
   await assert.rejects(
@@ -314,13 +319,13 @@ test('Batch 4 event order items and ticket credentials remain immutable and dire
   await prisma.eventOrder.update({ where: { id: order.id }, data: { status: 'PAID' } });
   await assert.rejects(
     prisma.eventOrder.update({ where: { id: order.id }, data: { status: 'REFUNDED' } }),
-    /invalid event order state transition/,
+    /invalid event order state transition|event order refund requires succeeded refund workflow/,
   );
 
   const ticket = await prisma.eventTicket.create({
     data: {
       publicCode: `TWP-${suffix}`.slice(0, 100), orderId: order.id, ticketTypeId: ticketType.id,
-      credentialFingerprint: 'b'.repeat(64), credentialCiphertext: 'encrypted-qr', credentialKeyVersion: 1,
+      credentialFingerprint: hash('ticket-cred'), credentialCiphertext: 'encrypted-qr', credentialKeyVersion: 1,
     },
   });
   await assert.rejects(

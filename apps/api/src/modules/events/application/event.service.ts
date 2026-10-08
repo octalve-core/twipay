@@ -163,7 +163,7 @@ export class EventService {
         if (event.startsAt <= now) throw new ConflictException({ code: 'EVENT_ALREADY_STARTED' });
 
         for (const item of [...items].sort((a, b) => a.ticketTypeId.localeCompare(b.ticketTypeId))) {
-          await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtextextended(${item.ticketTypeId}, 0))`;
+          await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${item.ticketTypeId}, 0))`;
         }
         const ticketTypes = await tx.eventTicketType.findMany({ where: { id: { in: items.map((item) => item.ticketTypeId) }, eventId: event.id } });
         if (ticketTypes.length !== items.length) throw new BadRequestException({ code: 'EVENT_TICKET_TYPE_INVALID' });

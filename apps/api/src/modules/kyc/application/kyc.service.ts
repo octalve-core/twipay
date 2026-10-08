@@ -111,8 +111,8 @@ export class KycService {
           ...(result.status === 'AWAITING_CONSENT' ? { expiresAt: new Date(Date.now() + 10 * 60 * 1000) } : {}),
         },
       });
-      const methods = result.status === 'AWAITING_CONSENT' && Array.isArray(result.attributes?.methods)
-        ? result.attributes.methods
+      const methods = result.status === 'AWAITING_CONSENT' && Array.isArray(result.attributes?.['methods'])
+        ? result.attributes['methods']
         : [];
       const body: JsonObject = {
         verificationId: verification.id,

@@ -1,9 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
 
-const prisma=new PrismaClient();
-const suffix=`${Date.now()}-${Math.random().toString(16).slice(2)}`;
+const connectionString = process.env.DATABASE_URL || 'postgresql://twipay:development_password@127.0.0.1:5435/twipay?schema=public';
+const adapter = new PrismaPg({ connectionString });
+const prisma = new PrismaClient({ adapter });
+const suffix = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 test.after(async()=>prisma.$disconnect());
 
 test('Batch 4 operational audit is append-only and deployment profile cannot be deleted',async()=>{
@@ -18,7 +21,7 @@ test('Batch 4 operational audit is append-only and deployment profile cannot be 
 test('Batch 4 provider offer cannot be remapped without explicit equivalence evidence',async()=>{
   const a=await prisma.billProduct.create({data:{code:`eq-a-${suffix}`,category:'DATA',name:'Equivalent A',customerIdentifierType:'PHONE',currency:'NGN',fixedAmountMinor:1000n}});
   const b=await prisma.billProduct.create({data:{code:`eq-b-${suffix}`,category:'DATA',name:'Equivalent B',customerIdentifierType:'PHONE',currency:'NGN',fixedAmountMinor:1000n}});
-  const offer=await prisma.billProviderOffer.create({data:{productId:a.id,providerCode:`guard-${suffix}`.slice(0,40),providerProductCode:`sku-${suffix}`}});
+  const offer=await prisma.billProviderOffer.create({data:{productId:a.id,providerCode:`guard-${suffix}`.slice(0,40),providerProductCode:`sku-${suffix}`,providerBillerCode:`biller-${suffix}`}});
   await assert.rejects(prisma.billProviderOffer.update({where:{id:offer.id},data:{productId:b.id}}),/requires explicit equivalence verification/);
 });
 
@@ -46,7 +49,7 @@ test('Batch 4 delegated event staff identity is immutable and revocation is one-
   const staff=await prisma.user.create({data:{email:`staff-user-${suffix}@example.com`,status:'ACTIVE'}});
   const settlement=await prisma.ledgerAccount.create({data:{code:`staff-settlement-${suffix}`,name:'Staff settlement',category:'LIABILITY',normalBalance:'CREDIT',currency:'NGN',system:true}});
   const organizer=await prisma.eventOrganizer.create({data:{ownerUserId:owner.id,name:'Staff org',slug:`staff-org-${suffix}`.slice(0,120),settlementLedgerAccountId:settlement.id}});
-  const event=await prisma.event.create({data:{organizerId:organizer.id,slug:`staff-event-${suffix}`.slice(0,120),title:'Staff event',startsAt:new Date(Date.now()+86400000)}});
+  const event=await prisma.event.create({data:{organizerId:organizer.id,slug:`staff-event-${suffix}`.slice(0,120),title:'Staff event',currency:'NGN',startsAt:new Date(Date.now()+86400000)}});
   const assignment=await prisma.eventStaffAssignment.create({data:{eventId:event.id,userId:staff.id,role:'CHECK_IN',invitedByUserId:owner.id}});
   await assert.rejects(prisma.eventStaffAssignment.update({where:{id:assignment.id},data:{userId:owner.id}}),/instruction is immutable/);
   await prisma.eventStaffAssignment.update({where:{id:assignment.id},data:{status:'REVOKED'}});

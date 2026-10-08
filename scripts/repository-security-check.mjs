@@ -1,5 +1,6 @@
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import { execFileSync } from 'node:child_process';
 
 const root = new URL('..', import.meta.url).pathname;
 const ignored = new Set(['.git', 'node_modules', '.next', 'dist', 'coverage', '.test-dist']);
@@ -22,7 +23,14 @@ for (const file of textFiles) {
   if (source && /console\.(log|debug|info)\s*\(/.test(text)) findings.push(`${rel}: console logging prohibited in production source`);
   if (/sk_live_[A-Za-z0-9]/.test(text) || /sk_test_[A-Za-z0-9]/.test(text)) findings.push(`${rel}: looks like a payment secret key`);
   if (/-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----/.test(text)) findings.push(`${rel}: private key material`);
-  if (rel === '.env') findings.push(`${rel}: .env must not be committed`);
+  if (rel === '.env') {
+    try {
+      execFileSync('git', ['ls-files', '--error-unmatch', '.env'], { stdio: 'pipe' });
+      findings.push(`${rel}: .env must not be committed`);
+    } catch {
+      // .env is local-only and not tracked/committed
+    }
+  }
 }
 
 const envExample = readFileSync(join(root, '.env.example'), 'utf8');

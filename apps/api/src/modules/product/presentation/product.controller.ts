@@ -40,7 +40,7 @@ export class ProductController {
       requireMfa(req);
     }
     const { reason, ...flag } = body;
-    return { flag: await this.product.upsertFlag({ ...flag, actorUserId: principal.userId, reason, requestId: req.id }) };
+    return { flag: await this.product.upsertFlag({ ...flag, config: flag.config as any, actorUserId: principal.userId, reason, requestId: req.id }) };
   }
 
   @Patch('admin/brand')
