@@ -366,7 +366,7 @@ export class PaymentService {
     await this.prisma.$transaction(async (tx) => {
       // Transaction-scoped advisory lock closes the duplicate-credit race even
       // when a provider emits multiple valid webhook envelopes for one deposit.
-      await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`${providerCode}|${providerReference}`}, 0))`;
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`${providerCode}|${providerReference}`}, 0))`;
 
       const existingOperation = await tx.providerOperation.findFirst({
         where: { providerCode, type: 'COLLECTION', providerReference },

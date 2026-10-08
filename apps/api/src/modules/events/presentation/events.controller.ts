@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, Get, Headers, Param, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Headers, NotFoundException, Param, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import type { FastifyReply } from 'fastify';
 import { z } from 'zod';
@@ -180,6 +180,29 @@ export class EventsController {
     return { order: await this.events.getOrderForUser(principal.userId, reference) };
   }
 
+
+  /** Never cache or log ticket bearer credentials; ticket display stays sandbox-only until QR verification. */
+  @Get('orders/:reference/tickets/:publicCode/credential')
+  @UseGuards(SessionAuthGuard)
+  async ticketCredential(
+    @Param('reference') reference: string,
+    @Param('publicCode') publicCode: string,
+    @Req() req: AuthenticatedFastifyRequest,
+    @Res({ passthrough: true }) res: FastifyReply,
+  ) {
+    if (process.env['NODE_ENV'] === 'production' || process.env['EVENT_TICKET_QR_SANDBOX_ENABLED'] !== 'true') {
+      throw new NotFoundException({ code: 'EVENT_TICKET_QR_NOT_QUALIFIED' });
+    }
+    if (!/^[A-Za-z0-9._:-]{1,100}$/.test(reference) || !/^TWP-[A-Za-z0-9_-]{8,100}$/.test(publicCode)) {
+      throw new NotFoundException({ code: 'EVENT_TICKET_NOT_FOUND' });
+    }
+    const principal = requirePrincipal(req);
+    const ticket = await this.events.getTicketCredentialForUser(principal.userId, reference, publicCode);
+    res.header('Cache-Control', 'no-store, private, max-age=0');
+    res.header('Pragma', 'no-cache');
+    res.header('Referrer-Policy', 'no-referrer');
+    return { ticket };
+  }
 
   @Post(':eventId/staff')
   @UseGuards(SessionAuthGuard)

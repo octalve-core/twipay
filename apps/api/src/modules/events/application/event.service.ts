@@ -11,6 +11,7 @@ import {
   parseAndVerifyTicketCredential,
 } from '@twipay/events';
 import { decryptSensitiveString, encryptSensitiveString } from '@twipay/security';
+import { publicCheckoutResponse } from './event-response.js';
 import { PrismaService } from '../../../platform/database/prisma.service.js';
 import { FinancialTransactionService } from '../../finance/application/financial-transaction.service.js';
 import { IdempotencyService } from '../../finance/application/idempotency.service.js';
@@ -175,7 +176,7 @@ export class EventService {
       throw new BadRequestException({ code: 'EVENT_ORDER_ITEMS_INVALID' });
     }
     const idem = await this.idempotency.begin({ scope: 'event:checkout', key: input.idempotencyKey, userId: input.userId, request: { eventId: input.eventId, items, issuedToName: input.issuedToName, expectedTotalMinor: input.expectedTotalMinor } });
-    if (idem.replay) return { statusCode: idem.replay.status, body: idem.replay.body };
+    if (idem.replay) return { statusCode: idem.replay.status, body: publicCheckoutResponse(idem.replay.body) };
     const idemId = idem.recordId!;
 
     try {
@@ -189,7 +190,7 @@ export class EventService {
         if (event.startsAt <= now) throw new ConflictException({ code: 'EVENT_ALREADY_STARTED' });
 
         for (const item of [...items].sort((a, b) => a.ticketTypeId.localeCompare(b.ticketTypeId))) {
-          await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtextextended(${item.ticketTypeId}, 0))`;
+          await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${item.ticketTypeId}, 0))`;
         }
         const ticketTypes = await tx.eventTicketType.findMany({ where: { id: { in: items.map((item) => item.ticketTypeId) }, eventId: event.id } });
         if (ticketTypes.length !== items.length) throw new BadRequestException({ code: 'EVENT_TICKET_TYPE_INVALID' });
@@ -252,12 +253,12 @@ export class EventService {
         const user = await tx.user.findUniqueOrThrow({ where: { id: input.userId }, select: { email: true } });
         const ticketSigning = ticketSigningConfig();
         const ticketSigningKey = ticketSigning.keys.get(ticketSigning.currentVersion)!;
-        const issued: Array<{ id: string; publicCode: string; qrPayload: string; ticketTypeId: string }> = [];
+        const issued: Array<{ publicCode: string; ticketTypeId: string }> = [];
         for (const item of itemRows) {
           for (let index = 0; index < item.quantity; index += 1) {
             const publicCode = `TWP-${randomUUID().replaceAll('-', '').slice(0, 24)}`;
             const credential = createTicketCredential(publicCode, ticketSigningKey);
-            const ticket = await tx.eventTicket.create({
+            await tx.eventTicket.create({
               data: {
                 publicCode,
                 orderId: order.id,
@@ -269,7 +270,7 @@ export class EventService {
                 issuedToEmail: user.email,
               },
             });
-            issued.push({ id: ticket.id, publicCode, qrPayload: credential.qrPayload, ticketTypeId: item.ticketTypeId });
+            issued.push({ publicCode, ticketTypeId: item.ticketTypeId });
           }
         }
         const body: JsonObject = {
@@ -281,7 +282,7 @@ export class EventService {
           platformFeeMinor: order.platformFeeMinor.toString(),
           totalMinor: order.totalMinor.toString(),
           currency: order.currency,
-          tickets: issued.map((ticket) => ({ publicCode: ticket.publicCode, ticketTypeId: ticket.ticketTypeId, qrPayload: ticket.qrPayload })),
+          tickets: issued.map((ticket) => ({ publicCode: ticket.publicCode, ticketTypeId: ticket.ticketTypeId })),
         };
         await this.idempotency.attachResourceWithTx(tx, idemId, 'event_order', order.id);
         await this.idempotency.completeWithTx(tx, idemId, 201, body);
@@ -352,15 +353,39 @@ export class EventService {
   async getOrderForUser(userId: string, reference: string): Promise<JsonObject | null> {
     const order = await this.prisma.eventOrder.findFirst({
       where: { userId, reference },
-      include: { event: true, items: { include: { ticketType: true } }, tickets: true },
+      include: { event: true, items: { include: { ticketType: true } }, tickets: { select: { publicCode: true, status: true } } },
     });
     if (!order) return null;
     return {
       reference: order.reference, status: order.status, eventId: order.eventId, eventTitle: order.event.title,
       subtotalMinor: order.subtotalMinor.toString(), platformFeeMinor: order.platformFeeMinor.toString(), totalMinor: order.totalMinor.toString(), currency: order.currency,
       items: order.items.map((item) => ({ name: item.ticketType.name, quantity: item.quantity, unitPriceMinor: item.unitPriceMinor.toString(), lineTotalMinor: item.lineTotalMinor.toString() })),
-      tickets: order.tickets.map((ticket) => ({ publicCode: ticket.publicCode, status: ticket.status, qrPayload: decryptSensitiveString(ticket.credentialCiphertext, process.env['DATA_ENCRYPTION_KEY']!) })),
+      tickets: order.tickets.map((ticket) => ({ publicCode: ticket.publicCode, status: ticket.status })),
     };
+  }
+
+
+  /** Sensitive ticket credential: owner + paid order + active ticket, never included in order/list responses. */
+  async getTicketCredentialForUser(userId: string, reference: string, publicCode: string) {
+    const order = await this.prisma.eventOrder.findFirst({
+      where: { userId, reference, status: 'PAID' },
+      select: { id: true },
+    });
+    if (!order) throw new NotFoundException({ code: 'EVENT_TICKET_NOT_FOUND' });
+    const ticket = await this.prisma.eventTicket.findFirst({
+      where: { orderId: order.id, publicCode, status: 'ACTIVE' },
+      select: { id: true, publicCode: true, status: true, credentialCiphertext: true, credentialFingerprint: true, credentialKeyVersion: true },
+    });
+    if (!ticket) throw new NotFoundException({ code: 'EVENT_TICKET_NOT_FOUND' });
+    const qrPayload = decryptSensitiveString(ticket.credentialCiphertext, process.env['DATA_ENCRYPTION_KEY']!);
+    const key = ticketSigningConfig().keys.get(ticket.credentialKeyVersion);
+    if (!key) throw new ConflictException({ code: 'TICKET_SIGNING_KEY_VERSION_UNAVAILABLE' });
+    parseAndVerifyTicketCredential(qrPayload, ticket.credentialFingerprint, key);
+    // Audit only identifiers, never the reusable entrance credential. Deny on audit-store failure.
+    await this.prisma.operationalAuditEvent.create({
+      data: { actorUserId: userId, action: 'EVENT_TICKET_CREDENTIAL_VIEWED', targetType: 'event_ticket', targetId: ticket.id },
+    });
+    return { publicCode: ticket.publicCode, status: ticket.status, qrPayload };
   }
 
 
