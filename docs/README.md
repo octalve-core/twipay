@@ -14,6 +14,7 @@ Documentation is a release artifact. Code, migrations, tests, ADRs, security con
 8. `deployment/environment-variables.md`
 9. `release/security-gates.md`
 10. latest `batches/batch-05.md` and root `BATCH_05_VERIFICATION.md` when present
+11. Task execution logs & milestones: `tasks/index.md`
 
 Development setup/debugging: `development/local-setup.md` and `development/debugging.md`.
 

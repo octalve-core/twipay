@@ -13,7 +13,7 @@ TwiPay is an Octalve-owned financial, utility-payment and event-ticketing platfo
 - `packages/security` — sessions, cryptography, MFA and shared security rules
 - `packages/contracts` — provider-neutral contracts
 - `packages/providers` — provider adapters only; business logic remains TwiPay-owned
-- `docs` — architecture, ADRs, security, provider, runbook, deployment and release records
+- `docs` — architecture, ADRs, security, provider, runbook, deployment, tasks and release records
 
 TwiPay uses integer minor-unit accounting and a sealed double-entry ledger. Wallet availability is derived from ledger state plus holds; no mutable wallet balance is the accounting source of truth. Ambiguous provider submission remains `UNKNOWN` until same-provider requery/reconciliation; TwiPay never blindly switches providers after an uncertain submission.
 
@@ -59,4 +59,11 @@ PostgreSQL 18 migrations/integration/concurrency, Redis/BullMQ, browser E2E, pro
 
 High-risk flags `events.refunds` and `operations.organizer_payouts` are fail-closed and must remain disabled until the complete MFA/RBAC/maker-checker/accounting/provider/integration/E2E/staging activation gates pass.
 
-Start with `TWIPAY_NEW_CHAT_CONTINUATION_BRIEF.md` when present in a handoff, then `BATCH_04_VERIFICATION.md`, `docs/README.md`, `SECURITY.md`, architecture/security ADRs, migrations and the latest Batch 5 verification/release records before changing authentication, financial or provider behavior.
+Start with `TWIPAY_NEW_CHAT_CONTINUATION_BRIEF.md` when present in a handoff, then `BATCH_04_VERIFICATION.md`, `docs/README.md`, `SECURITY.md`, architecture/security ADRs, migrations, task audit trails in `docs/tasks/index.md`, and the latest Batch 5 verification/release records before changing authentication, financial or provider behavior.
+
+## Task tracking & milestone audit trail
+
+Active and archived operational milestones are maintained under [`docs/tasks/`](docs/tasks/):
+- **Milestone Registry & Architecture**: [`docs/tasks/index.md`](docs/tasks/index.md) — Directory index, taxonomy, and task lifecycle.
+- **Active Workstream**: [`docs/tasks/current_tasks.md`](docs/tasks/current_tasks.md) — Live service runtimes, credentials, remote access, and in-flight gates.
+- **Historical Milestones**: Sequential archives [`prev_tasks_00.md`](docs/tasks/prev_tasks_00.md) through [`prev_tasks_03.md`](docs/tasks/prev_tasks_03.md) recording start and end timestamps, scope, and verification evidence.
