@@ -1,4 +1,3 @@
-import { TFundWalletPayload } from "@/components/dashboard/add-funds/SelectPaymentMethod";
 import api from "../axios";
 import { TWithdrawToBankPayload } from "@/components/dashboard/withdraw-funds/ConfirmFundsWithdrawal";
 import { TTransferFundsPayload } from "@/components/dashboard/transfer-funds/ConfirmFundsTransfer";
@@ -25,18 +24,8 @@ export const getWallet = async (): Promise<Wallet> => {
     return wallet;
 };
 
-export const fetchProviders = async () => {
-    const res = await api.get("/wallet/providers")
-    return res.data.data;
-}
-
 export const fetchVirtualAccountProviders = async () => {
     const res = await api.get("/virtual-account-providers")
-    return res.data.data;
-}
-
-export const fundWallet = async (payload: TFundWalletPayload) => {
-    const res = await api.post("/wallet/fund", {...payload, method: "bank_transfer", provider: "saveHaven"})
     return res.data.data;
 }
 

@@ -20,7 +20,8 @@ export const RecipientDetailFormSchema = z.object({
 
 // Add funds
 export const AddFundsAmountFormSchema = z.object({
-    amount: z.string().min(2, "please enter a valid amount"),
+    amount: z.string().regex(/^(?:0|[1-9]\d{0,13})(?:\.\d{1,2})?$/, "Enter a valid amount with up to two decimals")
+        .refine((v) => {try {const [whole, fraction = ""] = v.split(".");const minor = BigInt(whole) * 100n + BigInt(fraction.padEnd(2, "0"));return minor > 0n && minor <= 9007199254740991n;} catch {return false;}}, "Amount is outside the supported funding range"),
 })
 
 // Static account

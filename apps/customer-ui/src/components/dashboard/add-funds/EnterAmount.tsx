@@ -21,7 +21,6 @@ const EnterAmount = () => {
     })
 
     const onSubmit = (data: TFormData) => {
-        (void 0)
         update({step: 2, amount: data.amount});
     }
 
@@ -42,7 +41,7 @@ const EnterAmount = () => {
             <div className="w-full">
                 <label className="text-sm text-[#344054] font-medium" htmlFor="amount">Amount to fund</label>
                 <div className="w-full h-fit relative mt-1.5">
-                    <input {...register("amount")} placeholder="5,000" className="w-full border-[0.5px] border-[#D0D5DD] rounded-lg py-2.5 px-3.5 pl-10 bg-white outline-none focus:border-[#112929] placeholder:text-sm placeholder:text-[#667085]" type="number" min={1} id="amount" />
+                    <input {...register("amount")} placeholder="5,000" className="w-full border-[0.5px] border-[#D0D5DD] rounded-lg py-2.5 px-3.5 pl-10 bg-white outline-none focus:border-[#112929] placeholder:text-sm placeholder:text-[#667085]" type="text" inputMode="decimal" autoComplete="off" id="amount" />
                     <span className="absolute left-3.5 top-1/2 -translate-y-1/2">₦</span>
                 </div>
                 {errors.amount && <p className="text-red-500 text-sm mt-1">{errors.amount.message}</p>}

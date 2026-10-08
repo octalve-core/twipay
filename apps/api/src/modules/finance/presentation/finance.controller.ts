@@ -6,6 +6,7 @@ import {
   Headers,
   Param,
   Post,
+  ServiceUnavailableException,
   Query,
   Req,
   Res,
@@ -120,6 +121,22 @@ export class FinanceController {
     @Req() req: AuthenticatedFastifyRequest,
     @Res({ passthrough: true }) res: FastifyReply,
   ) {
+    // Fail closed: collections require explicit sandbox qualification and may never
+    // be enabled on the unqualified production API via a frontend-only switch.
+    if (process.env['NODE_ENV'] === 'production' || process.env['WALLET_COLLECTIONS_SANDBOX_ENABLED'] !== 'true') {
+      throw new ServiceUnavailableException({ code: 'WALLET_FUNDING_NOT_RELEASE_QUALIFIED' });
+    }
+    if (body.provider === 'paystack' && !process.env['PAYSTACK_SECRET_KEY']?.startsWith('sk_test_')) {
+      throw new ServiceUnavailableException({ code: 'PAYSTACK_SANDBOX_KEY_REQUIRED' });
+    }
+    if (body.provider === 'monnify' && (() => {
+      try {
+        const url = new URL(process.env['MONNIFY_BASE_URL'] ?? 'https://sandbox.monnify.com');
+        return url.protocol !== 'https:' || url.hostname !== 'sandbox.monnify.com' || !!url.username || !!url.password;
+      } catch { return true; }
+    })()) {
+      throw new ServiceUnavailableException({ code: 'MONNIFY_SANDBOX_REQUIRED' });
+    }
     const principal = requirePrincipal(req);
     const result = await this.payments.createCollection({
       userId: principal.userId,

@@ -39,6 +39,7 @@ import Status from "./routes/dashboard/Status";
 import ReceiptLayout from "./routes/layout/ReceiptLayout";
 import WithdrawFunds from "./routes/dashboard/WithdrawFunds";
 import AddFunds from "./routes/dashboard/AddFunds";
+import FundingReturn from "./routes/dashboard/FundingReturn";
 import StaticAccount from "./routes/dashboard/StaticAccount";
 import Airtime from "./components/dashboard/services/airtime/Airtime";
 import Data from "./components/dashboard/services/data/Data";
@@ -321,6 +322,10 @@ function App() {
           element: <VirtualCardWithdraw />
         },
       ]
+    },
+    {
+      path: "/wallet/fund/complete",
+      element: <FundingReturn />
     },
     {
       path: "/receipt",
