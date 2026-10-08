@@ -1,5 +1,6 @@
 import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
 import type {
+  BankDirectoryEntry,
   CollectionResult,
   CreateCollectionInput,
   CreatePayoutInput,
@@ -143,6 +144,33 @@ export class PaystackAdapter implements PaymentProviderPort {
       currency: input.currency,
       status: bool(data['active']) === false ? 'INACTIVE' : 'ACTIVE',
     };
+  }
+
+  async listBanks(): Promise<BankDirectoryEntry[]> {
+    // Paystack's documented GET /bank cursor endpoint, Nigeria NGN banks only.
+    const result = new Map<string,string>();
+    let next: string | undefined;
+    const seen = new Set<string>();
+    for (let page=0;page<12;page++) {
+      const query = new URLSearchParams({country:'nigeria',currency:'NGN',perPage:'100',use_cursor:'true'});
+      if (next) query.set('next',next);
+      const body = await this.request('GET',`/bank?${query.toString()}`);
+      if (!Array.isArray(body['data'])) throw new Error('PAYSTACK_BANK_DIRECTORY_INVALID');
+      for (const item of body['data']) {
+        if (!item || typeof item !== 'object' || Array.isArray(item)) continue;
+        const bank = item as UnknownRecord;
+        const code = text(bank['code']), name = text(bank['name']);
+        if (code && name && /^[A-Za-z0-9_-]{2,20}$/.test(code) && name.length<=100 && name.trim().length>=2 &&
+          bank['active'] !== false && bank['is_deleted'] !== true &&
+          (bank['currency'] === undefined || bank['currency'] === 'NGN')) result.set(code,name.trim());
+      }
+      const meta = body['meta'] && typeof body['meta'] === 'object' && !Array.isArray(body['meta']) ? body['meta'] as UnknownRecord : {};
+      const cursor=text(meta['next']);
+      if (!cursor) return [...result].map(([bankCode,name])=>({bankCode,name})).sort((a,b)=>a.name.localeCompare(b.name));
+      if (seen.has(cursor)) throw new Error('PAYSTACK_BANK_DIRECTORY_CURSOR_LOOP');
+      seen.add(cursor);next=cursor;
+    }
+    throw new Error('PAYSTACK_BANK_DIRECTORY_INCOMPLETE');
   }
 
   async resolveBankAccount(input: ResolveBankAccountInput): Promise<ResolvedBankAccount> {

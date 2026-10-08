@@ -31,6 +31,18 @@ export class TransferService {
     private readonly wallets: WalletService,
   ) {}
 
+  // Provider-specific bank codes may differ. Never serve a hardcoded unverified list.
+  private readonly bankDirectoryCache=new Map<EnabledPaymentProvider,{expiresAt:number;entries:{bankCode:string;name:string}[]}>();
+  async listBanks(providerCode: EnabledPaymentProvider) {
+    const now=Date.now();
+    const cached=this.bankDirectoryCache.get(providerCode);
+    if(cached && cached.expiresAt > now) return cached.entries;
+    const entries=await this.providers.get(providerCode).listBanks();
+    if(!entries.length || entries.length>1200) throw new Error('PROVIDER_BANK_DIRECTORY_UNAVAILABLE');
+    this.bankDirectoryCache.set(providerCode,{expiresAt:now+10*60_000,entries});
+    return entries;
+  }
+
   async resolveBankAccount(input: { providerCode: EnabledPaymentProvider; bankCode: string; accountNumber: string; currency: 'NGN' }) {
     return this.providers.get(input.providerCode).resolveBankAccount(input);
   }
@@ -44,6 +56,7 @@ export class TransferService {
     bankCode: string;
     accountNumber: string;
     narration: string;
+    expectedAccountName?: string;
   }): Promise<{ statusCode: number; body: JsonObject }> {
     const provider = this.providers.get(input.providerCode);
     const idem = await this.idempotency.begin({ scope: 'transfer:create', key: input.idempotencyKey, userId: input.userId, request: input });
@@ -60,6 +73,14 @@ export class TransferService {
     }
     if (resolved.accountNumber !== input.accountNumber || resolved.currency !== input.currency) {
       const body: JsonObject = { code: 'BENEFICIARY_VERIFICATION_MISMATCH' };
+      await this.idempotency.fail(recordId, 422, body);
+      return { statusCode: 422, body };
+    }
+
+    // Customer must authorize the very same beneficiary name that was displayed
+    // at the preview step; a changed resolver response cannot silently redirect.
+    if (input.expectedAccountName && resolved.accountName.trim().toLocaleLowerCase('en-NG') !== input.expectedAccountName.trim().toLocaleLowerCase('en-NG')) {
+      const body: JsonObject = { code: 'BENEFICIARY_NAME_CHANGED' };
       await this.idempotency.fail(recordId, 422, body);
       return { statusCode: 422, body };
     }

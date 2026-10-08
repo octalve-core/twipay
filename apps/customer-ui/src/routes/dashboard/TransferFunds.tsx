@@ -1,21 +1,10 @@
-import { TransferFundsSteps } from "@/components/dashboard/transfer-funds/transfer-funds-steps";
-import useTransferFundsStore from "@/stores/useTransferFundsStore";
-import { useEffect } from "react";
-
-const TransferFunds = () => {
-    const {step, reset} = useTransferFundsStore();
-
-    useEffect(() => {
-        reset();
-    }, [reset]);
-
-    const CurrentStepComponent = TransferFundsSteps[step - 1].component;
-
-  return (
-    <div className="w-full min-h-full grid place-items-center">
-        <CurrentStepComponent />
-    </div>
-  )
-}
-
-export default TransferFunds
+import CustomButton from '@/components/CustomButton';
+/** ErhaPay in-app email transfer has no equivalent authenticated TwiPay API contract. */
+const TransferFunds = () => <section className="w-full min-h-full grid place-items-center">
+  <div className="max-w-[360px] w-full text-center">
+    <h1 className="text-[#112929] font-medium text-2xl">Transfer funds</h1>
+    <p className="mt-3 text-[#717171]">Transfers to another user's email are not yet integrated. We will not send money through the retired ErhaPay API.</p>
+    <CustomButton className="w-full mt-7" href="/dashboard/withdraw-funds">Bank withdrawal options</CustomButton>
+  </div>
+</section>;
+export default TransferFunds;

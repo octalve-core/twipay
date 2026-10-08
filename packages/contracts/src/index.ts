@@ -185,8 +185,14 @@ export interface VerifiedWebhook {
   virtualAccountCredit?: VirtualAccountCreditEvent;
 }
 
+export interface BankDirectoryEntry {
+  bankCode: string;
+  name: string;
+}
+
 export interface PaymentProviderPort {
   readonly code: string;
+  listBanks(): Promise<BankDirectoryEntry[]>;
   createCollection(input: CreateCollectionInput): Promise<CollectionResult>;
   getCollection(input: GetCollectionInput): Promise<CollectionResult>;
   createVirtualAccount(input: CreateVirtualAccountInput): Promise<VirtualAccountResult>;

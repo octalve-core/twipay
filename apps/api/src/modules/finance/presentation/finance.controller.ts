@@ -43,6 +43,7 @@ const TransferSchema = z.object({
   bankCode: z.string().trim().min(2).max(20),
   accountNumber: z.string().regex(/^\d{10}$/),
   narration: z.string().trim().min(3).max(120),
+  expectedAccountName: z.string().trim().min(2).max(160).optional(),
 }).strict();
 const VirtualAccountSchema = z.discriminatedUnion('provider', [
   z.object({
@@ -149,12 +150,41 @@ export class FinanceController {
     return result.body;
   }
 
+  private assertBankTransferSandbox(provider: 'paystack' | 'monnify'): void {
+    // A frontend flag must never enable real-money payouts independently.
+    if (process.env['NODE_ENV'] === 'production' || process.env['BANK_TRANSFERS_SANDBOX_ENABLED'] !== 'true') {
+      throw new ServiceUnavailableException({code: 'BANK_TRANSFERS_NOT_RELEASE_QUALIFIED'});
+    }
+    if (provider === 'paystack' && !process.env['PAYSTACK_SECRET_KEY']?.startsWith('sk_test_')) {
+      throw new ServiceUnavailableException({code: 'PAYSTACK_SANDBOX_KEY_REQUIRED'});
+    }
+    if (provider === 'monnify') {
+      try {
+        const url = new URL(process.env['MONNIFY_BASE_URL'] ?? 'https://sandbox.monnify.com');
+        if (url.protocol !== 'https:' || url.hostname !== 'sandbox.monnify.com' || url.username || url.password || url.port) {
+          throw new Error('Invalid sandbox host');
+        }
+      } catch {
+        throw new ServiceUnavailableException({code: 'MONNIFY_SANDBOX_REQUIRED'});
+      }
+    }
+  }
+
+  @Get('transfers/banks')
+  async supportedBanks(@Query('provider') provider: string, @Req() req: AuthenticatedFastifyRequest) {
+    requirePrincipal(req);
+    if (provider !== 'paystack' && provider !== 'monnify') throw new BadRequestException({code:'INVALID_PAYMENT_PROVIDER'});
+    this.assertBankTransferSandbox(provider);
+    return {provider,banks:await this.transfers.listBanks(provider)};
+  }
+
   @Post('transfers/resolve-account')
   async resolveAccount(
     @Body(new ZodValidationPipe(ResolveAccountSchema)) body: z.infer<typeof ResolveAccountSchema>,
     @Req() req: AuthenticatedFastifyRequest,
   ) {
     requirePrincipal(req);
+    this.assertBankTransferSandbox(body.provider);
     const result = await this.transfers.resolveBankAccount({
       providerCode: body.provider,
       bankCode: body.bankCode,
@@ -181,6 +211,7 @@ export class FinanceController {
     @Res({ passthrough: true }) res: FastifyReply,
   ) {
     const principal = requirePrincipal(req);
+    this.assertBankTransferSandbox(body.provider);
     const result = await this.transfers.createTransfer({
       userId: principal.userId,
       idempotencyKey: requireIdempotencyKey(idempotencyKey),
@@ -190,6 +221,7 @@ export class FinanceController {
       bankCode: body.bankCode,
       accountNumber: body.accountNumber,
       narration: body.narration,
+      ...(body.expectedAccountName ? { expectedAccountName: body.expectedAccountName } : {}),
     });
     res.status(result.statusCode);
     return result.body;
