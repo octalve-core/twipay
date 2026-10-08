@@ -28,7 +28,13 @@ fi
 if ! command -v docker >/dev/null 2>&1 || ! docker compose version >/dev/null 2>&1; then
   echo 'BLOCKED: Docker Compose is required for isolated PostgreSQL/Redis qualification.' >&2; exit 2
 fi
-for key in DATABASE_URL REDIS_URL PAYSTACK_SECRET_KEY MONNIFY_API_KEY VTPASS_API_KEY; do
+# Refuse all local application environment files because package test scripts may
+# load them automatically (including provider secrets) even if the shell is clean.
+if [[ -n "$(find apps packages -type f -name '.env*' ! -name '.env.example' ! -path '*/node_modules/*' -print -quit)" ]] || \
+   [[ -f .env || -f .env.local || -f .env.test || -f .env.development || -f .env.production ]]; then
+  echo 'REFUSED: local application .env file detected. Use a clean, isolated qualification checkout.' >&2; exit 2
+fi
+for key in DATABASE_URL REDIS_URL PAYSTACK_SECRET_KEY PAYSTACK_PUBLIC_KEY MONNIFY_API_KEY MONNIFY_SECRET_KEY MONNIFY_CONTRACT_CODE MONNIFY_SOURCE_ACCOUNT_NUMBER VTPASS_API_KEY VTPASS_PUBLIC_KEY VTPASS_SECRET_KEY MONO_SECRET_KEY RESEND_API_KEY TERMII_API_KEY GOOGLE_CLIENT_SECRET TICKET_SIGNING_KEYS_JSON DATA_ENCRYPTION_KEY HIGH_RISK_FEATURES_RELEASE_QUALIFIED; do
   if [[ -n "${!key:-}" ]]; then
     echo "REFUSED: $key already exists in the shell. Use a clean terminal with no application/provider credentials." >&2; exit 2
   fi
@@ -38,6 +44,7 @@ export PHASE13_DB_PASSWORD="$(openssl rand -hex 24)"
 export PHASE13_PG_PORT="${PHASE13_PG_PORT:-15435}"
 export PHASE13_REDIS_PORT="${PHASE13_REDIS_PORT:-16382}"
 export NODE_ENV=test
+export HIGH_RISK_FEATURES_RELEASE_QUALIFIED=false OPENAPI_DOCS_ENABLED=false
 export DATABASE_URL="postgresql://twipay_qualification:${PHASE13_DB_PASSWORD}@127.0.0.1:${PHASE13_PG_PORT}/twipay_qual_test?schema=public"
 export REDIS_URL="redis://127.0.0.1:${PHASE13_REDIS_PORT}"
 export WALLET_COLLECTIONS_SANDBOX_ENABLED=false BANK_TRANSFERS_SANDBOX_ENABLED=false

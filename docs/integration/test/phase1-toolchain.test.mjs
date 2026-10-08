@@ -49,7 +49,9 @@ test('Prisma client and CLI are pinned coherently with existing migration source
 });
 test('qualification runtime script is fail-closed for prior provider credentials and uses throwaway database',()=>{
   const script=source('scripts/qualification/phase1-3-run-local.sh');
-  assert.match(script,/for key in DATABASE_URL REDIS_URL PAYSTACK_SECRET_KEY MONNIFY_API_KEY VTPASS_API_KEY/);
+  assert.match(script,/for key in DATABASE_URL REDIS_URL PAYSTACK_SECRET_KEY/);
+  assert.match(script,/local application \.env file detected/);
+  assert.match(script,/HIGH_RISK_FEATURES_RELEASE_QUALIFIED=false/);
   assert.match(script,/twipay_qual_test/);
   assert.match(script,/pnpm install --frozen-lockfile/);
   assert.match(script,/prisma:deploy/);
