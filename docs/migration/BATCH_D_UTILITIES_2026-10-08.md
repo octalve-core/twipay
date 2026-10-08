@@ -8,7 +8,7 @@
 
 - Preserved the original ErhaPay assets, brand mark, dashboard route hierarchy, ErhaPay palette, BackButton, CustomButton and account-service typography. Original top-level service route shells are saved byte-for-byte under `docs/migration/erhapay-legacy-service-shells/`. Old per-provider child components also remain for reference but are **not mounted** in the active route; they use incompatible BillPadi provider IDs and PIN calls. **The active generic purchase form is not guaranteed pixel-identical to ErhaPay.** Compare 8 responsive viewports against original screenshots and refine styling before visual sign-off.
 - Four active routes `Airtime.tsx`, `Data.tsx`, `Electricity.tsx`, `TVCable.tsx` now render `IntegratedBillService` with exact server categories `AIRTIME | DATA | ELECTRICITY | CABLE` and actual provider-synced products. No invented network/disco/cable products, icons, fees or prices. Product catalogue `GET /v1/services/products?category=...` remains read-only and session-authenticated.
-- Typed adapter in `apps/customer-ui/src/lib/api/dashboard-apis/bills.ts` and strict wire contracts in `billContracts.ts`: `POST /v1/services/validations`, `POST /v1/services/purchases` (Idempotency-Key + CSRF through established Axios layer), `GET /v1/services/purchases/:reference`. Records are owner-scoped by API. Price fixed/min/max and provider-safe `Number.MAX_SAFE_INTEGER` maximum checked using BigInt integer kobo, not Number/parseFloat. E.164 contact is optional. User must explicitly verify and review, then submit. Validation expires and is not reused across changed identifiers/products.
+- Typed adapter in `apps/customer-ui/src/lib/api/dashboard-apis/bills.ts` and strict wire contracts in `billContracts.ts`: `POST /v1/services/validations`, `POST /v1/services/purchases` (Idempotency-Key + CSRF through established Axios layer), `GET /v1/services/purchases/:reference`, plus the read-only `GET /v1/services/purchases` recent-purchase list. Records are owner-scoped by API. Price fixed/min/max and provider-safe `Number.MAX_SAFE_INTEGER` maximum checked using BigInt integer kobo, not Number/parseFloat. E.164 contact is optional. User must explicitly verify and review, then submit. Validation expires and is not reused across changed identifiers/products.
 - Provider submission remains authoritative on API. The browser shows `UNKNOWN/PROCESSING/PROVIDER_SUBMITTED` as NOT PAID; `SUCCEEDED` only from server evidence. The API can return HTTP 202 with just reference/status/code; the adapter retains that reference without inventing a success. HTTP 409 with a *fully validated* FAILED purchase may be shown as failed; other HTTP 409 and network failures remain ambiguous. No automatic failover to another provider or automatic retries with new keys.
 - Session storage holds only a logical bill idempotency key and reference, **not** card data, meter/smartcard identifiers or provider credentials. Network retries reuse the same key only with the current in-memory intent; after reload a pending attempt is blocked until history reviewed. An explicit confirmation is needed to abandon and start another intent. This is a safety aid, not a substitute for backend user-scoped idempotency.
 
@@ -20,10 +20,10 @@
 
 ## Verification executed in this execution environment
 
-- `node --experimental-strip-types --test docs/migration/test/*.test.mjs`: 80/80 isolated/source-contract tests (68 inherited + 12 Batch D) PASS.
+- `node --experimental-strip-types --test docs/migration/test/*.test.mjs`: 81/81 isolated/source-contract tests (68 inherited + 13 Batch D) PASS.
 - `NODE_PATH=/usr/local/slides_js/node_modules node scripts/typescript-syntax-check.mjs`: transpile syntax PASS.
 - `node scripts/repository-security-check.mjs`, `architecture-check.mjs`, `financial-invariant-check.mjs`, `services-events-invariant-check.mjs`, `product-operations-invariant-check.mjs`, `production-hardening-invariant-check.mjs`: PASS.
-- `node scripts/git-history-secret-check.mjs`: run after final commit. Git tree integrity and archive CRC: run during packaging.
+- `node scripts/git-history-secret-check.mjs`: PASS (852 tracked paths, full reachable patch history). Git fsck: PASS with inherited dangling/unreferenced objects; archive CRC verified during packaging.
 
 ## BLOCKED / unqualified — mandatory before sandbox writes or production
 
