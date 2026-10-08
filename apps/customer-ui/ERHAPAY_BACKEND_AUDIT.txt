@@ -1,0 +1,1240 @@
+﻿===============================
+FILE: C:\Users\Bi Creativity\erhapay\src\lib\api\dashboard-apis\banners.ts
+===============================
+import api from "../axios";
+
+export interface TBanner {
+  _id: string;
+  previewImageUrl: string;
+  featuredImageUrl: string;
+  creator: string;
+  createdAt: string; // ISO date
+  updatedAt: string; // ISO date
+  __v: number;
+  isActive: boolean;
+}
+
+
+export const getBanners = async () => {
+    const res = await api.get("/reference/banners");
+    return res.data.data;
+}
+
+===============================
+FILE: C:\Users\Bi Creativity\erhapay\src\lib\api\dashboard-apis\faqApis.ts
+===============================
+import api from "../axios";
+
+export type TFaq = {
+  _id: string;
+  faqCategoryId: string;
+  question: string;
+  slug: string;
+  answer: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const getFaqs = async () => {
+    const res = await api.get("/faqs");
+    return res.data.data;
+}
+
+===============================
+FILE: C:\Users\Bi Creativity\erhapay\src\lib\api\dashboard-apis\flightApis.ts
+===============================
+import { PassengerFormData } from "@/stores/useFlightStore";
+import api from "../axios";
+
+export type TAirlines = {
+    id: number,
+    name: string,
+    code: string,
+    logo: string
+}
+
+type TCityCountry = {
+  id: number;
+  name: string;
+  code: string;
+  iso2: string;
+  iso3: string;
+  phone_code: string;
+  region: string;
+  emoji: string;
+  emoji_code: string;
+  capital: string;
+  currency: string;
+  currency_name: string;
+  currency_symbol: string;
+  longitude: string;
+  latitude: string;
+  flag_url: string;
+  can_do_airtime: boolean;
+  airtime_activated_at: string | null;
+  created_at: string;
+};
+
+export type TCity = {
+  id: number;
+  country_id: number;
+  name: string;
+  code: string;
+  longitude: number;
+  latitude: number;
+  created_at: string;
+  full_name: string;
+  country: TCityCountry;
+};
+
+
+export const getAirlines = async () => {
+    const res = await api.get("/flights/airlines")
+    return res.data.data;
+}
+
+export const searchCities = async (searchWord: string) => {
+    const res = await api.get(`/flights/cities?search=${searchWord}`)
+    return res.data.data;
+}
+
+export const getFlightClasses = async () => {
+    const res = await api.get("/flights/classes")
+    return res.data.data;
+}
+
+export interface FlightData {
+  id: string;
+  departure_from: string;
+  arrival_to: string;
+  trip_type: string;
+  currency: string;
+  price: string;
+  price_breakdown: {
+    passenger_1: string;
+    total: string;
+  };
+  passengers: Passenger[];
+  itineraries: {
+    to: Itinerary[];
+    fro: Itinerary[] | undefined;
+  };
+}
+
+export interface Passenger {
+  id: string;
+  type: "adult" | "child" | "held_infant";
+  price: string;
+  currency: string;
+}
+
+interface Itinerary {
+  depart_from: string;
+  departing_terminal: string | null;
+  depart_at: DateFormat;
+  arrive_in: string;
+  arrival_terminal: string | null;
+  arrive_at: DateFormat;
+  itinerary_duration: string; // ISO 8601 duration like "PT4H30M"
+  airline: TAirline | string;
+  aircraft: string;
+}
+
+interface DateFormat {
+  one: string;   // e.g., "2025-10-10"
+  two: string;   // e.g., "2025-10-10 15:00:00"
+  three: string; // e.g., "Fri, Oct 10, 2025 3:00 PM"
+  four: string;  // e.g., "4 months from now"
+}
+
+export interface TAirline {
+  name: string;
+  code: string;
+  logo: string;
+}
+
+
+type TParams = {
+  trip_type: "one_way" | "round_trip";
+  from: string;
+  to: string;
+  departure_date: string;
+  return_date?: string;
+  flight_class: string;
+  adult_count: string;
+  infant_count: string;
+  children_count: string;
+}
+
+export const getFlightOffers = async (params: TParams) => {
+  const queryParams: Record<string, string | number | undefined> = {
+      trip_type: params.trip_type,
+      from: params.from,
+      to: params.to,
+      departure_date: params.departure_date,
+      return_date: params.return_date,
+      flight_class: params.flight_class,
+      adult_count: params.adult_count,
+}
+
+  if (params.return_date) queryParams["return_date"] = params.return_date;
+  if (parseInt(params.infant_count) > 0) queryParams["infant_count"] = params.infant_count;
+  if (parseInt(params.children_count) > 0) queryParams["children_count"] = params.children_count;
+
+  const res = await api.get("/flights/offers", {
+    params: queryParams
+  })
+  return res.data;
+}
+
+type TBookFlightParams = {
+  offer_id: string;
+  passengers: PassengerFormData[];
+}
+
+export const bookFlight = async (bookFlightParams: TBookFlightParams) => {
+  const response = await api.post("/flights/book", bookFlightParams);
+  return response.data
+}
+
+===============================
+FILE: C:\Users\Bi Creativity\erhapay\src\lib\api\dashboard-apis\generics.ts
+===============================
+import api from "../axios";
+
+export type ServiceStatus =
+  | "active"
+  | "deactivated"
+  | "coming-soon";
+
+export interface ServiceInfo {
+  status: ServiceStatus;
+  message: string | null;
+}
+
+export interface ServicesData {
+  data: ServiceInfo;
+  airtime: ServiceInfo;
+  cable_tv: ServiceInfo;
+  electricity: ServiceInfo;
+  education: ServiceInfo;
+  betting: ServiceInfo;
+  deposit: ServiceInfo;
+  internationalairtime: ServiceInfo;
+  internationaldata: ServiceInfo;
+  giftcard: ServiceInfo;
+  hotel: ServiceInfo;
+  withdrawal: ServiceInfo;
+}
+
+
+export const getServicesStatus = async () => {
+    const res = await api.get("/reference/service-types-status");
+    return res.data.data;
+}
+
+===============================
+FILE: C:\Users\Bi Creativity\erhapay\src\lib\api\dashboard-apis\notificationsApi.ts
+===============================
+import { QueryFunction } from "@tanstack/react-query";
+import api from "../axios";
+
+export interface NotificationData {
+  amount: string | number;
+  balance: number;
+  reason?: string;
+  reference: string;
+  transactionType?: string;
+  pin?: string;
+}
+
+export interface TNotification {
+  _id: string;
+  type: string; // e.g., "wallet_debit", "wallet_credit", "transaction_success"
+  notifiableType: string; // e.g., "User"
+  notifiableId: string;
+  title: string;
+  message: string;
+  data: NotificationData;
+  read: boolean;
+  createdAt: string; // ISO date string
+  updatedAt: string; // ISO date string
+  __v: number;
+}
+
+export const getAllNotifications = async () => {
+    const res = await api.get("/notifications?page=1&limit=100")
+    return res.data.data;
+}
+
+export const viewNotification: QueryFunction<TNotification[], [_: string, notificationId: number]> = async ({queryKey}) => {
+    const [, notificationId] = queryKey;
+    const res = await api.get(`/notifications/${notificationId}`)
+    return res.data.data;
+}
+
+export const markAsRead = async (id: string) => {
+    const res = await api.put(`/notifications/${id}/read`)
+    return res.data.data;
+}
+
+===============================
+FILE: C:\Users\Bi Creativity\erhapay\src\lib\api\dashboard-apis\referralsApis.ts
+===============================
+import api from "../axios";
+
+export interface ReferredUser {
+  _id: string;
+  firstname: string;
+  lastname: string;
+  email: string;
+  status: "active" | "inactive";
+  createdAt: string;
+  country?: string;
+  username?: string;
+  avatar?: string;
+}
+
+export interface BonusMilestone {
+  _id: string;
+  bonusConfigId: string;
+  bonusAmount: number;
+  earnedAt: string;
+  status: "paid" | "pending";
+  paidAt?: string;
+}
+
+export interface Referral {
+  _id: string;
+  refereeId: string;
+  referredId: ReferredUser;
+  userType: "regular" | "vip";
+  bonusMilestones: BonusMilestone[];
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+  totalAmount: number;
+}
+
+export type ReferralData = {
+  referrals: Referral[];
+  totalReferralBonusEarned: number;
+}[];
+
+type Pagination = {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  hasNext: number;
+  hasPrev: number;
+};
+
+export type ReferralResponse = {
+  data: ReferralData;
+  pagination: Pagination;
+};
+
+export interface RefereeUser {
+  _id: string;
+  firstname: string;
+  lastname: string;
+  email: string;
+  status: "active" | "inactive";
+  createdAt: string;
+  username?: string;
+  avatar?: string;
+}
+
+export interface UplineData {
+  _id: string;
+  refereeId: RefereeUser;
+  referredId: string;
+  userType: "regular" | "vip";
+  bonusMilestones: BonusMilestone[];
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+
+
+export const getReferrals = async () => {
+    const response = await api.get("/referrals");
+    return response.data;
+}   
+
+export const getUpline = async () => {
+    const response = await api.get("/referrals/upline");
+    return response.data?.data;
+}   
+
+===============================
+FILE: C:\Users\Bi Creativity\erhapay\src\lib\api\dashboard-apis\servicesApis.ts
+===============================
+import { QueryFunction } from "@tanstack/react-query";
+import api from "../axios";
+import { IDataPlan } from "@/components/dashboard/services/data/SelectProvider";
+import { verifyBetWalletPayload } from "@/components/dashboard/services/betting/RecipientDetails";
+import { SmartCardNoVerificationResponse, TvProductType, VerifySmartCardPayload } from "@/components/dashboard/services/tv-cable/RecipientDetails";
+import { EpinProductType, VerifyJambNoPayload } from "@/components/dashboard/services/epin/SelectProvider";
+import { VerifyPhoneNoPayload } from "@/components/dashboard/services/airtime/RecipientDetails";
+import { AirtimeProviderType } from "@/components/dashboard/services/international-airtime/RecipientDetails";
+import { DataProviderType, TDataProduct } from "@/components/dashboard/services/international-data/RecipientDetails";
+
+// AIRTIME
+export const fetchAirtimeProviders = async () => {
+    const res = await api.get("/airtime/providers")
+    return res.data.data;
+}
+
+export const buyAirtime = async (payload: {phone: string, amount: string, provider: string, pin: string, is_ported?: boolean}) => {
+    const res = await api.post("/airtime", payload)
+    return res.data.data;
+}
+
+export const verifyPhoneNumber = async (payload: VerifyPhoneNoPayload) => {
+    const res = await api.post("/airtime/verify-number", payload)
+    return res.data?.data;
+}
+
+export const fetchDataProviders = async () => {
+    const res = await api.get("/data/providers")
+    return res.data.data;
+}
+
+export const fetchDataPlans: QueryFunction<IDataPlan[], [_: string, providerId: string, type: "DIRECT" | "SME"]> = async ({
+  queryKey,
+}) => {
+  const [, providerId, type] = queryKey;
+  const res = await api.get(`/data/${providerId}/${type}`);
+  return res.data.data;
+};
+
+export const buyData = async (prop: {phone: string, productId: string, pin: string, type: "DIRECT" | "SME"}) => {
+    const {phone, productId, pin} = prop;
+    const payload = {phone, productId, pin};
+
+    const res = await api.post(`/data`, payload)
+    return res.data.data;
+}
+
+export const fetchElectricityProviders = async () => {
+    const res = await api.get("/electricity/providers")
+    return res.data.data;
+}
+
+export const verifyMeterNumber = async (payload: {providerCode: string, type: string, number: string}) => {
+    const res = await api.post("/electricity/verify", payload)
+    return res.data.data;
+}
+
+export const buyUnit = async (payload: {providerId: string, type: string, number: string, amount: string, pin: string}) => {
+    const res = await api.post("/electricity", payload)
+    return res.data.data;
+}
+
+export const fetchBettingProviders = async () => {
+    const res = await api.get("/betting/providers")
+    return res.data.data;
+}
+
+export const verifyBettingWalletNumber = async (payload: verifyBetWalletPayload) => {
+    const res = await api.post("/betting/verify", payload)
+    return res.data.data;
+}
+
+export const fundBettingWallet = async (payload: {providerId: string, number: string, amount: string, pin: string}) => {
+    const res = await api.post("/betting", payload)
+    return res.data.data;
+}
+
+export const fetchTvProviders = async () => {
+    const res = await api.get("/tv-subscription")
+    return res.data.data;
+}
+
+export const getTvProducts: QueryFunction<TvProductType[], [_: string, providerId: string]> = async ({queryKey}) => {
+    const [, providerId] = queryKey;
+    const res = await api.get(`/tv-subscription/${providerId}`)
+    return res.data.data;
+}
+
+export const verifySmartcardNumber = async (payload: VerifySmartCardPayload): Promise<SmartCardNoVerificationResponse> => {
+    const res = await api.post("/tv-subscription/verify", payload)
+    return res.data.data;
+}
+
+export const subscribeToTv = async (payload: {provider: string, number: string, type: string, pin: string, productId: string}) => {
+    const res = await api.post("/tv-subscription", payload)
+    return res.data.data;
+}
+
+export const fetchEpinProviders = async () => {
+    const res = await api.get("/e-pin")
+    return res.data.data;
+}
+
+export const getEpinProducts: QueryFunction<EpinProductType[], [_: string, providerId: number]> = async ({queryKey}) => {
+    const [, providerId] = queryKey;
+    const res = await api.get(`/e-pin/${providerId}`)
+    return res.data.data;
+}
+
+export const buyPin = async (payload: {productId: string, number?: string, pin: string}) => {
+    const res = await api.post("/e-pin", payload);
+    return res.data.data;
+}
+
+export const verifyJambNumber = async (payload: VerifyJambNoPayload) => {
+    const res = await api.post("/e-pin/verify", payload)
+    return res.data.data;
+}
+
+// International Airtime
+export const fetchIntCountries = async () => {
+    const res = await api.get("/international-airtime/countries")
+    return res.data.data;
+}
+
+export const fetchIntAirtimeProviders: QueryFunction<AirtimeProviderType[], [_: string, countryCode: string]> = async ({queryKey}) => {
+    const [, countryCode] = queryKey;
+    const res = await api.get(`/international-airtime/providers/${countryCode}`)
+    return res.data.data;
+}
+
+export const buyIntAirtime = async (payload: {phone: string, amount: string, countryCode: string, operatorId: string, pin: string}) => {
+    const res = await api.post("/international-airtime", payload)
+    return res.data.data;
+}
+
+// International Data
+export const fetchIntDataCountries = async () => {
+    const res = await api.get("/international-data/countries")
+    return res.data.data;
+}
+
+export const fetchIntDataProviders: QueryFunction<DataProviderType[], [_: string, countryCode: string]> = async ({queryKey}) => {
+    const [, countryCode] = queryKey;
+    const res = await api.get(`/international-data/providers/${countryCode}`)
+    return res.data.data;
+}
+
+export const fetchIntDataProducts: QueryFunction<TDataProduct, [_: string, providerId: string]> = async ({queryKey}) => {
+    const [, providerId] = queryKey;
+    const res = await api.get(`/international-data/products/${providerId}`)
+    return res.data.data;
+}
+
+export const buyIntData = async (payload: {phone: string, amount: string, countryCode: string, operatorId: string, productCode: string, pin: string}) => {
+    const res = await api.post("/international-data", payload)
+    return res.data.data;
+}
+
+===============================
+FILE: C:\Users\Bi Creativity\erhapay\src\lib\api\dashboard-apis\settingsApis.ts
+===============================
+import { verifyBankAccountPayload } from "@/components/dashboard/settings/AddNewBank";
+import api from "../axios";
+
+export const changePassword = async ({old_password, password}: {old_password: string; password: string;}) => {
+    const res = await api.post("/auth/change-password", {oldPassword: old_password, newPassword: password})
+    return res.data;
+}
+
+export const send2faCode = async (payload: {email: string}) => {
+    const res = await api.post("/auth/2fa/resend", payload)
+    return res.data;
+}
+
+export const toggle2fa = async ({enable}: {enable: boolean}) => {
+    const res = await api.post("/auth/2fa/toggle", {enable})
+    return res.data;
+}
+
+export const getSavedAccounts = async () => {
+    const res = await api.get("/bank-accounts");
+    return res.data.data;
+}
+
+export const verifyBankAccount = async (payload: verifyBankAccountPayload) => {
+    const res = await api.post("/bank-accounts/verify", payload)
+    return res.data.data;
+}
+
+export const addBankAccount = async (payload: {bankCode: string; accountName: string; accountNumber: string;}) => {
+    const res = await api.post("/bank-accounts", payload)
+    return res.data.data;
+}
+
+export interface ImageKitAuthResponse {
+  signature: string;
+  token: string;
+  expire: number;
+  publicKey: number;
+}
+
+export interface UploadImageResponse {
+  fileId: string;
+  name: string;
+  size: number;
+  versionInfo: {
+    id: string;
+    name: string;
+  };
+  filePath: string;
+  url: string;
+  fileType: "image" | "video" | "raw";
+  height: number;
+  width: number;
+  thumbnailUrl: string;
+  description: string | null;
+}
+
+// Image upload
+export async function uploadToImageKit(file: File): Promise<UploadImageResponse> {
+  // 1. Get signature from your backend
+  const { data } = await api.get<ImageKitAuthResponse>("/media/signature");
+
+  const { signature, token, expire, publicKey } = data;
+
+  console.log({
+    env: import.meta.env.VITE_IMAGEKIT_PUBLIC_KEY,
+    signature: publicKey
+  })
+
+  // 2. Prepare FormData for ImageKit upload endpoint
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("fileName", file.name);
+  formData.append("signature", signature);
+  formData.append("token", token);
+  formData.append("expire", String(expire));
+  formData.append("publicKey", import.meta.env.VITE_IMAGEKIT_PUBLIC_KEY);
+
+  // 3. Upload to ImageKit
+  const uploadResponse = await api.post(
+    "https://upload.imagekit.io/api/v1/files/upload",
+    formData,
+    {
+      headers: { "Content-Type": "multipart/form-data" }
+    }
+  );
+
+  return uploadResponse.data;
+}
+
+export const updateProfileImage = async (payload: {avatar: string}) => {
+    const res = await api.put("/profile/avatar", payload)
+    return res.data.data;
+}
+
+===============================
+FILE: C:\Users\Bi Creativity\erhapay\src\lib\api\dashboard-apis\staticAccountApis.ts
+===============================
+import api from "../axios"
+
+// interface Wallet {
+//   type: string;
+//   balance: number;
+// }
+
+// interface CountryData {
+//   id: number;
+//   name: string;
+//   code: string;
+//   iso2: string;
+//   iso3: string;
+//   phone_code: string;
+//   region: string;
+//   emoji: string;
+//   emoji_code: string;
+//   capital: string;
+//   currency: string;
+//   currency_name: string;
+//   currency_symbol: string;
+//   longitude: string;
+//   latitude: string;
+//   flag_url: string;
+//   can_do_airtime: boolean;
+//   airtime_activated_at: string | null;
+//   created_at: string;
+// }
+
+// interface User {
+//   id: number;
+//   firstname: string;
+//   lastname: string;
+//   email: string;
+//   phone_code: string;
+//   phone: string;
+//   username: string;
+//   gender: string;
+//   ref_code: string;
+//   avatar: string | null;
+//   country: string;
+//   state: string;
+//   status: string;
+//   is_blacklisted: boolean;
+//   auth_type: string;
+//   type: string;
+//   referral_earning_rate: number;
+//   bvn_verified: boolean;
+//   bvn_validated: boolean;
+//   bvn: string;
+//   nin_verified: boolean;
+//   nin_validated: boolean;
+//   nin: string | null;
+//   email_verified: boolean;
+//   phone_verified: boolean;
+//   two_factor_enabled: boolean;
+//   pin_activated: boolean;
+//   login_biometric_activated: boolean;
+//   transaction_biometric_activated: boolean;
+//   created_at: string;
+//   last_login_at: string;
+//   last_login_ip_address: string;
+//   wallet: Wallet;
+//   country_data: CountryData;
+// }
+
+interface ResponseData {
+  identityId: string;
+  step: string;
+  expiresIn: string;
+  nextStep: string;
+}
+
+export interface VerificationStatusResponse {
+  message: string;
+  data: ResponseData;
+}
+
+export interface StaticAccount {
+  hasAccount: boolean;
+  account: {
+      accountNumber: string;
+      accountName: string;
+      bankName: string;
+      provider: string;
+      createdAt: string;
+  };
+
+}
+
+export const validateIdentity = async (params: {value: string; dateOfBirth: string; firstname: string; lastname: string; identificationType?: string}): Promise<VerificationStatusResponse> => {
+   const response = await api.post("/wallet/accounts/initiate", {...params, identificationType: "bvn"});
+   return response.data;
+}
+
+export const validateIdentityOtp = async (params: {identityId: string, otp: string; identificationType?: string}) => {
+   const response = await api.post("/wallet/accounts/verify", {...params, identificationType: "bvn"});
+   return response.data;
+}
+
+export const checkValidityStatus = async (): Promise<VerificationStatusResponse> => {
+   const response  = await api.get("/identity/check-status/bvn");
+   return response.data;
+}
+
+export const generateStaticAccount = async (): Promise<StaticAccount> => {
+   const response  = await api.post("/wallet/account/generate");
+   return response.data.data;
+}
+
+export const getStaticAccount = async (): Promise<StaticAccount> => {
+   const response  = await api.get("/wallet/accounts");
+   return response.data.data;
+}
+
+===============================
+FILE: C:\Users\Bi Creativity\erhapay\src\lib\api\dashboard-apis\txnHistoryApis.ts
+===============================
+import { QueryFunction } from "@tanstack/react-query";
+import api from "../axios";
+import { TIntCountry } from "@/components/dashboard/services/international-airtime/RecipientDetails";
+
+export interface TransactionHistoryResponse {
+  message: string;
+  data: Transaction[];
+  pagination: Pagination;
+}
+
+export interface Pagination {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrev: boolean;
+}
+
+type TransactionMetadata = {
+  provider: string;
+  recipientName?: string;
+  recipientId?: string;
+  transferId?: string;
+  senderUsername?: string;
+  senderEmail?: string;
+
+  accountNumber?: string;
+  accountName?: string;
+  bankName?: string;
+
+  phone?: string;
+  serviceName?: string;
+  serviceCode?: string;
+  network?: string;
+  logo?: string;
+  providerReference?: string;
+  customerId?: string;
+  smartCardNumber?: string;
+  profileId?: string;
+  productName?: string;
+  subscriptionType?: string;
+  meterNumber?: string;
+  meterType?: string;
+  token?: string;
+
+  country?: TIntCountry,
+
+  originalReference?: string;
+  reason?: string;
+
+  remark?: string;
+}
+
+export interface Transaction {
+  id: string;
+  reference: string;
+  amount: number;
+  direction: "DEBIT" | "CREDIT";
+  type:
+    | "wallet_transfer"
+    | "airtime"
+    | "refund"
+    | "gift_card_purchase"
+    | string;
+  status: "success" | "failed" | "pending" | string;
+  purpose: string;
+  provider: string;
+  description: string;
+  balanceBefore: number;
+  balanceAfter: number;
+  createdAt: string;
+  updatedAt: string;
+  metadata: TransactionMetadata;
+}
+
+
+// ********************************** //
+
+export interface CountryData {
+  id: number;
+  name: string;
+  code: string;
+  iso2: string;
+  iso3: string;
+  phone_code: string;
+  region: string;
+  emoji: string;
+  emoji_code: string;
+  capital: string;
+  currency: string;
+  currency_name: string;
+  currency_symbol: string;
+  longitude: string;
+  latitude: string;
+  flag_url: string;
+  can_do_airtime: boolean;
+  airtime_activated_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Product {
+  id: number;
+  code: string;
+  logo: string;
+  name: string;
+  type: string;
+  amount: number;
+}
+
+export type Customer = {
+  phone?: string;
+  smartcard_number?: string;
+  meter_name?: string;
+  meter_type?: string;
+  meter_number?: string;
+  meter_address?: string;
+  registration_number?: string;
+  customer_id?: string;
+};
+
+export interface Discount {
+  id: number;
+  code: string;
+  name: string;
+  type: string;
+  value: number;
+  active: boolean;
+  created_at: string;
+  product_type: string;
+}
+
+export interface Provider {
+  id: number;
+  code: string;
+  logo: string;
+  name: string;
+  active: boolean;
+  product_type: string[];
+  supported_product_types: string[];
+}
+
+type UserWallet = {
+  type: string;
+  balance: number;
+};
+
+type UserData = {
+  id: number;
+  firstname: string;
+  lastname: string;
+  email: string;
+  phone_code: string;
+  phone: string;
+  username: string;
+  gender: string;
+  ref_code: string;
+  avatar: string | null;
+  country: string;
+  state: string;
+  status: string;
+  is_blacklisted: boolean;
+  auth_type: string;
+  type: string;
+  referral_earning_rate: number;
+  bvn_verified: boolean;
+  bvn_validated: boolean;
+  bvn: string | null;
+  nin_verified: boolean;
+  nin_validated: boolean;
+  nin: string | null;
+  email_verified: boolean;
+  phone_verified: boolean;
+  two_factor_enabled: boolean;
+  pin_activated: boolean;
+  login_biometric_activated: boolean;
+  transaction_biometric_activated: boolean;
+  created_at: string;
+  last_login_at: string;
+  last_login_ip_address: string;
+  wallet: UserWallet;
+  country_data: CountryData;
+};
+
+export type TransactionDetails = {
+  id: string;
+  ip_address: string;
+  reference: string;
+  provider_reference: string | null;
+  provider_amount: number;
+  amount: number;
+  discount: number;
+  fee: number;
+  total_amount: number;
+  profit: number;
+  type: string;
+  provider: string;
+  remark: string;
+  purpose: string;
+  status: string;
+  meta: TransactionMetadata;
+  created_at: string;
+  balance_before: number;
+  balance_after: number | null;
+  proof: string | null;
+  review_proof: string | null;
+  user: UserData;
+};
+
+
+type TParams = {
+  page?: number;
+  per_page: number;
+  status?: string;
+  startDate?: string;
+  endDate?: string;
+  startPrice?: string; 
+  endPrice?: string; 
+  type?: string;
+}
+
+export const ITEMS_PER_PAGE = 50;
+
+export const getTxnHistory = async ({page, per_page, status, startDate, endDate,  startPrice, endPrice, type}: TParams): Promise<TransactionHistoryResponse> => {
+  const queryParams: Record<string, string | number | undefined> = {
+        page,
+      }
+
+  if(per_page) queryParams["limit"] = per_page;
+  if (type) queryParams["type"] = type;
+  if(status) queryParams["status"] = status;
+  if (startPrice) queryParams["startPrice"] = startPrice;
+  if (endPrice) queryParams["endPrice"] = endPrice;
+  
+  if (startDate) queryParams["startDate"] = startDate;
+  if (endDate) queryParams["endDate"] = endDate;
+
+  const res = await api.get("/transactions", {
+    params: queryParams
+  })
+  return res.data;
+}
+
+export const getTxnHistoryDetail: QueryFunction<Transaction, [_: string, transactionId: string]> = async ({
+  queryKey,
+}) => {
+  const [, transactionId] = queryKey;
+  const res = await api.get(`/transactions/${transactionId}`);
+  return res.data.data;
+};
+
+===============================
+FILE: C:\Users\Bi Creativity\erhapay\src\lib\api\dashboard-apis\walletApis.ts
+===============================
+import { TFundWalletPayload } from "@/components/dashboard/add-funds/SelectPaymentMethod";
+import api from "../axios";
+import { TWithdrawToBankPayload } from "@/components/dashboard/withdraw-funds/ConfirmFundsWithdrawal";
+import { TTransferFundsPayload } from "@/components/dashboard/transfer-funds/ConfirmFundsTransfer";
+
+export const getWallet = async () => {
+    const res = await api.get(
+        "/wallet"
+    )
+    return res.data.data;
+}
+
+export const fetchProviders = async () => {
+    const res = await api.get("/wallet/providers")
+    return res.data.data;
+}
+
+export const fetchVirtualAccountProviders = async () => {
+    const res = await api.get("/virtual-account-providers")
+    return res.data.data;
+}
+
+export const fundWallet = async (payload: TFundWalletPayload) => {
+    const res = await api.post("/wallet/fund", {...payload, method: "bank_transfer", provider: "saveHaven"})
+    return res.data.data;
+}
+
+export const fetchBankList = async () => {
+    const res = await api.get("/reference/banks")
+    return res.data.data;
+}
+
+export const withdrawToBank = async (payload: TWithdrawToBankPayload) => {
+    const res = await api.post("/wallet/bank-transfer", payload)
+    return res.data.data;
+}
+
+export const transferFunds = async (payload: TTransferFundsPayload) => {
+    const res = await api.post("/wallet/transfer", payload)
+    return res.data.data;
+}
+
+// export const getTxnHistory = async (): Promise<Transaction[]> => {
+//     const res = await api.get("/wallet/transactions?page=1&per_page=10")
+//     return res.data.data;
+// }
+
+===============================
+FILE: C:\Users\Bi Creativity\erhapay\src\lib\api\authApi.ts
+===============================
+import { ICountry } from "@/routes/auth-pages/UserDetails";
+import api from "./axios";
+
+import { TFormData as SignUpFormData} from "@/components/Authentication/SignUpForm";
+
+type TProfilePayload = {
+    username?: string;
+    gender?: string;
+    country?: string;
+    state?: string;
+}
+
+type TSendPhoneCodePayload = {
+    phoneCode: string;
+    phone: string;
+}
+type TVerifyPhoneNoPayload = {
+    phone: string;
+    otp: string;
+}
+
+type LogInFormData = {
+    email?: string;
+    password?: string;
+}
+
+type GoogleAuthPayload = {
+    googleIdToken: string;
+    fcmToken?: string;
+}
+
+export const SignUpUser = async (payload: SignUpFormData) => {
+    const res = await api.post("/auth/register", payload)
+    console.log({payload})
+    return res.data;
+}
+
+export const LogInUser = async ({payload}: {payload: LogInFormData}) => {
+    const res = await api.post(`/auth/login`, payload)
+    return res.data;
+}
+
+export const SignInWithGoogle = async ({payload}: {payload: GoogleAuthPayload}) => {
+    const res = await api.post(`/auth/social/google/signin`, payload)
+    return res.data;
+}
+
+export const verify2FaOtp = async (payload: {otp: string, email: string}) => {
+    const res = await api.post(
+        "/auth/2fa/verify",
+        payload
+    )
+    return res.data
+}
+
+export const resend2FaOtp = async (email: string) => {
+    const res = await api.post(
+        "/auth/2fa/resend", {email}
+    )
+    return res.data
+}
+
+export const Logout = async () => {
+    const res = await api.post("/auth/logout")
+    return res.data;
+}
+
+export const verifyEmail = async ({email, otp}:{email: string, otp: string}) => {
+    const res = await api.post(
+        "/auth/email/verify",
+        {email, otp}
+    )
+    return res.data
+}
+
+export const resendOtpFn = async (email: string) => {
+    const res = await api.post(
+        "/auth/email/resend",
+        {email}
+    )
+    return res.data
+}
+
+export const fetchCountries = async (): Promise<ICountry[]> => {
+    const res = await api.get(
+        "/reference/countries?page=1&limit=1000"
+    )
+    return res.data.data;
+}
+
+export const updateProfile = async (profilePayload: TProfilePayload) => {
+    const res = await api.put("/profile", profilePayload)
+    return res.data.data;
+}
+
+export const sendPhoneCode = async (sendPhoneCodePayload: TSendPhoneCodePayload) => {
+    const res = await api.post("/auth/phone/resend", sendPhoneCodePayload)
+    return res.data.data;
+}
+
+export const verifyPhoneNo = async (VerifyPhoneNoPayload: TVerifyPhoneNoPayload) => {
+    const res = await api.post("/auth/phone/verify", VerifyPhoneNoPayload)
+    return res.data.data;
+}
+
+export const setTransactionPin = async (pin: string) => {
+    const res = await api.put("/auth/pin/set", {pin})
+    return res.data;
+}
+
+export const changeTransactionPin = async ({newPin, oldPin}: {newPin: string, oldPin: string}) => {
+    const res = await api.put("/auth/pin/change", {newPin, oldPin})
+    return res.data;
+}
+
+export const resendPasswordOtp = async (email: string) => {
+    const res = await api.post("/auth/forgot-password", {email})
+    return res.data;
+}
+
+export const verifyPasswordToken = async ({email, token}: {email: string, token: string}) => {
+    const res = await api.post("/auth/password/verify", {email, token})
+    return res.data;
+}
+
+export const setNewPassword = async ({email, password, token}: {email: string; password: string; token: string}) => {
+    const res = await api.post("/auth/reset-password", {gmail: email, otp: token, password})
+    return res.data;
+}
+
+export const deactivateAccount = async () => {
+    const res = await api.post("/profile/deactivate")
+    return res.data;
+}
+
+export const getUser = async () => {
+    const res = await api.get("/profile")
+    return res.data.data;
+}
+
+===============================
+FILE: C:\Users\Bi Creativity\erhapay\src\lib\api\axios.ts
+===============================
+import axios from "axios";
+
+const api = axios.create({
+    baseURL: "https://js.billpadi.com/api/v1"
+});
+
+api.interceptors.request.use((config) => {
+    const token = localStorage.getItem("accessToken");
+    if(token) config.headers.Authorization = `Bearer ${token}`;
+    return config;
+})
+
+api.interceptors.response.use(
+  (res) => res,
+  (error) => {
+    const status = error.response?.status;
+    const requestUrl = error.config?.url;
+    // const hasAuthHeader = !!error.config?.headers?.Authorization;
+
+    if (
+      status === 401 &&
+      !requestUrl?.includes("/auth/login") &&
+      !requestUrl?.includes("/auth/register") &&
+      !requestUrl?.includes("/auth/change-password") &&
+      !requestUrl?.includes("/auth/social/google/signin") 
+    ) {
+      console.log("redirect to login")
+      // Token expired or invalid
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("user");
+      window.location.href = "/auth/login";
+    }
+
+    return Promise.reject(error);
+  }
+);
+
+export default api;
+

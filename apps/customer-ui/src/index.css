@@ -1,0 +1,91 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@font-face {
+  font-family: "Aeonik";
+  src: url("./assets/fonts/Aeonik-Regular.ttf") format("truetype");
+  font-style: normal;
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: "Aeonik";
+  src: url("./assets/fonts/Aeonik-Medium.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: "Aeonik";
+  src: url("./assets/fonts/fonnts.com-Aeonik-Bold.ttf") format("truetype");
+  font-style: normal;
+  font-weight: bold;
+}
+
+body {
+  font-family: "Aeonik", sans-serif;
+}
+
+/* ***** COLORS ********* */
+:root {
+  --color-primary: #112929;
+}
+
+/* ** SCROLLBAR STYLES ** */
+
+.scroll-bar-y::-webkit-scrollbar {
+  width: 4px;
+}
+
+.scroll-bar-y::-webkit-scrollbar-thumb {
+  background-color: #112929;
+  border-radius: 5px;
+}
+
+.scroll-bar-x::-webkit-scrollbar {
+  height: 2px;
+}
+
+.scroll-bar-x::-webkit-scrollbar-thumb {
+  background-color: #112929;
+  border-radius: 5px;
+}
+
+.hide-scrollbar {
+  overflow: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}
+
+/* Remove default date picker icon */
+
+/* For Chrome, Safari, Edge */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  display: none;
+  -webkit-appearance: none;
+}
+
+/* For Firefox */
+input[type="date"] {
+  -moz-appearance: textfield;
+}
+
+/* Hide number input spinners in WebKit browsers */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Hide number input spinners in Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.container {
+  @apply max-w-[1180px] mx-auto pl-8 pr-11 max-md:px-7;
+}
