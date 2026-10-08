@@ -3,12 +3,27 @@ import api from "../axios";
 import { TWithdrawToBankPayload } from "@/components/dashboard/withdraw-funds/ConfirmFundsWithdrawal";
 import { TTransferFundsPayload } from "@/components/dashboard/transfer-funds/ConfirmFundsTransfer";
 
-export const getWallet = async () => {
-    const res = await api.get(
-        "/wallet"
-    )
-    return res.data.data;
-}
+// Source of truth: FinanceController GET /v1/wallets.
+// Amounts are strings of kobo; never round-trip through JS Number.
+export type Wallet = {
+    id: string;
+    currency: "NGN";
+    status: string;
+    postedBalanceMinor: string;
+    activeHoldsMinor: string;
+    availableBalanceMinor: string;
+};
+
+export const getWallet = async (): Promise<Wallet> => {
+    const response = await api.get<{wallet: Wallet}>("/wallets");
+    const wallet = response.data.wallet;
+    if (!wallet || wallet.currency !== "NGN" ||
+        ![wallet.availableBalanceMinor, wallet.postedBalanceMinor, wallet.activeHoldsMinor]
+            .every(value => typeof value === "string" && /^-?(?:0|[1-9]\d*)$/.test(value))) {
+        throw new TypeError("Unexpected TwiPay wallet response");
+    }
+    return wallet;
+};
 
 export const fetchProviders = async () => {
     const res = await api.get("/wallet/providers")

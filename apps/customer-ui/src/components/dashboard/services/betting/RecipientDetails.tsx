@@ -1,3 +1,4 @@
+import { formatNgnMinorUnits } from "@/lib/money";
 import CustomButton from "@/components/CustomButton"
 import { BettingServiceFormSchema } from "@/lib/zodSchemas/dashboard.schema"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -26,7 +27,7 @@ import useBettingStore from "@/stores/useBettingStore"
 import BackButton from "@/components/Authentication/BackButton"
 import { useNavigate } from "react-router-dom"
 import { useEffect, useState } from "react"
-import { cn, formatAmount } from "@/lib/utils"
+import { cn } from "@/lib/utils"
 import { fetchBettingProviders, verifyBettingWalletNumber } from "@/lib/api/dashboard-apis/servicesApis"
 import { BettingProvider } from "./SelectProvider"
 import { useMutation, useQuery } from "@tanstack/react-query"
@@ -54,7 +55,7 @@ const RecipientDetails = () => {
         data: wallet,
         isLoading: fetchingWallet
     } = useQuery<Wallet, Error>({
-        queryKey: ["countries"],
+        queryKey: ["wallet", "twipay-v1"],
         queryFn: getWallet,
     })
 
@@ -195,7 +196,7 @@ const RecipientDetails = () => {
                     <p className="text-xs text-[#464E60] md:hidden flex items-center gap-1">Available balance :
                         <span className="font-bold">
                             {fetchingWallet ? <Loader2 className="animate-spin size-4" />
-                            : formatAmount(wallet?.balance as number)}
+                            : wallet ? formatNgnMinorUnits(wallet.availableBalanceMinor) : "Unavailable"}
                         </span>
                     </p>
                 </div>

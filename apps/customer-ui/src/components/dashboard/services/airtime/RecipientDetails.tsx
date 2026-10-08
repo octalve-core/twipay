@@ -1,3 +1,4 @@
+import { formatNgnMinorUnits } from "@/lib/money";
 import CustomButton from "@/components/CustomButton"
 import { AirtimeRecipientDetailFormSchema } from "@/lib/zodSchemas/dashboard.schema"
 import usePurchaseAirtimeStore from "@/stores/usePurchaseAirtimeStore"
@@ -25,7 +26,7 @@ import {
 import BackButton from "@/components/Authentication/BackButton"
 import { useNavigate } from "react-router-dom"
 import { Check, ChevronDown, Loader2 } from "lucide-react"
-import { cn, convertToLocalPhoneNumber, formatAmount } from "@/lib/utils"
+import { cn, convertToLocalPhoneNumber } from "@/lib/utils"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { TAirtimeServiceProvider } from "./SelectProvider"
 import { fetchAirtimeProviders, verifyPhoneNumber } from "@/lib/api/dashboard-apis/servicesApis"
@@ -50,7 +51,7 @@ const RecipientDetails = () => {
         data: wallet,
         isLoading: fetchingWallet
     } = useQuery<Wallet, Error>({
-        queryKey: ["countries"],
+        queryKey: ["wallet", "twipay-v1"],
         queryFn: getWallet,
     })
 
@@ -238,7 +239,7 @@ const RecipientDetails = () => {
                         <p className="text-xs text-[#464E60] md:hidden flex items-center gap-1">Available balance :
                             <span className="font-bold">
                                 {fetchingWallet ? <Loader2 className="animate-spin size-3" />
-                                : formatAmount(wallet?.balance as number)}
+                                : wallet ? formatNgnMinorUnits(wallet.availableBalanceMinor) : "Unavailable"}
                             </span>
                         </p>
                     </div>

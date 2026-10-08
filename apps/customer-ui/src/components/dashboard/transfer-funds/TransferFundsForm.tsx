@@ -1,6 +1,6 @@
+import { formatNgnMinorUnits } from "@/lib/money";
 import CustomButton from "@/components/CustomButton";
 import { getWallet } from "@/lib/api/dashboard-apis/walletApis";
-import { formatAmount } from "@/lib/utils";
 import { TransferFundsSchema } from "@/lib/zodSchemas/dashboard.schema";
 import useTransferFunds from "@/stores/useTransferFundsStore";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,7 +19,7 @@ const TransferFundsForm = () => {
         data: wallet,
         isLoading: fetchingWallet
     } = useQuery<Wallet, Error>({
-        queryKey: ["countries"],
+        queryKey: ["wallet", "twipay-v1"],
         queryFn: getWallet,
     })
 
@@ -54,7 +54,7 @@ const TransferFundsForm = () => {
                 <p className="text-xs text-[#464E60] md:hidden flex items-center gap-1">Available balance :
                     <span className="font-bold">
                         {fetchingWallet ? <Loader2 className="animate-spin size-4" />
-                        : formatAmount(wallet?.balance as number)}
+                        : wallet ? formatNgnMinorUnits(wallet.availableBalanceMinor) : "Unavailable"}
                     </span>
                 </p>
             </div>

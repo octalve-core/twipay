@@ -2,7 +2,7 @@ import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
 
 const base = import.meta.env.VITE_TWIPAY_API_URL?.replace(/\/$/, "");
 const api = axios.create({ baseURL: base ? `${base}/v1` : undefined, withCredentials: true, timeout: 15000 });
-const publicAuth = new Set(["/auth/register", "/auth/login", "/auth/logout", "/auth/me", "/kyc/verifications", "/auth/csrf", "/auth/mfa/status", "/auth/mfa/challenge", "/auth/mfa/enroll", "/auth/mfa/enroll/confirm", "/auth/mfa/recovery-codes/regenerate", "/auth/mfa/disable"]);
+const publicAuth = new Set(["/auth/register", "/auth/login", "/auth/logout", "/auth/me", "/kyc/verifications", "/wallets", "/auth/csrf", "/auth/mfa/status", "/auth/mfa/challenge", "/auth/mfa/enroll", "/auth/mfa/enroll/confirm", "/auth/mfa/recovery-codes/regenerate", "/auth/mfa/disable"]);
 
 export function isAllowedIntegratedRoute(url: string | undefined): boolean {
   const path = url?.split("?")[0] ?? "";

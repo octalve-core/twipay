@@ -1,3 +1,4 @@
+import { formatNgnMinorUnits } from "@/lib/money";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -6,7 +7,6 @@ import BackButton from "@/components/Authentication/BackButton";
 import CustomButton from "@/components/CustomButton";
 import { WithdrawalAmountFormSchema } from "@/lib/zodSchemas/dashboard.schema";
 import useWithdrawFundsStore from "@/stores/useWithdrawFunds";
-import { formatAmount } from "@/lib/utils";
 import { Wallet } from "../main-page/BalanceCard";
 import { useQuery } from "@tanstack/react-query";
 import { getWallet } from "@/lib/api/dashboard-apis/walletApis";
@@ -20,7 +20,7 @@ const EnterAmount = () => {
         data: wallet,
         isLoading: fetchingWallet
     } = useQuery<Wallet, Error>({
-        queryKey: ["countries"],
+        queryKey: ["wallet", "twipay-v1"],
         queryFn: getWallet,
     })
 
@@ -57,7 +57,7 @@ const EnterAmount = () => {
                     <p className="text-xs text-[#464E60] md:hidden flex items-center gap-1">Available balance :
                         <span className="font-bold">
                             {fetchingWallet ? <Loader2 className="animate-spin size-4" />
-                            : formatAmount(wallet?.balance as number)}
+                            : wallet ? formatNgnMinorUnits(wallet.availableBalanceMinor) : "Unavailable"}
                         </span>
                     </p>
                 </div>

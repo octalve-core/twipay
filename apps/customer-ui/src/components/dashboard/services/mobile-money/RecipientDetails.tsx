@@ -1,3 +1,4 @@
+import { formatNgnMinorUnits } from "@/lib/money";
 import {
     Select,
     SelectContent,
@@ -15,7 +16,6 @@ import { MobileMoneySchema } from "@/lib/zodSchemas/dashboard.schema"
 import useMobileMoneyStore from "@/stores/useMobileMoneyStore"
 import BackButton from "@/components/Authentication/BackButton";
 import { useNavigate } from "react-router-dom";
-import { formatAmount } from "@/lib/utils";
 import { Wallet } from "../../main-page/BalanceCard";
 import { useQuery } from "@tanstack/react-query";
 import { getWallet } from "@/lib/api/dashboard-apis/walletApis";
@@ -30,7 +30,7 @@ const RecipientDetails = () => {
         data: wallet,
         isLoading: fetchingWallet
     } = useQuery<Wallet, Error>({
-        queryKey: ["countries"],
+        queryKey: ["wallet", "twipay-v1"],
         queryFn: getWallet,
     })
 
@@ -97,7 +97,7 @@ const RecipientDetails = () => {
                     <p className="text-xs text-[#464E60] md:hidden flex items-center gap-1">Available balance :
                         <span className="font-bold">
                             {fetchingWallet ? <Loader2 className="animate-spin size-4" />
-                            : formatAmount(wallet?.balance as number)}
+                            : wallet ? formatNgnMinorUnits(wallet.availableBalanceMinor) : "Unavailable"}
                         </span>
                     </p>
                 </div>
