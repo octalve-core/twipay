@@ -192,6 +192,23 @@ export class VirtualAccountService {
   }
 
 
+  // Read-only, owner-scoped lifecycle visibility even when the provider has not
+  // assigned an account yet. Never return BVN, correlation fingerprints or provider secrets.
+  async listProvisioningForUser(userId: string): Promise<JsonObject[]> {
+    const rows = await this.prisma.providerOperation.findMany({
+      where: { userId, type: 'VIRTUAL_ACCOUNT' },
+      select: { merchantReference: true, providerCode: true, status: true, createdAt: true },
+      orderBy: { createdAt: 'desc' },
+      take: 20,
+    });
+    return rows.map(row => ({
+      reference: row.merchantReference,
+      provider: row.providerCode,
+      status: row.status,
+      createdAt: row.createdAt.toISOString(),
+    }));
+  }
+
   async listForUser(userId: string): Promise<JsonObject[]> {
     const rows = await this.prisma.virtualAccount.findMany({
       where: { userId },

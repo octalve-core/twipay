@@ -227,10 +227,40 @@ export class FinanceController {
     return result.body;
   }
 
+  private assertVirtualAccountSandbox(provider: 'paystack' | 'monnify'): void {
+    // Provisioning is a provider write. It must never be switched on by a browser-only flag.
+    if (process.env['NODE_ENV'] === 'production' || process.env['VIRTUAL_ACCOUNTS_SANDBOX_ENABLED'] !== 'true') {
+      throw new ServiceUnavailableException({ code: 'VIRTUAL_ACCOUNT_PROVISIONING_NOT_RELEASE_QUALIFIED' });
+    }
+    if (provider === 'paystack' && !process.env['PAYSTACK_SECRET_KEY']?.startsWith('sk_test_')) {
+      throw new ServiceUnavailableException({ code: 'PAYSTACK_SANDBOX_KEY_REQUIRED' });
+    }
+    if (provider === 'monnify') {
+      try {
+        const url = new URL(process.env['MONNIFY_BASE_URL'] ?? 'https://sandbox.monnify.com');
+        if (url.protocol !== 'https:' || url.hostname !== 'sandbox.monnify.com' || url.username || url.password || url.port) {
+          throw new Error('Invalid sandbox host');
+        }
+      } catch {
+        throw new ServiceUnavailableException({ code: 'MONNIFY_SANDBOX_REQUIRED' });
+      }
+    }
+  }
+
+  @Get('virtual-accounts/validation-banks')
+  async virtualAccountValidationBanks(@Req() req: AuthenticatedFastifyRequest) {
+    requirePrincipal(req);
+    this.assertVirtualAccountSandbox('paystack');
+    return { provider: 'paystack', banks: await this.transfers.listBanks('paystack') };
+  }
+
   @Get('virtual-accounts')
   async virtualAccountsForUser(@Req() req: AuthenticatedFastifyRequest) {
     const principal = requirePrincipal(req);
-    return { virtualAccounts: await this.virtualAccounts.listForUser(principal.userId) };
+    return {
+      virtualAccounts: await this.virtualAccounts.listForUser(principal.userId),
+      provisioning: await this.virtualAccounts.listProvisioningForUser(principal.userId),
+    };
   }
 
   @Post('virtual-accounts')
@@ -240,6 +270,7 @@ export class FinanceController {
     @Req() req: AuthenticatedFastifyRequest,
     @Res({ passthrough: true }) res: FastifyReply,
   ) {
+    this.assertVirtualAccountSandbox(body.provider);
     const principal = requirePrincipal(req);
     const result = await this.virtualAccounts.create({
       userId: principal.userId,

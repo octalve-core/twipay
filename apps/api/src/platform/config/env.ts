@@ -30,6 +30,7 @@ const EnvSchema = z.object({
   MFA_LOCK_SECONDS: z.coerce.number().int().min(60).max(3600).default(300),
   WALLET_COLLECTIONS_SANDBOX_ENABLED: z.enum(['true', 'false']).default('false'),
   BANK_TRANSFERS_SANDBOX_ENABLED: z.enum(['true', 'false']).default('false'),
+  VIRTUAL_ACCOUNTS_SANDBOX_ENABLED: z.enum(['true', 'false']).default('false'),
   HIGH_RISK_FEATURES_RELEASE_QUALIFIED: z.enum(['true', 'false']).default('false'),
   DATA_ENCRYPTION_KEY: aes256Key,
   PII_FINGERPRINT_KEY: z.string().min(32),
