@@ -60,6 +60,8 @@ PostgreSQL 18 migrations/integration/concurrency, Redis/BullMQ, browser E2E, pro
 
 High-risk flags `events.refunds` and `operations.organizer_payouts` are fail-closed and must remain disabled until the complete MFA/RBAC/maker-checker/accounting/provider/integration/E2E/staging activation gates pass.
 
+For current Batch 3.2 implementation and deferred runtime gates, read `docs/phase3/BATCH_3_2_PASSWORD_SECURITY_2026-10-09.md`.
+
 For continuation, read the **latest Git HEAD and worktree** plus the Coov Technologies Library `TWIPAY_NEXT_CHAT_AUTHORITATIVE_HANDOFF_2026-10-09.md` (with the Phase 3.1 addendum), `docs/phase3/BATCH_3_1_IMPLEMENTATION_2026-10-09.md`, `docs/phase3/BATCH_3_1_VERIFICATION_2026-10-09.md`, `docs/ADR-0020-VERIFIED-CONTACT-ACCESS.md`, `docs/README.md`, `SECURITY.md`, migrations, and the earlier Phase 1–2 contracts before making changes.
 
 ## Master integration checkpoint
