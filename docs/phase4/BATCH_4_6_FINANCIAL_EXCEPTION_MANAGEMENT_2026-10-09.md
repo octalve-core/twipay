@@ -15,6 +15,13 @@ The existing financial flows already retain uncertain provider outcomes, wallet 
 5. Add migration `0015_financial_exception_review` with nullable historical-compatible reviewer fields, immutable prepared/approved review evidence, independent checker constraint, and separate `ops.reconciliation.{read,prepare,approve}` permissions assigned to existing roles without creating any privileged users.
 6. Add an `/exceptions` page to the pre-existing separate `apps/admin` application using the current operations shell/style; no customer ErhaPay UI or navigation changes.
 
+## Actual source-level results
+
+- **372/372 dependency-light offline tests passed, 0 failed**, including 8 Batch 4.6 service/contract tests using compiled TypeScript against mocked database seams.
+- TypeScript syntax, repository security, architecture, financial, services/events, operations, hardening and original ErhaPay inventory checks passed. The UI asset inventory confirms 123 original assets with no material changes and 66 customer routes.
+- Runtime preflight: **5 PASS, 0 FAIL, 9 BLOCKED** (Node 22 rather than Node 24, no pinned pnpm or lockfile, no real PostgreSQL 18, Redis 8, Docker, provider sandbox or full build).
+- Mocked transactions **do not prove PostgreSQL row-lock or maker/checker concurrency**. The migration and row locks still require real deployment and contention tests.
+
 ## Security and release gates
 
 - **Nothing auto-resolves UNKNOWN.** Stale transaction age is not a proof of failure, and manual review cannot remove wallet holds.
