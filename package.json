@@ -23,6 +23,7 @@
     "e2e": "playwright test",
     "e2e:legacy-web-reference": "playwright test --config playwright.legacy-web.config.ts",
     "test:history-secrets": "node scripts/git-history-secret-check.mjs",
+    "test:phase3-1:source": "node --experimental-strip-types --test docs/phase3/test/*.test.mjs",
     "test:phase1": "node --test docs/integration/test/phase1-reconciliation.test.mjs",
     "test:phase1-3": "node --test docs/integration/test/phase1-toolchain.test.mjs",
     "test:phase1-4-6": "node --test docs/integration/test/phase1-4-6.test.mjs docs/integration/test/phase1-csrf-hosting.test.mjs scripts/test/stack-readiness.test.mjs",
