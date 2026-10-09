@@ -102,27 +102,39 @@ export class EventService {
   async createTicketType(input: {
     ownerUserId: string; eventId: string; name: string; priceMinor: bigint; capacity: number; salesStartsAt?: Date; salesEndsAt?: Date;
   }) {
-    const event = await this.prisma.event.findUnique({ where: { id: input.eventId }, include: { organizer: true } });
-    if (!event) throw new NotFoundException({ code: 'EVENT_NOT_FOUND' });
-    if (event.organizer.ownerUserId !== input.ownerUserId) throw new NotFoundException({ code: 'EVENT_NOT_FOUND' });
-    if (event.status !== 'DRAFT' && event.status !== 'SALES_PAUSED') throw new ConflictException({ code: 'EVENT_TICKET_TYPE_CHANGE_NOT_ALLOWED' });
     if (input.priceMinor <= 0n) throw new BadRequestException({ code: 'EVENT_FREE_TICKETS_NOT_ENABLED_V1' });
-    if (!Number.isInteger(input.capacity) || input.capacity < 1) throw new BadRequestException({ code: 'EVENT_CAPACITY_INVALID' });
-    return this.prisma.eventTicketType.create({
-      data: {
-        eventId: event.id, name: input.name, priceMinor: input.priceMinor, currency: 'NGN', capacity: input.capacity,
-        salesStartsAt: input.salesStartsAt, salesEndsAt: input.salesEndsAt,
-      },
+    if (!Number.isInteger(input.capacity) || input.capacity < 1 || input.capacity > 1_000_000) throw new BadRequestException({ code: 'EVENT_CAPACITY_INVALID' });
+    // A publish request must not race a ticket-type creation after the draft was inspected.
+    return this.prisma.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT "id" FROM "events" WHERE "id" = ${input.eventId}::uuid FOR UPDATE`;
+      const event = await tx.event.findUnique({ where: { id: input.eventId }, include: { organizer: true } });
+      if (!event || event.organizer.ownerUserId !== input.ownerUserId) throw new NotFoundException({ code: 'EVENT_NOT_FOUND' });
+      if (event.organizer.status !== 'ACTIVE') throw new ConflictException({ code: 'EVENT_ORGANIZER_NOT_ACTIVE' });
+      if (event.status !== 'DRAFT' && event.status !== 'SALES_PAUSED') throw new ConflictException({ code: 'EVENT_TICKET_TYPE_CHANGE_NOT_ALLOWED' });
+      return tx.eventTicketType.create({
+        data: {
+          eventId: event.id, name: input.name, priceMinor: input.priceMinor, currency: 'NGN', capacity: input.capacity,
+          salesStartsAt: input.salesStartsAt, salesEndsAt: input.salesEndsAt,
+        },
+      });
     });
   }
 
   async publish(ownerUserId: string, eventId: string) {
-    const event = await this.prisma.event.findUnique({ where: { id: eventId }, include: { organizer: true, ticketTypes: { where: { status: 'ACTIVE' } } } });
-    if (!event || event.organizer.ownerUserId !== ownerUserId) throw new NotFoundException({ code: 'EVENT_NOT_FOUND' });
-    if (event.ticketTypes.length === 0) throw new ConflictException({ code: 'EVENT_REQUIRES_ACTIVE_TICKET_TYPE' });
-    if (event.startsAt <= new Date()) throw new ConflictException({ code: 'EVENT_START_MUST_BE_FUTURE' });
-    assertEventTransition(event.status, 'PUBLISHED');
-    return this.prisma.event.update({ where: { id: event.id }, data: { status: 'PUBLISHED' } });
+    // Publishing is separate from building a draft. No unqualified live marketplace listings.
+    if (process.env['NODE_ENV'] === 'production' || process.env['EVENT_PUBLISH_SANDBOX_ENABLED'] !== 'true') {
+      throw new ConflictException({ code: 'EVENT_PUBLISH_NOT_QUALIFIED' });
+    }
+    return this.prisma.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT "id" FROM "events" WHERE "id" = ${eventId}::uuid FOR UPDATE`;
+      const event = await tx.event.findUnique({ where: { id: eventId }, include: { organizer: true, ticketTypes: { where: { status: 'ACTIVE' } } } });
+      if (!event || event.organizer.ownerUserId !== ownerUserId) throw new NotFoundException({ code: 'EVENT_NOT_FOUND' });
+      if (event.organizer.status !== 'ACTIVE') throw new ConflictException({ code: 'EVENT_ORGANIZER_NOT_ACTIVE' });
+      if (event.ticketTypes.length === 0) throw new ConflictException({ code: 'EVENT_REQUIRES_ACTIVE_TICKET_TYPE' });
+      if (event.startsAt <= new Date()) throw new ConflictException({ code: 'EVENT_START_MUST_BE_FUTURE' });
+      assertEventTransition(event.status, 'PUBLISHED');
+      return tx.event.update({ where: { id: event.id }, data: { status: 'PUBLISHED' } });
+    });
   }
 
   async listPublished() {
