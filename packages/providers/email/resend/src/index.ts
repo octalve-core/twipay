@@ -27,8 +27,17 @@ export class ResendAdapter implements NotificationProviderPort {
       body: JSON.stringify({ from: input.sender ?? this.config.defaultFrom, to: [input.destination], subject: input.subject, text: input.text, ...(input.html ? { html: input.html } : {}) }),
       signal: AbortSignal.timeout(this.timeoutMs),
     });
-    const body = record(await response.json());
+    // A definitive HTTP rejection does not require a JSON response. Providers
+    // and edge proxies can legitimately return plain text or HTML on errors.
+    // Do not let parsing turn a known rejection into an ambiguous retry result.
     if (!response.ok) return { providerCode: this.code, status: 'FAILED', rawStatus: `HTTP_${response.status}` };
+    let body: UnknownRecord;
+    try {
+      body = record(await response.json());
+    } catch {
+      // A 2xx without parseable confirmation is not proof of provider acceptance.
+      return { providerCode: this.code, status: 'UNKNOWN', rawStatus: `HTTP_${response.status}_INVALID_RESPONSE` };
+    }
     const providerReference = text(body['id']);
     return { providerCode: this.code, ...(providerReference ? { providerReference } : {}), status: providerReference ? 'ACCEPTED' : 'UNKNOWN', rawStatus: 'accepted' };
   }
