@@ -1,0 +1,144 @@
+name: Phase 6.3 authentic lockfile and disposable full builds (no release)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  bootstrap-and-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 110
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: twipay_qualification
+          POSTGRES_PASSWORD: phase63_disposable_ci_password
+          POSTGRES_DB: twipay_qual_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U twipay_qualification -d twipay_qual_test"
+          --health-interval 10s --health-timeout 5s --health-retries 10
+      redis:
+        image: redis:8-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s --health-timeout 5s --health-retries 10
+    env:
+      CI: 'true'
+      NODE_ENV: test
+      DATABASE_URL: postgresql://twipay_qualification:phase63_disposable_ci_password@127.0.0.1:5432/twipay_qual_test?schema=public
+      REDIS_URL: redis://127.0.0.1:6379
+      APP_URL: http://127.0.0.1:3000
+      ADMIN_URL: http://127.0.0.1:3001
+      API_URL: http://127.0.0.1:4000
+      VITE_TWIPAY_API_URL: http://127.0.0.1:4000
+      SESSION_HASH_PEPPER: phase63-disposable-session-pepper-not-for-production-000000000
+      SESSION_ABSOLUTE_TTL_SECONDS: '3600'
+      SESSION_IDLE_TTL_SECONDS: '900'
+      SESSION_TOUCH_INTERVAL_SECONDS: '60'
+      MFA_STEP_UP_MAX_AGE_SECONDS: '600'
+      MFA_RECOVERY_HMAC_KEY: phase63-disposable-mfa-recovery-not-for-production-000000000
+      MFA_TOTP_ISSUER: TwiPay-Phase63-CI
+      MFA_ENROLLMENT_TTL_SECONDS: '600'
+      MFA_MAX_FAILED_ATTEMPTS: '5'
+      MFA_LOCK_SECONDS: '300'
+      DATA_ENCRYPTION_KEY: BwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwc=
+      PII_FINGERPRINT_KEY: phase63-disposable-fingerprint-not-for-production-000000000
+      TICKET_SIGNING_KEYS_JSON: '{"1":"phase63-disposable-signing-key-not-for-production-000000000"}'
+      TICKET_SIGNING_CURRENT_VERSION: '1'
+      LOG_LEVEL: silent
+      HIGH_RISK_FEATURES_RELEASE_QUALIFIED: 'false'
+      WALLET_COLLECTIONS_SANDBOX_ENABLED: 'false'
+      BANK_TRANSFERS_SANDBOX_ENABLED: 'false'
+      VIRTUAL_ACCOUNTS_SANDBOX_ENABLED: 'false'
+      BILL_PURCHASES_SANDBOX_ENABLED: 'false'
+      EVENT_CHECKOUT_SANDBOX_ENABLED: 'false'
+      EVENT_TICKET_QR_SANDBOX_ENABLED: 'false'
+      VITE_TWIPAY_FUNDING_SANDBOX_ENABLED: 'false'
+      VITE_TWIPAY_TRANSFER_SANDBOX_ENABLED: 'false'
+      VITE_TWIPAY_VIRTUAL_ACCOUNT_SANDBOX_ENABLED: 'false'
+      VITE_TWIPAY_BILLS_SANDBOX_ENABLED: 'false'
+      VITE_TWIPAY_EVENT_CHECKOUT_SANDBOX_ENABLED: 'false'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+      - name: Activate pinned pnpm and refuse incorrect toolchains
+        shell: bash
+        run: |
+          set -euo pipefail
+          corepack enable
+          test "$(node -p 'process.versions.node')" = "$(cat .node-version)"
+          expected="$(node -p 'require("./package.json").packageManager.split("@")[1]')"
+          test "$(pnpm --version)" = "$expected"
+          echo "Node $(node --version); pnpm $(pnpm --version)"
+      - name: Refuse provider credentials and existing lockfile
+        shell: bash
+        run: |
+          set -euo pipefail
+          test ! -f pnpm-lock.yaml || { echo 'A reviewed lockfile already exists; use frozen-install CI instead'; exit 2; }
+          for name in PAYSTACK_SECRET_KEY MONNIFY_SECRET_KEY VTPASS_API_KEY MONO_SECRET_KEY RESEND_API_KEY GOOGLE_CLIENT_SECRET; do
+            test -z "${!name:-}" || { echo "Provider credential $name is not allowed"; exit 2; }
+          done
+      - name: Resolve genuine workspace lockfile from npm registry
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out
+          pnpm install --lockfile-only --ignore-scripts --no-frozen-lockfile 2>&1 | tee out/phase63-lockfile-resolution.txt
+          node scripts/qualification/phase1-3-preflight.mjs --check-lock 2>&1 | tee out/phase63-importer-check.txt
+          sha256sum pnpm-lock.yaml | tee out/phase63-lockfile-sha256.txt
+      - name: Prove frozen install against the generated lockfile
+        shell: bash
+        run: |
+          set -euo pipefail
+          pnpm install --frozen-lockfile 2>&1 | tee out/phase63-frozen-install.txt
+      - name: Generate Prisma client, validate schema and deploy all migrations to disposable PostgreSQL 18
+        shell: bash
+        run: |
+          set -euo pipefail
+          pnpm db:generate 2>&1 | tee out/phase63-prisma-generate.txt
+          pnpm --filter @twipay/database prisma:validate 2>&1 | tee out/phase63-prisma-validate.txt
+          pnpm --filter @twipay/database prisma:deploy 2>&1 | tee out/phase63-prisma-migrate.txt
+          pnpm --filter @twipay/database exec prisma migrate status 2>&1 | tee out/phase63-prisma-status.txt
+          pnpm --filter @twipay/database test 2>&1 | tee out/phase63-database-tests.txt
+      - name: Execute full semantic typechecking, linting and workspace builds
+        shell: bash
+        run: |
+          set -euo pipefail
+          pnpm typecheck 2>&1 | tee out/phase63-typecheck.txt
+          pnpm lint 2>&1 | tee out/phase63-lint.txt
+          pnpm build 2>&1 | tee out/phase63-build.txt
+          pnpm test:betting-bundle 2>&1 | tee out/phase63-bundle-exclusion.txt
+      - name: Run supported regressions and dependency-backed tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          pnpm test:repo 2>&1 | tee out/phase63-repository-tests.txt
+          pnpm test:offline-regression 2>&1 | tee out/phase63-offline-tests.txt
+          pnpm test 2>&1 | tee out/phase63-workspace-tests.txt
+          pnpm --filter @twipay/worker test:integration 2>&1 | tee out/phase63-worker-integration.txt
+          pnpm exec playwright test --config playwright.customer-ui.config.ts --list 2>&1 | tee out/phase63-browser-spec-list.txt
+      - name: Keep deployment and providers disabled regardless of test outcomes
+        if: success()
+        run: |
+          printf '%s\n' 'BOOTSTRAP EVIDENCE ONLY; production and all money-moving/provider and QR gates remain unapproved.' | tee out/phase63-no-release.txt
+      - name: Preserve genuine lockfile and build evidence for independent review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase63-authentic-lockfile-and-build-evidence
+          if-no-files-found: warn
+          retention-days: 14
+          path: |
+            pnpm-lock.yaml
+            out/phase63-*.txt
