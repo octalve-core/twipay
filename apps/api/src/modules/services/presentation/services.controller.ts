@@ -13,11 +13,18 @@ import { ProductConfigService } from '../../product/application/product-config.s
 
 const CategorySchema = z.enum(['AIRTIME', 'DATA', 'ELECTRICITY', 'CABLE']);
 const ValidateSchema = z.object({ productCode: z.string().trim().min(3).max(120), customerIdentifier: z.string().trim().min(3).max(64) }).strict();
+const QuoteSchema = z.object({
+  productCode: z.string().trim().min(3).max(120),
+  customerIdentifier: z.string().trim().min(3).max(64),
+  amountMinor: z.string().regex(/^[1-9]\d{0,17}$/).refine(value => BigInt(value) <= BigInt(Number.MAX_SAFE_INTEGER)),
+  validationId: z.uuid(),
+}).strict();
 const PurchaseSchema = z.object({
   productCode: z.string().trim().min(3).max(120),
   customerIdentifier: z.string().trim().min(3).max(64),
   amountMinor: z.string().regex(/^[1-9]\d{0,17}$/).refine((value) => BigInt(value) <= BigInt(Number.MAX_SAFE_INTEGER), 'amount exceeds provider-safe integer range'),
-  validationId: z.uuid().optional(),
+  validationId: z.uuid(),
+  quoteToken: z.string().min(100).max(3000),
   contactPhoneE164: z.string().regex(/^\+[1-9]\d{7,14}$/).optional(),
   transactionPin: z.string().regex(/^\d{4}$/),
 }).strict();
@@ -83,6 +90,16 @@ export class ServicesController {
     return { validation: result };
   }
 
+  @Post('quotes')
+  async quote(@Body(new ZodValidationPipe(QuoteSchema)) body: z.infer<typeof QuoteSchema>, @Req() req: AuthenticatedFastifyRequest) {
+    await this.product.assertFeatureEnabled('services.utilities', true);
+    this.assertSandboxPurchasesEnabled();
+    const principal = requirePrincipal(req);
+    return { quote: await this.bills.quotePurchase({ userId: principal.userId,
+      productCode: body.productCode, customerIdentifier: body.customerIdentifier,
+      amountMinor: BigInt(body.amountMinor), validationId: body.validationId }) };
+  }
+
   @Post('purchases')
   async purchase(
     @Body(new ZodValidationPipe(PurchaseSchema)) body: z.infer<typeof PurchaseSchema>,
@@ -93,15 +110,18 @@ export class ServicesController {
     await this.product.assertFeatureEnabled('services.utilities', true);
     this.assertSandboxPurchasesEnabled();
     const principal = requirePrincipal(req);
-    const authorization = await this.financialAuthorization.authorize({ principal, transactionPin: body.transactionPin, amountMinor: BigInt(body.amountMinor), intent: 'BILL_PAYMENT' });
+    const totalDebit = await this.bills.totalDebitForQuote({ userId: principal.userId, token: body.quoteToken,
+      productCode: body.productCode, customerIdentifier: body.customerIdentifier, validationId: body.validationId, amountMinor: BigInt(body.amountMinor) });
+    const authorization = await this.financialAuthorization.authorize({ principal, transactionPin: body.transactionPin, amountMinor: totalDebit, intent: 'BILL_PAYMENT' });
     const result = await this.bills.purchase({
       authorization,
       userId: principal.userId,
       idempotencyKey: requireIdempotencyKey(idempotencyKey),
       productCode: body.productCode,
       customerIdentifier: body.customerIdentifier,
+      quoteToken: body.quoteToken,
+      validationId: body.validationId,
       amountMinor: BigInt(body.amountMinor),
-      ...(body.validationId ? { validationId: body.validationId } : {}),
       ...(body.contactPhoneE164 ? { contactPhoneE164: body.contactPhoneE164 } : {}),
     });
     res.status(result.statusCode);

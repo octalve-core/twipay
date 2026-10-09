@@ -1104,6 +1104,7 @@ model BillPurchase {
   amountMinor                   BigInt
   currency                      String             @db.Char(3)
   providerRequestReference      String             @db.VarChar(160)
+  approvalQuoteId               String?            @unique @db.Uuid
   providerReference             String?            @db.VarChar(160)
   fulfillmentCiphertext         String?            @db.Text
   commissionMinor               BigInt?
