@@ -5,6 +5,7 @@ import { ZodValidationPipe } from '../../../platform/http/zod-validation.pipe.js
 import { PermissionGuard, RequirePermissions, requireMfa } from '../../auth/presentation/permission.guard.js';
 import { SessionAuthGuard, requirePrincipal, type AuthenticatedFastifyRequest } from '../../auth/presentation/session-auth.guard.js';
 import { AuditService } from '../application/audit.service.js';
+import { CustomerSupportService } from '../application/customer-support.service.js';
 import { DisputeRefundService } from '../application/dispute-refund.service.js';
 import { ComplianceService } from '../application/compliance.service.js';
 import { OrganizerPayoutService } from '../application/organizer-payout.service.js';
@@ -12,6 +13,8 @@ import { ProviderOperationsService } from '../application/provider-operations.se
 import { ReportsService } from '../application/reports.service.js';
 import { FinancialExceptionService } from '../application/financial-exception.service.js';
 
+const SupportReply = z.object({message:z.string().trim().min(2).max(3000),requestKey:z.uuid()}).strict();
+const SupportRef = z.string().regex(/^sup_[0-9a-f-]{36}$/);
 const Reason = z.object({ reason: z.string().trim().min(5).max(500) }).strict();
 const PrepareRefund = z.object({ note: z.string().trim().min(5).max(2000) }).strict();
 const ExceptionReview = z.object({ note: z.string().trim().min(20).max(1200) }).strict();
@@ -22,12 +25,18 @@ const Mapping = z.object({ canonicalProductId: z.uuid(), reason: z.string().trim
 @UseGuards(SessionAuthGuard, PermissionGuard)
 @Controller('operations')
 export class OperationsController {
-  constructor(private readonly disputes: DisputeRefundService, private readonly payouts: OrganizerPayoutService, private readonly providers: ProviderOperationsService, private readonly reports: ReportsService, private readonly audit: AuditService, private readonly compliance: ComplianceService, private readonly exceptions: FinancialExceptionService) {}
+  constructor(private readonly disputes: DisputeRefundService, private readonly payouts: OrganizerPayoutService, private readonly providers: ProviderOperationsService, private readonly reports: ReportsService, private readonly audit: AuditService, private readonly compliance: ComplianceService, private readonly exceptions: FinancialExceptionService, private readonly support: CustomerSupportService) {}
 
   @Get('dashboard') @RequirePermissions('ops.dashboard.read') async dashboard() { return this.reports.dashboard(); }
   @Get('compliance') @RequirePermissions('ops.compliance.read') async complianceSnapshot() { return this.compliance.snapshot(); }
+  @Get('support/cases') @RequirePermissions('ops.support.read') async supportCases(@Req() req:AuthenticatedFastifyRequest){requireMfa(req);return {cases:await this.support.queue()};}
+  @Get('support/cases/:reference') @RequirePermissions('ops.support.read') async supportCase(@Param('reference',new ZodValidationPipe(SupportRef)) reference:string,@Req() req:AuthenticatedFastifyRequest){requireMfa(req);return {case:await this.support.staffDetail(reference)};}
+  @Post('support/cases/:reference/replies') @RequirePermissions('ops.support.reply') async replySupport(@Param('reference',new ZodValidationPipe(SupportRef)) reference:string,@Body(new ZodValidationPipe(SupportReply)) body:z.infer<typeof SupportReply>,@Req() req:AuthenticatedFastifyRequest){requireMfa(req);const actor=requirePrincipal(req);return {case:await this.support.staffReply({staffUserId:actor.userId,reference,requestId:req.id,...body})};}
+  @Post('support/cases/:reference/close') @RequirePermissions('ops.support.reply') async closeSupport(@Param('reference',new ZodValidationPipe(SupportRef)) reference:string,@Req() req:AuthenticatedFastifyRequest){requireMfa(req);return {case:await this.support.staffClose({staffUserId:requirePrincipal(req).userId,reference,requestId:req.id})};}
+
   @Get('refunds') @RequirePermissions('ops.disputes.review') async refunds() { return { refunds: await this.disputes.listRefundQueue() }; }
-  @Get('disputes/:reference') @RequirePermissions('ops.disputes.review') async dispute(@Param('reference') reference: string) { return { dispute: await this.disputes.disputeDetail(reference) }; }
+  @Get('disputes') @RequirePermissions('ops.disputes.review') async disputeQueue(@Req() req:AuthenticatedFastifyRequest){requireMfa(req);return {disputes:await this.disputes.listReviewDisputes()};}
+  @Get('disputes/:reference') @RequirePermissions('ops.disputes.review') async dispute(@Param('reference') reference: string,@Req() req:AuthenticatedFastifyRequest) {requireMfa(req);return { dispute: await this.disputes.disputeDetail(reference) }; }
 
   @Post('refunds/:reference/prepare') @RequirePermissions('ops.refunds.prepare')
   async prepareRefund(@Param('reference') reference: string, @Body(new ZodValidationPipe(PrepareRefund)) body: z.infer<typeof PrepareRefund>, @Req() req: AuthenticatedFastifyRequest) { const p=requirePrincipal(req); return { refund: await this.disputes.prepareRefund({ reference, reviewerUserId:p.userId, note:body.note, requestId:req.id }) }; }

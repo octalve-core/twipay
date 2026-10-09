@@ -40,6 +40,9 @@ export function riskRatePolicy(request: Pick<FastifyRequest, 'method' | 'url'>):
   if (path.startsWith('/v1/auth/mfa/')) {
     return { bucket: 'mfa', max: 8, timeWindowMs: 60_000 };
   }
+  if (path === '/v1/support/cases' || /^\/v1\/support\/cases\/sup_[0-9a-f-]{36}\/replies$/.test(path)) {
+    return { bucket: 'customer-support', max: 8, timeWindowMs: 60_000 };
+  }
   if (path.startsWith('/v1/kyc/')) {
     return { bucket: 'kyc', max: 6, timeWindowMs: 60_000 };
   }

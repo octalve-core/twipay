@@ -391,6 +391,8 @@ model User {
   notifications          Notification[]
   billPurchases          BillPurchase[]
   billCustomerValidations BillCustomerValidation[]
+  supportCases          SupportCase[]
+  supportMessages       SupportMessage[]
   disputes              Dispute[]
   refundRequests        RefundRequest[] @relation("RefundRequester")
   refundReviews         RefundRequest[] @relation("RefundReviewer")
@@ -1286,6 +1288,42 @@ model TicketCheckIn {
 
   @@index([checkedInByUserId, checkedInAt])
   @@map("ticket_check_ins")
+}
+
+
+/** General customer support conversations are separate from monetary disputes. */
+model SupportCase {
+  id            String   @id @default(uuid()) @db.Uuid
+  reference     String   @unique @db.VarChar(100)
+  userId        String   @db.Uuid
+  requestKey    String   @unique @db.Uuid
+  category      String   @db.VarChar(32)
+  subjectCiphertext String @db.Text
+  status        String   @default("WAITING_SUPPORT") @db.VarChar(24)
+  createdAt     DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt     DateTime @updatedAt @db.Timestamptz(6)
+  user          User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+  messages      SupportMessage[]
+
+  @@index([userId, updatedAt])
+  @@index([status, updatedAt])
+  @@map("support_cases")
+}
+
+/** Append-only encrypted message. No raw attachments or identity-document uploads. */
+model SupportMessage {
+  id           String   @id @default(uuid()) @db.Uuid
+  caseId       String   @db.Uuid
+  authorUserId String   @db.Uuid
+  authorType   String   @db.VarChar(12)
+  requestKey   String   @unique @db.Uuid
+  bodyCiphertext String @db.Text
+  createdAt    DateTime @default(now()) @db.Timestamptz(6)
+  supportCase  SupportCase @relation(fields: [caseId], references: [id], onDelete: Restrict)
+  author       User     @relation(fields: [authorUserId], references: [id], onDelete: Restrict)
+
+  @@index([caseId, createdAt])
+  @@map("support_messages")
 }
 
 model Dispute {
