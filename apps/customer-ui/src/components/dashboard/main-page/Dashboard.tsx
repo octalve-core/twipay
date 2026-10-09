@@ -14,7 +14,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-full">
-        <h1 className="text-[#101928] font-medium md:text-2xl">Good {getTimeOfDay()}, <span className="capitalize">{user?.username}</span>!</h1>
+        <h1 className="text-[#101928] font-medium md:text-2xl">Good {getTimeOfDay()}, <span className="capitalize">{user?.firstname || 'there'}</span>!</h1>
         {user && (user.identityVerificationStatus !== 'VERIFIED' || user.transactionPinStatus !== 'SET') && (
           <section aria-label="Account setup reminders" className="mt-5 flex flex-wrap gap-3">
             {user.identityVerificationStatus !== 'VERIFIED' &&

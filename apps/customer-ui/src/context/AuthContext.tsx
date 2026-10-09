@@ -15,8 +15,8 @@ export type User = {
   lastLoginAt: string | null; fcmTokens: string[]; virtualAccount: unknown | null; createdAt: string; updatedAt: string;
 };
 function toViewUser(value: TwiPayAuthUser): User {
-  return {id:value.id, firstname:value.givenName??"", lastname:value.familyName??"", username:value.givenName??"", email:value.email,
-    authType:"password", avatar:null, phone:"", phoneCode:"", country:"", state:"", gender:"other", dateOfBirth:null,
+  return {id:value.id, firstname:value.givenName??"", lastname:value.familyName??"", username:"", email:value.email,
+    authType:"password", avatar:null, phone:"", phoneCode:"", country:value.countryCode??"", state:value.stateRegion??"", gender:"other", dateOfBirth:null,
     status:value.status === "ACTIVE"?"active":"inactive",refCode:"",referredBy:null,bvnValidated:false,bvnVerified:false,
     emailVerifiedAt:value.emailVerifiedAt??null,phoneVerifiedAt:value.phoneVerifiedAt??null,
     contactVerified:value.contactVerified===true, identityVerificationStatus:value.identityVerificationStatus??'NOT_STARTED',

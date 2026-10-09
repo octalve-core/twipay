@@ -1,7 +1,7 @@
 import api from "./axios";
 import type { TFormData as SignUpFormData } from "@/components/Authentication/SignUpForm";
 
-type Profile = { id: string; email: string; givenName: string | null; familyName: string | null; status: string;
+type Profile = { id: string; email: string; givenName: string | null; familyName: string | null; countryCode?: string | null; stateRegion?: string | null; status: string;
   emailVerifiedAt?: string | null; phoneVerifiedAt?: string | null; contactVerified?: boolean;
   identityVerificationStatus?: 'NOT_STARTED' | 'IN_PROGRESS' | 'VERIFIED'; transactionPinStatus?: 'NOT_AVAILABLE' | 'NOT_SET' | 'SET'; };
 export type TwiPayAuthUser = Profile;
@@ -34,7 +34,7 @@ export const resend2FaOtp = async (_value?: unknown): Promise<any> => unavailabl
 export const verifyEmail = async (code: string) => (await api.post<{verified: boolean}>("/auth/contact/email/confirm", {code})).data;
 export const resendOtpFn = async () => (await api.post<{deliveryStatus: 'DELIVERED' | 'ACCEPTED' | 'PENDING' | 'ALREADY_VERIFIED'}>("/auth/contact/email/resend")).data;
 export const fetchCountries = async (): Promise<any> => unavailable();
-export type TwiPayProfileUpdate = { givenName?: string | null; familyName?: string | null };
+export type TwiPayProfileUpdate = { givenName?: string | null; familyName?: string | null; countryCode?: string | null; stateRegion?: string | null };
 export const updateProfile = async (profile: TwiPayProfileUpdate): Promise<Profile> => {
   const response = await api.patch<{ user: Profile }>("/auth/me", profile);
   return response.data.user;

@@ -9,6 +9,9 @@ export type IdentityVerification = {
   status: IdentityStatus;
   identifierLast4: string;
   providerCode: string;
+  verificationMethods: string[];
+  otpRequested: boolean;
+  expiresAt: string | null;
   createdAt: string;
   updatedAt: string;
 };

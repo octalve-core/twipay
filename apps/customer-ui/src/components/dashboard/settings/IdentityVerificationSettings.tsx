@@ -2,12 +2,14 @@ import { useRef, useState, type FormEvent } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import BackButton from "@/components/Authentication/BackButton";
+import { useAuth } from "@/context/AuthContext";
 import {
   continueIdentityVerification,
   getIdentityVerifications,
   initiateIdentityVerification,
   type IdentityInitiation,
   type IdentityType,
+  type IdentityVerification,
 } from "@/lib/api/kycApi";
 
 const inputClass = "w-full outline-0 bg-white p-4 border border-[#D0D5DD] shadow-[#1018280D] text-[#344054] text-sm rounded-md mt-1 focus:border-[#112929]";
@@ -21,6 +23,7 @@ function providerMethods(value: unknown): string[] {
 }
 
 export default function IdentityVerificationSettings() {
+  const { refreshSession } = useAuth();
   const [type, setType] = useState<IdentityType>("BVN");
   const [identifier, setIdentifier] = useState("");
   const [consent, setConsent] = useState(false);
@@ -39,6 +42,19 @@ export default function IdentityVerificationSettings() {
   function resetKey() { requestKey.current = null; }
   function clearInput() { setIdentifier(""); setConsent(false); resetKey(); }
 
+  function resume(item: IdentityVerification) {
+    // Resumption uses only server-owned status and previously recorded method labels.
+    // A stale/failed/verified result never becomes a new identity check on the client.
+    if (!['AWAITING_CONSENT', 'PENDING'].includes(item.status)) return;
+    const methods = providerMethods(item.verificationMethods);
+    setVerification({verificationId:item.id, type:item.type, status:item.status, verificationMethods:methods});
+    setType(item.type);
+    setOtp('');
+    setMethod(methods[0] ?? '');
+    setStep(item.status === 'AWAITING_CONSENT' && methods.length ? 'method' : item.otpRequested ? 'otp' : 'status');
+    resetKey();
+  }
+
   async function initiate(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (pending || !/^\d{11}$/.test(identifier) || !consent) return;
@@ -55,6 +71,7 @@ export default function IdentityVerificationSettings() {
       } else {
         setStep("status");
       }
+      if (result.status === "VERIFIED") void refreshSession().catch(() => {});
       if (result.status === "PENDING") toast.message("Verification pending; its outcome must be confirmed before account eligibility changes.");
     } catch {
       // Retain the logical attempt's idempotency key for a byte-identical retry.
@@ -64,7 +81,7 @@ export default function IdentityVerificationSettings() {
 
   async function submitMethod(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (pending || !verification || !method) return;
+    if (pending || !verification || !providerMethods(verification.verificationMethods).includes(method)) return;
     setPending(true);
     try {
       const response = await continueIdentityVerification({verificationId: verification.verificationId, action: "REQUEST_OTP", verificationMethod: method, idempotencyKey: idempotencyKey(`request:${verification.verificationId}:${method}`)});
@@ -87,7 +104,7 @@ export default function IdentityVerificationSettings() {
       setVerification({...verification, status: result.status});
       setStep("status");
       void listing.refetch();
-      if (result.status === "VERIFIED") toast.success("Identity verification confirmed");
+      if (result.status === "VERIFIED") { toast.success("Identity verification confirmed"); void refreshSession().catch(() => {}); }
     } catch {
       toast.error("The verification response is uncertain. Check the verification status before submitting another code.");
       setOtp(""); resetKey();
@@ -152,6 +169,7 @@ export default function IdentityVerificationSettings() {
           </div>
         )}
 
+        <p className="text-[#667085] text-xs mt-5">You can return to an in-progress verification below. If provider processing is still pending, refresh the history; a pending result does not mean your identity has been verified.</p>
         <section className="mt-10 border-t border-[#F0F2F5] pt-6">
           <h2 className="font-semibold text-[#344054]">Verification history</h2>
           {listing.isLoading && <p className="text-sm text-[#667085] mt-3">Loading verification history…</p>}
@@ -161,7 +179,11 @@ export default function IdentityVerificationSettings() {
             {listing.data?.map(item => (
               <li key={item.id} className="rounded-lg border border-[#F0F2F5] px-4 py-3 text-sm flex items-center justify-between gap-4">
                 <span className="text-[#344054]">{item.type} ••••{item.identifierLast4}</span>
-                <span className="text-[#667085]" aria-label={`Verification status ${item.status}`}>{item.status}</span>
+                <div className="flex items-center gap-3">
+                  <span className="text-[#667085]" aria-label={`Verification status ${item.status}`}>{item.status.replaceAll('_', ' ')}</span>
+                  {((item.status === 'AWAITING_CONSENT' && providerMethods(item.verificationMethods).length > 0) || (item.status === 'PENDING' && item.otpRequested)) &&
+                    <button type="button" className="text-[#112929] underline" onClick={() => resume(item)}>Continue</button>}
+                </div>
               </li>
             ))}
           </ul>
