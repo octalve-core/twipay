@@ -8,15 +8,15 @@
     "stylesheet": "src/index.css"
   },
   "colors": {
-    "#112929": 500,
-    "#344054": 394,
-    "#667085": 312,
-    "#D0D5DD": 194,
+    "#112929": 507,
+    "#344054": 401,
+    "#667085": 313,
+    "#D0D5DD": 195,
     "#717171": 143,
     "#101828": 78,
     "#475467": 78,
     "#464E60": 76,
-    "#727884": 29,
+    "#727884": 32,
     "#1018280D": 24,
     "#F0F2F5": 23,
     "#FFFFFF": 20,
@@ -528,8 +528,8 @@
   },
   "counts": {
     "reactFiles": 273,
-    "sourceFiles": 338,
-    "totalSrcFiles": 478
+    "sourceFiles": 339,
+    "totalSrcFiles": 479
   },
   "keyFiles": {
     "dashboardLayout": "src/routes/layout/DashboardLayout.tsx",

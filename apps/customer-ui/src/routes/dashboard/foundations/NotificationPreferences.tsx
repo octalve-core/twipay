@@ -3,6 +3,7 @@ export default function NotificationPreferences(){
  return <FoundationPage title="Notification preferences" description="Choose how you would like to hear from TwiPay.">
   <FoundationPanel title="Your messages" description="Recent messages are available in your notification history.">
    <FoundationLink to="/dashboard/notifications" title="Notification history" description="View updates sent to your account."/>
+   <FoundationLink to="/dashboard/settings/support-centre" title="Support replies" description="Read replies to your support requests in your secure conversation history."/>
    <FoundationUnavailable title="Notification preferences" description="Email, text-message and in-app preferences will be available here when they can be saved securely."/>
   </FoundationPanel>
  </FoundationPage>;
