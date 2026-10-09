@@ -49,7 +49,7 @@ test('existing customer routes and financial feature guards remain in place',()=
  assert.match(appRouter,/isDeferredOrExcludedRoute/);
  assert.match(appRouter,/InactiveAuthGuard/);
  assert.match(appRouter,/DashboardLayout/);
- assert.equal(inventory.routes.paths.length,59);
+ assert.equal(inventory.routes.paths.length,65);
 });
 test('existing interaction controls reused rather than replaced',()=>{
  assert.ok(inventory.components.ui.some(x=>x.endsWith('/dialog.tsx')));

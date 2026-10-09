@@ -28,6 +28,12 @@ import ResetPassword from "./routes/auth-pages/ResetPassword";
 import SignUp from "./routes/auth-pages/SignUp";
 import Login from "./routes/auth-pages/LogIn";
 
+import AccountSecurityOverview from "./routes/dashboard/foundations/AccountSecurityOverview";
+import SavedBeneficiaries from "./routes/dashboard/foundations/SavedBeneficiaries";
+import NotificationPreferences from "./routes/dashboard/foundations/NotificationPreferences";
+import SupportCentre from "./routes/dashboard/foundations/SupportCentre";
+import MyTickets from "./routes/dashboard/foundations/MyTickets";
+import OrganizerOverview from "./routes/dashboard/foundations/OrganizerOverview";
 import DashboardLayout from "./routes/layout/DashboardLayout";
 import Services from "./routes/dashboard/Services";
 import Dashboard from "./components/dashboard/main-page/Dashboard";
@@ -306,6 +312,30 @@ function App() {
         {
           path: "settings/faqs",
           element: <Faqs />
+        },
+        {
+          path: "settings/security-overview",
+          element: <AccountSecurityOverview />
+        },
+        {
+          path: "settings/beneficiaries",
+          element: <SavedBeneficiaries />
+        },
+        {
+          path: "settings/notification-preferences",
+          element: <NotificationPreferences />
+        },
+        {
+          path: "settings/support-centre",
+          element: <SupportCentre />
+        },
+        {
+          path: "my-tickets",
+          element: <MyTickets />
+        },
+        {
+          path: "organizer",
+          element: <OrganizerOverview />
         },
         {
           path: "virtual-card",
