@@ -10,9 +10,11 @@ import { ComplianceService } from '../application/compliance.service.js';
 import { OrganizerPayoutService } from '../application/organizer-payout.service.js';
 import { ProviderOperationsService } from '../application/provider-operations.service.js';
 import { ReportsService } from '../application/reports.service.js';
+import { FinancialExceptionService } from '../application/financial-exception.service.js';
 
 const Reason = z.object({ reason: z.string().trim().min(5).max(500) }).strict();
 const PrepareRefund = z.object({ note: z.string().trim().min(5).max(2000) }).strict();
+const ExceptionReview = z.object({ note: z.string().trim().min(20).max(1200) }).strict();
 const OfferControl = z.object({ active: z.boolean().optional(), priority: z.number().int().min(-100).max(100).optional(), estimatedCostMinor: z.string().regex(/^[1-9]\d{0,17}$/).nullable().optional(), reason: z.string().trim().min(5).max(500) }).strict().refine((v) => v.active !== undefined || v.priority !== undefined || v.estimatedCostMinor !== undefined, 'at least one control must change');
 const Mapping = z.object({ canonicalProductId: z.uuid(), reason: z.string().trim().min(5).max(500), evidence: z.object({ source: z.string().trim().min(3).max(1000), verificationNote: z.string().trim().min(10).max(2000), verifiedProductName: z.string().trim().min(2).max(180) }).strict() }).strict();
 
@@ -20,7 +22,7 @@ const Mapping = z.object({ canonicalProductId: z.uuid(), reason: z.string().trim
 @UseGuards(SessionAuthGuard, PermissionGuard)
 @Controller('operations')
 export class OperationsController {
-  constructor(private readonly disputes: DisputeRefundService, private readonly payouts: OrganizerPayoutService, private readonly providers: ProviderOperationsService, private readonly reports: ReportsService, private readonly audit: AuditService, private readonly compliance: ComplianceService) {}
+  constructor(private readonly disputes: DisputeRefundService, private readonly payouts: OrganizerPayoutService, private readonly providers: ProviderOperationsService, private readonly reports: ReportsService, private readonly audit: AuditService, private readonly compliance: ComplianceService, private readonly exceptions: FinancialExceptionService) {}
 
   @Get('dashboard') @RequirePermissions('ops.dashboard.read') async dashboard() { return this.reports.dashboard(); }
   @Get('compliance') @RequirePermissions('ops.compliance.read') async complianceSnapshot() { return this.compliance.snapshot(); }
@@ -44,6 +46,25 @@ export class OperationsController {
   @Post('payouts/:reference/approve') @RequirePermissions('ops.payouts.approve')
   async approvePayout(@Param('reference') reference:string,@Req() req:AuthenticatedFastifyRequest){requireMfa(req);const p=requirePrincipal(req);return {payout:await this.payouts.approveAndSubmit({reference,checkerUserId:p.userId,sessionId:p.sessionId,mfaSatisfied:p.mfaSatisfied,requestId:req.id})};}
   @Post('payouts/:reference/reconcile') @RequirePermissions('ops.payouts.prepare') async reconcile(@Param('reference') reference:string,@Req() req:AuthenticatedFastifyRequest){const p=requirePrincipal(req);return {payout:await this.payouts.reconcile(reference,p.userId,req.id)};}
+
+  @Get('financial-exceptions') @RequirePermissions('ops.reconciliation.read')
+  async financialExceptions() { return this.exceptions.queue(); }
+
+  @Post('financial-exceptions/:caseId/prepare') @RequirePermissions('ops.reconciliation.prepare')
+  async prepareFinancialException(@Param('caseId') caseId: string,
+    @Body(new ZodValidationPipe(ExceptionReview)) body: z.infer<typeof ExceptionReview>,
+    @Req() req: AuthenticatedFastifyRequest) {
+    requireMfa(req); const p = requirePrincipal(req);
+    return { review: await this.exceptions.prepare({ caseId, actorUserId: p.userId, sessionId: p.sessionId,
+      note: body.note, requestId: req.id }) };
+  }
+
+  @Post('financial-exceptions/:caseId/close-verified-status') @RequirePermissions('ops.reconciliation.approve')
+  async closeFinancialException(@Param('caseId') caseId: string, @Req() req: AuthenticatedFastifyRequest) {
+    requireMfa(req); const p = requirePrincipal(req);
+    return { review: await this.exceptions.closeVerifiedStatusCase({ caseId, actorUserId: p.userId,
+      sessionId: p.sessionId, requestId: req.id }) };
+  }
 
   @Get('providers') @RequirePermissions('ops.dashboard.read') async providerSnapshot(){return this.providers.snapshot();}
   @Patch('providers/offers/:offerId') @RequirePermissions('ops.providers.manage')

@@ -992,6 +992,11 @@ model ReconciliationCase {
   summary                String                   @db.VarChar(255)
   evidence               Json?
   resolution             Json?
+  reviewPreparedByUserId String?                  @db.Uuid
+  reviewPreparedAt       DateTime?                @db.Timestamptz(6)
+  reviewNote             String?                  @db.VarChar(1200)
+  reviewCheckedByUserId  String?                  @db.Uuid
+  reviewCheckedAt        DateTime?                @db.Timestamptz(6)
   createdAt              DateTime                 @default(now()) @db.Timestamptz(6)
   resolvedAt             DateTime?                @db.Timestamptz(6)
   financialTransaction   FinancialTransaction?    @relation(fields: [financialTransactionId], references: [id], onDelete: Restrict)
