@@ -69,10 +69,10 @@ test('MFA challenge route cannot display without a pending authenticated challen
   assert.match(app,/element: <MfaChallengeRoute><TwoFAOtp \/><\/MfaChallengeRoute>/);
   const guard=read('apps/customer-ui/src/routes/layout/MfaChallengeRoute.tsx');
   assert.match(guard,/if \(!user\) return <Navigate to="\/auth\/login" replace \/>/);
-  assert.match(guard,/if \(!mfaRequired\) return <Navigate to="\/dashboard" replace \/>/);
+  assert.match(guard,/if \(!mfaRequired\) return <Navigate to=\{user.contactVerified \? "\/dashboard" : "\/auth\/verify-email"\} replace \/>/);
   for(const path of ['apps/customer-ui/src/routes/auth-pages/LogIn.tsx','apps/customer-ui/src/routes/auth-pages/SignUp.tsx']){
     const auth=read(path);
-    assert.match(auth,/mfaRequired \? "\/auth\/two-factor-authentication" : "\/dashboard"/);
+    assert.match(auth,/mfaRequired \? "\/auth\/two-factor-authentication" : user.contactVerified \? "\/dashboard" : "\/auth\/verify-email"/);
     assert.match(auth,/if \(loading\)/);
   }
 });

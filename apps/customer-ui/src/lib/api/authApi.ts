@@ -1,12 +1,14 @@
 import api from "./axios";
 import type { TFormData as SignUpFormData } from "@/components/Authentication/SignUpForm";
 
-type Profile = { id: string; email: string; givenName: string | null; familyName: string | null; status: string };
+type Profile = { id: string; email: string; givenName: string | null; familyName: string | null; status: string;
+  emailVerifiedAt?: string | null; phoneVerifiedAt?: string | null; contactVerified?: boolean;
+  identityVerificationStatus?: 'NOT_STARTED' | 'IN_PROGRESS' | 'VERIFIED'; transactionPinStatus?: 'NOT_AVAILABLE' | 'NOT_SET' | 'SET'; };
 export type TwiPayAuthUser = Profile;
 
 export const SignUpUser = async (payload: SignUpFormData) => {
   if (payload.referralCode?.trim()) throw new Error("Referral enrollment is not yet available");
-  const response = await api.post<{user: Profile; csrfToken: string}>("/auth/register", {
+  const response = await api.post<{user: Profile; csrfToken: string; verificationDelivery: "PENDING" | "ACCEPTED" | "DELIVERED"}>("/auth/register", {
     email: payload.email, password: payload.password, givenName: payload.firstname, familyName: payload.lastname,
   });
   return response.data;
@@ -25,8 +27,8 @@ export const verify2FaOtp = async ({otp}: {otp: string}) => (await api.post("/au
 function unavailable(): never { throw new Error("This account workflow is not yet integrated with TwiPay"); }
 export const SignInWithGoogle = async (_value?: unknown): Promise<any> => unavailable();
 export const resend2FaOtp = async (_value?: unknown): Promise<any> => unavailable();
-export const verifyEmail = async (_value?: unknown): Promise<any> => unavailable();
-export const resendOtpFn = async (_value?: unknown): Promise<any> => unavailable();
+export const verifyEmail = async (code: string) => (await api.post<{verified: boolean}>("/auth/contact/email/confirm", {code})).data;
+export const resendOtpFn = async () => (await api.post<{deliveryStatus: 'DELIVERED' | 'ACCEPTED' | 'PENDING' | 'ALREADY_VERIFIED'}>("/auth/contact/email/resend")).data;
 export const fetchCountries = async (): Promise<any> => unavailable();
 export type TwiPayProfileUpdate = { givenName?: string | null; familyName?: string | null };
 export const updateProfile = async (profile: TwiPayProfileUpdate): Promise<Profile> => {

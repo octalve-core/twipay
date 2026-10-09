@@ -9,6 +9,7 @@ export type User = {
   gender: "male" | "female" | "other"; dateOfBirth: string | null;
   status: "active" | "inactive" | "suspended"; refCode: string; referredBy: string | null;
   bvnValidated: boolean; bvnVerified: boolean; emailVerifiedAt: string | null; phoneVerifiedAt: string | null;
+  contactVerified: boolean; identityVerificationStatus: 'NOT_STARTED' | 'IN_PROGRESS' | 'VERIFIED'; transactionPinStatus: 'NOT_AVAILABLE' | 'NOT_SET' | 'SET';
   twofactorEnabled: boolean; twoFactorEnabledAt: string | null;
   loginBiometricEnabled: boolean; transactionBiometricEnabled: boolean; pinActivatedAt: string | null;
   lastLoginAt: string | null; fcmTokens: string[]; virtualAccount: unknown | null; createdAt: string; updatedAt: string;
@@ -17,7 +18,9 @@ function toViewUser(value: TwiPayAuthUser): User {
   return {id:value.id, firstname:value.givenName??"", lastname:value.familyName??"", username:value.givenName??"", email:value.email,
     authType:"password", avatar:null, phone:"", phoneCode:"", country:"", state:"", gender:"other", dateOfBirth:null,
     status:value.status === "ACTIVE"?"active":"inactive",refCode:"",referredBy:null,bvnValidated:false,bvnVerified:false,
-    emailVerifiedAt:null,phoneVerifiedAt:null,twofactorEnabled:false,twoFactorEnabledAt:null,loginBiometricEnabled:false,
+    emailVerifiedAt:value.emailVerifiedAt??null,phoneVerifiedAt:value.phoneVerifiedAt??null,
+    contactVerified:value.contactVerified===true, identityVerificationStatus:value.identityVerificationStatus??'NOT_STARTED',
+    transactionPinStatus:value.transactionPinStatus??'NOT_AVAILABLE',twofactorEnabled:false,twoFactorEnabledAt:null,loginBiometricEnabled:false,
     transactionBiometricEnabled:false,pinActivatedAt:null,lastLoginAt:null,fcmTokens:[],virtualAccount:null,createdAt:"",updatedAt:""};
 }
 type AuthValue = {

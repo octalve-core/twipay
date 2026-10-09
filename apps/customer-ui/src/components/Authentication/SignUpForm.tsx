@@ -31,13 +31,13 @@ const SignUpForm = () => {
 
     const {mutate, isPending} = useMutation({
         mutationFn: SignUpUser,
-        onSuccess: async () => {
+        onSuccess: async (result) => {
             try {
                 // Registration sets a server-side session; the UI must verify it before navigation.
                 await refreshSession();
                 reset();
-                toast.success("Welcome to TwiPay! Your account is ready.");
-                navigate("/dashboard");
+                toast.success("Welcome to TwiPay. Verify your email to continue.");
+                navigate("/auth/verify-email", {replace:true, state:{verificationDelivery:result.verificationDelivery}});
             } catch {
                 toast.error("Your account was created. Please sign in to continue.");
                 navigate("/auth/login");

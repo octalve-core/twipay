@@ -11,7 +11,7 @@ import { useState } from "react"
 import { useMutation } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { useAuth } from "@/context/AuthContext"
-import { GetMfaStatus, LogInUser } from "@/lib/api/authApi"
+import { GetMfaStatus, LogInUser, getCurrentSession } from "@/lib/api/authApi"
 import { AxiosError } from "axios"
 // import GoogleLoginButton from "./GoogleLoginButton"
 
@@ -29,9 +29,12 @@ const LogInForm = () => {
             try {
                 await refreshSession();
                 const status = await GetMfaStatus();
+                const session = await getCurrentSession();
                 reset();
                 if (status.mfa.enabled) {
                     navigate("/auth/two-factor-authentication");
+                } else if (!session.user.contactVerified) {
+                    navigate("/auth/verify-email", {replace:true});
                 } else {
                     toast.success("Welcome back!");
                     navigate("/dashboard");

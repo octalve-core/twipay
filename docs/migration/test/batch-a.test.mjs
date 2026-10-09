@@ -94,10 +94,11 @@ test('logout is a protected mutation and must obtain a real session CSRF token',
  assert.match(logout,/api\.post<\{ok: boolean\}>\("\/auth\/logout"\)/);
 });
 
-test('registration verifies server session before successful dashboard navigation', () => {
+test('registration verifies server session before routing to contact verification, not dashboard', () => {
  const source=text('src/components/Authentication/SignUpForm.tsx');
- const scope=source.slice(source.indexOf('onSuccess: async () => {'), source.indexOf('onError:'));
- assert.ok(scope.indexOf('await refreshSession();') < scope.indexOf('navigate("/dashboard")'));
+ const scope=source.slice(source.indexOf('onSuccess: async (result) => {'), source.indexOf('onError:'));
+ assert.ok(scope.indexOf('await refreshSession();') < scope.indexOf('navigate("/auth/verify-email"'));
+ assert.doesNotMatch(scope,/navigate\("\/dashboard"/);
  assert.match(scope,/catch \{/);
  assert.match(scope,/navigate\("\/auth\/login"\)/);
 });

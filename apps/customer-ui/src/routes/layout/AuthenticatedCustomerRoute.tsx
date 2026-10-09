@@ -8,5 +8,6 @@ export default function AuthenticatedCustomerRoute({children}: {children: ReactN
   if (loading) return <main role="status" className="min-h-screen grid place-items-center bg-[#F9FAFB] text-[#667085]">Checking your session…</main>;
   if (!user) return <Navigate to="/auth/login" replace />;
   if (mfaRequired) return <Navigate to="/auth/two-factor-authentication" replace />;
+  if (!user.contactVerified) return <Navigate to="/auth/verify-email" replace />;
   return <>{children}</>;
 }

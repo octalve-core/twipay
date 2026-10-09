@@ -6,7 +6,7 @@ import { FormEvent, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { verify2FaOtp } from "@/lib/api/authApi";
+import { getCurrentSession, verify2FaOtp } from "@/lib/api/authApi";
 import BackButton from "@/components/Authentication/BackButton";
 import Logo from "@/components/navbar/Logo";
 import AuthLogomark from "@/assets/auth/AuthLogomark.png";
@@ -23,8 +23,9 @@ export default function TwoFAOtp() {
     try {
       await mutateAsync({otp});
       await refreshSession();
+      const session = await getCurrentSession();
       setOtp("");
-      navigate("/dashboard", {replace: true});
+      navigate(session.user.contactVerified ? "/dashboard" : "/auth/verify-email", {replace: true});
     } catch {
       toast.error("Invalid or expired authenticator/recovery code");
     }
