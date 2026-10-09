@@ -10,6 +10,7 @@ import { FinancialTransactionService } from './financial-transaction.service.js'
 import { LedgerService } from './ledger.service.js';
 import { WalletService } from './wallet.service.js';
 import { createFinancialReference } from './reference.js';
+import { resolveDepositDestination } from './virtual-account-credit-destination.js';
 
 function providerOperationStatus(status: NormalizedProviderStatus) {
   return status;
@@ -120,6 +121,8 @@ export class PaymentService {
         transactionReference: reference,
         provider: input.providerCode,
         status: 'UNKNOWN',
+        amountMinor: input.amountMinor.toString(),
+        currency: input.currency,
         code: 'PROVIDER_OUTCOME_UNKNOWN',
       };
       await this.idempotency.complete(recordId, 202, body);
@@ -328,36 +331,42 @@ export class PaymentService {
       return;
     }
 
-    let virtualAccount = credit.accountReference
-      ? await this.prisma.virtualAccount.findFirst({
-          where: { providerCode, accountReference: credit.accountReference, status: 'ACTIVE' },
-        })
-      : null;
-    if (!virtualAccount && credit.accountNumber) {
-      const accountNumberFingerprint = fingerprintSensitiveValue(credit.accountNumber, process.env['PII_FINGERPRINT_KEY']!);
-      virtualAccount = await this.prisma.virtualAccount.findUnique({
-        where: {
-          providerCode_accountNumberFingerprint: { providerCode, accountNumberFingerprint },
-        },
-      });
-    }
-
-    if (!virtualAccount) {
+    // The provider requery establishes settlement, not destination ownership.
+    // Both supplied account identifiers must independently resolve to the same
+    // ACTIVE NGN account; unknown or contradictory identifiers require review.
+    const accountFingerprint = credit.accountNumber
+      ? fingerprintSensitiveValue(credit.accountNumber, process.env['PII_FINGERPRINT_KEY']!) : undefined;
+    const byReference = credit.accountReference
+      ? await this.prisma.virtualAccount.findUnique({
+          where: { providerCode_accountReference: { providerCode, accountReference: credit.accountReference } },
+        }) : null;
+    const byNumber = accountFingerprint
+      ? await this.prisma.virtualAccount.findUnique({
+          where: { providerCode_accountNumberFingerprint: { providerCode, accountNumberFingerprint: accountFingerprint } },
+        }) : null;
+    const destination = resolveDepositDestination({
+      providerCode,
+      ...(credit.accountReference ? { accountReference: credit.accountReference } : {}),
+      ...(accountFingerprint ? { accountNumberFingerprint: accountFingerprint } : {}),
+      byReference, byNumber,
+    });
+    if (!destination.ok) {
       await this.prisma.reconciliationCase.create({
         data: {
-          type: 'MISSING_INTERNAL',
+          type: destination.code === 'ACCOUNT_IDENTIFIERS_CONFLICT' ? 'PROVIDER_STATUS_MISMATCH' : 'MISSING_INTERNAL',
           status: 'NEEDS_REVIEW',
-          summary: 'Provider reported a virtual-account deposit for an account TwiPay could not map',
+          summary: `Virtual-account deposit destination cannot be credited: ${destination.code}`,
           evidence: {
-            providerCode,
-            collectionReference: credit.collectionReference,
+            providerCode, collectionReference: credit.collectionReference,
             accountReference: credit.accountReference ?? null,
             accountNumberLast4: credit.accountNumber?.slice(-4) ?? null,
+            reason: destination.code,
           },
         },
       });
       return;
     }
+    const virtualAccount = destination.account;
 
     const providerReference = verified.providerReference || credit.providerReference || credit.collectionReference;
     const digest = createHash('sha256')
@@ -391,10 +400,27 @@ export class PaymentService {
         return;
       }
 
-      const wallet = await this.wallets.ensureUserWalletWithTx(tx, virtualAccount!.userId, verifiedCurrency);
+      // Serialize account revocation/reassignment against the credit. A previously
+      // verified destination is not sufficient if it changed before settlement.
+      await tx.$queryRaw`SELECT "id" FROM "virtual_accounts" WHERE "id" = ${virtualAccount.id}::uuid FOR UPDATE`;
+      const lockedAccount = await tx.virtualAccount.findUnique({ where: { id: virtualAccount.id } });
+      if (!lockedAccount || lockedAccount.status !== 'ACTIVE' || lockedAccount.currency !== verifiedCurrency ||
+          lockedAccount.userId !== virtualAccount.userId || lockedAccount.providerCode !== providerCode ||
+          lockedAccount.accountReference !== virtualAccount.accountReference ||
+          lockedAccount.accountNumberFingerprint !== virtualAccount.accountNumberFingerprint) {
+        await tx.reconciliationCase.create({
+          data: {
+            type: 'PROVIDER_STATUS_MISMATCH', status: 'NEEDS_REVIEW',
+            summary: 'Assigned virtual account changed before wallet credit could be posted',
+            evidence: { providerCode, collectionReference: credit.collectionReference },
+          },
+        });
+        return;
+      }
+      const wallet = await this.wallets.ensureUserWalletWithTx(tx, virtualAccount.userId, verifiedCurrency);
       const financial = await this.financial.createWithTx(tx, {
         reference: financialReference,
-        userId: virtualAccount!.userId,
+        userId: virtualAccount.userId,
         type: 'FUNDING',
         currency: verifiedCurrency,
         amountMinor: verifiedAmountMinor,
@@ -405,7 +431,7 @@ export class PaymentService {
 
       const operation = await tx.providerOperation.create({
         data: {
-          userId: virtualAccount!.userId,
+          userId: virtualAccount.userId,
           financialTransactionId: financial.id,
           type: 'COLLECTION',
           providerCode,
