@@ -1,20 +1,10 @@
-import { partnerships } from "@/lib/constants"
-
-const Partnerships = () => {
-  return (
-    <div className="p-[53px] md:p-[60px] text-center md:bg-white">
-      <div className="container">
-          <h2 className="text-[#112929] md:text-xl md:mb-8 font-medium mb-10">In Partnership with the world&apos;s largest companies</h2>
-          <div className="flex flex-col md:flex-row items-center justify-between max-md:gap-8">
-              {
-                  partnerships.map(({id, image, width}) => (
-                      <img style={{ width: `${width}px`}} className="h-12" key={id} src={image} />
-                  ))
-              }
-          </div>
-        </div>
+/** Brand marks from the historical prototype are intentionally not shown as verified partnerships. */
+const Partnerships = () => (
+  <div className="px-5 py-[53px] md:py-[60px] text-center md:bg-white">
+    <div className="container max-w-[768px] mx-auto">
+      <h2 className="text-[#112929] md:text-xl font-medium mb-3">Made for your everyday essentials</h2>
+      <p className="text-[#475467] text-sm md:text-base">Explore your services, follow your transactions and stay in control of your account.</p>
     </div>
-  )
-}
-
-export default Partnerships
+  </div>
+);
+export default Partnerships;

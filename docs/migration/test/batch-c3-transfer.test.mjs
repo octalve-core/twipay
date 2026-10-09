@@ -109,7 +109,7 @@ test('C3 cannot treat a pending or unknown provider response as successful trans
 test('C3 original ErhaPay four-stage withdrawal UI is reused; email transfer stays disabled',()=>{
   const steps=read('apps/customer-ui/src/components/dashboard/withdraw-funds/withdraw-funds-steps.ts');
   for(const id of ['EnterAmount','RecipientDetails','ConfirmFundsWithdrawal','Status']) assert.match(steps,new RegExp(id));
-  assert.match(read('apps/customer-ui/src/routes/dashboard/TransferFunds.tsx'),/not yet integrated/);
+  assert.match(read('apps/customer-ui/src/routes/dashboard/TransferFunds.tsx'),/aren't available right now/);
   const form=read('apps/customer-ui/src/components/dashboard/withdraw-funds/RecipientDetailForm.tsx');
   assert.match(form,/verificationGeneration/);
   assert.doesNotMatch(form,/fetchBankList|addBankAccount|getSavedAccounts/);

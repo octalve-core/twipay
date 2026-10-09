@@ -32,7 +32,7 @@ const AuthButtons = () => {
           {!user ? (
             <>
               <CustomButton href="/auth/login" variant="primary">Log in</CustomButton>
-              <CustomButton href="/auth/signup">SignUp</CustomButton>
+              <CustomButton href="/auth/signup">Sign up</CustomButton>
             </>
           ) : (
             <>

@@ -36,10 +36,10 @@ const SignUpForm = () => {
                 // Registration sets a server-side session; the UI must verify it before navigation.
                 await refreshSession();
                 reset();
-                toast.success("User created successfully!");
+                toast.success("Welcome to TwiPay! Your account is ready.");
                 navigate("/dashboard");
             } catch {
-                toast.error("Account created, but we could not confirm your session. Please sign in.");
+                toast.error("Your account was created. Please sign in to continue.");
                 navigate("/auth/login");
             }
         },
@@ -59,8 +59,8 @@ const SignUpForm = () => {
 
   return (
     <div className="mt-10 w-full">
-        <h2 className="text-4xl text-[#101828] font-medium">Sign up</h2>
-        <p className="mt-3 text-[#475467]">Please enter your details to sign up.</p>
+        <h2 className="text-4xl text-[#101828] font-medium">Get started with TwiPay</h2>
+        <p className="mt-3 text-[#475467]">A few details and you’re on your way.</p>
 
         <div className="flex items-center gap-1 mt-3">
             <p className="text-sm ">Already have an account?</p>
@@ -92,11 +92,6 @@ const SignUpForm = () => {
                     </button>
                 </div>
                 {errors.password && <p id="password-error" role="alert" className="text-red-500 text-sm mt-1">{errors.password.message}</p>}
-            </div>
-            <div className="w-full mt-5">
-                <label className="text-[#344054] text-sm font-medium" htmlFor="referral">Referral code (not yet available)</label>
-                <input id="referral" disabled title="Referrals will be introduced later" {...register("referralCode")} placeholder="Enter a referral code" className="w-full outline-0 bg-white py-2.5 px-3.5 border border-[#D0D5DD] shadow-[#1018280D] placeholder:text-[#667085] rounded-md mt-1.5 focus:border-[#112929] transition" />
-                {errors.referralCode && <p className="text-red-500 text-sm mt-1">{errors.referralCode.message}</p>}
             </div>
             <CustomButton isLoading={isPending} disabled={isPending} className="w-full mt-6 px-2">Create account</CustomButton>
         </form>

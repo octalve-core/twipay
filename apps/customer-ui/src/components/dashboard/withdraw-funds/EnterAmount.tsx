@@ -61,7 +61,7 @@ const EnterAmount = () => {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="w-full mt-14 md:mt-5">
-            {import.meta.env.VITE_TWIPAY_TRANSFER_SANDBOX_ENABLED !== "true" && <p role="status" className="text-sm text-[#717171]">Bank transfers are disabled while sandbox testing and financial safeguards remain unqualified.</p>}
+            {import.meta.env.VITE_TWIPAY_TRANSFER_SANDBOX_ENABLED !== "true" && <p role="status" className="text-sm text-[#717171]">Bank transfers are temporarily unavailable. You can still check your balance and transaction history.</p>}
             <div className="w-full mt-5">
                 <div className="flex items-center justify-between">
                     <label className="text-sm text-[#344054] font-medium" htmlFor="amount">Amount to withdraw</label>

@@ -18,20 +18,18 @@ const ContactUsForm = () => {
     const {
         register,
         control,
-        handleSubmit,
         formState: {errors}
     } = useForm<TFormData>({
         resolver: zodResolver(contactUSFormSchema)
     })
 
-    const onSubmit = (data: TFormData) => {
-        (void 0)
-    }
 
   return (
     <section>
         <div className="container pt-16 pb-16 md:pb-24 grid place-items-center">
-            <form onSubmit={handleSubmit(onSubmit)} className="w-full md:w-[640px] md:px-8">
+            <form onSubmit={event => event.preventDefault()} className="w-full md:w-[640px] md:px-8">
+                <p role="status" className="text-[#667085] text-sm px-3">We can’t receive messages through this form right now. For a question about an existing transaction, sign in and open Support from your account settings.</p>
+                <fieldset disabled className="border-0 p-0 m-0 min-w-0">
                 <img src={ContactUsImg} className="object-cover rounded-md md:w-[490px] md:h-[333px] w-full h-[233px] mx-auto" />
                 <div className="md:p-12 max-md:mt-10">
 
@@ -51,7 +49,7 @@ const ContactUsForm = () => {
                         </div>
                         <div className="w-full mt-6">
                             <label className="text-[#344054] text-sm font-medium" htmlFor="lastname">Email</label>
-                            <input {...register("email")} type="email" placeholder="anna@Dataarena.ng" className="w-full outline-0 bg-white py-3 px-4 border border-[#D0D5DD] shadow-[#1018280D] placeholder:text-[#667085] rounded-md mt-2 focus:border-[#112929] transition" />
+                            <input {...register("email")} type="email" placeholder="Enter your email address" className="w-full outline-0 bg-white py-3 px-4 border border-[#D0D5DD] shadow-[#1018280D] placeholder:text-[#667085] rounded-md mt-2 focus:border-[#112929] transition" />
                             {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
                         </div>
                         <div className="w-full mt-6">
@@ -102,9 +100,10 @@ const ContactUsForm = () => {
                             <input {...register("policy")} type="checkbox" id="terms" className="w-4 h-4 accent-[#112929] cursor-pointer" />
                             <label htmlFor="terms" className="text-[#475467] text-sm font-medium ml-2">You agree to our friendly <Link className='underline hover:font-medium transition' to="/privacy-policy">privacy policy.</Link></label>
                         </div>
-                        <button type='submit' className="rounded-[8px] py-3 px-5 md:px-[18px] transition text-white bg-[#112929] hover:opacity-75 mt-8 w-full cursor-pointer">Send message</button>
+                        <button type='submit' className="rounded-[8px] py-3 px-5 md:px-[18px] transition text-white bg-[#112929] hover:opacity-75 mt-8 w-full cursor-pointer" disabled>Messaging temporarily unavailable</button>
                     </div>
                 </div>
+                </fieldset>
             </form>
         </div>
     </section>

@@ -74,7 +74,7 @@ const SelectPaymentMethod = () => {
           }
         }}>Start a separate funding attempt</button>
       </div>}
-      {!sandboxEnabled && <p role="status" className="mt-4 text-sm text-[#667085]">Wallet funding will be enabled after sandbox verification. No payments are being accepted.</p>}
+      {!sandboxEnabled && <p role="status" className="mt-4 text-sm text-[#667085]">Adding money is temporarily unavailable. You can still view your wallet and payment history.</p>}
       <CustomButton type="button" isLoading={mutation.isPending} disabled={!sandboxEnabled || mutation.isPending || !paymentMethod}
         onClick={handlePaymentMethod} className="mt-10 md:mt-5 w-full">
         {mutation.isPending ? "Initializing checkout…" : "Proceed - Payment"}

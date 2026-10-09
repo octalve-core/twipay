@@ -33,11 +33,11 @@ const LogInForm = () => {
                 if (status.mfa.enabled) {
                     navigate("/auth/two-factor-authentication");
                 } else {
-                    toast.success("Logged in successfully");
+                    toast.success("Welcome back!");
                     navigate("/dashboard");
                 }
             } catch {
-                toast.error("Unable to establish a verified session");
+                toast.error("We couldn’t finish signing you in. Please try again.");
             }
         },
         onError: (error: AxiosError) => {
@@ -68,8 +68,8 @@ const LogInForm = () => {
     
   return (
     <div className="mt-10 w-full">
-        <h2 className="text-4xl text-[#101828] font-medium">Log in</h2>
-        <p className="mt-3 text-[#475467]">Welcome back! Please enter your details.</p>
+        <h2 className="text-4xl text-[#101828] font-medium">Welcome back</h2>
+        <p className="mt-3 text-[#475467]">Jump right back in and pick up where you left off.</p>
 
         <div className="flex items-center gap-1 mt-3">
             <p className="text-sm ">Don&apos;t have an account?</p>
@@ -93,13 +93,8 @@ const LogInForm = () => {
                 {errors.password && <p id="password-error" role="alert" className="text-red-500 text-sm mt-1">{errors.password.message}</p>}
             </div>
 
-            <div className="my-6 mt-3 flex items-center justify-between">
-                <div className="flex items-center">
-                    <input type="checkbox" id="terms" disabled aria-describedby="remember-unavailable" className="w-4 h-4 accent-[#112929] cursor-not-allowed" />
-                    <label htmlFor="terms" className="text-[#344054] text-sm font-medium ml-2">Remember for 30 days</label>
-                    <span id="remember-unavailable" className="sr-only">Remember device is not yet supported</span>
-                </div>
-                <span className="text-[#667085] text-sm" title="Password recovery is not yet available">Forgot password? (not yet available)</span>
+            <div className="my-6 mt-3 flex justify-end">
+                <Link to="/faqs" className="text-[#112929] text-sm font-medium hover:underline">Need help? Browse FAQs</Link>
             </div>
 
             <CustomButton isLoading={isLoggingIn} disabled={isLoggingIn} className="w-full">Log in</CustomButton>

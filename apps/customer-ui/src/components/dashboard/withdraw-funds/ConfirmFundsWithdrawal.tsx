@@ -26,7 +26,7 @@ const ConfirmFundsWithdrawal=()=>{
       update({step:4,txnResult:response});
     }catch(e){
       setAttemptOpen(hasTransferAttempt());
-      setError(`${e instanceof Error?e.message:'Transfer submission could not be confirmed'}. Check transaction history before retrying. Repeating the same request uses the same idempotency key.`);
+      setError(`${e instanceof Error?e.message:'Transfer submission could not be confirmed'}. Check transaction history before retrying. Please do not start another transfer until its status is confirmed.`);
     }finally{setBusy(false);inFlight.current=false;}
   }
   function resetAttempt(){
@@ -39,10 +39,10 @@ const ConfirmFundsWithdrawal=()=>{
       <h1 className="text-[#112929] font-medium text-2xl">Confirm Withdrawal</h1>
       <p className="text-[#717171] md:mt-2">Confirm the bank transfer details</p>
       <p className="text-[#101828] md:text-xl my-5 md:my-8">You are about to transfer <span className="font-medium">{formatNgnMinorUnits(nairaToMinor(amount))}</span> to <span className="font-medium">{accountName}</span> ({selectedBank?.name}), account ending {bank_account.slice(-4)}.</p>
-      <p className="text-sm text-[#717171] mb-5">Provider: {provider}. Narration: {note}. Fees have not been quoted or qualified; this is a sandbox-only integration. The server independently verifies the beneficiary again before reserving funds.</p>
+      <p className="text-sm text-[#717171] mb-5">Provider: {provider}. Narration: {note}. Your transfer fee is not available to review yet. Please confirm the recipient details and wait until the total charge can be shown.</p>
       <label className="flex items-start gap-2 text-sm mb-5 text-left"><input type="checkbox" checked={ack} onChange={e=>setAck(e.target.checked)}/> I have checked the recipient details and understand that the request may remain processing or require reconciliation.</label>
       {error && <p className="text-red-600 text-sm mb-4" role="alert">{error}</p>}
-      {!sandboxEnabled && <p className="text-sm text-[#717171] mb-4" role="status">Bank transfers are disabled pending security and provider qualification.</p>}
+      {!sandboxEnabled && <p className="text-sm text-[#717171] mb-4" role="status">Bank transfers are temporarily unavailable. Your money has not been sent.</p>}
       <CustomButton disabled={!sandboxEnabled||busy||!ack} onClick={()=>void submit()} className="w-full mx-auto">{busy?'Submitting…':'Confirm bank transfer'}</CustomButton>
       {attemptOpen && <CustomButton disabled={busy} onClick={resetAttempt} variant="primary" className="w-full mt-3">Review previous attempt, then start new</CustomButton>}
     </section>

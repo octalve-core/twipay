@@ -6,10 +6,8 @@ const AboutPage = () => {
           About TwiPay
         </h1>
         <p className="text-[#475467] text-xl">
-          Welcome to TwiPay, your trusted partner in seamless mobile and
-          digital services. We specialize in providing top-notch Virtual Top-Up
-          (VTU) solutions, offering you a fast, secure, and convenient way to
-          recharge airtime, data, and other essential services.{" "}
+          Welcome to TwiPay. We’re building a simpler way to manage your account,
+          stay on top of your transactions and explore the services you use every day.{" "}
         </p>
       </div>
     </section>

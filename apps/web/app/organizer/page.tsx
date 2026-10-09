@@ -136,7 +136,7 @@ export default function OrganizerPage() {
         accountNumber: String(form.get('accountNumber')),
         narration: String(form.get('narration')),
       }, { idempotent: true });
-      setMessage('Settlement payout requested. Finance maker/checker approval is still required.');
+      setMessage('Your payout request has been received and is awaiting approval.');
       event.currentTarget.reset();
       await load();
     } catch (cause: any) {
@@ -181,12 +181,12 @@ export default function OrganizerPage() {
 
         <section className="panel">
           <h2>Your organizers</h2>
-          <div className="list">{data.organizers.map((organizer) => <div className="list-row" key={organizer.id}><div><strong>{organizer.name}</strong><small>{organizer.eventCount} events · {organizer.status}</small></div><div className="align-right"><strong>{formatMinor(organizer.settlement.payableBalanceMinor, 'NGN')}</strong><small>ledger settlement balance</small></div></div>)}</div>
+          <div className="list">{data.organizers.map((organizer) => <div className="list-row" key={organizer.id}><div><strong>{organizer.name}</strong><small>{organizer.eventCount} events · {organizer.status}</small></div><div className="align-right"><strong>{formatMinor(organizer.settlement.payableBalanceMinor, 'NGN')}</strong><small>Available for review</small></div></div>)}</div>
         </section>
 
         <section className="panel">
           <h2>Request settlement payout</h2>
-          <p className="small">Submitting this form never moves money immediately. The request remains subject to TwiPay feature activation, finance maker/checker separation, recent MFA and provider verification.</p>
+          <p className="small">Submitting a payout request does not send money immediately. We will review your request and confirm its status.</p>
           <form className="compact-form" onSubmit={requestPayout}>
             <label>Organizer<select name="organizerId" required>{data.organizers.map((organizer) => <option value={organizer.id} key={organizer.id}>{organizer.name}</option>)}</select></label>
             <label>Provider<select name="provider" defaultValue="monnify"><option value="monnify">Monnify</option><option value="paystack">Paystack</option></select></label>

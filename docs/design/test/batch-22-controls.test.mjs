@@ -62,13 +62,13 @@ test('anonymous login and signup inputs expose accessible error associations', (
 test('preserved sign-up form includes safe browser autocomplete labels', () => {
   const x = source('Authentication/SignUpForm.tsx');
   for (const name of ['given-name','family-name','email','new-password']) assert.ok(x.includes(`autoComplete="${name}"`));
-  assert.match(x, /Referral code \(not yet available\)/);
+  assert.doesNotMatch(x, /Referral code \(not yet available\)/);
+  assert.match(x, /Get started with TwiPay/);
 });
 test('unsupported remember-me function is not misrepresented as active', () => {
   const x = source('Authentication/LogInForm.tsx');
-  assert.match(x, /id="terms" disabled aria-describedby="remember-unavailable"/);
-  assert.match(x, /Remember device is not yet supported/);
-  assert.match(x, /Forgot password\? \(not yet available\)/);
+  assert.doesNotMatch(x, /Remember for 30 days|remember-unavailable/);
+  assert.match(x, /Need help\? Browse FAQs/);
   assert.doesNotMatch(x, /to="\/auth\/reset-password"/);
 });
 test('decorative UI images have empty alt text; navigational icons are described through their link', () => {

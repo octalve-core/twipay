@@ -100,7 +100,7 @@ export default function IdentityVerificationSettings() {
       <div className="w-full max-w-[546px] mx-auto px-4 md:px-0 mt-10 md:mt-0">
         <BackButton href="/dashboard/settings" className="mb-5" />
         <h1 className="text-[#344054] font-bold text-2xl">Identity verification</h1>
-        <p className="text-[#727884] text-sm mt-1">Complete verification securely to establish your TwiPay identity.</p>
+        <p className="text-[#727884] text-sm mt-1">Verify your identity to access more of your TwiPay account.</p>
 
         {step === "new" && (
           <form onSubmit={initiate} className="mt-8 space-y-5">
@@ -114,7 +114,7 @@ export default function IdentityVerificationSettings() {
             <div>
               <label htmlFor="kyc-number" className="text-[#344054] text-sm font-medium">11-digit {type}</label>
               <input id="kyc-number" name="identity-identifier" type="text" inputMode="numeric" autoComplete="off" pattern="[0-9]{11}" maxLength={11} required value={identifier} onChange={event => {setIdentifier(event.target.value); resetKey();}} className={inputClass} />
-              <p className="text-xs text-[#667085] mt-2">Your full identity number is sent only to TwiPay's secure verification API. It is not saved in this browser's storage.</p>
+              <p className="text-xs text-[#667085] mt-2">Your details are used to verify your identity with our verification partner.</p>
             </div>
             <label className="flex gap-3 items-start text-sm text-[#475467]">
               <input type="checkbox" className="mt-1" checked={consent} onChange={event => {setConsent(event.target.checked); resetKey();}} required />
@@ -127,7 +127,7 @@ export default function IdentityVerificationSettings() {
         {step === "method" && verification && (
           <form onSubmit={submitMethod} className="mt-8 space-y-5">
             <h2 className="font-medium text-[#344054]">Provider verification method</h2>
-            <p className="text-sm text-[#667085]">Select a method returned by your identity verification provider.</p>
+            <p className="text-sm text-[#667085]">Choose how you would like to receive your verification code.</p>
             <select aria-label="Provider verification method" value={method} onChange={event => {setMethod(event.target.value); resetKey();}} className={inputClass}>
               {providerMethods(verification.verificationMethods).map(value => <option key={value} value={value}>{value}</option>)}
             </select>

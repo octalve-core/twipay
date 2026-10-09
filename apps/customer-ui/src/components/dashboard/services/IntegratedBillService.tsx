@@ -116,10 +116,10 @@ export default function IntegratedBillService({category}: {category:BillCategory
     <BackButton className="mb-8 mt-2" href="/dashboard/services" />
     <h1 className="font-medium text-2xl text-[#112929]">{titles[category]}</h1>
     <p className="text-[#717171] mt-2 mb-7">{stage==='details'?'Select a service and enter recipient details':stage==='review'?'Review your purchase details':'Purchase status'}</p>
-    {!sandbox && <p role="status" className="rounded-lg bg-[#FFF8E6] border border-[#E8D5A0] text-[#714F00] p-3 text-sm mb-5">Purchases and customer validation are unavailable while the bill-payment sandbox and security checks remain unqualified. Products may be viewed, but no money will be moved.</p>}
+    {!sandbox && <p role="status" className="rounded-lg bg-[#FFF8E6] border border-[#E8D5A0] text-[#714F00] p-3 text-sm mb-5">Bill payments are temporarily unavailable. You can browse services, but purchases are currently paused.</p>}
     {previous && !result && <div role="status" className="rounded-lg border border-[#D0D5DD] p-3 mb-5 text-sm text-[#475467]">
       A previous purchase attempt may still be processing. Do not initiate another payment until you review its status.
-      {!previous.reference && review && attempt.current?.key === previous.idempotencyKey && <button className="block mt-2 underline text-[#112929]" disabled={busy} onClick={()=>void onPurchase()}>Retry the same purchase request (same idempotency key)</button>}
+      {!previous.reference && review && attempt.current?.key === previous.idempotencyKey && <button className="block mt-2 underline text-[#112929]" disabled={busy} onClick={()=>void onPurchase()}>Retry this purchase safely</button>}
       {previous.reference && <button className="block mt-2 underline text-[#112929]" disabled={checking} onClick={()=>void checkPurchaseStatus(previous.reference!)}>Check previous purchase status</button>}
       <button className="block mt-2 underline text-[#112929]" onClick={clearPrevious}>Start a new purchase after reviewing history</button>
     </div>}
@@ -132,7 +132,7 @@ export default function IntegratedBillService({category}: {category:BillCategory
         </select>
       </label>
       {products.isError && <p role="alert" className="text-red-700 text-sm">Service products cannot be loaded. Please try again later.</p>}
-      {products.data?.length===0 && <p role="status" className="text-sm text-[#717171]">No active products have been synced for this service.</p>}
+      {products.data?.length===0 && <p role="status" className="text-sm text-[#717171]">No products are available for this service right now.</p>}
       <label className="text-sm font-medium text-[#344054]">{chosen?.customerIdentifierType?.replace(/_/g,' ') || labels[category]}
         <input className={inputs} type="text" maxLength={64} autoComplete="off" value={identifier} onChange={e=>{setIdentifier(e.target.value);setReview(null);}} placeholder={labels[category]} required />
       </label>

@@ -37,7 +37,7 @@ export default function ConfirmEventsBooking(){
        const order=await getEventOrder(status.reference);
        if(order){const updated={...pending,reference:order.reference};savePending(updated);setPending(updated);update({order,step:4});return;}
      }
-     if(status.status==='NOT_FOUND')setError('This checkout intent has no recorded submission. You may safely retry with the same key and unchanged ticket details.');
+     if(status.status==='NOT_FOUND')setError('We couldn’t find a completed payment request. You can retry this booking with the same details.');
      else if(status.status==='FAILED')setError('This checkout failed or was rejected. Do not retry it as a new payment until you have reviewed your wallet and orders.');
      else setError('This checkout is pending or uncertain. Do not start a different payment. Check the status again later.');
    }catch{setError('Unable to check the existing checkout. Do not start another payment.');}
@@ -56,9 +56,9 @@ export default function ConfirmEventsBooking(){
    <div className="flex justify-between gap-3"><span>Ticket cost</span><span>{formatNgnMinorUnits(quote.data.subtotalMinor)}</span></div>
    <div className="flex justify-between gap-3"><span>Platform fee</span><span>{formatNgnMinorUnits(quote.data.platformFeeMinor)}</span></div>
    <div className="flex justify-between gap-3 font-semibold"><span>Total wallet debit</span><span>{formatNgnMinorUnits(quote.data.totalMinor)}</span></div>
-   <p>Ticket holder: {recipientName}</p><p className="text-xs text-[#667085]">Prices and ticket availability are rechecked by the server before money is reserved.</p>
+   <p>Ticket holder: {recipientName}</p><p className="text-xs text-[#667085]">Your total and ticket availability will be checked again before payment.</p>
  </div>}
- {!sandbox&&<p role="status" className="text-amber-700 text-sm mt-5">Ticket checkout is disabled until financial and ticket-issuance sandbox qualification is complete. Browse events and existing orders without making a payment.</p>}
+ {!sandbox&&<p role="status" className="text-amber-700 text-sm mt-5">Ticket payments are temporarily unavailable. You can still explore events and view your bookings.</p>}
  {pending&&<div className="text-sm mt-5 p-3 rounded-md bg-amber-50 text-amber-900"><p>There is an earlier checkout attempt. Do not submit a different payment without checking its status.</p>{pending.reference&&<p>Reference: {pending.reference}</p>}
   <button type="button" className="underline mt-2 block" onClick={reviewExisting} disabled={busy}>Check original checkout status</button>
   <button type="button" className="underline block mt-2" onClick={newAttempt} disabled={busy}>Review and start a different booking</button></div>}

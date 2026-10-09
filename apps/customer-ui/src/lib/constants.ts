@@ -113,28 +113,28 @@ export const features = [
     image: Bills,
     title: "Seamless bill payment.",
     description:
-      "Our mission is to empower our users with the ability to manage their mobile and digital needs effortlessly. We aim to bridge the gap between technology and convenience, providing a platform that’s not only user-friendly but also reliable and secure. With TwiPay, you're in control, whether you’re at home, at work, or on the go.",
+      "Browse everyday services and check available products in one familiar place. Purchases are offered when the service is available.",
   },
   {
     id: 2,
     image: StaticAccount,
     title: "Get static account.",
     description:
-      "Our mission is to empower our users with the ability to manage their mobile and digital needs effortlessly. We aim to bridge the gap between technology and convenience, providing a platform that’s not only user-friendly but also reliable and secure. With TwiPay, you're in control, whether you’re at home, at work, or on the go.",
+      "See assigned funding-account details and track your account status alongside your TwiPay wallet.",
   },
   {
     id: 3,
     image: Referrals,
     title: "Refer to earn.",
     description:
-      "Our mission is to empower our users with the ability to manage their mobile and digital needs effortlessly. We aim to bridge the gap between technology and convenience, providing a platform that’s not only user-friendly but also reliable and secure. With TwiPay, you're in control, whether you’re at home, at work, or on the go.",
+      "Share what you enjoy with friends when referrals become available.",
   },
   {
     id: 4,
     image: VirtualCard,
     title: "Virtual card that works.",
     description:
-      "Our mission is to empower our users with the ability to manage their mobile and digital needs effortlessly. We aim to bridge the gap between technology and convenience, providing a platform that’s not only user-friendly but also reliable and secure. With TwiPay, you're in control, whether you’re at home, at work, or on the go.",
+      "Keep more ways to pay on your horizon. Card services are not yet available.",
   },
 ];
 
@@ -151,7 +151,7 @@ export const whyUseDataarena = [
     icon: Heart,
     title: "Excellent customer service",
     content:
-      "Our ever available service team are always ready to attend to your needs.",
+      "We’re working to make account information clear and easy to find.",
   },
   {
     id: 3,
@@ -165,14 +165,14 @@ export const whyUseDataarena = [
     icon: Smiley,
     title: "Happy customer reviews",
     content:
-      "Our good reviews from our happy and satisfied customers will always speak for us!",
+      "We want every experience to be one worth recommending.",
   },
   {
     id: 5,
     icon: Flag,
     title: "No red flags",
     content:
-      "Red flags? Shady offers? Hidden charges? We don’t do that here. 100% Plain and secure.",
+      "You should always know what you are reviewing before confirming a payment.",
   },
   {
     id: 6,
@@ -184,42 +184,10 @@ export const whyUseDataarena = [
 ];
 
 export const faqsContent = [
-  {
-    id: 1,
-    question: "Is there a free trial available?",
-    answer:
-      "Yes, you can try us for free for 30 days. If you want, we’ll provide you with a free, personalized 30-minute onboarding call to get you up and running as soon as possible.",
-  },
-  {
-    id: 2,
-    question: "Can I change my plan later?",
-    answer:
-      "Yes, you can try us for free for 30 days. If you want, we’ll provide you with a free, personalized 30-minute onboarding call to get you up and running as soon as possible.",
-  },
-  {
-    id: 3,
-    question: "What is your cancellation policy?",
-    answer:
-      "Yes, you can try us for free for 30 days. If you want, we’ll provide you with a free, personalized 30-minute onboarding call to get you up and running as soon as possible.",
-  },
-  {
-    id: 4,
-    question: "Can other info be added to an invoice?",
-    answer:
-      "Yes, you can try us for free for 30 days. If you want, we’ll provide you with a free, personalized 30-minute onboarding call to get you up and running as soon as possible.",
-  },
-  {
-    id: 5,
-    question: "How does billing work?",
-    answer:
-      "Yes, you can try us for free for 30 days. If you want, we’ll provide you with a free, personalized 30-minute onboarding call to get you up and running as soon as possible.",
-  },
-  {
-    id: 6,
-    question: "How do I change my account email?",
-    answer:
-      "Yes, you can try us for free for 30 days. If you want, we’ll provide you with a free, personalized 30-minute onboarding call to get you up and running as soon as possible.",
-  },
+  {id: 1, question: "Where can I view my transactions?", answer: "Sign in and open Transaction History to review payments and their current status."},
+  {id: 2, question: "How do I check my balance?", answer: "Your dashboard shows your available wallet balance when your account details can be loaded."},
+  {id: 3, question: "What if a payment is still processing?", answer: "Check its status in Transaction History before trying another payment."},
+  {id: 4, question: "How can I verify my identity?", answer: "Open Identity Verification in your account settings and follow the available steps."},
 ];
 
 export const faqCards = [

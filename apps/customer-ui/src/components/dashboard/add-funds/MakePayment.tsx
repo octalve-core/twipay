@@ -42,15 +42,15 @@ const MakePayment = () => {
         </div>
         <div className="w-full bg-[#BBBBBB4D] mt-[15px] mb-[13px] h-[0.6px]"/>
         <h2 className="text-sm text-[#333333AB]">Funding status</h2>
-        <p role="status" className="text-[#31373D] text-sm mt-1">{review ? "Awaiting provider reconciliation" : generatedAccount.status}</p>
+        <p role="status" className="text-[#31373D] text-sm mt-1">{review ? "Checking payment status" : generatedAccount.status}</p>
         <p className="text-[#667085] text-sm mt-4">
-          {review ? "The provider's response is uncertain. Do not start a new payment until this reference is reconciled." :
-            pending ? "Initializing a payment does not credit your wallet. Funds appear only after TwiPay verifies the payment with the provider." :
-            "Check transaction history for the final ledger-backed status."}
+          {review ? "We’re still checking this payment. Please check its status before trying again." :
+            pending ? "Your wallet will be updated once your payment is confirmed." :
+            "View your transaction history for the latest payment status."}
         </p>
         {pending && checkoutUrl && <CustomButton type="button" onClick={() => {window.location.assign(checkoutUrl);}}
           className="w-full mt-8">Continue to secure checkout</CustomButton>}
-        {pending && !checkoutUrl && <p className="text-sm text-red-600 mt-4" role="alert">No verified provider checkout link is available. Do not transfer funds using any account details from an earlier session.</p>}
+        {pending && !checkoutUrl && <p className="text-sm text-red-600 mt-4" role="alert">We can’t open checkout right now. Please don’t send money using old payment details.</p>}
         <CustomButton type="button" onClick={() => navigate(`/dashboard/history/${encodeURIComponent(generatedAccount.transactionReference)}`)}
           className="w-full mt-4">View transaction status</CustomButton>
       </div>

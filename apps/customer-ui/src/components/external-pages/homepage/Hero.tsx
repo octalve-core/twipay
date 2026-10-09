@@ -1,5 +1,4 @@
-import Mobile_app_store_Apple from "../../../assets/main-pages/Mobile app store badge Apple.png" 
-import Mobile_app_store_Google from "../../../assets/main-pages/Mobile app store badge Google.png" 
+import { Link } from "react-router-dom";
 
 import Hero_Image_desktop from "../../../assets/main-pages/hero_image.png"
 import Hero_Image_mobile from "../../../assets/main-pages/hero_image_mobile.png"
@@ -10,18 +9,13 @@ const Hero = () => {
     <section className="bg-[#F5F7FF]">
         <div className="max-sm:container pt-10 md:pt-24 text-center">
             <p className="bg-[#edf0fd] rounded-2xl py-2 px-4 text-[#101101] font-medium text-lg w-fit mx-auto">
-                Our MVP is live now! 🥳 
+                Welcome to TwiPay
             </p>
-            <h1 className="text-4xl md:text-5xl font-bold text-[#112929] mt-12 md:mt-6 max-w-[580px] mx-auto max-sm:px-8">Your number 1 VTU app 
-            for all bill payments</h1>
-            <p className="text-[#475467] text-xl mt-2.5 md:mt-4 max-w-[682px] mx-auto max-sm:px-8">Enjoy amazing bill payment experiences that create more happy in the world.</p>
+            <h1 className="text-4xl md:text-5xl font-bold text-[#112929] mt-12 md:mt-6 max-w-[580px] mx-auto max-sm:px-8">Everyday payments, made simpler</h1>
+            <p className="text-[#475467] text-xl mt-2.5 md:mt-4 max-w-[682px] mx-auto max-sm:px-8">One place to manage your account, explore everyday services and stay on top of your transactions.</p>
             <div className="flex items-center gap-2.5 md:gap-4 w-full justify-center mt-[53px] md:mt-10">
-              <button className="cursor-pointer">
-                <img className="w-[120px] h-[40px] md:w-[193px] md:h-[57px]" src={Mobile_app_store_Apple} />
-              </button>
-              <button className="cursor-pointer">
-                <img className="w-[120px] h-[40px] md:w-[193px] md:h-[57px]" src={Mobile_app_store_Google} />
-              </button>
+              <Link to="/auth/signup" className="bg-[#112929] text-white rounded-lg px-5 md:px-7 py-3 font-medium hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#112929]">Create an account</Link>
+              <Link to="/auth/login" className="border border-[#112929] text-[#112929] rounded-lg px-5 md:px-7 py-3 font-medium hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#112929]">Log in</Link>
             </div>
 
             <div className="mt-[66px] md:mt-[91px] relative">

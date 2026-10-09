@@ -10,7 +10,7 @@ const WhyUse = ({ className }: { className?: string }) => {
             Why Use TwiPay?
           </h2>
           <p className="text-[#475467] md:text-xl">
-            What makes us the number one VTU platform in the country
+            A thoughtful experience for everyday account management
           </p>
         </div>
         <div className="grid grid-cols-3 gap-8">

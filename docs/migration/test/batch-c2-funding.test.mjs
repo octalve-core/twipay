@@ -88,7 +88,7 @@ test('C2 original add-funds steps remain, with no invented bank-account details'
   const step=read('apps/customer-ui/src/components/dashboard/add-funds/MakePayment.tsx');
   const form=read('apps/customer-ui/src/components/dashboard/add-funds/SelectPaymentMethod.tsx');
   assert.match(step,/safeCheckoutUrl/);
-  assert.match(step,/Awaiting provider reconciliation/);
+  assert.match(step,/Checking payment status/);
   assert.doesNotMatch(step,/paymentDetails\.accountNumber/);
   assert.match(form,/VITE_TWIPAY_FUNDING_SANDBOX_ENABLED/);
   assert.match(read('apps/customer-ui/src/App.tsx'),/"\/wallet\/fund\/complete"/);

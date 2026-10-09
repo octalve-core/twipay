@@ -87,7 +87,7 @@ const RecipientDetailForm = () => {
           </Command>
         </PopoverContent>
       </Popover>
-      {bankError && <p role="alert" className="text-red-600 text-sm mt-1">Bank directory is unavailable. Please retry later; manual or guessed bank codes are not accepted.</p>}
+      {bankError && <p role="alert" className="text-red-600 text-sm mt-1">We couldn’t load the bank list. Please try again later.</p>}
     </div>
     <div className="w-full mt-5">
       <label className="text-sm text-[#344054] font-medium" htmlFor="payout-account">Account number</label>
@@ -99,7 +99,7 @@ const RecipientDetailForm = () => {
     </div>
     {verified && <p className="text-sm text-[#039855] mt-3" role="status">Verified beneficiary: <strong>{verified.accountName}</strong>{verified.bankName?` (${verified.bankName})`:''}</p>}
     {error && <p className="text-red-600 text-sm mt-3" role="alert">{error}</p>}
-    {!sandboxEnabled && <p role="status" className="mt-5 text-sm text-[#717171]">Bank payouts remain unavailable until the sandbox and security qualification is complete. No money can be sent from this screen.</p>}
+    {!sandboxEnabled && <p role="status" className="mt-5 text-sm text-[#717171]">Bank transfers are temporarily unavailable. No money will be sent from this page.</p>}
     <CustomButton type="button" disabled={!sandboxEnabled || busy || loadingBanks || !!bankError || !banks.some(bank=>bank.bankCode===bankCode) || !/^\d{10}$/.test(accountNumber)} onClick={()=>void verify()} className="mt-7 w-full">
       {busy?'Verifying account…':'Verify account'}
     </CustomButton>
