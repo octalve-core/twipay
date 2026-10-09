@@ -15,6 +15,7 @@ import { z } from 'zod';
 import { isRecentMfaAssurance } from '@twipay/security';
 import { ZodValidationPipe } from '../../../platform/http/zod-validation.pipe.js';
 import { AuthService } from '../application/auth.service.js';
+import { PasswordSecurityService } from '../application/password-security.service.js';
 import { SessionAuthGuard, requirePrincipal, type AuthenticatedFastifyRequest } from './session-auth.guard.js';
 import { SessionService } from '../application/session.service.js';
 import { ContactVerificationService } from '../application/contact-verification.service.js';
@@ -30,6 +31,10 @@ const RegisterSchema = z
     familyName: z.string().trim().min(1).max(100),
   })
   .strict();
+const PasswordResetRequestSchema = z.object({ email: z.email().max(320) }).strict();
+const PasswordResetCompleteSchema = z.object({ email: z.email().max(320), code: z.string().regex(/^\d{8}$/), newPassword: z.string().min(12).max(128) }).strict();
+const ChangePasswordSchema = z.object({ currentPassword: z.string().min(1).max(128), newPassword: z.string().min(12).max(128) }).strict();
+const RevokeOtherSessionsSchema = z.object({ currentPassword: z.string().min(1).max(128) }).strict();
 const EmailCodeSchema = z.object({ code: z.string().regex(/^\d{6}$/) }).strict();
 const ProfileSchema = z.object({ givenName: z.string().trim().min(1).max(100).nullable().optional(), familyName: z.string().trim().min(1).max(100).nullable().optional() }).strict().refine((value) => value.givenName !== undefined || value.familyName !== undefined, 'at least one field must change');
 const LoginSchema = z
@@ -43,7 +48,44 @@ export class AuthController {
     private readonly auth: AuthService,
     private readonly sessions: SessionService,
     private readonly contacts: ContactVerificationService,
+    private readonly passwordSecurity: PasswordSecurityService,
   ) {}
+
+  @Post('password/reset/request')
+  async requestPasswordReset(@Body(new ZodValidationPipe(PasswordResetRequestSchema)) body: z.infer<typeof PasswordResetRequestSchema>) {
+    return this.passwordSecurity.requestReset(body.email);
+  }
+
+  @Post('password/reset/complete')
+  async completePasswordReset(@Body(new ZodValidationPipe(PasswordResetCompleteSchema)) body: z.infer<typeof PasswordResetCompleteSchema>) {
+    return this.passwordSecurity.completeReset(body.email, body.code, body.newPassword);
+  }
+
+  @Post('password/change')
+  @UseGuards(SessionAuthGuard)
+  async changePassword(
+    @Body(new ZodValidationPipe(ChangePasswordSchema)) body: z.infer<typeof ChangePasswordSchema>,
+    @Req() req: AuthenticatedFastifyRequest,
+    @Res({ passthrough: true }) res: FastifyReply,
+  ) {
+    const result = await this.passwordSecurity.changePassword(requirePrincipal(req).userId, body.currentPassword, body.newPassword);
+    clearSessionCookies(res); // Password change revokes every old session, including this one.
+    return result;
+  }
+
+  @Get('sessions')
+  @UseGuards(SessionAuthGuard)
+  async listSessions(@Req() req: AuthenticatedFastifyRequest) {
+    const principal = requirePrincipal(req);
+    return { sessions: await this.passwordSecurity.listSessions(principal.userId, principal.sessionId) };
+  }
+
+  @Post('sessions/revoke-others')
+  @UseGuards(SessionAuthGuard)
+  async revokeOtherSessions(@Body(new ZodValidationPipe(RevokeOtherSessionsSchema)) body: z.infer<typeof RevokeOtherSessionsSchema>, @Req() req: AuthenticatedFastifyRequest) {
+    const principal = requirePrincipal(req);
+    return this.passwordSecurity.revokeOtherSessions(principal.userId, principal.sessionId, body.currentPassword);
+  }
 
   @Post('register')
   async register(

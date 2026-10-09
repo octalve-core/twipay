@@ -349,6 +349,7 @@ model User {
   oauthIdentities       OAuthIdentity[]
   sessions              Session[]
   contactChallenges     ContactVerificationChallenge[]
+  passwordResetChallenges PasswordResetChallenge[]
   securityEvents        SecurityEvent[]
   mfaCredentials        MfaCredential[]
   roleAssignments       UserRole[]
@@ -399,6 +400,23 @@ model ContactVerificationChallenge {
   @@index([userId, createdAt])
   @@index([expiresAt])
   @@map("contact_verification_challenges")
+}
+
+/** Password recovery codes are never stored in plaintext. A password reset never issues a session. */
+model PasswordResetChallenge {
+  id             String    @id @default(uuid()) @db.Uuid
+  userId         String    @db.Uuid
+  email          String    @db.VarChar(320)
+  codeHash       String    @db.Char(64)
+  failedAttempts Int       @default(0)
+  expiresAt      DateTime  @db.Timestamptz(6)
+  consumedAt     DateTime? @db.Timestamptz(6)
+  createdAt      DateTime  @default(now()) @db.Timestamptz(6)
+  user           User      @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([userId, createdAt])
+  @@index([expiresAt])
+  @@map("password_reset_challenges")
 }
 
 model PasswordCredential {

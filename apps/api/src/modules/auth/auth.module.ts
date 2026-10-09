@@ -11,6 +11,7 @@ import { PermissionGuard } from './presentation/permission.guard.js';
 import { MfaService } from './application/mfa.service.js';
 import { MfaController } from './presentation/mfa.controller.js';
 import { ContactVerificationService } from './application/contact-verification.service.js';
+import { PasswordSecurityService } from './application/password-security.service.js';
 import { ProvidersModule } from '../providers/providers.module.js';
 import { NotificationService } from '../notifications/application/notification.service.js';
 
@@ -20,6 +21,7 @@ import { NotificationService } from '../notifications/application/notification.s
   providers: [
     AuthService,
     ContactVerificationService,
+    PasswordSecurityService,
     NotificationService,
     MfaService,
     PasswordHasher,
