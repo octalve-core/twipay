@@ -67,13 +67,14 @@ test('saved beneficiary page uses server-owned masked records, is default off an
  assert.match(api,/api\.get\('\/transfers\/beneficiaries'\)/);
  assert.doesNotMatch(source,/localStorage|beneficiaries=\[/);
 });
-test('notification preferences remain unavailable while authenticated general support uses a real backend',()=>{
+test('notification preferences use backend while support retains authenticated flow',()=>{
  const notif=read(root+'routes/dashboard/foundations/NotificationPreferences.tsx');
  const support=read(root+'routes/dashboard/foundations/SupportCentre.tsx');
  const client=read(root+'lib/api/dashboard-apis/supportCases.ts');
  const controller=read('apps/api/src/modules/operations/presentation/customer-operations.controller.ts');
- assert.match(notif,/when they can be saved securely/);
- assert.doesNotMatch(notif,/onSubmit|axios|setPreference|sendMessage/);
+ assert.match(notif,/getNotificationPreferences/);
+ assert.match(notif,/saveNotificationPreferences/);
+ assert.match(notif,/Security notices remain enabled/);
  assert.match(support,/openSupportCase/);
  assert.match(support,/replySupportCase/);
  assert.match(support,/dashboard\/settings\/support/);

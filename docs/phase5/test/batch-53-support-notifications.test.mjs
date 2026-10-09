@@ -62,9 +62,9 @@ test('controllers enforce permissions, session and MFA; no finance mutations or 
  assert.match(ops,/@RequirePermissions\('ops.support.read'\)/);assert.match(ops,/@Get\('support\/cases'\)[^\n]*requireMfa\(req\)/);assert.match(ops,/@RequirePermissions\('ops.support.reply'\)/);assert.match(ops,/@Post\('support\/cases\/:reference\/replies'\)[\s\S]{0,250}requireMfa\(req\)/);
  assert.match(migration,/support_message_append_only/);assert.match(migration,/support_case_closed_terminal/);assert.match(svc,/FOR UPDATE/);assert.doesNotMatch(svc,/\.ledger\.|\.refundRequest\.|\.providerOperation\./);assert.doesNotMatch(customer,/upload|multipart|fileStorage/i);
 });
-test('ErhaPay routes call allowlisted protected API and expose no fake inbox state',()=>{
+test('ErhaPay routes call allowlisted protected API and separate safe inbox from delivery history',()=>{
  const axios=read('apps/customer-ui/src/lib/api/axios.ts');const page=read('apps/customer-ui/src/routes/dashboard/foundations/SupportCentre.tsx');const notification=read('apps/customer-ui/src/lib/api/dashboard-apis/notificationsApi.ts');
- assert.match(axios,/support\\\/cases/);assert.match(page,/openSupportCase/);assert.match(page,/replySupportCase/);assert.match(page,/Never include passwords/);assert.doesNotMatch(page,/localStorage|sessionStorage/);assert.match(notification,/delivery records, not read\/unread inbox messages/);
+ assert.match(axios,/support\\\/cases/);assert.match(page,/openSupportCase/);assert.match(page,/replySupportCase/);assert.match(page,/Never include passwords/);assert.doesNotMatch(page,/localStorage|sessionStorage/);assert.match(notification,/getNotificationInbox/);assert.match(notification,/markNotificationRead/);
 });
 
 test('support mutations have dedicated rate limits, not the generic default',()=>{const code=read('apps/api/src/platform/http/risk-rate-limit.ts');assert.match(code,/bucket: 'customer-support', max: 8/);assert.match(code,/path === '\/v1\/support\/cases'/);});
