@@ -2,9 +2,11 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   Headers,
   Param,
+  Patch,
   Post,
   ServiceUnavailableException,
   Query,
@@ -38,6 +40,16 @@ const ProviderSchema = z.enum(['paystack', 'monnify']);
 const FinancialPinSchema = z.string().regex(/^\d{4}$/);
 const CollectionSchema = z.object({ provider: ProviderSchema, amountMinor: MinorAmountSchema, currency: z.literal('NGN'), transactionPin: FinancialPinSchema }).strict();
 const ResolveAccountSchema = z.object({ provider: ProviderSchema, bankCode: z.string().trim().min(2).max(20), accountNumber: z.string().regex(/^\d{10}$/), currency: z.literal('NGN') }).strict();
+const TransferQuoteSchema = z.object({
+  provider: ProviderSchema, amountMinor: MinorAmountSchema, currency: z.literal('NGN'),
+  bankCode: z.string().regex(/^[A-Za-z0-9_-]{2,20}$/), accountNumber: z.string().regex(/^\d{10}$/),
+  narration: z.string().trim().min(3).max(120),
+}).strict();
+const SaveBeneficiarySchema = z.object({
+  provider: ProviderSchema, bankCode: z.string().regex(/^[A-Za-z0-9_-]{2,20}$/),
+  accountNumber: z.string().regex(/^\d{10}$/), nickname: z.string().trim().min(1).max(60).optional(),
+}).strict();
+const RenameBeneficiarySchema = z.object({ nickname: z.string().trim().min(1).max(60).nullable() }).strict();
 const TransferSchema = z.object({
   provider: ProviderSchema,
   amountMinor: MinorAmountSchema,
@@ -45,7 +57,8 @@ const TransferSchema = z.object({
   bankCode: z.string().trim().min(2).max(20),
   accountNumber: z.string().regex(/^\d{10}$/),
   narration: z.string().trim().min(3).max(120),
-  expectedAccountName: z.string().trim().min(2).max(160).optional(),
+  expectedAccountName: z.string().trim().min(2).max(160),
+  quoteToken: z.string().min(80).max(3000),
   transactionPin: FinancialPinSchema,
 }).strict();
 const VirtualAccountSchema = z.discriminatedUnion('provider', [
@@ -211,6 +224,52 @@ export class FinanceController {
     };
   }
 
+  @Get('transfers/beneficiaries')
+  async beneficiaries(@Req() req: AuthenticatedFastifyRequest) {
+    return { beneficiaries: await this.transfers.savedBeneficiaries(requirePrincipal(req).userId) };
+  }
+
+  @Post('transfers/beneficiaries')
+  async saveBeneficiary(
+    @Body(new ZodValidationPipe(SaveBeneficiarySchema)) body: z.infer<typeof SaveBeneficiarySchema>,
+    @Req() req: AuthenticatedFastifyRequest,
+  ) {
+    const principal = requirePrincipal(req);
+    this.assertBankTransferSandbox(body.provider);
+    return { beneficiary: await this.transfers.saveBeneficiary({ userId: principal.userId,
+      providerCode: body.provider, bankCode: body.bankCode, accountNumber: body.accountNumber,
+      ...(body.nickname ? { nickname: body.nickname } : {}) }) };
+  }
+
+  @Patch('transfers/beneficiaries/:id')
+  async renameBeneficiary(@Param('id') id: string,
+    @Body(new ZodValidationPipe(RenameBeneficiarySchema)) body: z.infer<typeof RenameBeneficiarySchema>,
+    @Req() req: AuthenticatedFastifyRequest) {
+    const principal = requirePrincipal(req);
+    if (!z.string().uuid().safeParse(id).success) throw new BadRequestException({ code: 'INVALID_BENEFICIARY_ID' });
+    await this.transfers.renameSavedBeneficiary(principal.userId, id, body.nickname);
+    return { updated: true };
+  }
+
+  @Delete('transfers/beneficiaries/:id')
+  async removeBeneficiary(@Param('id') id: string, @Req() req: AuthenticatedFastifyRequest) {
+    const principal = requirePrincipal(req);
+    if (!z.string().uuid().safeParse(id).success) throw new BadRequestException({ code: 'INVALID_BENEFICIARY_ID' });
+    await this.transfers.removeSavedBeneficiary(principal.userId, id);
+    return { removed: true };
+  }
+
+  @Post('transfers/quote')
+  async quoteTransfer(
+    @Body(new ZodValidationPipe(TransferQuoteSchema)) body: z.infer<typeof TransferQuoteSchema>,
+    @Req() req: AuthenticatedFastifyRequest,
+  ) {
+    const principal = requirePrincipal(req);
+    this.assertBankTransferSandbox(body.provider);
+    return this.transfers.quoteTransfer({ userId: principal.userId, providerCode: body.provider,
+      bankCode: body.bankCode, accountNumber: body.accountNumber, amountMinor: BigInt(body.amountMinor), narration: body.narration });
+  }
+
   @Post('transfers')
   async transfer(
     @Body(new ZodValidationPipe(TransferSchema)) body: z.infer<typeof TransferSchema>,
@@ -220,7 +279,10 @@ export class FinanceController {
   ) {
     const principal = requirePrincipal(req);
     this.assertBankTransferSandbox(body.provider);
-    const authorization = await this.financialAuthorization.authorize({ principal, transactionPin: body.transactionPin, amountMinor: BigInt(body.amountMinor), intent: 'TRANSFER' });
+    const totalDebitMinor = this.transfers.validatedTransferTotal({ token: body.quoteToken, userId: principal.userId,
+      providerCode: body.provider, bankCode: body.bankCode, accountNumber: body.accountNumber, accountName: body.expectedAccountName,
+      amountMinor: BigInt(body.amountMinor), narration: body.narration });
+    const authorization = await this.financialAuthorization.authorize({ principal, transactionPin: body.transactionPin, amountMinor: totalDebitMinor, intent: 'TRANSFER' });
     const result = await this.transfers.createTransfer({
       authorization,
       userId: principal.userId,
@@ -230,8 +292,7 @@ export class FinanceController {
       currency: body.currency,
       bankCode: body.bankCode,
       accountNumber: body.accountNumber,
-      narration: body.narration,
-      ...(body.expectedAccountName ? { expectedAccountName: body.expectedAccountName } : {}),
+      narration: body.narration, expectedAccountName: body.expectedAccountName, quoteToken: body.quoteToken,
     });
     res.status(result.statusCode);
     return result.body;
@@ -332,7 +393,9 @@ export class FinanceController {
     return {
       transactions: transactions.map((transaction) => ({
         reference: transaction.reference, type: transaction.type, status: transaction.status, currency: transaction.currency,
-        amountMinor: transaction.amountMinor.toString(), feeMinor: transaction.feeMinor.toString(), description: transaction.description,
+        amountMinor: transaction.amountMinor.toString(), feeMinor: transaction.feeMinor.toString(),
+        ...(transaction.type === 'TRANSFER' ? { totalDebitMinor: (transaction.amountMinor + transaction.feeMinor).toString() } : {}),
+        description: transaction.description,
         provider: transaction.providerOps[0]?.providerCode ?? null, createdAt: transaction.createdAt, updatedAt: transaction.updatedAt,
       })),
       pagination: {
@@ -358,14 +421,15 @@ export class FinanceController {
         currency: transaction.currency,
         amountMinor: transaction.amountMinor.toString(),
         feeMinor: transaction.feeMinor.toString(),
+        ...(transaction.type === 'TRANSFER' ? { totalDebitMinor: (transaction.amountMinor + transaction.feeMinor).toString() } : {}),
         description: transaction.description,
         createdAt: transaction.createdAt,
         updatedAt: transaction.updatedAt,
         provider: transaction.providerOps[0]?.providerCode ?? null,
         beneficiary: transaction.bankTransfer ? {
-          bankCode: transaction.bankTransfer.beneficiary.bankCode,
-          accountNumber: `******${transaction.bankTransfer.beneficiary.accountNumberLast4}`,
-          accountName: transaction.bankTransfer.beneficiary.accountName,
+          bankCode: transaction.bankTransfer.bankCodeSnapshot ?? transaction.bankTransfer.beneficiary.bankCode,
+          accountNumber: `******${transaction.bankTransfer.accountLast4Snapshot ?? transaction.bankTransfer.beneficiary.accountNumberLast4}`,
+          accountName: transaction.bankTransfer.accountNameSnapshot ?? transaction.bankTransfer.beneficiary.accountName,
         } : null,
       },
     };

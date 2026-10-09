@@ -31,6 +31,10 @@ const EnvSchema = z.object({
   MFA_LOCK_SECONDS: z.coerce.number().int().min(60).max(3600).default(300),
   WALLET_COLLECTIONS_SANDBOX_ENABLED: z.enum(['true', 'false']).default('false'),
   BANK_TRANSFERS_SANDBOX_ENABLED: z.enum(['true', 'false']).default('false'),
+  TRANSFER_FEE_SANDBOX_APPROVED: z.enum(['true', 'false']).default('false'),
+  TRANSFER_FEE_PAYSTACK_MINOR: z.string().regex(/^(0|[1-9]\d{0,15})$/).optional(),
+  TRANSFER_FEE_MONNIFY_MINOR: z.string().regex(/^(0|[1-9]\d{0,15})$/).optional(),
+  TRANSFER_QUOTE_HMAC_KEY: z.string().regex(/^[0-9a-fA-F]{64,}$/).refine(value=>value.length%2===0).optional(),
   VIRTUAL_ACCOUNTS_SANDBOX_ENABLED: z.enum(['true', 'false']).default('false'),
   BILL_PURCHASES_SANDBOX_ENABLED: z.enum(['true', 'false']).default('false'),
   EVENT_CHECKOUT_SANDBOX_ENABLED: z.enum(['true', 'false']).default('false'),
@@ -81,6 +85,18 @@ const EnvSchema = z.object({
 
 export function validateEnvironment(env: NodeJS.ProcessEnv): void {
   const result = EnvSchema.safeParse(env);
+  if (env['TRANSFER_FEE_SANDBOX_APPROVED'] === 'true') {
+    const secret=env['TRANSFER_QUOTE_HMAC_KEY'] ?? '';
+    if (env['NODE_ENV'] === 'production' || env['BANK_TRANSFERS_SANDBOX_ENABLED'] !== 'true' ||
+        !/^[0-9a-fA-F]{64,}$/.test(secret) || secret.length % 2 !== 0 || /^([0-9a-f])\1+$/i.test(secret) ||
+        [env['PII_FINGERPRINT_KEY'],env['SESSION_HASH_PEPPER'],env['TRANSACTION_PIN_PEPPER'],env['DATA_ENCRYPTION_KEY']].some(value=>!!value&&value===secret) ||
+        !/^(0|[1-9]\d{0,15})$/.test(env['TRANSFER_FEE_PAYSTACK_MINOR'] ?? '') ||
+        !/^(0|[1-9]\d{0,15})$/.test(env['TRANSFER_FEE_MONNIFY_MINOR'] ?? '') ||
+        BigInt(env['TRANSFER_FEE_PAYSTACK_MINOR'] ?? '0') > BigInt(Number.MAX_SAFE_INTEGER) ||
+        BigInt(env['TRANSFER_FEE_MONNIFY_MINOR'] ?? '0') > BigInt(Number.MAX_SAFE_INTEGER)) {
+      throw new Error('Approved sandbox transfer fees require explicitly reviewed provider amounts, distinct HMAC key and bank-transfer sandbox; production release is prohibited');
+    }
+  }
   if (env['GOOGLE_OIDC_ENABLED'] === 'true') {
     const parsed = Buffer.from(env['GOOGLE_OIDC_TRANSACTION_KEY'] ?? '', 'base64');
     if (parsed.length !== 32 || !env['GOOGLE_CLIENT_ID'] || !env['GOOGLE_CLIENT_SECRET'] || !env['GOOGLE_REDIRECT_URI']) {

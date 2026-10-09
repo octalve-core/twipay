@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import type { JsonObject, NormalizedProviderStatus, PayoutResult, ResolvedBankAccount } from '@twipay/contracts';
 import { encryptSensitiveString, fingerprintSensitiveValue } from '@twipay/security';
 import { LedgerInvariantError } from '@twipay/ledger';
@@ -10,6 +10,7 @@ import { IdempotencyService } from './idempotency.service.js';
 import { LedgerService } from './ledger.service.js';
 import { createFinancialReference } from './reference.js';
 import { WalletService } from './wallet.service.js';
+import { issueTransferQuote, verifyTransferQuote } from './transfer-quote.js';
 
 
 function maskAccountNumber(accountNumber: string): string {
@@ -49,6 +50,83 @@ export class TransferService {
     return this.providers.get(input.providerCode).resolveBankAccount(input);
   }
 
+  private accountFingerprint(accountNumber: string): string {
+    return fingerprintSensitiveValue(accountNumber, process.env['PII_FINGERPRINT_KEY']!);
+  }
+
+  async quoteTransfer(input: {
+    userId: string; providerCode: EnabledPaymentProvider; bankCode: string; accountNumber: string;
+    amountMinor: bigint; narration: string;
+  }) {
+    const resolved = await this.resolveBankAccount({ providerCode: input.providerCode, bankCode: input.bankCode, accountNumber: input.accountNumber, currency: 'NGN' });
+    if (resolved.accountNumber !== input.accountNumber || resolved.currency !== 'NGN' || resolved.bankCode !== input.bankCode || resolved.providerCode !== input.providerCode || !resolved.accountName?.trim()) {
+      throw new ForbiddenException({ code: 'BENEFICIARY_VERIFICATION_MISMATCH' });
+    }
+    const { token, terms } = issueTransferQuote({
+      userId: input.userId, provider: input.providerCode, bankCode: input.bankCode,
+      accountFingerprint: this.accountFingerprint(input.accountNumber), accountName: resolved.accountName,
+      narration: input.narration, amountMinor: input.amountMinor,
+    });
+    return {
+      quoteToken: token, quoteId: terms.id, expiresAt: new Date(terms.expiresAt).toISOString(),
+      provider: input.providerCode, bankCode: input.bankCode, bankName: resolved.bankName ?? null,
+      accountNumberMasked: maskAccountNumber(input.accountNumber), accountName: resolved.accountName,
+      amountMinor: terms.amountMinor, feeMinor: terms.feeMinor, totalDebitMinor: terms.totalDebitMinor,
+      currency: 'NGN' as const,
+    };
+  }
+
+  async savedBeneficiaries(userId: string) {
+    const rows = await this.prisma.beneficiary.findMany({
+      where: { userId, saved: true, archivedAt: null }, orderBy: { updatedAt: 'desc' }, take: 100,
+      select: { id: true, bankCode: true, accountName: true, accountNumberLast4: true, currency: true, nickname: true, updatedAt: true },
+    });
+    return rows.map(row => ({ ...row, accountNumberMasked: `******${row.accountNumberLast4}`, accountNumberLast4: undefined }));
+  }
+
+  async saveBeneficiary(input: { userId: string; providerCode: EnabledPaymentProvider; bankCode: string; accountNumber: string; nickname?: string }) {
+    const resolved = await this.resolveBankAccount({ providerCode: input.providerCode, bankCode: input.bankCode, accountNumber: input.accountNumber, currency: 'NGN' });
+    if (resolved.accountNumber !== input.accountNumber || resolved.currency !== 'NGN' || resolved.bankCode !== input.bankCode || resolved.providerCode !== input.providerCode || !resolved.accountName?.trim()) {
+      throw new ForbiddenException({ code: 'BENEFICIARY_VERIFICATION_MISMATCH' });
+    }
+    const fingerprint = this.accountFingerprint(input.accountNumber);
+    const record = await this.prisma.beneficiary.upsert({
+      where: { userId_bankCode_accountNumberFingerprint_currency: { userId: input.userId, bankCode: input.bankCode, accountNumberFingerprint: fingerprint, currency: 'NGN' } },
+      create: { userId: input.userId, bankCode: input.bankCode, currency: 'NGN', accountNumberFingerprint: fingerprint,
+        accountNumberCiphertext: encryptSensitiveString(input.accountNumber, process.env['DATA_ENCRYPTION_KEY']!),
+        accountNumberLast4: input.accountNumber.slice(-4), accountName: resolved.accountName, saved: true, nickname: input.nickname ?? null },
+      update: { accountName: resolved.accountName, saved: true, archivedAt: null, nickname: input.nickname ?? null },
+      select: { id: true, bankCode: true, accountName: true, accountNumberLast4: true, nickname: true },
+    });
+    return { id: record.id, bankCode: record.bankCode, accountName: record.accountName,
+      accountNumberMasked: `******${record.accountNumberLast4}`, nickname: record.nickname };
+  }
+
+  async renameSavedBeneficiary(userId: string, id: string, nickname: string | null): Promise<void> {
+    const result = await this.prisma.beneficiary.updateMany({
+      where: { id, userId, saved: true, archivedAt: null }, data: { nickname },
+    });
+    if (result.count !== 1) throw new NotFoundException({ code: 'BENEFICIARY_NOT_FOUND' });
+  }
+
+  async removeSavedBeneficiary(userId: string, id: string): Promise<void> {
+    const result = await this.prisma.beneficiary.updateMany({
+      where: { id, userId, saved: true, archivedAt: null }, data: { saved: false, archivedAt: new Date() },
+    });
+    if (result.count !== 1) throw new NotFoundException({ code: 'BENEFICIARY_NOT_FOUND' });
+    // Retain financial transaction references and encrypted recipient evidence for reconciliation.
+  }
+
+  validatedTransferTotal(input: {
+    token: string; userId: string; providerCode: EnabledPaymentProvider; bankCode: string;
+    accountNumber: string; accountName: string; narration: string; amountMinor: bigint;
+  }): bigint {
+    const quote = verifyTransferQuote({ token: input.token, userId: input.userId, provider: input.providerCode,
+      bankCode: input.bankCode, accountFingerprint: this.accountFingerprint(input.accountNumber),
+      accountName: input.accountName, narration: input.narration, amountMinor: input.amountMinor });
+    return BigInt(quote.totalDebitMinor);
+  }
+
   async createTransfer(input: {
     authorization: FinancialAuthorization;
     userId: string;
@@ -59,10 +137,19 @@ export class TransferService {
     bankCode: string;
     accountNumber: string;
     narration: string;
-    expectedAccountName?: string;
+    expectedAccountName: string;
+    quoteToken: string;
   }): Promise<{ statusCode: number; body: JsonObject }> {
+    const quote = verifyTransferQuote({
+      token: input.quoteToken, userId: input.userId, provider: input.providerCode, bankCode: input.bankCode,
+      accountFingerprint: this.accountFingerprint(input.accountNumber), accountName: input.expectedAccountName ?? '',
+      narration: input.narration, amountMinor: input.amountMinor,
+    });
+    if (input.authorization.amountMinor !== BigInt(quote.totalDebitMinor)) {
+      throw new ForbiddenException({ code: 'TRANSFER_TOTAL_AUTHORIZATION_MISMATCH' });
+    }
     const provider = this.providers.get(input.providerCode);
-    const idem = await this.idempotency.begin({ scope: 'transfer:create', key: input.idempotencyKey, userId: input.userId, request: { userId: input.userId, providerCode: input.providerCode, amountMinor: input.amountMinor, currency: input.currency, bankCode: input.bankCode, accountNumber: input.accountNumber, narration: input.narration, expectedAccountName: input.expectedAccountName } });
+    const idem = await this.idempotency.begin({ scope: 'transfer:create', key: input.idempotencyKey, userId: input.userId, request: { userId: input.userId, providerCode: input.providerCode, amountMinor: input.amountMinor, currency: input.currency, bankCode: input.bankCode, accountNumber: input.accountNumber, narration: input.narration, expectedAccountName: input.expectedAccountName, quoteId: quote.id, feeMinor: quote.feeMinor } });
     if (idem.replay) return { statusCode: idem.replay.status, body: idem.replay.body };
     const recordId = idem.recordId!;
 
@@ -74,7 +161,7 @@ export class TransferService {
       await this.idempotency.fail(recordId, 422, body);
       return { statusCode: 422, body };
     }
-    if (resolved.accountNumber !== input.accountNumber || resolved.currency !== input.currency) {
+    if (resolved.accountNumber !== input.accountNumber || resolved.currency !== input.currency || resolved.bankCode !== input.bankCode || resolved.providerCode !== input.providerCode) {
       const body: JsonObject = { code: 'BENEFICIARY_VERIFICATION_MISMATCH' };
       await this.idempotency.fail(recordId, 422, body);
       return { statusCode: 422, body };
@@ -82,21 +169,25 @@ export class TransferService {
 
     // Customer must authorize the very same beneficiary name that was displayed
     // at the preview step; a changed resolver response cannot silently redirect.
-    if (input.expectedAccountName && resolved.accountName.trim().toLocaleLowerCase('en-NG') !== input.expectedAccountName.trim().toLocaleLowerCase('en-NG')) {
+    if (resolved.accountName.trim().toLocaleLowerCase('en-NG') !== input.expectedAccountName.trim().toLocaleLowerCase('en-NG')) {
       const body: JsonObject = { code: 'BENEFICIARY_NAME_CHANGED' };
       await this.idempotency.fail(recordId, 422, body);
       return { statusCode: 422, body };
     }
 
     const wallet = await this.wallets.ensureUserWallet(input.userId, input.currency);
-    const accountNumberFingerprint = fingerprintSensitiveValue(input.accountNumber, process.env['PII_FINGERPRINT_KEY']!);
+    const accountNumberFingerprint = this.accountFingerprint(input.accountNumber);
     const accountNumberCiphertext = encryptSensitiveString(input.accountNumber, process.env['DATA_ENCRYPTION_KEY']!);
     const accountNumberLast4 = input.accountNumber.slice(-4);
     const reference = createFinancialReference('xfer');
     let prepared: { financial: { id: string }; hold: { id: string }; operation: { id: string } };
     try {
       prepared = await this.prisma.$transaction(async (tx) => {
-        await this.authorization.assertCurrentWithTx(tx, input.authorization, input.amountMinor, { userId: input.userId, intent: 'TRANSFER' });
+        const fresh = verifyTransferQuote({ token: input.quoteToken, userId: input.userId,
+          provider: input.providerCode, bankCode: input.bankCode, accountFingerprint: accountNumberFingerprint,
+          accountName: resolved.accountName, narration: input.narration, amountMinor: input.amountMinor });
+        if (fresh.id !== quote.id) throw new ForbiddenException({ code: 'TRANSFER_QUOTE_CHANGED' });
+        await this.authorization.assertCurrentWithTx(tx, input.authorization, BigInt(quote.totalDebitMinor), { userId: input.userId, intent: 'TRANSFER' });
         const beneficiary = await tx.beneficiary.upsert({
           where: {
             userId_bankCode_accountNumberFingerprint_currency: {
@@ -123,6 +214,7 @@ export class TransferService {
           type: 'TRANSFER',
           currency: input.currency,
           amountMinor: input.amountMinor,
+          feeMinor: BigInt(quote.feeMinor),
           description: input.narration,
         });
         await tx.bankTransfer.create({
@@ -130,6 +222,9 @@ export class TransferService {
             financialTransactionId: financial.id,
             beneficiaryId: beneficiary.id,
             narration: input.narration,
+            approvalQuoteId: quote.id,
+            accountNameSnapshot: resolved.accountName, bankCodeSnapshot: input.bankCode,
+            accountLast4Snapshot: accountNumberLast4,
             status: 'VALIDATED',
           },
         });
@@ -138,7 +233,7 @@ export class TransferService {
           userId: input.userId,
           walletId: wallet.id,
           financialTransactionId: financial.id,
-          amountMinor: input.amountMinor,
+          amountMinor: BigInt(quote.totalDebitMinor),
         });
         await this.financial.transitionWithTx(tx, financial.id, 'FUNDS_RESERVED', 'WALLET_FUNDS_RESERVED');
         const operation = await tx.providerOperation.create({
@@ -157,6 +252,10 @@ export class TransferService {
         const body: JsonObject = { code: 'INSUFFICIENT_AVAILABLE_BALANCE' };
         await this.idempotency.fail(recordId, 409, body);
         return { statusCode: 409, body };
+      }
+      if ((error as { code?: string })?.code === 'P2002') {
+        await this.idempotency.fail(recordId, 409, { code: 'TRANSFER_QUOTE_ALREADY_USED' });
+        throw new ConflictException({ code: 'TRANSFER_QUOTE_ALREADY_USED' });
       }
       throw error;
     }
@@ -188,6 +287,7 @@ export class TransferService {
         provider: input.providerCode,
         status: responseStatus,
         amountMinor: input.amountMinor.toString(),
+        feeMinor: quote.feeMinor, totalDebitMinor: quote.totalDebitMinor,
         currency: input.currency,
         beneficiary: { bankCode: input.bankCode, accountNumber: maskAccountNumber(input.accountNumber), accountName: resolved.accountName },
       };
@@ -345,6 +445,10 @@ export class TransferService {
           normalBalance: 'DEBIT',
           currency: financial.currency as 'NGN',
         });
+        const feeAccount = financial.feeMinor > 0n ? await this.wallets.systemAccountWithTx(tx, {
+          code: 'twipay-transfer-fees', name: 'Transfer fees earned', category: 'REVENUE',
+          normalBalance: 'CREDIT', currency: financial.currency as 'NGN',
+        }) : null;
         const journalReference = `jrn:${financial.reference}:payout`;
         const existingJournal = await tx.journalTransaction.findUnique({ where: { reference: journalReference }, select: { id: true } });
         if (!existingJournal) {
@@ -354,8 +458,9 @@ export class TransferService {
             currency: financial.currency,
             description: 'Verified external bank payout',
             entries: [
-              { accountId: input.walletLedgerAccountId, side: 'DEBIT', amountMinor: financial.amountMinor },
+              { accountId: input.walletLedgerAccountId, side: 'DEBIT', amountMinor: financial.amountMinor + financial.feeMinor },
               { accountId: clearing.id, side: 'CREDIT', amountMinor: financial.amountMinor },
+              ...(feeAccount ? [{ accountId: feeAccount.id, side: 'CREDIT' as const, amountMinor: financial.feeMinor }] : []),
             ],
           });
         }

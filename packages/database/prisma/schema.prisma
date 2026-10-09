@@ -890,6 +890,9 @@ model Beneficiary {
   accountNumberLast4 String @db.VarChar(4)
   keyVersion    Int      @default(1)
   accountName   String   @db.VarChar(180)
+  saved         Boolean  @default(false)
+  nickname      String?  @db.VarChar(60)
+  archivedAt    DateTime? @db.Timestamptz(6)
   createdAt     DateTime @default(now()) @db.Timestamptz(6)
   updatedAt     DateTime @updatedAt @db.Timestamptz(6)
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -920,6 +923,10 @@ model BankTransfer {
   beneficiaryId          String             @db.Uuid
   status                 BankTransferStatus @default(CREATED)
   narration              String             @db.VarChar(160)
+  approvalQuoteId        String?            @unique @db.Uuid
+  accountNameSnapshot    String?            @db.VarChar(180)
+  bankCodeSnapshot       String?            @db.VarChar(40)
+  accountLast4Snapshot   String?            @db.VarChar(4)
   createdAt              DateTime           @default(now()) @db.Timestamptz(6)
   updatedAt              DateTime           @updatedAt @db.Timestamptz(6)
   financialTransaction   FinancialTransaction @relation(fields: [financialTransactionId], references: [id], onDelete: Restrict)
