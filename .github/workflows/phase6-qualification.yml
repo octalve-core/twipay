@@ -1,0 +1,72 @@
+name: Phase 6 isolated qualification (no release)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  disposable-runtime:
+    runs-on: ubuntu-latest
+    timeout-minutes: 115
+    env:
+      CI: 'true'
+      # This workflow intentionally does not accept provider credentials.
+      HIGH_RISK_FEATURES_RELEASE_QUALIFIED: 'false'
+      WALLET_COLLECTIONS_SANDBOX_ENABLED: 'false'
+      BANK_TRANSFERS_SANDBOX_ENABLED: 'false'
+      VIRTUAL_ACCOUNTS_SANDBOX_ENABLED: 'false'
+      BILL_PURCHASES_SANDBOX_ENABLED: 'false'
+      EVENT_CHECKOUT_SANDBOX_ENABLED: 'false'
+      EVENT_TICKET_QR_SANDBOX_ENABLED: 'false'
+      VITE_TWIPAY_FUNDING_SANDBOX_ENABLED: 'false'
+      VITE_TWIPAY_TRANSFER_SANDBOX_ENABLED: 'false'
+      VITE_TWIPAY_VIRTUAL_ACCOUNT_SANDBOX_ENABLED: 'false'
+      VITE_TWIPAY_BILLS_SANDBOX_ENABLED: 'false'
+      VITE_TWIPAY_EVENT_CHECKOUT_SANDBOX_ENABLED: 'false'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.21.0
+      - name: Enable exact package manager
+        run: corepack enable
+      - name: Record non-approval and inspect prerequisites
+        run: |
+          mkdir -p out
+          node scripts/qualification/phase6-release-evidence.mjs > out/phase6-prerequisites.json
+          node scripts/qualification/phase1-3-preflight.mjs --check-lock > out/phase6-lock-check.txt
+      - name: Install from reviewed authentic lockfile only
+        run: pnpm install --frozen-lockfile
+      - name: Re-run Phase 1–5 dependency-light tests on Node 24
+        run: |
+          pnpm test:offline-regression > out/phase6-source-regressions.txt 2>&1 || { cat out/phase6-source-regressions.txt; exit 1; }
+          pnpm test:repo > out/phase6-source-checks.txt 2>&1 || { cat out/phase6-source-checks.txt; exit 1; }
+      - name: Disposable PostgreSQL 18, Redis 8, Prisma, API and concurrency
+        run: |
+          bash scripts/qualification/phase1-3-run-local.sh --phase3-1 > out/phase6-disposable-db.txt 2>&1 || { cat out/phase6-disposable-db.txt; exit 1; }
+      - name: Original ErhaPay live-browser smoke and accessibility
+        run: |
+          pnpm exec playwright install --with-deps chromium
+          bash scripts/qualification/phase1-3-run-local.sh --smoke > out/phase6-browser.txt 2>&1 || { cat out/phase6-browser.txt; exit 1; }
+      - name: Explicit release boundary
+        if: success()
+        run: |
+          printf '%s\n' 'Source and isolated runtime gates passed in this CI job.' \
+             'RELEASE STATUS: NOT APPROVED; provider sandboxes, independent security review and release signoff remain outstanding.' \
+             | tee out/phase6-nonapproval.txt
+      - name: Preserve qualification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase6-disposable-runtime-evidence
+          if-no-files-found: warn
+          path: |
+            out/phase6-*.json
+            out/phase6-*.txt
+            out/phase15-*.log
+            test-results/
+            playwright-report/

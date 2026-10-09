@@ -34,11 +34,15 @@ if [[ -n "$(find apps packages -type f -name '.env*' ! -name '.env.example' ! -p
    [[ -f .env || -f .env.local || -f .env.test || -f .env.development || -f .env.production ]]; then
   echo 'REFUSED: local application .env file detected. Use a clean, isolated qualification checkout.' >&2; exit 2
 fi
-for key in DATABASE_URL REDIS_URL PAYSTACK_SECRET_KEY PAYSTACK_PUBLIC_KEY MONNIFY_API_KEY MONNIFY_SECRET_KEY MONNIFY_CONTRACT_CODE MONNIFY_SOURCE_ACCOUNT_NUMBER VTPASS_API_KEY VTPASS_PUBLIC_KEY VTPASS_SECRET_KEY MONO_SECRET_KEY RESEND_API_KEY TERMII_API_KEY GOOGLE_CLIENT_SECRET TICKET_SIGNING_KEYS_JSON DATA_ENCRYPTION_KEY HIGH_RISK_FEATURES_RELEASE_QUALIFIED; do
+for key in DATABASE_URL REDIS_URL PAYSTACK_SECRET_KEY PAYSTACK_PUBLIC_KEY MONNIFY_API_KEY MONNIFY_SECRET_KEY MONNIFY_CONTRACT_CODE MONNIFY_SOURCE_ACCOUNT_NUMBER VTPASS_API_KEY VTPASS_PUBLIC_KEY VTPASS_SECRET_KEY MONO_SECRET_KEY RESEND_API_KEY TERMII_API_KEY GOOGLE_CLIENT_SECRET TICKET_SIGNING_KEYS_JSON DATA_ENCRYPTION_KEY; do
   if [[ -n "${!key:-}" ]]; then
     echo "REFUSED: $key already exists in the shell. Use a clean terminal with no application/provider credentials." >&2; exit 2
   fi
 done
+# CI may explicitly set this safety switch to false; true or malformed values are forbidden.
+if [[ -n "${HIGH_RISK_FEATURES_RELEASE_QUALIFIED:-}" && "${HIGH_RISK_FEATURES_RELEASE_QUALIFIED}" != false ]]; then
+  echo "REFUSED: HIGH_RISK_FEATURES_RELEASE_QUALIFIED must be false in qualification." >&2; exit 2
+fi
 if ! command -v openssl >/dev/null 2>&1; then echo 'BLOCKED: openssl required to generate random disposable credentials' >&2; exit 2; fi
 export PHASE13_DB_PASSWORD="$(openssl rand -hex 24)"
 export PHASE13_PG_PORT="${PHASE13_PG_PORT:-15435}"
@@ -97,6 +101,7 @@ pnpm --filter @twipay/database prisma:deploy
 pnpm --filter @twipay/database test
 pnpm --filter @twipay/worker test:integration
 pnpm test:repo
+pnpm test:offline-regression
 pnpm test
 pnpm test:phase1
 pnpm test:phase1-3

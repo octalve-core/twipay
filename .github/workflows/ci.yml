@@ -1,6 +1,7 @@
 name: CI
 
 on:
+  workflow_dispatch:
   pull_request:
   push:
     branches: [main, develop]
@@ -78,6 +79,8 @@ jobs:
       - run: pnpm --filter @twipay/database prisma:validate
       - run: pnpm --filter @twipay/database prisma:deploy
       - run: pnpm test:repo
+      - name: Full Phase 1–5 offline source and behavioral regression
+        run: pnpm test:offline-regression
       - run: node scripts/git-history-secret-check.mjs
       - name: Isolated ErhaPay and integration-contract regression tests
         run: |

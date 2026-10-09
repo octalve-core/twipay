@@ -93,7 +93,7 @@ export function qualification(base=root) {
     blocked('Actual ErhaPay browser/visual regressions', 'Run Playwright on real API, worker, React/Vite app and admin; compare approved ErhaPay screenshots.'),
     blocked('Live backend authorization and CSRF concurrency', 'Stable session-bound CSRF source fix is in place; real simultaneous cookie/origin/API requests and revocation races must be executed on PostgreSQL/browser.'),
     blocked('External provider sandbox settlement', 'Do not enable or run without separate approved credential-isolated test plan.'),
-    blocked('OIDC Google sign-in and mandatory transaction PIN', 'Accepted Phase 3/4 requirements; not implemented or qualified yet.'),
+    blocked('OIDC Google sign-in and transaction PIN live qualification', 'Source implementations exist in Phases 3.3–4.1; real Google OIDC, MFA, PIN, HTTP and PostgreSQL authorization tests remain unverified.'),
     blocked('Admin RBAC and deployment security', 'Need real role sessions, request-origin/CSP verification and independent DAST.'),
   ];
   return {generatedAt:new Date().toISOString(),assets,sourceHead:'use git rev-parse HEAD for current recorded commit',releaseQualified:false,gates:all,summary:{pass:all.filter(x=>x.status==='PASS').length,fail:all.filter(x=>x.status==='FAIL').length,blocked:all.filter(x=>x.status==='BLOCKED').length}};
