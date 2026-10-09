@@ -16,21 +16,23 @@ import ChangeTxnPinForm from "./ChangeTxnPinForm";
 import BackButton from "@/components/Authentication/BackButton";
 import { useAuth } from "@/context/AuthContext";
 import SetTxnPinForm from "./SetTxnPinForm";
+import ResetTxnPinForm from "./ResetTxnPinForm";
 
 const ChangeTxnPinModal = () => {
     const [openDialog, setOpenDialog] = useState(false);
     const [disableBackBtn, setDisableBackBtn] = useState(false);
+    const [reset, setReset] = useState(false);
 
     const disableBackButton = (value: boolean) => setDisableBackBtn(value)
 
     const {user} = useAuth();
     
-    const closeModal = () => setOpenDialog(false);
+    const closeModal = () => { setOpenDialog(false); setReset(false); };
 
   return (
         <AlertDialog open={openDialog} onOpenChange={setOpenDialog}>
             <AlertDialogTrigger asChild>
-                <button onClick={() => setOpenDialog(prev => !prev)} className="cursor-pointer flex items-center gap-[9px] py-3.5 pr-3.5 text-[#344054] border-b-[0.1px] border-[#667085]/30 transition">
+                <button type="button" className="cursor-pointer flex items-center gap-[9px] py-3.5 pr-3.5 text-[#344054] border-b-[0.1px] border-[#667085]/30 transition">
                     <LuKey className="size-4" />
                     <span className="text-[13px]">{`${user?.pinActivatedAt ? "Change" : "Set"} transaction pin`}</span>
                     <div className="size-8 rounded-full bg-transparent grid place-items-center ml-auto">
@@ -55,7 +57,10 @@ const ChangeTxnPinModal = () => {
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <div className="mt-6 w-full">
-                        {!user?.pinActivatedAt ? <SetTxnPinForm disableBackButton={disableBackButton} closeModal={closeModal} /> : <ChangeTxnPinForm disableBackButton={disableBackButton} closeModal={closeModal} />}
+                        {!user?.pinActivatedAt ? <SetTxnPinForm disableBackButton={disableBackButton} closeModal={closeModal} /> : reset
+                          ? <ResetTxnPinForm closeModal={closeModal} />
+                          : <ChangeTxnPinForm disableBackButton={disableBackButton} closeModal={closeModal} />}
+                        {user?.pinActivatedAt && <button type="button" onClick={() => setReset(!reset)} className="mt-4 text-sm text-[#112929] underline">{reset ? "I know my current PIN" : "Forgot your transaction PIN?"}</button>}
                     </div>
                 </div>
             </AlertDialogContent>

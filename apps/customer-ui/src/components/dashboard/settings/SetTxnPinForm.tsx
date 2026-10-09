@@ -1,7 +1,7 @@
 import CustomButton from "@/components/CustomButton";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { useAuth } from "@/context/AuthContext";
-import { getUser, setTransactionPin } from "@/lib/api/authApi";
+import { setTransactionPin } from "@/lib/api/authApi";
 import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
@@ -16,21 +16,18 @@ type TSetTxnPinForm = {
 
 const SetTxnPinForm = ({closeModal, disableBackButton}: TSetTxnPinForm) => {
     const [pin, setPin] = useState("");
+    const [password, setPassword] = useState("");
 
-    const {setAuthData, refreshToken, accessToken} = useAuth();
+    const {refreshSession} = useAuth();
     
     const {mutate, isPending: isSettingPin} = useMutation({
         mutationFn: setTransactionPin,
-        onSuccess: async (data) => {
-            try {
-                const updatedUser = await getUser();
-                setAuthData(updatedUser, accessToken as string, refreshToken as string);
-            } catch (err) {
-                (void 0);
-            }
-            setPin("")
+        onSuccess: async () => {
+            await refreshSession().catch(()=>{});
+            setPin("");
+            setPassword("")
             disableBackButton(false)
-            toast.success(data.message)
+            toast.success("Transaction PIN is set. Financial services remain subject to eligibility checks.")
             closeModal()
         },
         onError: (error: AxiosError) => {
@@ -47,7 +44,7 @@ const SetTxnPinForm = ({closeModal, disableBackButton}: TSetTxnPinForm) => {
         e.preventDefault();
 
         disableBackButton(true)
-        mutate(pin)
+        mutate({pin, password})
     }
 
   return (
@@ -70,7 +67,10 @@ const SetTxnPinForm = ({closeModal, disableBackButton}: TSetTxnPinForm) => {
                 </InputOTP>
             </div>
 
-            <CustomButton isLoading={isSettingPin} disabled={pin.length < 4 || isSettingPin } className="w-full mt-6">Comfirm</CustomButton>
+            <label htmlFor="pin-set-password" className="block text-sm text-[#344054] mt-4 mb-1">Confirm your account password</label>
+            <input id="pin-set-password" type="password" autoComplete="current-password" value={password} onChange={e=>setPassword(e.target.value)} required className="w-full rounded-md border border-[#D0D5DD] p-3" />
+            <p className="mt-2 text-xs text-[#667085]">Avoid obvious PINs such as 1234 or repeating digits.</p>
+            <CustomButton isLoading={isSettingPin} disabled={pin.length < 4 || !password || isSettingPin } className="w-full mt-6">Confirm</CustomButton>
         </form>
   )
 }

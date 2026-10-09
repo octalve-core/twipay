@@ -8,12 +8,12 @@
     "stylesheet": "src/index.css"
   },
   "colors": {
-    "#112929": 475,
-    "#344054": 362,
-    "#667085": 288,
-    "#D0D5DD": 173,
+    "#112929": 477,
+    "#344054": 370,
+    "#667085": 290,
+    "#D0D5DD": 181,
     "#717171": 140,
-    "#101828": 79,
+    "#101828": 78,
     "#464E60": 76,
     "#475467": 76,
     "#727884": 29,
@@ -46,6 +46,7 @@
     "#AAAAAA": 5,
     "#FF00000A": 5,
     "#0F973D": 4,
+    "#E9E9E9": 4,
     "#F5F5F5": 4,
     "#F5F7FF": 4,
     "#F9F5FF": 4,
@@ -58,7 +59,6 @@
     "#D42620": 3,
     "#E1E1E1": 3,
     "#E4E7EC": 3,
-    "#E9E9E9": 3,
     "#F2F4F7": 3,
     "#F8F8F8": 3,
     "#000000": 2,
@@ -105,8 +105,8 @@
     "#FFFBFA": 1
   },
   "breakpoints": {
-    "md": 863,
-    "max-md": 237,
+    "md": 858,
+    "max-md": 234,
     "sm": 17,
     "max-sm": 3,
     "lg": 1
@@ -253,7 +253,7 @@
       "src/components/ui/sheet.tsx",
       "src/components/ui/table.tsx"
     ],
-    "dashboardCount": 168,
+    "dashboardCount": 170,
     "domainGroups": [
       "add-funds",
       "affiliate",
@@ -352,7 +352,6 @@
         "src/components/dashboard/withdraw-funds/RecipientDetails.tsx",
         "src/components/design-system/ErhaPagePrimitives.tsx",
         "src/routes/auth-pages/ResetPassword.tsx",
-        "src/routes/auth-pages/SetTransactionPin.tsx",
         "src/routes/auth-pages/TwoFAOtp.tsx",
         "src/routes/auth-pages/UserDetails.tsx",
         "src/routes/auth-pages/VerifyEmail.tsx",
@@ -449,6 +448,8 @@
         "src/components/dashboard/settings/ChangeTxnPinForm.tsx",
         "src/components/dashboard/settings/DeactivateAccount.tsx",
         "src/components/dashboard/settings/LogOutAccount.tsx",
+        "src/components/dashboard/settings/PasswordEnrollmentForm.tsx",
+        "src/components/dashboard/settings/ResetTxnPinForm.tsx",
         "src/components/dashboard/settings/Set2FAForm.tsx",
         "src/components/dashboard/settings/SetTxnPinForm.tsx",
         "src/components/dashboard/settings/Support.tsx",
@@ -468,7 +469,6 @@
         "src/components/dashboard/withdraw-funds/RecipientDetailForm.tsx",
         "src/components/dashboard/withdraw-funds/Status.tsx",
         "src/components/external-pages/faq/FaqCards.tsx",
-        "src/routes/auth-pages/SetTransactionPin.tsx",
         "src/routes/auth-pages/TwoFAOtp.tsx",
         "src/routes/auth-pages/UserDetails.tsx",
         "src/routes/auth-pages/VerifyEmail.tsx",
@@ -523,9 +523,9 @@
     "baseline": "docs/design/ERHAPAY_ORIGINAL_VISUAL_ASSETS.json"
   },
   "counts": {
-    "reactFiles": 268,
-    "sourceFiles": 330,
-    "totalSrcFiles": 470
+    "reactFiles": 270,
+    "sourceFiles": 332,
+    "totalSrcFiles": 472
   },
   "keyFiles": {
     "dashboardLayout": "src/routes/layout/DashboardLayout.tsx",

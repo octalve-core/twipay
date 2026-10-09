@@ -41,8 +41,22 @@ export const updateProfile = async (profile: TwiPayProfileUpdate): Promise<Profi
 };
 export const sendPhoneCode = async (_value?: unknown): Promise<any> => unavailable();
 export const verifyPhoneNo = async (_value?: unknown): Promise<any> => unavailable();
-export const setTransactionPin = async (_value?: unknown): Promise<any> => unavailable();
-export const changeTransactionPin = async (_value?: unknown): Promise<any> => unavailable();
+export const getTransactionPinStatus = async (): Promise<{status:'NOT_SET' | 'SET'}> =>
+  (await api.get('/auth/transaction-pin/status')).data;
+export const setTransactionPin = async (input: {pin:string; password:string}): Promise<{status:'SET'}> =>
+  (await api.post('/auth/transaction-pin/set',input)).data;
+export const requestPinReset = async (password:string): Promise<{deliveryStatus:'PENDING'}> =>
+  (await api.post('/auth/transaction-pin/reset/request',{password})).data;
+export const completePinReset = async (input:{password:string;code:string;newPin:string}): Promise<{status:'SET'}> =>
+  (await api.post('/auth/transaction-pin/reset/complete',input)).data;
+export const getPasswordEnrollmentStatus = async (): Promise<{hasPassword:boolean}> =>
+  (await api.get('/auth/password/enrollment/status')).data;
+export const requestPasswordEnrollment = async (): Promise<{deliveryStatus:'PENDING'}> =>
+  (await api.post('/auth/password/enrollment/request',{})).data;
+export const completePasswordEnrollment = async (input:{code:string;password:string}): Promise<{ok:true}> =>
+  (await api.post('/auth/password/enrollment/complete',input)).data;
+export const changeTransactionPin = async (input:{password:string;oldPin:string;newPin:string}): Promise<{status:'SET'}> =>
+  (await api.post('/auth/transaction-pin/change',input)).data;
 export const resendPasswordOtp = async (email: string): Promise<{ok: boolean}> =>
   (await api.post<{ok: boolean}>('/auth/password/reset/request', {email})).data;
 // Recovery code is verified and consumed atomically with the password update.

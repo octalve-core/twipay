@@ -4,8 +4,9 @@ import ChangeTxnPinModal from "./ChangeTxnPinModal"
 import Set2FAModal from "./set2FAModal"
 import BackButton from "@/components/Authentication/BackButton"
 import { useEffect, useState } from "react"
-import { listAccountSessions, revokeOtherAccountSessions, getGoogleAvailability, getGoogleLinkStatus, startGoogleAccountLink } from "@/lib/api/authApi"
+import { listAccountSessions, revokeOtherAccountSessions, getGoogleAvailability, getGoogleLinkStatus, startGoogleAccountLink, getPasswordEnrollmentStatus } from "@/lib/api/authApi"
 import { toast } from "sonner"
+import PasswordEnrollmentForm from "./PasswordEnrollmentForm"
 
 const SecuritySettings = () => {
   const [sessions, setSessions] = useState<Awaited<ReturnType<typeof listAccountSessions>>['sessions']>([]);
@@ -16,6 +17,13 @@ const SecuritySettings = () => {
   const [googleLinked, setGoogleLinked] = useState(false);
   const [googlePassword, setGooglePassword] = useState('');
   const [googlePending, setGooglePending] = useState(false);
+  const [hasPassword, setHasPassword] = useState<boolean|null>(null);
+  const [credentialStatusUnavailable,setCredentialStatusUnavailable] = useState(false);
+  useEffect(() => {
+    let active = true;
+    void getPasswordEnrollmentStatus().then(result => {if(active)setHasPassword(result.hasPassword);}).catch(()=>{if(active)setCredentialStatusUnavailable(true);});
+    return ()=>{active=false;};
+  }, []);
   useEffect(() => {
     let active = true;
     void Promise.all([getGoogleAvailability(), getGoogleLinkStatus()]).then(([available, linked]) => {
@@ -67,11 +75,13 @@ const SecuritySettings = () => {
             </div>
 
             <div className="flex flex-col gap-[17px] mt-10 md:mt-[17px] w-full">
-                <ChangePasswordModal />
+                {credentialStatusUnavailable && <p role="status" className="text-[#667085] text-sm">Account security options are temporarily unavailable. Please try again later.</p>}
+                {hasPassword && <ChangePasswordModal />}
                 <UpdatePhoneModal />
-                <ChangeTxnPinModal />
-                <Set2FAModal />
-                {googleEnabled && <section className="mt-5 pt-5 border-t border-[#E9E9E9]" aria-labelledby="google-account-title">
+                {hasPassword && <ChangeTxnPinModal />}
+                {hasPassword && <Set2FAModal />}
+                {hasPassword===false && <PasswordEnrollmentForm />}
+                {googleEnabled && hasPassword && <section className="mt-5 pt-5 border-t border-[#E9E9E9]" aria-labelledby="google-account-title">
                   <h2 id="google-account-title" className="text-[#112929] font-semibold text-base">Google sign-in</h2>
                   {googleLinked ? <p className="text-sm text-[#667085] mt-2">Google is connected to your TwiPay account.</p>
                     : <>

@@ -16,6 +16,7 @@ type TChangeTxnPinForm = {
 const ChangeTxnPinForm = ({closeModal, disableBackButton}: TChangeTxnPinForm) => {
     const [currPin, setCurrPin] = useState("");
     const [newPin, setNewPin] = useState("");
+    const [password, setPassword] = useState("");
     
     const {mutate, isPending: isChangingPin} = useMutation({
         mutationFn: changeTransactionPin,
@@ -40,7 +41,7 @@ const ChangeTxnPinForm = ({closeModal, disableBackButton}: TChangeTxnPinForm) =>
         e.preventDefault();
 
         disableBackButton(true)
-        mutate({newPin: newPin, oldPin: currPin})
+        mutate({newPin, oldPin: currPin, password})
     }
 
   return (
@@ -80,7 +81,9 @@ const ChangeTxnPinForm = ({closeModal, disableBackButton}: TChangeTxnPinForm) =>
                     </InputOTPGroup>
                 </InputOTP>
             </div>
-            <CustomButton isLoading={isChangingPin} disabled={currPin.length < 4 || newPin.length < 4 || isChangingPin } className="w-full mt-6">Confirm</CustomButton>
+            <label htmlFor="pin-change-password" className="block text-sm text-[#344054] mt-5 mb-1">Confirm your account password</label>
+            <input id="pin-change-password" type="password" autoComplete="current-password" value={password} onChange={e=>setPassword(e.target.value)} required className="w-full rounded-md border border-[#D0D5DD] p-3" />
+            <CustomButton isLoading={isChangingPin} disabled={currPin.length < 4 || newPin.length < 4 || !password || isChangingPin } className="w-full mt-6">Confirm</CustomButton>
         </form>
   )
 }

@@ -21,7 +21,7 @@ function toViewUser(value: TwiPayAuthUser): User {
     emailVerifiedAt:value.emailVerifiedAt??null,phoneVerifiedAt:value.phoneVerifiedAt??null,
     contactVerified:value.contactVerified===true, identityVerificationStatus:value.identityVerificationStatus??'NOT_STARTED',
     transactionPinStatus:value.transactionPinStatus??'NOT_AVAILABLE',twofactorEnabled:false,twoFactorEnabledAt:null,loginBiometricEnabled:false,
-    transactionBiometricEnabled:false,pinActivatedAt:null,lastLoginAt:null,fcmTokens:[],virtualAccount:null,createdAt:"",updatedAt:""};
+    transactionBiometricEnabled:false,pinActivatedAt:value.transactionPinStatus==='SET'?'configured':null,lastLoginAt:null,fcmTokens:[],virtualAccount:null,createdAt:"",updatedAt:""};
 }
 type AuthValue = {
   user: User | null; loading: boolean; mfaRequired: boolean;

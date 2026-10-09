@@ -84,7 +84,7 @@ export default function Set2FAForm({closeModal, enabled}: Props) {
     <form onSubmit={apply} className="w-full space-y-5">
       {enabled ? (
         <>
-          <p className="text-[#475467] text-sm">A valid authenticator or one-time recovery code is required for this change.</p>
+          <p className="text-[#475467] text-sm">A valid authenticator or one-time recovery code is required for this change. If you lose your device, use a saved recovery code on the sign-in challenge. If you have neither, contact support; email alone cannot remove 2FA.</p>
           <label className="block text-sm text-[#344054] font-medium" htmlFor="mfa-action">Security action</label>
           <select id="mfa-action" value={action} onChange={e=>setAction(e.target.value as Action)} className="w-full border border-[#D0D5DD] rounded-md p-3 bg-white">
             <option value="regenerate">Generate new recovery codes</option>
