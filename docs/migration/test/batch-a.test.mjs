@@ -86,9 +86,9 @@ test('logout is a protected mutation and must obtain a real session CSRF token',
  const guard=backend('apps/api/src/modules/auth/presentation/request-security.guard.ts');
  const controller=backend('apps/api/src/modules/auth/presentation/auth.controller.ts');
  const logout=backend('apps/customer-ui/src/lib/api/authApi.ts');
- assert.match(client,/!\["\/auth\/register", "\/auth\/login"\]\.includes\(config\.url/);
+ assert.match(client,/!\["\/auth\/register", "\/auth\/login", "\/auth\/password\/reset\/request", "\/auth\/password\/reset\/complete"\]\.includes\(config\.url/);
  assert.match(client,/config\.headers\.set\("x-csrf-token", body\.csrfToken\)/);
- assert.match(guard,/unauthenticatedBrowserMutations = new Set\(\['\/v1\/auth\/register', '\/v1\/auth\/login'\]\)/);
+ assert.match(guard,/unauthenticatedBrowserMutations = new Set\(\['\/v1\/auth\/register', '\/v1\/auth\/login', '\/v1\/auth\/password\/reset\/request', '\/v1\/auth\/password\/reset\/complete'\]\)/);
  assert.ok(!guard.includes("'/v1/auth/logout'") || !guard.match(/unauthenticatedBrowserMutations = new Set\([^)]*logout/));
  assert.match(controller, /@Post\('logout'\)/);
  assert.match(logout,/api\.post<\{ok: boolean\}>\("\/auth\/logout"\)/);

@@ -2,7 +2,7 @@ import { verifyBankAccountPayload } from "@/components/dashboard/settings/AddNew
 import api from "../axios";
 
 export const changePassword = async ({old_password, password}: {old_password: string; password: string;}) => {
-    const res = await api.post("/auth/change-password", {oldPassword: old_password, newPassword: password})
+    const res = await api.post("/auth/password/change", {currentPassword: old_password, newPassword: password})
     return res.data;
 }
 

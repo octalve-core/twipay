@@ -8,6 +8,8 @@ import CustomButton from "@/components/CustomButton"
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 import { changePassword } from "@/lib/api/dashboard-apis/settingsApis";
 
 type TFormData = z.infer<typeof ChangePasswordFormSchema>
@@ -18,6 +20,8 @@ type TChangePasswordForm = {
 }
 
 const ChangePasswordForm = ({closeModal, disableBackButton}: TChangePasswordForm) => {
+    const navigate = useNavigate();
+    const { clearAuthData } = useAuth();
 
     const {
         register,
@@ -30,7 +34,9 @@ const ChangePasswordForm = ({closeModal, disableBackButton}: TChangePasswordForm
     const {mutate: changePasswordFn, isPending: isChangingPassword} = useMutation({
         mutationFn: changePassword,
         onSuccess: () => {
-            toast.success("Password changed successfully!")
+            toast.success("Password changed. Please sign in again.");
+            clearAuthData();
+            navigate("/auth/login", { replace: true })
             
             closeModal();
             disableBackButton(false);

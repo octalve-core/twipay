@@ -68,8 +68,8 @@ test('preserved sign-up form includes safe browser autocomplete labels', () => {
 test('unsupported remember-me function is not misrepresented as active', () => {
   const x = source('Authentication/LogInForm.tsx');
   assert.doesNotMatch(x, /Remember for 30 days|remember-unavailable/);
-  assert.match(x, /Need help\? Browse FAQs/);
-  assert.doesNotMatch(x, /to="\/auth\/reset-password"/);
+  assert.match(x, /Forgot password\?/);
+  assert.match(x, /to="\/auth\/reset-password"/);
 });
 test('decorative UI images have empty alt text; navigational icons are described through their link', () => {
   assert.match(source('dashboard/EmptyState.tsx'), /EmptyStateImg\} alt=""/);

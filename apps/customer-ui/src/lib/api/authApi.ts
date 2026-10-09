@@ -39,9 +39,15 @@ export const sendPhoneCode = async (_value?: unknown): Promise<any> => unavailab
 export const verifyPhoneNo = async (_value?: unknown): Promise<any> => unavailable();
 export const setTransactionPin = async (_value?: unknown): Promise<any> => unavailable();
 export const changeTransactionPin = async (_value?: unknown): Promise<any> => unavailable();
-export const resendPasswordOtp = async (_value?: unknown): Promise<any> => unavailable();
-export const verifyPasswordToken = async (_value?: unknown): Promise<any> => unavailable();
-export const setNewPassword = async (_value?: unknown): Promise<any> => unavailable();
+export const resendPasswordOtp = async (email: string): Promise<{ok: boolean}> =>
+  (await api.post<{ok: boolean}>('/auth/password/reset/request', {email})).data;
+// Recovery code is verified and consumed atomically with the password update.
+export const setNewPassword = async (input: {email: string; token: string; password: string}): Promise<{ok: boolean}> =>
+  (await api.post<{ok: boolean}>('/auth/password/reset/complete', {email: input.email, code: input.token, newPassword: input.password})).data;
+export const listAccountSessions = async (): Promise<{sessions: Array<{id: string; current: boolean; userAgent: string | null; createdAt: string; lastSeenAt: string; expiresAt: string}>}> =>
+  (await api.get('/auth/sessions')).data;
+export const revokeOtherAccountSessions = async (currentPassword: string): Promise<{revoked: number}> =>
+  (await api.post('/auth/sessions/revoke-others', {currentPassword})).data;
 export const deactivateAccount = async (): Promise<any> => unavailable();
 
 // The existing NestJS MFA controller owns password re-authentication, TOTP

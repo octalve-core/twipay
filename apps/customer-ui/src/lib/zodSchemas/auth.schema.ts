@@ -25,12 +25,12 @@ export const logInFormSchema = z.object({
 
 export const verifyEmailSchema = z.object({
     email: z.string().email("Please input a valid email address"),
-    code: z.string().nonempty("Please input a valid code"),
+    code: z.string().regex(/^\d{8}$/, "Enter the 8-digit code from your email"),
 })
 
 export const createNewPasswordFormSchema = z.object({
-    password: z.string().min(8, "Password must be at least 8 characters long"),
-    confirmPassword: z.string().min(8, "Confirm password must be at least 8 characters long"),
+    password: z.string().min(12, "Password must be at least 12 characters long"),
+    confirmPassword: z.string().min(12, "Confirm password must be at least 12 characters long"),
 }).refine((data) => data.password === data.confirmPassword, {
     path: ["confirmPassword"],
     message: "Passwords do not match",

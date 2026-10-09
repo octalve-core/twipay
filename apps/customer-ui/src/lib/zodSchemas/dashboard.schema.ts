@@ -143,8 +143,8 @@ export const AccountSettingsFormSchema = z.object({
 // Change password form
 export const ChangePasswordFormSchema = z.object({
     currentPassword: z.string().min(8, "Password must be at least 8 characters long"),
-    newPassword: z.string().min(8, "Password must be at least 8 characters long"),
-    confirmPassword: z.string().min(8, "Confirm password must be at least 8 characters long"),
+    newPassword: z.string().min(12, "Password must be at least 12 characters long"),
+    confirmPassword: z.string().min(12, "Confirm password must be at least 12 characters long"),
 }).refine((data) => data.newPassword === data.confirmPassword, {
     path: ["confirmPassword"],
     message: "Passwords do not match",

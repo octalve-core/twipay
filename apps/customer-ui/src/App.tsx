@@ -89,7 +89,7 @@ function DeferredFeatureGuard({children}: {children: React.ReactNode}) {
     : <>{children}</>;
 }
 
-const inactiveAuthScreens = new Set(["/auth/verify-phone", "/auth/user-details", "/auth/set-pin", "/auth/reset-password"]);
+const inactiveAuthScreens = new Set(["/auth/verify-phone", "/auth/user-details", "/auth/set-pin"]);
 function InactiveAuthGuard({children}: {children: React.ReactNode}) {
   const {pathname} = useLocation();
   return inactiveAuthScreens.has(pathname) ? <Navigate to="/auth/login" replace/> : <>{children}</>;

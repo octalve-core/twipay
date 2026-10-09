@@ -2,7 +2,7 @@ export const uppercase = /[A-Z]/;
 
 export const getPasswordConditions = (password: string = "") => {
   return {
-    minLength: password.length >= 8,
+    minLength: password.length >= 12,
     hasUppercase: uppercase.test(password),
   };
 };

@@ -32,9 +32,8 @@ const VerifyEmailForm = ({showNewPasswordForm, setFormData}: TVerifyEmailForm ) 
 
      const {mutate: resendOtp, isPending: isSendingOtp} = useMutation({
         mutationFn: resendPasswordOtp,
-        onSuccess: (data) => {
-            (void 0)
-            toast.success(data.message)
+        onSuccess: () => {
+            toast.success("If this email is registered and verified, a reset code will arrive shortly.")
         },
         onError: (error: AxiosError) => {
             const errData = error.response?.data as { message?: string };
@@ -49,7 +48,7 @@ const VerifyEmailForm = ({showNewPasswordForm, setFormData}: TVerifyEmailForm ) 
     //     mutationFn: verifyPasswordToken,
     //     onSuccess: (data) => {
     //         (void 0)
-    //         toast.success(data.message)
+    //         toast.success("If this email is registered and verified, a reset code will arrive shortly.")
     //     },
     //     onError: (error: AxiosError) => {
     //         const errData = error.response?.data as { message?: string };
@@ -82,7 +81,7 @@ const VerifyEmailForm = ({showNewPasswordForm, setFormData}: TVerifyEmailForm ) 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-[410px] mt-8 md:mt-3">
         <div className="w-full md:mt-6">
-            <label className="text-[#344054] text-sm font-medium mb-2" htmlFor="lastname">Email Address</label>
+            <label className="text-[#344054] text-sm font-medium mb-2" htmlFor="email">Email Address</label>
             <div className="relative">
                 <input id="email" {...register("email")} type="email" placeholder="annaske@gmail.com" className="w-full outline-0 bg-white py-2.5 px-3.5 border border-[#D0D5DD] shadow-[#1018280D] placeholder:text-sm placeholder:text-[#667085] rounded-md mt-1.5 focus:border-[#112929] transition" />
                 {
@@ -96,8 +95,8 @@ const VerifyEmailForm = ({showNewPasswordForm, setFormData}: TVerifyEmailForm ) 
             {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
         </div>
         <div className="w-full mt-5">
-            <label className="text-[#344054] text-sm font-medium" htmlFor="lastname">Input code</label>
-            <input {...register("code")} placeholder="--- ---" className="w-full outline-0 bg-white py-2.5 px-3 border border-[#D0D5DD] shadow-[#1018280D] placeholder:text-[#667085] rounded-md mt-2 focus:border-[#112929] transition" />
+            <label className="text-[#344054] text-sm font-medium" htmlFor="reset-code">8-digit reset code</label>
+            <input id="reset-code" inputMode="numeric" autoComplete="one-time-code" maxLength={8} {...register("code")} placeholder="00000000" className="w-full outline-0 bg-white py-2.5 px-3 border border-[#D0D5DD] shadow-[#1018280D] placeholder:text-[#667085] rounded-md mt-2 focus:border-[#112929] transition" />
             {errors.code && <p className="text-red-500 text-sm mt-1">{errors.code.message}</p>}
         </div>
         <CustomButton className="w-full mt-6">Proceed - <span className="opacity-60">Set new password</span></CustomButton>

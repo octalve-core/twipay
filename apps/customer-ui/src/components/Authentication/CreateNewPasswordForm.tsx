@@ -40,9 +40,8 @@ const CreateNewPasswordForm = ({showPasswordResetSuccessMessage, formData}: TCre
 
         const {mutate, isPending: isResetting} = useMutation({
             mutationFn: setNewPassword,
-            onSuccess: (data) => {
-                (void 0)
-                toast.success(data.message)
+            onSuccess: () => {
+                toast.success("Your password has been updated. Please log in again.")
                 showPasswordResetSuccessMessage()
             },
             onError: (error: AxiosError) => {
@@ -64,7 +63,7 @@ const CreateNewPasswordForm = ({showPasswordResetSuccessMessage, formData}: TCre
         <div className="w-full mt-5">
             <label className="text-sm text-[#344054] font-medium" htmlFor="password">Password</label>
             <div className="w-full h-fit relative mt-1.5">
-                <input {...register("password")} placeholder="Range" className="w-full border-[0.5px] border-[#D0D5DD] rounded-md py-2.5 px-3.5 pr-10 bg-white outline-none focus:border-[#112929] placeholder:text-sm placeholder:text-[#667085]" type={showPassword ? "text" : "password"} id="password" />
+                <input {...register("password")} placeholder="Enter a new password" className="w-full border-[0.5px] border-[#D0D5DD] rounded-md py-2.5 px-3.5 pr-10 bg-white outline-none focus:border-[#112929] placeholder:text-sm placeholder:text-[#667085]" type={showPassword ? "text" : "password"} id="password" />
                 <button onClick={() => setShowPassword(prev => !prev)} type="button" className="absolute cursor-pointer text-[#98A2B3] right-3.5 top-1/2 -translate-y-1/2">
                     {showPassword ? <IoEyeOffOutline /> : <IoEyeOutline />}
                 </button>
@@ -74,7 +73,7 @@ const CreateNewPasswordForm = ({showPasswordResetSuccessMessage, formData}: TCre
         <div className="w-full mt-5">
             <label className="text-sm text-[#344054] font-medium" htmlFor="confirmPassword">Confirm Password</label>
             <div className="w-full h-fit relative mt-1.5">
-                <input {...register("confirmPassword")} placeholder="Range" className="w-full border-[0.5px] border-[#D0D5DD] rounded-md py-2.5 px-3.5 pr-10 bg-white outline-none focus:border-[#112929] placeholder:text-sm placeholder:text-[#667085]" type={showConfirmPassword ? "text" : "password"} id="confirmPassword" />
+                <input {...register("confirmPassword")} placeholder="Confirm your new password" className="w-full border-[0.5px] border-[#D0D5DD] rounded-md py-2.5 px-3.5 pr-10 bg-white outline-none focus:border-[#112929] placeholder:text-sm placeholder:text-[#667085]" type={showConfirmPassword ? "text" : "password"} id="confirmPassword" />
                 <button onClick={() => setShowConfirmPassword(prev => !prev)} type="button" className="absolute cursor-pointer text-[#98A2B3] right-3.5 top-1/2 -translate-y-1/2">
                     {showConfirmPassword ? <IoEyeOffOutline /> : <IoEyeOutline />}
                 </button>
@@ -102,7 +101,7 @@ const CreateNewPasswordForm = ({showPasswordResetSuccessMessage, formData}: TCre
                     ) : (
                     <div className="size-4 border border-[#E1E1E1] rounded-full" />
                     )}
-                    <span className="text-[#667085] text-xs">Minimum of 8 characters</span>
+                    <span className="text-[#667085] text-xs">Minimum of 12 characters</span>
                 </li>
                 <li className="flex items-center gap-3">
                     {conditions.hasUppercase ? (

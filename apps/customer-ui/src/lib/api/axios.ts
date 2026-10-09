@@ -2,7 +2,7 @@ import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
 
 const base = import.meta.env.VITE_TWIPAY_API_URL?.replace(/\/$/, "");
 const api = axios.create({ baseURL: base ? `${base}/v1` : undefined, withCredentials: true, timeout: 15000 });
-const publicAuth = new Set(["/payments/collections", "/transfers", "/transfers/resolve-account", "/transfers/banks", "/auth/register", "/auth/login", "/auth/logout", "/auth/me", "/kyc/verifications", "/wallets", "/virtual-accounts", "/virtual-accounts/validation-banks", "/auth/csrf", "/auth/contact/email/resend", "/auth/contact/email/confirm", "/auth/mfa/status", "/auth/mfa/challenge", "/auth/mfa/enroll", "/auth/mfa/enroll/confirm", "/auth/mfa/recovery-codes/regenerate", "/auth/mfa/disable", "/services/products", "/services/validations", "/services/purchases", "/events", "/events/orders", "/events/organizers/me", "/events/quote", "/events/checkout", "/disputes", "/notifications"]);
+const publicAuth = new Set(["/payments/collections", "/transfers", "/transfers/resolve-account", "/transfers/banks", "/auth/register", "/auth/login", "/auth/password/reset/request", "/auth/password/reset/complete", "/auth/password/change", "/auth/sessions", "/auth/sessions/revoke-others", "/auth/logout", "/auth/me", "/kyc/verifications", "/wallets", "/virtual-accounts", "/virtual-accounts/validation-banks", "/auth/csrf", "/auth/contact/email/resend", "/auth/contact/email/confirm", "/auth/mfa/status", "/auth/mfa/challenge", "/auth/mfa/enroll", "/auth/mfa/enroll/confirm", "/auth/mfa/recovery-codes/regenerate", "/auth/mfa/disable", "/services/products", "/services/validations", "/services/purchases", "/events", "/events/orders", "/events/organizers/me", "/events/quote", "/events/checkout", "/disputes", "/notifications"]);
 
 export function isAllowedIntegratedRoute(url: string | undefined): boolean {
   const path = url?.split("?")[0] ?? "";
@@ -15,7 +15,7 @@ api.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
     throw new AxiosError("This feature isn’t available right now.", "FEATURE_NOT_INTEGRATED", config);
   }
   if (!["GET", "HEAD", "OPTIONS"].includes((config.method ?? "GET").toUpperCase())
-      && !["/auth/register", "/auth/login"].includes(config.url ?? "")) {
+      && !["/auth/register", "/auth/login", "/auth/password/reset/request", "/auth/password/reset/complete"].includes(config.url ?? "")) {
     // Each active session has one stable, server-verified CSRF token.
     // Concurrent mutations must not invalidate one another. Never mint tokens client-side.
     const res = await fetch(`${base}/v1/auth/csrf`, {credentials: "include", cache: "no-store"});
@@ -28,7 +28,7 @@ api.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
 });
 
 api.interceptors.response.use((response) => response, (error: AxiosError) => {
-  if (error.response?.status === 401 && !["/auth/login", "/auth/register", "/auth/me"].includes(error.config?.url ?? "")) {
+  if (error.response?.status === 401 && !["/auth/login", "/auth/register", "/auth/me", "/auth/password/reset/request", "/auth/password/reset/complete"].includes(error.config?.url ?? "")) {
     window.dispatchEvent(new Event("twipay:session-invalidated"));
   }
   return Promise.reject(error);
