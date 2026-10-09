@@ -1,0 +1,9 @@
+DEPENDENCY-FREE SUBSET COMPILE (NOT NODE24 QUALIFICATION)
+v22.16.0
+Version 5.8.3
+BUILD packages/contracts
+IMPORT OK: packages/contracts/dist/index.js
+BUILD packages/ledger
+IMPORT OK: packages/ledger/dist/index.js
+BUILD packages/operations
+IMPORT OK: packages/operations/dist/index.js

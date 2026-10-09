@@ -1,0 +1,18 @@
+-- scripts/typescript-syntax-check.mjs
+TypeScript syntax check PASS (487 source files)
+-- scripts/repository-security-check.mjs
+Repository security check PASS (1007 text files inspected)
+-- scripts/architecture-check.mjs
+Architecture check PASS
+-- scripts/financial-invariant-check.mjs
+Financial invariant check PASS
+-- scripts/services-events-invariant-check.mjs
+Services/events invariant check PASS
+-- scripts/product-operations-invariant-check.mjs
+Product/operations invariant check PASS
+-- scripts/production-hardening-invariant-check.mjs
+Production hardening invariant check PASS
+PASS: design inventory matches 333 source files
+PASS: 123 original visual assets present; 69 byte-identical, 54 CRLF-only normalized, 0 material changes
+PASS: 67 declared route paths; 15 UI primitives catalogued
+Git history secret check PASS (1072 tracked paths, full reachable patch history scanned)
