@@ -6,7 +6,7 @@ const publicAuth = new Set(["/payments/collections", "/transfers", "/transfers/r
 
 export function isAllowedIntegratedRoute(url: string | undefined): boolean {
   const path = url?.split("?")[0] ?? "";
-  return publicAuth.has(path) || /^\/events\/(?:orders\/)?[A-Za-z0-9._:-]{1,100}$/.test(path) || /^\/events\/checkout-intents\/twipay-event:[0-9a-f-]{36}$/.test(path) || /^\/events\/organizers\/[0-9a-fA-F-]{36}\/events$/.test(path) || /^\/events\/[0-9a-fA-F-]{36}\/(?:ticket-types|publish)$/.test(path) || path === "/transactions" || /^\/transactions\/[A-Za-z0-9._:-]{1,80}$/.test(path) || /^\/kyc\/verifications\/[0-9a-fA-F-]{36}\/continue$/.test(path) || /^\/services\/purchases\/[A-Za-z0-9._:-]{1,80}$/.test(path);
+  return publicAuth.has(path) || /^\/events\/(?:orders\/)?[A-Za-z0-9._:-]{1,100}$/.test(path) || /^\/events\/checkout-intents\/twipay-event:[0-9a-f-]{36}$/.test(path) || /^\/events\/organizers\/[0-9a-fA-F-]{36}\/events$/.test(path) || /^\/events\/[0-9a-fA-F-]{36}\/(?:ticket-types|publish)$/.test(path) || /^\/events\/orders\/[A-Za-z0-9._:-]{1,100}\/tickets\/TWP-[A-Za-z0-9_-]{8,100}\/credential$/.test(path) || path === "/events/tickets/check-in/assignments" || path === "/events/tickets/check-in" || /^\/events\/[0-9a-fA-F-]{36}\/staff(?:\/[0-9a-fA-F-]{36})?$/.test(path) || path === "/transactions" || /^\/transactions\/[A-Za-z0-9._:-]{1,80}$/.test(path) || /^\/kyc\/verifications\/[0-9a-fA-F-]{36}\/continue$/.test(path) || /^\/services\/purchases\/[A-Za-z0-9._:-]{1,80}$/.test(path);
 }
 
 api.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {

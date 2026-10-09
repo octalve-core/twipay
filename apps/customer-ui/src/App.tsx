@@ -34,6 +34,7 @@ import SavedBeneficiaries from "./routes/dashboard/foundations/SavedBeneficiarie
 import NotificationPreferences from "./routes/dashboard/foundations/NotificationPreferences";
 import SupportCentre from "./routes/dashboard/foundations/SupportCentre";
 import MyTickets from "./routes/dashboard/foundations/MyTickets";
+import EventCheckIn from "./routes/dashboard/foundations/EventCheckIn";
 import OrganizerOverview from "./routes/dashboard/foundations/OrganizerOverview";
 import DashboardLayout from "./routes/layout/DashboardLayout";
 import Services from "./routes/dashboard/Services";
@@ -341,6 +342,10 @@ function App() {
         {
           path: "organizer",
           element: <OrganizerOverview />
+        },
+        {
+          path: "event-check-in",
+          element: <EventCheckIn />
         },
         {
           path: "virtual-card",
