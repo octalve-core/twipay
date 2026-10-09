@@ -1,7 +1,6 @@
 import { QueryFunction } from "@tanstack/react-query";
 import api from "../axios";
 import { IDataPlan } from "@/components/dashboard/services/data/SelectProvider";
-import { verifyBetWalletPayload } from "@/components/dashboard/services/betting/RecipientDetails";
 import { SmartCardNoVerificationResponse, TvProductType, VerifySmartCardPayload } from "@/components/dashboard/services/tv-cable/RecipientDetails";
 import { EpinProductType, VerifyJambNoPayload } from "@/components/dashboard/services/epin/SelectProvider";
 import { VerifyPhoneNoPayload } from "@/components/dashboard/services/airtime/RecipientDetails";
@@ -57,21 +56,6 @@ export const verifyMeterNumber = async (payload: {providerCode: string, type: st
 
 export const buyUnit = async (payload: {providerId: string, type: string, number: string, amount: string, pin: string}) => {
     const res = await api.post("/electricity", payload)
-    return res.data.data;
-}
-
-export const fetchBettingProviders = async () => {
-    const res = await api.get("/betting/providers")
-    return res.data.data;
-}
-
-export const verifyBettingWalletNumber = async (payload: verifyBetWalletPayload) => {
-    const res = await api.post("/betting/verify", payload)
-    return res.data.data;
-}
-
-export const fundBettingWallet = async (payload: {providerId: string, number: string, amount: string, pin: string}) => {
-    const res = await api.post("/betting", payload)
     return res.data.data;
 }
 

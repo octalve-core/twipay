@@ -56,16 +56,6 @@ export const ElectricityFormSchema = z.object({
     }),
 })
 
-// Services - betting
-export const BettingServiceFormSchema = z.object({
-    amount: z
-        .string()
-        .refine(val => Number(val) >= 100, {
-            message: "Amount must be at least ₦100",
-    }),
-    user: z.string().min(4, "please enter the correct user id"),
-})
-
 // Services - TV/Cable
 export const TVCableFormSchema = z.object({
     smartcardNo: z.string().min(2, "please enter the correct smartcard number"),

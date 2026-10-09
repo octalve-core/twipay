@@ -25,9 +25,11 @@ test('customer session, preserved account form and read-only KYC status', async 
   await page.goto('/dashboard/settings/account');
   await expect(page.getByRole('heading', {name: 'Account'})).toBeVisible();
   await expect(page.locator('#email')).toHaveValue(email!);
-  await expect(page.locator('#username')).toBeDisabled();
-  await expect(page.locator('#country')).toBeDisabled();
-  await expect(page.locator('#state')).toBeDisabled();
+  await expect(page.locator('#firstname')).toBeEditable();
+  await expect(page.locator('#lastname')).toBeEditable();
+  await expect(page.locator('#country')).toBeEditable();
+  await expect(page.locator('#state')).toBeEditable();
+  await expect(page.locator('#email')).toBeDisabled();
   await expect(page.getByRole('button', {name:'Change Photo'})).toBeDisabled();
   await page.goto('/dashboard/settings/identity-verification');
   await expect(page.getByRole('heading', {name:'Identity verification'})).toBeVisible();

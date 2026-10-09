@@ -265,11 +265,6 @@ export const dashboardLinks = [
         href: "/dashboard/services/electricity",
       },
       {
-        id: 4,
-        label: "Betting",
-        href: "/dashboard/services/betting",
-      },
-      {
         id: 5,
         label: "TV/Cable",
         href: "/dashboard/services/cable",
@@ -415,7 +410,6 @@ export const otherServicesMobile = [
 import Rss from "@/assets/dashboard/rss.svg";
 import Globe from "@/assets/dashboard/globe.svg";
 import Zap from "@/assets/dashboard/zap.svg";
-import HardDrive from "@/assets/dashboard/hard-drive.svg";
 import Tv from "@/assets/dashboard/tv.svg";
 import Key from "@/assets/dashboard/key.svg";
 import Radio from "@/assets/dashboard/radio.svg";
@@ -443,12 +437,6 @@ export const appServices = [
     label: "Electricity",
     icon: Zap,
     href: "/dashboard/services/electricity",
-  },
-  {
-    id: 4,
-    label: "Betting",
-    icon: HardDrive,
-    href: "/dashboard/services/betting",
   },
   {
     id: 5,

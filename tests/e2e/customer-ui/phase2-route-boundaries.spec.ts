@@ -21,6 +21,6 @@ test('legacy fake transaction success route cannot display a success message',as
 });
 test('provider funding callback is informational even with success-looking query parameters',async({page})=>{
   await page.goto('/wallet/fund/complete?status=SUCCESSFUL&reference=unverified');
-  await expect(page.getByText(/does not confirm your wallet has been funded/i)).toBeVisible();
+  await expect(page.getByText(/does not confirm payment/i)).toBeVisible();
   await expect(page.getByText(/100,000/)).toHaveCount(0);
 });

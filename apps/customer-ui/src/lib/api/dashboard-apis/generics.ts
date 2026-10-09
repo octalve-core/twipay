@@ -16,7 +16,6 @@ export interface ServicesData {
   cable_tv: ServiceInfo;
   electricity: ServiceInfo;
   education: ServiceInfo;
-  betting: ServiceInfo;
   deposit: ServiceInfo;
   internationalairtime: ServiceInfo;
   internationaldata: ServiceInfo;

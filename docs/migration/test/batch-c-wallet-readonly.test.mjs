@@ -52,7 +52,6 @@ test('all existing wallet-reading surfaces use same scoped query key and exact f
     'services/international-data/RecipientDetails.tsx',
     'services/international-airtime/RecipientDetails.tsx',
     'services/mobile-money/RecipientDetails.tsx',
-    'services/betting/RecipientDetails.tsx', // unmounted/retained historical source only
   ]) {
     const code = read(base+path);
     assert.match(code, /queryKey: \["wallet", "twipay-v1"\]/, path);
