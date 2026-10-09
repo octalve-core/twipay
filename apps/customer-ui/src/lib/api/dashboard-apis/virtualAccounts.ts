@@ -36,6 +36,7 @@ export type ValidationBank = {bankCode: string; name: string};
 export type CreateVirtualAccountInput = {
   provider: VirtualAccountProvider;
   consent: true;
+  transactionPin: string;
   preferredBank?: string;
   validationBankCode?: string;
   validationAccountNumber?: string;
@@ -133,7 +134,7 @@ export function virtualAccountIdempotencyKey(provider: VirtualAccountProvider): 
   return key;
 }
 export function validateVirtualAccountInput(value: CreateVirtualAccountInput): void {
-  if (!providerValid(value.provider) || value.consent !== true ||
+  if (!providerValid(value.provider) || value.consent !== true || !/^\d{4}$/.test(value.transactionPin) ||
       (value.preferredBank !== undefined && (value.preferredBank.length < 2 || value.preferredBank.length > 80))) {
     throw new TypeError('Invalid virtual-account request');
   }

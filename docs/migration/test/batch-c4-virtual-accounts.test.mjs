@@ -56,22 +56,22 @@ test('C4 provider consent and Paystack personal bank validation required',()=>{
   for (const input of [
     {provider:'monnify',consent:false},
     {provider:'unknown',consent:true},
-    {provider:'paystack',consent:true,validationBankCode:'058',validationAccountNumber:'123'},
-    {provider:'monnify',consent:true,validationAccountNumber:'1234567890'},
-    {provider:'paystack',consent:true,validationBankCode:'058',validationAccountNumber:'notanumber1234'},
+    {provider:'paystack',consent:true,transactionPin:'1234',validationBankCode:'058',validationAccountNumber:'123'},
+    {provider:'monnify',consent:true,transactionPin:'1234',validationAccountNumber:'1234567890'},
+    {provider:'paystack',consent:true,transactionPin:'1234',validationBankCode:'058',validationAccountNumber:'notanumber1234'},
   ]) assert.throws(()=>a.validateVirtualAccountInput(input));
-  assert.doesNotThrow(()=>a.validateVirtualAccountInput({provider:'monnify',consent:true}));
-  assert.doesNotThrow(()=>a.validateVirtualAccountInput({provider:'paystack',consent:true,validationBankCode:'058',validationAccountNumber:'1234567890'}));
+  assert.doesNotThrow(()=>a.validateVirtualAccountInput({provider:'monnify',consent:true,transactionPin:'1234'}));
+  assert.doesNotThrow(()=>a.validateVirtualAccountInput({provider:'paystack',consent:true,transactionPin:'1234',validationBankCode:'058',validationAccountNumber:'1234567890'}));
 });
 test('C4 retries keep one idempotency key without storing BVN or bank account',async()=>{
-  const first=await a.provisionVirtualAccount({provider:'paystack',consent:true,validationBankCode:'058',validationAccountNumber:'1234567890'});
+  const first=await a.provisionVirtualAccount({provider:'paystack',consent:true,transactionPin:'1234',validationBankCode:'058',validationAccountNumber:'1234567890'});
   assert.equal(first.status,'PENDING');
   assert.equal(calls.at(-1).path,'/virtual-accounts');
   const key=calls.at(-1).opts.headers['Idempotency-Key'];
   assert.match(key,/^twipay-va:[0-9a-f-]{36}$/);
-  await a.provisionVirtualAccount({provider:'paystack',consent:true,validationBankCode:'058',validationAccountNumber:'1234567890'});
+  await a.provisionVirtualAccount({provider:'paystack',consent:true,transactionPin:'1234',validationBankCode:'058',validationAccountNumber:'1234567890'});
   assert.equal(calls.at(-1).opts.headers['Idempotency-Key'],key);
-  assert.doesNotMatch([...storage.values()].join(' '),/1234567890|BVN|NIN|058/);
+  assert.doesNotMatch([...storage.values()].join(' '),/1234567890|BVN|NIN|058|1234/);
 });
 test('C4 cannot silently switch providers with pending idempotency intent',()=>{
   assert.throws(()=>a.virtualAccountIdempotencyKey('monnify'),/Review your existing/);

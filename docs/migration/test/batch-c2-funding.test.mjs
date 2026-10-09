@@ -38,11 +38,12 @@ test('C2 idempotency key is stable across same logical attempts and retries',()=
   assert.throws(()=>f.fundingAttempt('paystack','20000'),/different funding/);
 });
 test('C2 collection sends one authorized shape to the real TwiPay API',async()=>{
-  const result=await f.initiateFunding('paystack','100.25');
+  const result=await f.initiateFunding('paystack','100.25','1234');
   assert.equal(result.transactionReference,'fund:sample_123');
   const [url,payload,options]=calls.at(-1);
   assert.equal(url,'/payments/collections');
-  assert.deepEqual(JSON.parse(JSON.stringify(payload)),{provider:'paystack',amountMinor:'10025',currency:'NGN'});
+  assert.deepEqual(JSON.parse(JSON.stringify(payload)),{provider:'paystack',amountMinor:'10025',currency:'NGN',transactionPin:'1234'});
+  assert.doesNotMatch([...storage.values()].join(' '),/1234/);
   assert.equal(options.headers['Idempotency-Key'],f.fundingAttempt('paystack','10025'));
 });
 test('C2 refuses fake statuses, mismatched amount, tampered providers and fabricated checkout data',()=>{

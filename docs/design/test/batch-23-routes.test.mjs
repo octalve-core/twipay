@@ -47,7 +47,7 @@ test('standalone financial receipt now has the dashboard session and MFA require
 test('provider funding return remains informational and does not claim provider success',()=>{
   assert.match(app,/path: "\/wallet\/fund\/complete"/);
   const content=read('apps/customer-ui/src/routes/dashboard/FundingReturn.tsx');
-  assert.match(content,/does not confirm your wallet has been funded/);
+  assert.match(content,/Returning from the provider does not confirm payment/);
   assert.doesNotMatch(content,/payment status === ["']success/);
 });
 test('keyboard-operable sidebar separates navigation link from submenu toggle',()=>{

@@ -22,6 +22,7 @@ export default function CreateStaticAccount({onRefresh}: {onRefresh:()=>Promise<
   const [bankCode,setBankCode] = useState('');
   const [accountNumber,setAccountNumber] = useState('');
   const [consent,setConsent] = useState(false);
+  const [pin,setPin] = useState('');
   const [pending,setPending] = useState(false);
   const [response,setResponse] = useState<VirtualAccountResult|null>(null);
   const [error,setError] = useState('');
@@ -36,26 +37,27 @@ export default function CreateStaticAccount({onRefresh}: {onRefresh:()=>Promise<
 
   async function submit(e:FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!enabled || pending || !verifiedBvn || !consent || !validBank) return;
+    if (!enabled || pending || !verifiedBvn || !consent || !validBank || !/^\d{4}$/.test(pin)) return;
     setPending(true); setError('');
     try {
       const result = await provisionVirtualAccount({
-        provider,consent:true,
+        provider,consent:true,transactionPin:pin,
         ...(provider === 'paystack' ? {validationBankCode:bankCode,validationAccountNumber:accountNumber} : {}),
       });
       setResponse(result);
-      setAccountNumber(''); setBankCode(''); setConsent(false);
+      setAccountNumber(''); setBankCode(''); setConsent(false); setPin('');
       await onRefresh();
       if (result.status === 'ACTIVE') toast.success('Your bank account assignment has been confirmed.');
       else toast.info('Your request has been received. Please wait until your account is confirmed before using it.');
     } catch {
+      setPin('');
       // The attempt key is retained. An unknown provider outcome must not trigger a new write.
       setError('We couldn’t confirm your account request. Check its status before trying again.');
     } finally {setPending(false);}
   }
   function resetAttempt(){
     if (!window.confirm('Review your existing account requests first. Starting a new intent does not cancel a pending provider request. Continue?')) return;
-    abandonVirtualAccountIntent(); setResponse(null); setError(''); setAccountNumber(''); setBankCode('');
+    abandonVirtualAccountIntent(); setResponse(null); setError(''); setAccountNumber(''); setBankCode(''); setPin('');
   }
   return <section className="w-full mx-auto max-md:self-start">
     <div className="flex items-center mb-10 mt-2 md:hidden fixed top-2 w-full max-w-[360px] mx-auto right-0 left-0 z-10 backdrop-blur-[2px] px-5">
@@ -81,9 +83,13 @@ export default function CreateStaticAccount({onRefresh}: {onRefresh:()=>Promise<
         <div className="w-full mt-5"><label htmlFor="va-account" className="text-sm text-[#344054] font-medium">Your existing bank account number (validation only)</label>
           <input id="va-account" className={field} type="text" inputMode="numeric" autoComplete="off" maxLength={10} pattern="[0-9]{10}" value={accountNumber} onChange={e=>setAccountNumber(e.target.value.replace(/\D/g,'').slice(0,10))} required />
           <p className="text-[#717171] text-xs mt-2">We use these details only to verify that the bank account belongs to you.</p></div></>}
+      <div className="mt-5"><label htmlFor="virtual-account-pin" className="text-sm font-medium text-[#344054]">Transaction PIN</label>
+        <input id="virtual-account-pin" className={field} type="password" inputMode="numeric" autoComplete="off" maxLength={4} pattern="[0-9]{4}"
+          value={pin} onChange={e=>setPin(e.target.value.replace(/\D/g,'').slice(0,4))} disabled={pending} required />
+        <p className="text-xs text-[#717171] mt-2">We confirm your security PIN before requesting a new funding account.</p></div>
       <label className="mt-5 flex gap-3 items-start text-[#667085] text-sm"><input type="checkbox" checked={consent} onChange={e=>setConsent(e.target.checked)} disabled={pending} required className="mt-1"/>
         <span>I authorize TwiPay to share my verified identity details with the selected bank-account provider to assign an NGN funding account.</span></label>
-      <CustomButton disabled={pending || !consent || !validBank || kyc.isError} isLoading={pending} className="mt-10 w-full">Proceed - <span className="opacity-60">Create account</span></CustomButton>
+      <CustomButton disabled={pending || !consent || !validBank || kyc.isError || !/^\d{4}$/.test(pin)} isLoading={pending} className="mt-10 w-full">Proceed - <span className="opacity-60">Create account</span></CustomButton>
     </form>}
     {hasVirtualAccountIntent() && <button type="button" disabled={pending} onClick={resetAttempt} className="text-[#667085] text-xs underline mt-5">Check request status, then start another request</button>}
   </section>;
