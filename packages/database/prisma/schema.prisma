@@ -17,6 +17,12 @@ enum IdentityProvider {
   GOOGLE
 }
 
+enum FinancialEligibilityStatus {
+  PENDING
+  APPROVED
+  SUSPENDED
+}
+
 enum SessionStatus {
   ACTIVE
   REVOKED
@@ -59,6 +65,7 @@ enum SecurityEventType {
   TRANSACTION_PIN_LOCKED
   TRANSACTION_PIN_RESET_REQUESTED
   TRANSACTION_PIN_RESET
+  FINANCIAL_PIN_AUTHORIZED
 }
 
 enum LedgerAccountCategory {
@@ -362,6 +369,7 @@ model User {
   contactChallenges     ContactVerificationChallenge[]
   passwordResetChallenges PasswordResetChallenge[]
   passwordEnrollmentChallenges PasswordEnrollmentChallenge[]
+  financialEligibility FinancialEligibilityPolicy?
   transactionPin TransactionPinCredential?
   transactionPinResetChallenges TransactionPinResetChallenge[]
   securityEvents        SecurityEvent[]
@@ -452,6 +460,21 @@ model PasswordEnrollmentChallenge {
 }
 
 /** HMAC-secret peppered, Argon2id transaction PIN; never a session or MFA credential. */
+/** Explicit approval record; absent records and zero limits deny all financial intents.
+ *  Never auto-create APPROVED records from a KYC provider response. */
+model FinancialEligibilityPolicy {
+  userId              String                     @id @db.Uuid
+  status              FinancialEligibilityStatus @default(PENDING)
+  approvedKycTier     Int                        @default(0)
+  maxPerIntentMinor   BigInt                     @default(0)
+  maxDailyDebitMinor  BigInt                     @default(0)
+  approvedAt          DateTime?                  @db.Timestamptz(6)
+  updatedAt           DateTime                   @updatedAt @db.Timestamptz(6)
+  user                User                       @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@map("financial_eligibility_policies")
+}
+
 model TransactionPinCredential {
   userId         String    @id @db.Uuid
   pinHash        String    @db.Text

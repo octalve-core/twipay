@@ -14,7 +14,7 @@ const LOCK_MS = 30 * 60_000;
 const PIN_FORMAT = /^\d{4}$/;
 const WEAK_PINS = new Set(['0000', '1111', '2222', '3333', '4444', '5555', '6666', '7777', '8888', '9999', '1234', '4321', '0123', '9876']);
 
-function pinMaterial(userId: string, pin: string): string {
+export function pinMaterial(userId: string, pin: string): string {
   // A secret independent from password/session hashing makes offline enumeration of a four-digit PIN infeasible.
   const key = process.env['TRANSACTION_PIN_PEPPER'];
   if (!key || key.length < 32) throw new Error('TRANSACTION_PIN_PEPPER_REQUIRED');

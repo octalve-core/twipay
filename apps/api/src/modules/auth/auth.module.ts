@@ -36,6 +36,6 @@ import { NotificationService } from '../notifications/application/notification.s
     RequestSecurityGuard,
     { provide: APP_GUARD, useExisting: RequestSecurityGuard },
   ],
-  exports: [SessionService, SessionAuthGuard, PermissionGuard],
+  exports: [SessionService, SessionAuthGuard, PermissionGuard, PasswordHasher],
 })
 export class AuthModule {}
