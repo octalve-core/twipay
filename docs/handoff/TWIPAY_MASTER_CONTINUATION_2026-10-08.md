@@ -133,3 +133,11 @@ Verified TwiPay API `MfaController` routes then corrected `apps/customer-ui` MFA
 ## 2026-10-08 continued Batch B profile/KYC
 
 Inspect `docs/handoff/MASTER_RECONCILIATION_2026-10-08.md` and `docs/migration/BATCH_B_PROFILE_KYC_IMPLEMENTATION_2026-10-08.md` FIRST; current working source and Git commits outrank earlier chat descriptions. Preserved ErhaPay profile and KYC source integration now has 22/22 static regression assertions passing; actual new developer backend merge and real browser tests remain BLOCKED. Never label Batch B fully qualified until those gates pass.
+
+---
+
+# LATEST APPEND-ONLY UPDATE — PHASE 6.2 PRE-DOWNLOAD AUDIT REMEDIATION (2026-10-09)
+
+This update supersedes earlier Phase 6.1 next-task instructions. Continue from the **actual Git HEAD** in the latest `TWIPAY_PROVISIONAL_MASTER_CODE.zip` stored at `/Coov Technologies/`. Read `docs/phase6/PHASE_6_2_REMEDIATION_AND_PRODUCTION_ACTIVATION_2026-10-09.md` and the associated `docs/phase6/evidence/phase62-*` results. The single Git-backed master, ErhaPay UI, ledger, sessions, MFA, CSRF, KYC and default-off financial controls are retained.
+
+Implemented: independent two-person financial tier review with evidence-bound verified BVN and validated caps, migration `0018_financial_tier_independent_approval`, updated restricted operations page; refreshed stale customer browser contracts; archived permanently excluded betting code outside the active source tree; added source/built-bundle exclusion checks and CI branch triggers. Supported offline tests: **449/449 passed**, repo scanners passed. Node 24 and genuine pnpm lockfile generation are still blocked in this runner by missing toolchain/network; database migration, browser E2E and production readiness are **NOT CERTIFIED**. Production financial execution hard-stops remain intact. Obtain independent runtime evidence and release approvals before enabling any provider or admission feature.
