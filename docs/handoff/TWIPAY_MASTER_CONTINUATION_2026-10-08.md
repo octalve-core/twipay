@@ -1,3 +1,11 @@
+# CURRENT MASTER CHECKPOINT — PHASE 5.4 NOTIFICATION INBOX & PREFERENCES (2026-10-09)
+
+**Use the latest exact Git HEAD extracted from the single Coov Technologies Library master.** The source checkpoint began at `2d7ffe12c6a4379e387354b31e296797e0e51f3d`, on `phase3/low-friction-contact-20261009`. This version implements `0017_notification_inbox_preferences`, a new persisted owner-scoped safe notification inbox with read/unread state and owner-validated pagination, optional support/event in-app preferences, optional support-email suppression, and a restricted aggregate-only delivery-health operations view. Do not treat acceptance by an email provider as inbox read status, and do not mirror OTP/reset/enrollment codes or arbitrary delivery text in the inbox. The old metadata delivery-history endpoint is retained separately. Original ErhaPay visuals and default-off financial/event controls remain unchanged.
+
+**Evidence:** 433/433 dependency-light offline tests passed, including 13 new Phase 5.4 mocked actual-service/security tests; repository scanners and original 123 visual assets passed. Full Node24 workspace build, Prisma migration against PostgreSQL18, Redis8 worker, real HTTP/CSRF, and browser/provider testing remain **NOT EXECUTED / BLOCKED** (preflight 5 pass, 0 fail, 9 blocked). Read `docs/phase5/BATCH_5_4_NOTIFICATION_INBOX_PREFERENCES_ADMINISTRATION_2026-10-09.md`. Next: Phase 6 real runtime, browser, accessibility and sandbox security qualification before any production activation. Never restart, overwrite ErhaPay with `apps/web`, or enable unqualified financial services.
+
+---
+
 # TWIPAY — AUTHORITATIVE NEXT-CHAT CONTINUATION & ENGINEERING CONTRACT
 
 **Prepared:** 2026-10-08 (Africa/Lagos)  

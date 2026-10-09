@@ -1,7 +1,7 @@
 # TwiPay Phase 5 / Batch 5.4 — Persistent inbox, preferences and restricted delivery oversight
 
-**Date:** 2026-10-09 (Africa/Lagos)  
-**Authority:** existing Git-backed TwiPay master (`2d7ffe12c6a4379e387354b31e296797e0e51f3d` at start), same `phase3/low-friction-contact-20261009` branch.  
+**Date:** 2026-10-09 (Africa/Lagos)
+**Authority:** existing Git-backed TwiPay master (`2d7ffe12c6a4379e387354b31e296797e0e51f3d` at start), same `phase3/low-friction-contact-20261009` branch.
 **Status:** source implemented and dependency-light tests passed; **NOT** Node 24 / PostgreSQL 18 / Redis 8 / provider / browser / production qualified.
 
 ## Scope implemented
