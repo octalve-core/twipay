@@ -10,11 +10,17 @@ import { SessionAuthGuard } from './presentation/session-auth.guard.js';
 import { PermissionGuard } from './presentation/permission.guard.js';
 import { MfaService } from './application/mfa.service.js';
 import { MfaController } from './presentation/mfa.controller.js';
+import { ContactVerificationService } from './application/contact-verification.service.js';
+import { ProvidersModule } from '../providers/providers.module.js';
+import { NotificationService } from '../notifications/application/notification.service.js';
 
 @Module({
+  imports: [ProvidersModule],
   controllers: [AuthController, MfaController],
   providers: [
     AuthService,
+    ContactVerificationService,
+    NotificationService,
     MfaService,
     PasswordHasher,
     SessionService,

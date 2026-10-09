@@ -17,16 +17,20 @@ import { ZodValidationPipe } from '../../../platform/http/zod-validation.pipe.js
 import { AuthService } from '../application/auth.service.js';
 import { SessionAuthGuard, requirePrincipal, type AuthenticatedFastifyRequest } from './session-auth.guard.js';
 import { SessionService } from '../application/session.service.js';
+import { ContactVerificationService } from '../application/contact-verification.service.js';
+import { contactVerified } from '../application/contact-permissions.js';
+import { AllowUnverifiedContact } from './session-auth.guard.js';
 import { clearSessionCookies, csrfCookieName, sessionCookieName, setSessionCookies } from './session-cookie.js';
 
 const RegisterSchema = z
   .object({
     email: z.email().max(320),
     password: z.string().min(12).max(128),
-    givenName: z.string().trim().min(1).max(100).optional(),
-    familyName: z.string().trim().min(1).max(100).optional(),
+    givenName: z.string().trim().min(1).max(100),
+    familyName: z.string().trim().min(1).max(100),
   })
   .strict();
+const EmailCodeSchema = z.object({ code: z.string().regex(/^\d{6}$/) }).strict();
 const ProfileSchema = z.object({ givenName: z.string().trim().min(1).max(100).nullable().optional(), familyName: z.string().trim().min(1).max(100).nullable().optional() }).strict().refine((value) => value.givenName !== undefined || value.familyName !== undefined, 'at least one field must change');
 const LoginSchema = z
   .object({ email: z.email().max(320), password: z.string().min(1).max(128) })
@@ -38,6 +42,7 @@ export class AuthController {
   constructor(
     private readonly auth: AuthService,
     private readonly sessions: SessionService,
+    private readonly contacts: ContactVerificationService,
   ) {}
 
   @Post('register')
@@ -51,7 +56,30 @@ export class AuthController {
       ip: req.ip,
     });
     setSessionCookies(res, result.session);
-    return { user: result.user, csrfToken: result.session.csrfToken };
+    return { user: result.user, csrfToken: result.session.csrfToken, verificationDelivery: result.deliveryStatus };
+  }
+
+  @Post('contact/email/resend')
+  @UseGuards(SessionAuthGuard)
+  @AllowUnverifiedContact()
+  async resendEmail(@Req() req: AuthenticatedFastifyRequest) {
+    return { deliveryStatus: await this.contacts.resend(requirePrincipal(req).userId) };
+  }
+
+  @Post('contact/email/confirm')
+  @UseGuards(SessionAuthGuard)
+  @AllowUnverifiedContact()
+  async confirmEmail(
+    @Body(new ZodValidationPipe(EmailCodeSchema)) body: z.infer<typeof EmailCodeSchema>,
+    @Req() req: AuthenticatedFastifyRequest,
+    @Res({ passthrough: true }) res: FastifyReply,
+  ) {
+    const principal = requirePrincipal(req);
+    await this.contacts.confirm(principal.userId, body.code);
+    // Upgrade restricted sessions with a new opaque token; MFA remains independently required.
+    const session = await this.sessions.rotate(principal.sessionId, { mfaSatisfiedAt: null, reason: 'CONTACT_EMAIL_VERIFIED' });
+    setSessionCookies(res, session);
+    return { verified: true, csrfToken: session.csrfToken };
   }
 
   @Post('login')
@@ -108,6 +136,7 @@ export class AuthController {
     const token = req.cookies[sessionCookieName()];
     if (!token) throw new UnauthorizedException();
     const session = await this.sessions.resolve(token);
+    const verifiedIdentity = await this.auth.identityVerificationSummary(session.user.id);
     return {
       user: {
         id: session.user.id,
@@ -115,6 +144,11 @@ export class AuthController {
         givenName: session.user.givenName,
         familyName: session.user.familyName,
         status: session.user.status,
+        emailVerifiedAt: session.user.emailVerifiedAt,
+        phoneVerifiedAt: session.user.phoneE164 ? session.user.phoneVerifiedAt : null,
+        contactVerified: contactVerified(session.user),
+        identityVerificationStatus: verifiedIdentity,
+        transactionPinStatus: 'NOT_AVAILABLE',
       },
       roles: session.user.roleAssignments.map((assignment) => assignment.role.code),
       permissions: [...new Set(session.user.roleAssignments.flatMap((assignment) => assignment.role.permissions.map((item) => item.permission.code)))],

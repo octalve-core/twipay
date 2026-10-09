@@ -48,6 +48,9 @@ enum SecurityEventType {
   SESSION_ROTATED
   SESSION_EXPIRED
   ACCOUNT_SUSPENDED
+  CONTACT_CHALLENGE_ISSUED
+  CONTACT_CHALLENGE_FAILED
+  CONTACT_EMAIL_VERIFIED
 }
 
 enum LedgerAccountCategory {
@@ -345,6 +348,7 @@ model User {
   passwordCredential    PasswordCredential?
   oauthIdentities       OAuthIdentity[]
   sessions              Session[]
+  contactChallenges     ContactVerificationChallenge[]
   securityEvents        SecurityEvent[]
   mfaCredentials        MfaCredential[]
   roleAssignments       UserRole[]
@@ -379,6 +383,22 @@ model User {
 
   @@index([status])
   @@map("users")
+}
+
+model ContactVerificationChallenge {
+  id             String   @id @default(uuid()) @db.Uuid
+  userId         String   @db.Uuid
+  email          String   @db.VarChar(320)
+  codeHash       String   @db.Char(64)
+  failedAttempts Int      @default(0)
+  expiresAt      DateTime @db.Timestamptz(6)
+  consumedAt     DateTime? @db.Timestamptz(6)
+  createdAt      DateTime @default(now()) @db.Timestamptz(6)
+  user           User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([userId, createdAt])
+  @@index([expiresAt])
+  @@map("contact_verification_challenges")
 }
 
 model PasswordCredential {

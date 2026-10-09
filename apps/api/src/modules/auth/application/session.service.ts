@@ -83,7 +83,7 @@ export class SessionService {
     const now = new Date();
     const session = await this.prisma.session.findUnique({
       where: { tokenHash: hash(token, this.pepper()) },
-      include: { user: { include: { roleAssignments: { include: { role: { include: { permissions: { include: { permission: true } } } } } } } } },
+      include: { user: { include: { roleAssignments: { include: { role: { include: { permissions: { include: { permission: true } } } } } }, mfaCredentials: { where: { status: 'ACTIVE' }, select: { id: true } } } } },
     });
     if (!session || session.status !== 'ACTIVE') throw new UnauthorizedException({ code: 'AUTHENTICATION_REQUIRED' });
 
