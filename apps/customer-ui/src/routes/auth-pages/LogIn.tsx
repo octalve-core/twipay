@@ -7,9 +7,10 @@ import { useAuth } from "@/context/AuthContext";
 import { Navigate } from "react-router-dom";
 
 const Login = () => {
-  const {user} = useAuth();
+  const {user, loading, mfaRequired} = useAuth();
 
-  if(user) return <Navigate to="/dashboard" replace />
+  if (loading) return <main role="status" className="min-h-screen grid place-items-center text-[#667085]">Checking your session…</main>;
+  if (user) return <Navigate to={mfaRequired ? "/auth/two-factor-authentication" : "/dashboard"} replace />
 
   return (
     <div className="flex items-center h-screen">

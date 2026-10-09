@@ -65,7 +65,10 @@ test('session authentication comes from the server, not persistent browser token
  const s=text('src/context/AuthContext.tsx');
  assert.match(s,/getCurrentSession/);assert.match(s,/mfaRequired/);
  assert.doesNotMatch(s,/localStorage\.|sessionStorage\./);
- assert.match(text('src/routes/layout/DashboardLayout.tsx'),/mfaRequired/);
+ assert.match(text('src/routes/layout/DashboardLayout.tsx'),/AuthenticatedCustomerRoute/);
+ const guard=text('src/routes/layout/AuthenticatedCustomerRoute.tsx');
+ assert.match(guard,/mfaRequired/);
+ assert.match(guard,/if \(!user\)/);
 });
 test('no active mock credit-card number or fake live balance',()=>{
  assert.doesNotMatch(text('src/components/dashboard/main-page/CreditCard.tsx'),/1234 1234|1,650,000/);

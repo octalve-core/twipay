@@ -677,6 +677,8 @@ export const settingsData = [
   },
 ];
 
+import { isPathUnderAnyPrefix } from "./routePath";
+
 // Batch A: originals remain in source; unavailable capabilities are not published as active flows.
 // Betting is excluded permanently by business decision; never enable it via feature flags.
 export const removedProductRoutes = ["/dashboard/services/betting"] as const;
@@ -687,9 +689,12 @@ export const futureProductRoutes = [
   "/dashboard/book-flight", "/dashboard/flight", "/dashboard/airline",
   "/dashboard/hotels", "/dashboard/hotel",
   "/dashboard/referral", "/dashboard/affiliate",
+  // Email-to-user transfers have no server-enforced TwiPay ledger contract yet.
+  "/dashboard/transfer-funds",
 ] as const;
 export const isDeferredOrExcludedRoute = (path: string): boolean =>
-  [...removedProductRoutes, ...futureProductRoutes].some((prefix) => path === prefix || path.startsWith(`${prefix}/`));
+  isPathUnderAnyPrefix(path, [...removedProductRoutes, ...futureProductRoutes]);
+export const activeQuickActions = quickActions.filter((entry) => !isDeferredOrExcludedRoute(entry.href));
 export const activeDashboardLinks = dashboardLinks
   .filter((entry) => !isDeferredOrExcludedRoute(entry.link))
   .map((entry) => ({ ...entry, subCategories: entry.subCategories?.filter((item) => !isDeferredOrExcludedRoute(item.href)) ?? null }));

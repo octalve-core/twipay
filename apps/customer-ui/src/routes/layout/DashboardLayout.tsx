@@ -1,23 +1,15 @@
-import { Navigate, Outlet } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 
 import ScrollToTop from "@/components/ScrollToTop";
 import Sidebar from "../../components/dashboard/sidebar/Sidebar";
 import DashboardHeader from "../../components/dashboard/DashboardHeader";
 import { useRef } from "react";
-import { useAuth } from "@/context/AuthContext";
+import AuthenticatedCustomerRoute from "./AuthenticatedCustomerRoute";
 
 const DashboardLayout = () => {
     const scrollRef = useRef<HTMLDivElement>(null);
-    const {loading, user, mfaRequired} = useAuth();
-
-    if(loading) return null; 
-    if(!user) return <Navigate to="/auth/login" replace />
-    if(mfaRequired) return <Navigate to="/auth/two-factor-authentication" replace />
-
-    // const userDatailFilled = !!(user.username && user.gender && user.country && user.state);
-    // if(!userDatailFilled) return <Navigate to="/auth/user-details" replace />
-
     return (
+      <AuthenticatedCustomerRoute>
         <div className="h-screen fixed left-1/2 -translate-x-1/2 overflow-y-hidden flex items-start w-full max-w-[1440px] mx-auto">
             <div className="hidden md:block h-full">
                 <Sidebar />
@@ -31,6 +23,7 @@ const DashboardLayout = () => {
                 </div>
             </main>
         </div>
+      </AuthenticatedCustomerRoute>
     )
 }
 

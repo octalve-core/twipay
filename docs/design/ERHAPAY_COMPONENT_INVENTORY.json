@@ -8,9 +8,9 @@
     "stylesheet": "src/index.css"
   },
   "colors": {
-    "#112929": 447,
+    "#112929": 451,
     "#344054": 355,
-    "#667085": 266,
+    "#667085": 270,
     "#D0D5DD": 170,
     "#717171": 140,
     "#101828": 76,
@@ -22,8 +22,8 @@
     "#F0F2F5": 16,
     "#1129290D": 15,
     "#98A2B3": 15,
+    "#F9FAFB": 15,
     "#12B76A": 13,
-    "#F9FAFB": 13,
     "#039855": 12,
     "#101928": 10,
     "#667185": 10,
@@ -111,9 +111,11 @@
     "lg": 1
   },
   "layouts": [
+    "src/routes/layout/AuthenticatedCustomerRoute.tsx",
     "src/routes/layout/AuthLayout.tsx",
     "src/routes/layout/DashboardLayout.tsx",
     "src/routes/layout/MainLayout.tsx",
+    "src/routes/layout/MfaChallengeRoute.tsx",
     "src/routes/layout/ReceiptLayout.tsx"
   ],
   "routes": {
@@ -506,9 +508,9 @@
     "baseline": "docs/design/ERHAPAY_ORIGINAL_VISUAL_ASSETS.json"
   },
   "counts": {
-    "reactFiles": 258,
-    "sourceFiles": 318,
-    "totalSrcFiles": 458
+    "reactFiles": 260,
+    "sourceFiles": 321,
+    "totalSrcFiles": 461
   },
   "keyFiles": {
     "dashboardLayout": "src/routes/layout/DashboardLayout.tsx",

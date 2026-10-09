@@ -19,6 +19,7 @@ const location = useLocation();
                     return (
                         <Link 
                             key={id} 
+                            aria-current={isActive ? "page" : undefined}
                             {...(closeSidebar && {onClick: closeSidebar})}
                             className={cn( isActive ? "text-[#112929] font-medium" : "text-[#727884] hover:text-[#112929] transition duration-300")} 
                             to={link}

@@ -9,6 +9,8 @@ import { Toaster } from 'sonner';
 
 
 import { isDeferredOrExcludedRoute } from "./lib/constants";
+import AuthenticatedCustomerRoute from "./routes/layout/AuthenticatedCustomerRoute";
+import MfaChallengeRoute from "./routes/layout/MfaChallengeRoute";
 import Homepage from "./routes/external-pages/Homepage";
 import About from "./routes/external-pages/About";
 import MainLayout from "./routes/layout/MainLayout";
@@ -35,7 +37,6 @@ import { AlertTriangle, Info } from "lucide-react";
 import { FaCircleCheck } from "react-icons/fa6";
 import TransferFunds from "./routes/dashboard/TransferFunds";
 import ReferralPage from "./routes/dashboard/ReferralPage";
-import Status from "./routes/dashboard/Status";
 import ReceiptLayout from "./routes/layout/ReceiptLayout";
 import WithdrawFunds from "./routes/dashboard/WithdrawFunds";
 import AddFunds from "./routes/dashboard/AddFunds";
@@ -129,7 +130,7 @@ function App() {
         },
         {
           path: "two-factor-authentication",
-          element: <TwoFAOtp />,
+          element: <MfaChallengeRoute><TwoFAOtp /></MfaChallengeRoute>,
         },
         {
           path: "signup",
@@ -275,7 +276,8 @@ function App() {
         },       
         {
           path: "status",
-          element: <Status />
+          // Retired mock status page declared success with a hardcoded balance/recipient.
+          element: <Navigate to="/dashboard/history" replace />
         },
         {
           path: "settings",
@@ -329,7 +331,7 @@ function App() {
     },
     {
       path: "/receipt",
-      element: <ReceiptLayout />
+      element: <AuthenticatedCustomerRoute><ReceiptLayout /></AuthenticatedCustomerRoute>
     },
     {
       path: "*",
