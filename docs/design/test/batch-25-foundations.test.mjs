@@ -67,13 +67,19 @@ test('saved beneficiary page uses server-owned masked records, is default off an
  assert.match(api,/api\.get\('\/transfers\/beneficiaries'\)/);
  assert.doesNotMatch(source,/localStorage|beneficiaries=\[/);
 });
-test('notification preferences and support centre do not imply unimplemented messages are sent',()=>{
+test('notification preferences remain unavailable while authenticated general support uses a real backend',()=>{
  const notif=read(root+'routes/dashboard/foundations/NotificationPreferences.tsx');
  const support=read(root+'routes/dashboard/foundations/SupportCentre.tsx');
+ const client=read(root+'lib/api/dashboard-apis/supportCases.ts');
+ const controller=read('apps/api/src/modules/operations/presentation/customer-operations.controller.ts');
  assert.match(notif,/when they can be saved securely/);
- assert.match(support,/dedicated help inbox/);
- for(const s of [notif,support])assert.doesNotMatch(s,/onSubmit|axios|setPreference|sendMessage/);
+ assert.doesNotMatch(notif,/onSubmit|axios|setPreference|sendMessage/);
+ assert.match(support,/openSupportCase/);
+ assert.match(support,/replySupportCase/);
  assert.match(support,/dashboard\/settings\/support/);
+ assert.match(client,/api\.post\('\/support\/cases'/);
+ assert.match(controller,/@Post\('support\/cases'\)/);
+ assert.doesNotMatch(support,/localStorage|sessionStorage/);
  assert.match(notif,/dashboard\/notifications/);
 });
 test('ticket history calls real authenticated orders and never fetches ticket bearer credentials',()=>{
