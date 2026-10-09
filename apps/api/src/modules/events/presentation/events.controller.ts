@@ -31,7 +31,7 @@ const CheckoutSchema = z.object({
   expectedTotalMinor: z.string().regex(/^[1-9]\d{0,18}$/),
   transactionPin: z.string().regex(/^\d{4}$/),
 }).strict();
-const CheckInSchema = z.object({ qrPayload: z.string().min(60).max(300), requestId: z.string().trim().min(8).max(64).optional() }).strict();
+const CheckInSchema = z.object({ eventId: z.uuid(), qrPayload: z.string().regex(/^twipay-ticket:v1:[A-Za-z0-9_-]{8,100}:[A-Za-z0-9_-]{40,80}$/), requestId: z.string().trim().min(8).max(64).optional() }).strict();
 const StaffSchema = z.object({ email: z.email().max(320) }).strict();
 
 function requireIdempotencyKey(value: string | undefined): string {
@@ -39,6 +39,12 @@ function requireIdempotencyKey(value: string | undefined): string {
   return value;
 }
 function iso(value?: string): Date | undefined { return value ? new Date(value) : undefined; }
+/** Admission is independent of marketplace/public UI toggles and can never run in production until qualified. */
+function assertTicketAdmissionSandbox(): void {
+  if (process.env['NODE_ENV'] === 'production' || process.env['EVENT_TICKET_QR_SANDBOX_ENABLED'] !== 'true') {
+    throw new NotFoundException({ code: 'EVENT_TICKET_QR_NOT_QUALIFIED' });
+  }
+}
 function serializeEvent(event: {
   id: string; slug: string; title: string; description: string | null; status: string; venueName: string | null; venueAddress: string | null;
   startsAt: Date; endsAt: Date | null; salesStartsAt: Date | null; salesEndsAt: Date | null;
@@ -194,9 +200,7 @@ export class EventsController {
     @Req() req: AuthenticatedFastifyRequest,
     @Res({ passthrough: true }) res: FastifyReply,
   ) {
-    if (process.env['NODE_ENV'] === 'production' || process.env['EVENT_TICKET_QR_SANDBOX_ENABLED'] !== 'true') {
-      throw new NotFoundException({ code: 'EVENT_TICKET_QR_NOT_QUALIFIED' });
-    }
+    assertTicketAdmissionSandbox();
     if (!/^[A-Za-z0-9._:-]{1,100}$/.test(reference) || !/^TWP-[A-Za-z0-9_-]{8,100}$/.test(publicCode)) {
       throw new NotFoundException({ code: 'EVENT_TICKET_NOT_FOUND' });
     }
@@ -229,11 +233,21 @@ export class EventsController {
     return { assignment: await this.events.revokeEventStaff({ ownerUserId: principal.userId, eventId, assignmentId }) };
   }
 
+  /** Only eligible organizer owners and delegated active staff are shown. No ticket secrets in this response. */
+  @Get('tickets/check-in/assignments')
+  @UseGuards(SessionAuthGuard)
+  async checkInAssignments(@Req() req: AuthenticatedFastifyRequest) {
+    assertTicketAdmissionSandbox();
+    const principal = requirePrincipal(req);
+    return { events: await this.events.listCheckInEvents(principal.userId) };
+  }
+
   @Post('tickets/check-in')
   @UseGuards(SessionAuthGuard)
   async checkIn(@Body(new ZodValidationPipe(CheckInSchema)) body: z.infer<typeof CheckInSchema>, @Req() req: AuthenticatedFastifyRequest) {
+    assertTicketAdmissionSandbox();
     const principal = requirePrincipal(req);
-    return { ticket: await this.events.checkIn({ staffUserId: principal.userId, qrPayload: body.qrPayload, ...(body.requestId ? { requestId: body.requestId } : {}) }) };
+    return { ticket: await this.events.checkIn({ staffUserId: principal.userId, eventId: body.eventId, qrPayload: body.qrPayload, ...(body.requestId ? { requestId: body.requestId } : {}) }) };
   }
 
   @Get('organizers/:organizerId/settlement')

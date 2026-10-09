@@ -385,9 +385,11 @@ export class EventService {
   async getTicketCredentialForUser(userId: string, reference: string, publicCode: string) {
     const order = await this.prisma.eventOrder.findFirst({
       where: { userId, reference, status: 'PAID' },
-      select: { id: true },
+      select: { id: true, event: { select: { status: true, organizer: { select: { status: true } } } } },
     });
-    if (!order) throw new NotFoundException({ code: 'EVENT_TICKET_NOT_FOUND' });
+    if (!order || !['PUBLISHED', 'SOLD_OUT'].includes(order.event.status) || order.event.organizer.status !== 'ACTIVE') {
+      throw new NotFoundException({ code: 'EVENT_TICKET_NOT_FOUND' });
+    }
     const ticket = await this.prisma.eventTicket.findFirst({
       where: { orderId: order.id, publicCode, status: 'ACTIVE' },
       select: { id: true, publicCode: true, status: true, credentialCiphertext: true, credentialFingerprint: true, credentialKeyVersion: true },
@@ -408,14 +410,15 @@ export class EventService {
   async assignCheckInStaff(input: { ownerUserId: string; eventId: string; staffEmail: string }) {
     const event = await this.prisma.event.findUnique({ where: { id: input.eventId }, include: { organizer: true } });
     if (!event || event.organizer.ownerUserId !== input.ownerUserId) throw new NotFoundException({ code: 'EVENT_NOT_FOUND' });
-    const staff = await this.prisma.user.findUnique({ where: { email: input.staffEmail.trim().toLowerCase() }, select: { id: true, email: true, givenName: true, familyName: true, status: true } });
-    if (!staff || staff.status !== 'ACTIVE') throw new NotFoundException({ code: 'EVENT_STAFF_USER_NOT_FOUND' });
+    const staff = await this.prisma.user.findUnique({ where: { email: input.staffEmail.trim().toLowerCase() }, select: { id: true, email: true, emailVerifiedAt: true, givenName: true, familyName: true, status: true } });
+    if (!staff || staff.status !== 'ACTIVE' || !staff.emailVerifiedAt) throw new NotFoundException({ code: 'EVENT_STAFF_USER_NOT_FOUND' });
     if (staff.id === input.ownerUserId) throw new ConflictException({ code: 'ORGANIZER_OWNER_ALREADY_AUTHORIZED' });
     const assignment = await this.prisma.eventStaffAssignment.upsert({
       where: { eventId_userId_role: { eventId: event.id, userId: staff.id, role: 'CHECK_IN' } },
       create: { eventId: event.id, userId: staff.id, role: 'CHECK_IN', invitedByUserId: input.ownerUserId },
-      update: { status: 'ACTIVE' },
+      update: {}, // A revoked assignment is never silently reactivated by an idempotent invitation.
     });
+    if (assignment.status !== 'ACTIVE') throw new ConflictException({ code: 'EVENT_STAFF_ASSIGNMENT_REVOKED' });
     return { id: assignment.id, eventId: assignment.eventId, role: assignment.role, status: assignment.status, staff };
   }
 
@@ -435,8 +438,26 @@ export class EventService {
     return this.prisma.eventStaffAssignment.update({ where: { id: assignment.id }, data: { status: 'REVOKED' } });
   }
 
-  async checkIn(input: { staffUserId: string; qrPayload: string; requestId?: string }) {
-    const publicCode = extractTicketPublicCode(input.qrPayload);
+  /** Authorized event metadata only: never return ticket credentials or buyer details. */
+  async listCheckInEvents(userId: string) {
+    const events = await this.prisma.event.findMany({
+      where: {
+        status: { in: ['PUBLISHED', 'SOLD_OUT'] }, organizer: { status: 'ACTIVE' },
+        OR: [
+          { organizer: { ownerUserId: userId, status: 'ACTIVE' } },
+          { staffAssignments: { some: { userId, role: 'CHECK_IN', status: 'ACTIVE' } } },
+        ],
+      },
+      select: { id: true, title: true, startsAt: true, venueName: true, status: true },
+      orderBy: { startsAt: 'desc' }, take: 100,
+    });
+    return events;
+  }
+
+  async checkIn(input: { staffUserId: string; eventId: string; qrPayload: string; requestId?: string }) {
+    let publicCode: string;
+    try { publicCode = extractTicketPublicCode(input.qrPayload); }
+    catch { throw new BadRequestException({ code: 'TICKET_INVALID_CREDENTIAL' }); }
     return this.prisma.$transaction(async (tx) => {
       await tx.$queryRaw`SELECT "id" FROM "event_tickets" WHERE "publicCode" = ${publicCode} FOR UPDATE`;
       const ticket = await tx.eventTicket.findUnique({
@@ -444,20 +465,39 @@ export class EventService {
         include: { order: { include: { event: { include: { organizer: true } } } }, ticketType: true, checkIn: true },
       });
       if (!ticket) throw new NotFoundException({ code: 'TICKET_NOT_FOUND' });
+      if (ticket.order.event.id !== input.eventId) throw new NotFoundException({ code: 'TICKET_NOT_FOUND' });
+      // Recheck ownership and staff revocation inside the same locked ticket transaction.
+      if (ticket.order.event.organizer.status !== 'ACTIVE' ||
+          !['PUBLISHED', 'SOLD_OUT'].includes(ticket.order.event.status) ||
+          ticket.order.status !== 'PAID') throw new NotFoundException({ code: 'TICKET_NOT_FOUND' });
       const organizerOwns = ticket.order.event.organizer.ownerUserId === input.staffUserId;
-      const delegated = organizerOwns ? null : await tx.eventStaffAssignment.findFirst({ where: { eventId: ticket.order.event.id, userId: input.staffUserId, role: 'CHECK_IN', status: 'ACTIVE' }, select: { id: true } });
-      if (!organizerOwns && !delegated) throw new NotFoundException({ code: 'TICKET_NOT_FOUND' });
+      if (!organizerOwns) {
+        // Share lock serializes scans with concurrent staff revocation (which updates this row).
+        const assignments = await tx.$queryRaw<Array<{ id: string }>>`
+          SELECT "id" FROM "event_staff_assignments"
+          WHERE "eventId" = ${ticket.order.event.id}::uuid
+            AND "userId" = ${input.staffUserId}::uuid AND "role" = 'CHECK_IN'::"EventStaffRole"
+            AND "status" = 'ACTIVE'::"EventStaffStatus" FOR SHARE`;
+        if (assignments.length === 0) throw new NotFoundException({ code: 'TICKET_NOT_FOUND' });
+      }
       const ticketSigning = ticketSigningConfig();
       const signingKey = ticketSigning.keys.get(ticket.credentialKeyVersion);
       if (!signingKey) throw new ConflictException({ code: 'TICKET_SIGNING_KEY_VERSION_UNAVAILABLE' });
-      parseAndVerifyTicketCredential(input.qrPayload, ticket.credentialFingerprint, signingKey);
+      try { parseAndVerifyTicketCredential(input.qrPayload, ticket.credentialFingerprint, signingKey); }
+      catch { throw new BadRequestException({ code: 'TICKET_INVALID_CREDENTIAL' }); }
       if (ticket.status === 'CHECKED_IN' || ticket.checkIn) throw new ConflictException({ code: 'TICKET_ALREADY_CHECKED_IN', checkedInAt: ticket.checkIn?.checkedInAt });
       if (ticket.status !== 'ACTIVE') throw new ConflictException({ code: 'TICKET_NOT_ACTIVE', status: ticket.status });
       const checkIn = await tx.ticketCheckIn.create({
         data: { ticketId: ticket.id, checkedInByUserId: input.staffUserId, requestId: input.requestId },
       });
       await tx.eventTicket.update({ where: { id: ticket.id }, data: { status: 'CHECKED_IN' } });
-      return { publicCode: ticket.publicCode, status: 'CHECKED_IN', checkedInAt: checkIn.checkedInAt, ticketType: ticket.ticketType.name, eventTitle: ticket.order.event.title };
+      await tx.operationalAuditEvent.create({ data: {
+        actorUserId: input.staffUserId, action: 'EVENT_TICKET_CHECKED_IN',
+        targetType: 'event_ticket', targetId: ticket.id,
+        ...(input.requestId ? { requestId: input.requestId } : {}),
+        afterState: { eventId: ticket.order.event.id, orderId: ticket.order.id, status: 'CHECKED_IN' },
+      } });
+      return { eventId: ticket.order.event.id, publicCode: ticket.publicCode, status: 'CHECKED_IN', checkedInAt: checkIn.checkedInAt, ticketType: ticket.ticketType.name, eventTitle: ticket.order.event.title };
     });
   }
 
