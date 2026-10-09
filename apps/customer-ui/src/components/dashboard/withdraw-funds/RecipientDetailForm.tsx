@@ -7,7 +7,7 @@ import { Popover,PopoverContent,PopoverTrigger } from '@/components/ui/popover';
 import { Command,CommandInput,CommandList,CommandEmpty,CommandGroup,CommandItem } from '@/components/ui/command';
 import useWithdrawFundsStore from '@/stores/useWithdrawFunds';
 import { nairaToMinor } from '@/lib/api/dashboard-apis/funding';
-import { listTransferBanks, resolveBankAccount, type PayoutProvider } from '@/lib/api/dashboard-apis/transfers';
+import { listTransferBanks, resolveBankAccount, listSavedBeneficiaries, type SavedBeneficiary, type PayoutProvider } from '@/lib/api/dashboard-apis/transfers';
 
 const sandboxEnabled = import.meta.env.VITE_TWIPAY_TRANSFER_SANDBOX_ENABLED === 'true';
 
@@ -15,6 +15,8 @@ const sandboxEnabled = import.meta.env.VITE_TWIPAY_TRANSFER_SANDBOX_ENABLED === 
 const RecipientDetailForm = () => {
   const {amount,update,provider: savedProvider} = useWithdrawFundsStore();
   const [provider,setProvider]=useState<PayoutProvider>(savedProvider);
+  const [savedRecipient,setSavedRecipient]=useState<SavedBeneficiary|null>(null);
+  const {data:savedRecipients=[]}=useQuery({queryKey:['twipay','saved-beneficiaries'],queryFn:listSavedBeneficiaries,enabled:sandboxEnabled,retry:1});
   const [bankCode,setBankCode]=useState('');
   const [bankDropdownOpen,setBankDropdownOpen]=useState(false);
   const {data:banks=[],isLoading:loadingBanks,error:bankError} = useQuery({
@@ -31,7 +33,7 @@ const RecipientDetailForm = () => {
   const verificationGeneration=useRef(0);
   const [error,setError]=useState('');
   const fieldStyle='w-full mt-1.5 border-[0.5px] border-[#D0D5DD] rounded-lg py-2.5 px-3.5 bg-white outline-none focus:border-[#112929] text-sm text-[#344054]';
-  function changed(){verificationGeneration.current+=1;setVerified(null);setError('');}
+  function changed(){verificationGeneration.current+=1;setVerified(null);setSavedRecipient(null);setError('');}
   async function verify() {
     if (busy || !sandboxEnabled) return;
     const generation=++verificationGeneration.current;
@@ -49,13 +51,31 @@ const RecipientDetailForm = () => {
   }
   function proceed(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if(!sandboxEnabled || busy || !verified) return;
+    if(!sandboxEnabled || busy || (!verified && !savedRecipient)) return;
     if(narration.trim().length<3 || narration.trim().length>120){setError('Narration must contain 3–120 characters');return;}
-    update({step:3,provider,selectedBank:{bankCode:bankCode.trim(),name:verified.bankName??banks.find(bank=>bank.bankCode===bankCode.trim())?.name??`Bank code ${bankCode.trim()}`},
+    if (savedRecipient && savedRecipient.providerCode) {
+      update({step:3,provider:savedRecipient.providerCode,savedBeneficiaryId:savedRecipient.id,
+        selectedBank:{bankCode:savedRecipient.bankCode,name:`Bank code ${savedRecipient.bankCode}`},
+        bank_account:savedRecipient.accountNumberMasked,accountName:savedRecipient.accountName,note:narration.trim()});
+      return;
+    }
+    if (!verified) return;
+    update({step:3,provider,savedBeneficiaryId:null,selectedBank:{bankCode:bankCode.trim(),name:verified.bankName??banks.find(bank=>bank.bankCode===bankCode.trim())?.name??`Bank code ${bankCode.trim()}`},
       bank_account:accountNumber,accountName:verified.accountName,note:narration.trim()});
   }
   return <form onSubmit={proceed} className="w-full mt-14 md:mt-5">
-    <div className="w-full">
+    {sandboxEnabled && savedRecipients.some(b=>b.providerCode) && <div className="w-full mb-5">
+      <label className="text-sm text-[#344054] font-medium" htmlFor="payout-saved">Saved recipient</label>
+      <select id="payout-saved" className={fieldStyle} value={savedRecipient?.id??''} onChange={e=>{
+        verificationGeneration.current+=1;setVerified(null);setError('');
+        setSavedRecipient(savedRecipients.find(b=>b.id===e.target.value && b.providerCode)??null);
+      }}>
+        <option value="">Enter bank details manually</option>
+        {savedRecipients.filter(b=>b.providerCode).map(b=><option value={b.id} key={b.id}>{b.nickname||b.accountName} — {b.accountNumberMasked} ({b.providerCode})</option>)}
+      </select>
+      {savedRecipient && <p className="text-sm text-[#344054] mt-2" role="status">{savedRecipient.accountName}, bank code {savedRecipient.bankCode}, {savedRecipient.accountNumberMasked}. The provider will verify these details again before payment.</p>}
+    </div>}
+    {!savedRecipient && <><div className="w-full">
       <label className="text-sm text-[#344054] font-medium" htmlFor="payout-provider">Payment provider</label>
       <select id="payout-provider" className={fieldStyle} value={provider} onChange={e=>{setProvider(e.target.value as PayoutProvider);setBankCode('');changed()}}>
         <option value="paystack">Paystack</option><option value="monnify">Monnify</option>
@@ -93,6 +113,7 @@ const RecipientDetailForm = () => {
       <label className="text-sm text-[#344054] font-medium" htmlFor="payout-account">Account number</label>
       <input id="payout-account" className={fieldStyle} value={accountNumber} onChange={e=>{setAccountNumber(e.target.value.replace(/\D/g,'').slice(0,10));changed()}} inputMode="numeric" autoComplete="off" maxLength={10} placeholder="10-digit account number" />
     </div>
+    </>}
     <div className="w-full mt-5">
       <label className="text-sm text-[#344054] font-medium" htmlFor="payout-narration">Narration</label>
       <input id="payout-narration" className={fieldStyle} value={narration} onChange={e=>setNarration(e.target.value)} maxLength={120} />
@@ -100,10 +121,10 @@ const RecipientDetailForm = () => {
     {verified && <p className="text-sm text-[#039855] mt-3" role="status">Verified beneficiary: <strong>{verified.accountName}</strong>{verified.bankName?` (${verified.bankName})`:''}</p>}
     {error && <p className="text-red-600 text-sm mt-3" role="alert">{error}</p>}
     {!sandboxEnabled && <p role="status" className="mt-5 text-sm text-[#717171]">Bank transfers are temporarily unavailable. No money will be sent from this page.</p>}
-    <CustomButton type="button" disabled={!sandboxEnabled || busy || loadingBanks || !!bankError || !banks.some(bank=>bank.bankCode===bankCode) || !/^\d{10}$/.test(accountNumber)} onClick={()=>void verify()} className="mt-7 w-full">
+    {!savedRecipient && <CustomButton type="button" disabled={!sandboxEnabled || busy || loadingBanks || !!bankError || !banks.some(bank=>bank.bankCode===bankCode) || !/^\d{10}$/.test(accountNumber)} onClick={()=>void verify()} className="mt-7 w-full">
       {busy?'Verifying account…':'Verify account'}
-    </CustomButton>
-    <CustomButton disabled={!sandboxEnabled || busy || !verified} className="mt-2 w-full">Proceed - <span className="opacity-60">Confirm</span></CustomButton>
+    </CustomButton>}
+    <CustomButton disabled={!sandboxEnabled || busy || (!verified && !savedRecipient)} className="mt-2 w-full">Proceed - <span className="opacity-60">Confirm</span></CustomButton>
   </form>;
 };
 export default RecipientDetailForm;

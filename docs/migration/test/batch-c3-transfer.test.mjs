@@ -106,7 +106,8 @@ test('C3 bank payout checks expected beneficiary against fresh server-side provi
 });
 test('C3 cannot treat a pending or unknown provider response as successful transfer',()=>{
   const ui=read('apps/customer-ui/src/components/dashboard/withdraw-funds/Status.tsx');
-  assert.match(ui,/txnResult\?\.status==='SUCCEEDED'/);
+  assert.match(ui,/const succeeded=status==='SUCCEEDED'/);
+  assert.match(ui,/confirmed\?\.status\?\?txnResult\?\.status/);
   assert.match(ui,/Transfer awaiting confirmation/);
   assert.doesNotMatch(ui,/txnResult \? SuccessIcon/);
 });

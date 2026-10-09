@@ -7,6 +7,7 @@ type WithdrawState = {
   provider: PayoutProvider;
   selectedBank: Bank | null;
   bank_account: string;
+  savedBeneficiaryId: string | null;
   accountName: string;
   amount: string;
   note: string;
@@ -15,7 +16,7 @@ type WithdrawState = {
   reset: () => void;
 };
 const initial = {
-  step: 1, provider:'paystack' as const, selectedBank: null, bank_account:'',
+  step: 1, provider:'paystack' as const, selectedBank: null, bank_account:'', savedBeneficiaryId: null,
   accountName:'', amount:'',note:'',txnResult:null,
 };
 const useWithdrawFundsStore = create<WithdrawState>((set)=>({

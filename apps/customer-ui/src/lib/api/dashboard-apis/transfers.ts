@@ -107,7 +107,7 @@ export async function getBankTransferQuote(input: TransferIntent): Promise<BankT
   return q;
 }
 export type SavedBeneficiary = {
-  id: string; bankCode: string; accountName: string; accountNumberMasked: string;
+  id: string; bankCode: string; providerCode: PayoutProvider | null; accountName: string; accountNumberMasked: string;
   nickname: string | null; currency: string; updatedAt?: string;
 };
 export async function listSavedBeneficiaries(): Promise<SavedBeneficiary[]> {
@@ -117,7 +117,8 @@ export async function listSavedBeneficiaries(): Promise<SavedBeneficiary[]> {
   return records.map((record:unknown) => {
     const b = record as SavedBeneficiary;
     if (!b || !/^[0-9a-f-]{36}$/.test(b.id) || !/^\*{6}\d{4}$/.test(b.accountNumberMasked)
-      || typeof b.accountName !== 'string' || typeof b.bankCode !== 'string' || b.currency !== 'NGN') {
+      || typeof b.accountName !== 'string' || typeof b.bankCode !== 'string' || b.currency !== 'NGN'
+      || (b.providerCode !== null && !validProvider(b.providerCode))) {
       throw new Error('Invalid saved beneficiary');
     }
     return b;
@@ -136,6 +137,33 @@ export async function removeSavedBeneficiary(id: string) {
   await api.delete(`/transfers/beneficiaries/${id}`);
 }
 
+export type SavedTransferIntent = { savedBeneficiaryId: string; provider: PayoutProvider; bankCode: string;
+  accountNumberMasked: string; accountName: string; amountNaira: string; narration: string };
+const uuid = (id: string) => /^[0-9a-f-]{36}$/.test(id);
+function savedDetails(input: SavedTransferIntent) {
+  const amountMinor=nairaToMinor(input.amountNaira);
+  if (!uuid(input.savedBeneficiaryId) || !validProvider(input.provider) || !/^[A-Za-z0-9_-]{2,20}$/.test(input.bankCode)
+    || !/^\*{6}\d{4}$/.test(input.accountNumberMasked) || input.accountName.trim().length<2
+    || input.narration.trim().length<3 || input.narration.trim().length>120) throw new Error('Invalid saved recipient');
+  return { beneficiaryId:input.savedBeneficiaryId, amountMinor, narration:input.narration.trim(), currency:'NGN' as const };
+}
+export async function getSavedBankTransferQuote(input: SavedTransferIntent): Promise<BankTransferQuote> {
+  if (import.meta.env.VITE_TWIPAY_TRANSFER_SANDBOX_ENABLED !== 'true') throw new Error('Bank transfers are currently unavailable');
+  const d=savedDetails(input);
+  const response=await api.post(`/transfers/beneficiaries/${d.beneficiaryId}/quote`,{
+    amountMinor:d.amountMinor,narration:d.narration,currency:d.currency });
+  const q=response.data as BankTransferQuote;
+  if (!q || q.provider!==input.provider || q.bankCode!==input.bankCode ||
+    q.accountNumberMasked!==input.accountNumberMasked || q.amountMinor!==d.amountMinor ||
+    typeof q.accountName!=='string' || q.accountName.trim().length<2 || q.currency!=='NGN' ||
+    !uuid(q.quoteId) || typeof q.quoteToken!=='string' || q.quoteToken.length<80 ||
+    !/^(0|[1-9]\d*)$/.test(q.feeMinor) ||
+    q.totalDebitMinor !== (BigInt(q.amountMinor)+BigInt(q.feeMinor)).toString() ||
+    !Number.isFinite(Date.parse(q.expiresAt)) || Date.parse(q.expiresAt)<=Date.now()) {
+    throw new Error('Saved recipient quote could not be verified');
+  }
+  return q;
+}
 type SavedPayout = { digest: string; key: string; createdAt: number; reference?: string };
 function existingAttempt(): SavedPayout | null {
   try {
@@ -149,8 +177,8 @@ function existingAttempt(): SavedPayout | null {
 }
 
 /** Avoid putting beneficiary account data in sessionStorage; only SHA-256 of the instruction is retained. */
-export async function transferAttempt(input: TransferIntent): Promise<string> {
-  const instruction = details(input);
+export async function transferAttempt(input: TransferIntent | SavedTransferIntent): Promise<string> {
+  const instruction = 'savedBeneficiaryId' in input ? savedDetails(input) : details(input);
   if (!crypto.subtle) throw new Error('Secure browser cryptography is unavailable');
   const digestBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(instruction)));
   const digest = [...new Uint8Array(digestBuffer)].map(x=>x.toString(16).padStart(2,'0')).join('');
@@ -206,4 +234,48 @@ export async function initiateBankTransfer(input: TransferIntent, transactionPin
     try {sessionStorage.setItem(INTENT_STORAGE_KEY,JSON.stringify({...attempt,reference:result.transactionReference}));} catch {/* keep current retry key */}
   }
   return result;
+}
+
+/** Confirmed saved-recipient instruction. Full bank account details remain on the server. */
+export async function initiateSavedBankTransfer(input: SavedTransferIntent, transactionPin: string,
+  quote: BankTransferQuote): Promise<BankPayoutResponse> {
+  if (import.meta.env.VITE_TWIPAY_TRANSFER_SANDBOX_ENABLED !== 'true') throw new Error('Bank transfers are not yet release-qualified');
+  const d=savedDetails(input);
+  if (!/^\d{4}$/.test(transactionPin)) throw new Error('Enter your four-digit transaction PIN');
+  if (quote.amountMinor!==d.amountMinor || quote.provider!==input.provider || quote.bankCode!==input.bankCode ||
+      quote.accountNumberMasked!==input.accountNumberMasked || Date.parse(quote.expiresAt)<=Date.now()) {
+    throw new Error('Saved-recipient details changed. Request a new quote.');
+  }
+  const key=await transferAttempt(input);
+  const response=await api.post(`/transfers/beneficiaries/${d.beneficiaryId}/transfer`,{
+    amountMinor:d.amountMinor,currency:'NGN',narration:d.narration,
+    expectedAccountName:quote.accountName,quoteToken:quote.quoteToken,transactionPin,
+  },{headers:{'Idempotency-Key':key}});
+  const r=response.data as BankPayoutResponse;
+  if (!r || !/^[A-Za-z0-9._:-]{1,80}$/.test(r.transactionReference||'') || !statuses.has(r.status) ||
+      r.provider!==input.provider || r.amountMinor!==d.amountMinor || r.feeMinor!==quote.feeMinor ||
+      r.totalDebitMinor!==quote.totalDebitMinor || r.currency!=='NGN' ||
+      r.beneficiary?.bankCode!==input.bankCode || r.beneficiary?.accountNumber!==input.accountNumberMasked ||
+      r.beneficiary?.accountName!==quote.accountName) {
+    throw new Error('Transfer response could not be confirmed. Check transaction history before retrying.');
+  }
+  const attempt=existingAttempt();
+  if(attempt&&attempt.key===key){try{sessionStorage.setItem(INTENT_STORAGE_KEY,JSON.stringify({...attempt,reference:r.transactionReference}));}catch{}}
+  return r;
+}
+
+export type ConfirmedTransferStatus = { reference: string; status: string; updatedAt: string;
+  amountMinor: string; feeMinor: string; totalDebitMinor: string; beneficiary: {accountNumber:string;accountName:string} | null };
+/** Read-only owner-scoped server status. NEVER triggers a second payout or provider retry. */
+export async function getConfirmedTransferStatus(reference: string): Promise<ConfirmedTransferStatus> {
+  if (!/^[A-Za-z0-9._:-]{1,80}$/.test(reference)) throw new Error('Invalid transfer reference');
+  const response=await api.get(`/transactions/${encodeURIComponent(reference)}`);
+  const t=(response.data as {transaction?:ConfirmedTransferStatus & {type:string}}).transaction;
+  if(!t || t.type!=='TRANSFER' || t.reference!==reference ||
+      !/^(CREATED|AUTHORIZED|FUNDS_RESERVED|PROVIDER_SUBMITTED|PROCESSING|UNKNOWN|SUCCEEDED|FAILED|REVERSED|CANCELLED)$/.test(t.status) ||
+      !/^(0|[1-9]\d*)$/.test(t.amountMinor) || !/^(0|[1-9]\d*)$/.test(t.feeMinor) ||
+      t.totalDebitMinor!==(BigInt(t.amountMinor)+BigInt(t.feeMinor)).toString()) {
+    throw new Error('Unable to confirm the latest transfer status');
+  }
+  return t;
 }

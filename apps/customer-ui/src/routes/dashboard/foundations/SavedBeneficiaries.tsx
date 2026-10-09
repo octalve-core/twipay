@@ -48,7 +48,7 @@ export default function SavedBeneficiaries() {
         entries.length===0?<p>No bank accounts saved yet.</p>:<ul className="space-y-3">
           {entries.map(entry=><li key={entry.id} className="border border-[#D0D5DD] p-3 rounded-lg flex justify-between gap-4 items-center">
             <span><strong className="block">{entry.nickname||entry.accountName}</strong><span className="block text-sm text-[#667085]">{entry.accountName} · Bank {entry.bankCode} · {entry.accountNumberMasked}</span></span>
-            <span className="flex flex-col gap-2"><button type="button" disabled={busy} onClick={()=>void rename(entry)} className="underline text-sm">Rename</button><button type="button" disabled={busy} onClick={()=>void remove(entry.id)} className="underline text-sm text-[#B42318]">Remove</button></span>
+            <span className="flex flex-col gap-2">{sandboxEnabled&&entry.providerCode && <FoundationLink to="/dashboard/withdraw-funds" title="Transfer" description="Choose this saved recipient after entering the amount."/>}<button type="button" disabled={busy} onClick={()=>void rename(entry)} className="underline text-sm">Rename</button><button type="button" disabled={busy} onClick={()=>void remove(entry.id)} className="underline text-sm text-[#B42318]">Remove</button></span>
           </li>)}
         </ul>}
     </FoundationPanel>
@@ -62,7 +62,7 @@ export default function SavedBeneficiaries() {
         <button disabled={busy||!/^[0-9]{10}$/.test(account)||!banks.some(bank=>bank.bankCode===bankCode)} type="submit" className="w-full p-3 rounded-lg bg-[#112929] text-white disabled:opacity-50">{busy?'Saving…':'Verify and save'}</button>
       </form>}
       {error&&<p className="text-sm text-[#B42318] mt-3" role="alert">{error}</p>}
-      <p className="mt-4 text-sm text-[#667085]">To send a bank transfer, re-enter and review the recipient details. Saved-account selection is not yet enabled.</p>
+      <p className="mt-4 text-sm text-[#667085]">You can select a provider-verified saved recipient during a bank transfer. Older saved accounts may need to be re-verified first.</p>
       <FoundationLink to="/dashboard/withdraw-funds" title="Bank transfers" description="Review transfer availability and recipient details."/>
     </FoundationPanel>
   </FoundationPage>;
