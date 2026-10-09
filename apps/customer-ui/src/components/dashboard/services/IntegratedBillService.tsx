@@ -4,8 +4,8 @@ import { isAxiosError } from 'axios';
 import BackButton from '@/components/Authentication/BackButton';
 import CustomButton from '@/components/CustomButton';
 import { formatNgnMinorUnits } from '@/lib/money';
-import { billIdentifier, billIsFinal, billIsSuccess, billNairaToMinor, readBillPurchase, type BillCategory, type BillSubmission, type BillProduct, type BillValidation } from '@/lib/api/dashboard-apis/billContracts';
-import { getBillPurchase, listBillProducts, listBillPurchases, submitBillPurchase, validateBillCustomer } from '@/lib/api/dashboard-apis/bills';
+import { billIdentifier, billIsFinal, billIsSuccess, billNairaToMinor, readBillPurchase, type BillCategory, type BillSubmission, type BillProduct, type BillValidation, type BillQuote } from '@/lib/api/dashboard-apis/billContracts';
+import { getBillPurchase, listBillProducts, listBillPurchases, submitBillPurchase, validateBillCustomer, requestBillQuote } from '@/lib/api/dashboard-apis/bills';
 
 type Stage = 'details'|'review'|'result';
 const titles: Record<BillCategory,string> = {AIRTIME:'Buy Airtime',DATA:'Buy Data',ELECTRICITY:'Pay Electricity',CABLE:'Buy TV/Cable'};
@@ -32,6 +32,7 @@ export default function IntegratedBillService({category}: {category:BillCategory
   const [identifier,setIdentifier] = useState('');
   const [amount,setAmount] = useState('');
   const [contactPhone,setContactPhone] = useState('');
+  const [pin,setPin] = useState('');
   const [stage,setStage] = useState<Stage>('details');
   const [result,setResult] = useState<BillSubmission|null>(null);
   const [error,setError] = useState('');
@@ -47,12 +48,12 @@ export default function IntegratedBillService({category}: {category:BillCategory
   const chosen = useMemo(()=>products.data?.find(p=>p.code===productCode),[products.data,productCode]);
   const fixed = chosen?.fixedAmountMinor !== null && chosen?.fixedAmountMinor !== undefined;
   const amountToUse = fixed && chosen ? `${BigInt(chosen.fixedAmountMinor!) / 100n}.${(BigInt(chosen.fixedAmountMinor!) % 100n).toString().padStart(2,'0')}` : amount;
-  const [review,setReview] = useState<{product:BillProduct;identifier:string;amountMinor:string;validation:BillValidation;contactPhoneE164?:string}|null>(null);
+  const [review,setReview] = useState<{product:BillProduct;identifier:string;amountMinor:string;validation:BillValidation;quote:BillQuote;contactPhoneE164?:string}|null>(null);
 
   const clearPrevious = () => {
     if (!window.confirm('Only start a NEW purchase after reviewing any previous payment in transaction history. A pending payment can still complete. Continue?')) return;
     sessionStorage.removeItem(intentStorageKey);
-    setPrevious(null); attempt.current=null; setResult(null);setReview(null);setStage('details');setError('');
+    setPrevious(null); attempt.current=null; setResult(null);setReview(null);setStage('details');setPin('');setError('');
   };
   async function onReview(e: FormEvent<HTMLFormElement>) {
     e.preventDefault(); if (inFlight.current || !chosen || previous) return;
@@ -65,7 +66,8 @@ export default function IntegratedBillService({category}: {category:BillCategory
       inFlight.current=true;setBusy(true);
       const verified = await validateBillCustomer(chosen.code,clean);
       if (!verified.valid || Date.parse(verified.expiresAt) <= Date.now()) throw new Error('Customer validation was rejected or expired');
-      setReview({product:chosen,identifier:clean,amountMinor,validation:verified,...(contactPhone.trim() ? {contactPhoneE164:contactPhone.trim()} : {})});
+      const quote = await requestBillQuote({productCode:chosen.code,customerIdentifier:clean,amountMinor,validationId:verified.id});
+      setPin('');setReview({product:chosen,identifier:clean,amountMinor,validation:verified,quote,...(contactPhone.trim() ? {contactPhoneE164:contactPhone.trim()} : {})});
       setStage('review');
     } catch (err) {setError(displayError(err));}
     finally {inFlight.current=false;setBusy(false);}
@@ -73,8 +75,9 @@ export default function IntegratedBillService({category}: {category:BillCategory
   async function onPurchase() {
     if (!review || inFlight.current || result || (previous && previous.idempotencyKey !== attempt.current?.key) || !sandbox) return;
     setError('');
-    if (Date.parse(review.validation.expiresAt) <= Date.now()) {setStage('details');setReview(null);setError('Your customer validation expired. Please verify again.');return;}
-    const signature=`${review.product.code}|${review.identifier}|${review.amountMinor}|${review.contactPhoneE164??''}`;
+    if (Date.parse(review.validation.expiresAt) <= Date.now() || Date.parse(review.quote.expiresAt) <= Date.now()) {setStage('details');setReview(null);setPin('');setError('Your purchase confirmation expired. Please verify again.');return;}
+    if (!/^\d{4}$/.test(pin)) {setError('Enter your four-digit transaction PIN to confirm this purchase.');return;}
+    const signature=`${review.product.code}|${review.identifier}|${review.amountMinor}|${review.quote.quoteId}|${review.contactPhoneE164??''}`;
     try {
       inFlight.current=true;setBusy(true);
       if (attempt.current && attempt.current.signature !== signature) throw new Error('This is a different purchase. Check your history before continuing.');
@@ -82,7 +85,7 @@ export default function IntegratedBillService({category}: {category:BillCategory
       const stored={idempotencyKey:attempt.current.key};
       // Fail closed if retry protection cannot be persisted through navigation/reload.
       writeStoredIntent(stored);setPrevious(stored);
-      const purchase=await submitBillPurchase({productCode:review.product.code, customerIdentifier:review.identifier, amountMinor:review.amountMinor, validationId:review.validation.id,...(review.contactPhoneE164 ? {contactPhoneE164:review.contactPhoneE164} : {})},attempt.current.key);
+      const purchase=await submitBillPurchase({productCode:review.product.code, customerIdentifier:review.identifier, amountMinor:review.amountMinor, validationId:review.validation.id,quoteToken:review.quote.quoteToken,transactionPin:pin,...(review.contactPhoneE164 ? {contactPhoneE164:review.contactPhoneE164} : {})},attempt.current.key);
       const next={...stored,reference:purchase.reference};
       writeStoredIntent(next);setPrevious(next);setResult(purchase);setStage('result');
     } catch (err) {
@@ -100,7 +103,7 @@ export default function IntegratedBillService({category}: {category:BillCategory
       }
       // A network error is not proof of failure. Retain the same key and block a fresh debit.
       setError(displayError(err));
-    } finally {inFlight.current=false;setBusy(false);}
+    } finally {setPin('');inFlight.current=false;setBusy(false);}
   }
   async function checkPurchaseStatus(reference:string) {
     if (inFlight.current || checking) return;
@@ -150,12 +153,21 @@ export default function IntegratedBillService({category}: {category:BillCategory
         <p><strong>Service:</strong> {review.product.name}</p>
         <p><strong>Recipient:</strong> {review.identifier}</p>
         {review.validation.customerName && <p><strong>Verified account name:</strong> {review.validation.customerName}</p>}
-        <p><strong>Amount:</strong> {formatNgnMinorUnits(review.amountMinor)}</p>
+        <p><strong>Service amount:</strong> {formatNgnMinorUnits(review.quote.amountMinor)}</p>
+        <p><strong>Approved customer fee:</strong> {formatNgnMinorUnits(review.quote.feeMinor)}</p>
+        <p className="font-medium"><strong>Total wallet debit:</strong> {formatNgnMinorUnits(review.quote.totalDebitMinor)}</p>
+        <p><strong>Provider:</strong> {review.quote.provider}</p>
+        <p className="text-[#717171]">Confirmation expires at {new Date(review.quote.expiresAt).toLocaleTimeString()}.</p>
         {review.contactPhoneE164 && <p><strong>Contact:</strong> {review.contactPhoneE164}</p>}
         <p className="text-[#717171]">The provider and final receipt status are verified by TwiPay. No success is assumed from clicking Confirm.</p>
       </div>
-      <CustomButton type="button" disabled={!sandbox || busy || Boolean(previous)} isLoading={busy} onClick={()=>void onPurchase()}>Confirm purchase</CustomButton>
-      <CustomButton type="button" variant="primary" disabled={busy} onClick={()=>{setStage('details');setReview(null);}}>Back to details</CustomButton>
+      <label htmlFor="bill-purchase-pin" className="text-sm font-medium text-[#344054]">Transaction PIN
+        <input id="bill-purchase-pin" className={inputs} type="password" inputMode="numeric" autoComplete="off" maxLength={4}
+          value={pin} onChange={event=>setPin(event.target.value.replace(/\D/g,'').slice(0,4))}
+          placeholder="Enter 4-digit PIN" disabled={busy} required />
+      </label>
+      <CustomButton type="button" disabled={!sandbox || busy || Boolean(previous) || !/^\d{4}$/.test(pin)} isLoading={busy} onClick={()=>void onPurchase()}>Confirm purchase</CustomButton>
+      <CustomButton type="button" variant="primary" disabled={busy} onClick={()=>{setStage('details');setReview(null);setPin('');}}>Back to details</CustomButton>
     </div>}
     {stage==='result' && result && <div className="flex flex-col gap-4 text-sm text-[#344054]">
       <div className="border border-[#D0D5DD] rounded-lg p-4 space-y-3">

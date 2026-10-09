@@ -6,6 +6,26 @@ export type BillProduct = {
   currency: 'NGN'; fixedAmountMinor: string | null; minAmountMinor: string | null; maxAmountMinor: string | null;
 };
 export type BillValidation = { id: string; valid: boolean; customerName: string | null; providerCode: string; expiresAt: string };
+export type BillQuote = {
+  quoteToken: string; quoteId: string; productCode: string; provider: string;
+  expiresAt: string; currency: 'NGN'; amountMinor: string; feeMinor: string; totalDebitMinor: string;
+};
+export function readBillQuote(value: unknown, expected: { productCode: string; amountMinor: string }): BillQuote {
+  const q = asRecord(asRecord(value).quote);
+  if (typeof q.quoteToken !== 'string' || q.quoteToken.length < 100 || q.quoteToken.length > 3000
+    || !/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(q.quoteToken)
+    || typeof q.quoteId !== 'string' || !/^[0-9a-f-]{36}$/i.test(q.quoteId)
+    || q.productCode !== expected.productCode || q.amountMinor !== expected.amountMinor
+    || q.currency !== 'NGN' || typeof q.provider !== 'string' || !['vtpass','monnify'].includes(q.provider)
+    || typeof q.expiresAt !== 'string' || !Number.isFinite(Date.parse(q.expiresAt))
+    || Date.parse(q.expiresAt) <= Date.now() || Date.parse(q.expiresAt) > Date.now() + 5 * 60_000
+    || typeof q.feeMinor !== 'string' || !minor.test(q.feeMinor)
+    || typeof q.totalDebitMinor !== 'string' || !minor.test(q.totalDebitMinor)
+    || BigInt(q.amountMinor as string) + BigInt(q.feeMinor) !== BigInt(q.totalDebitMinor)) {
+    throw new TypeError('The utility price confirmation is unavailable or changed. Verify again.');
+  }
+  return q as unknown as BillQuote;
+}
 export type BillPurchase = {
   reference: string; status: string; productCode: string; category: BillCategory;
   productName: string; amountMinor: string; currency: 'NGN'; provider: string; fulfillment?: string;
