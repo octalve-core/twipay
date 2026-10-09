@@ -1,6 +1,6 @@
 import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import type { JsonObject, NormalizedProviderStatus, PayoutResult, ResolvedBankAccount } from '@twipay/contracts';
-import { encryptSensitiveString, fingerprintSensitiveValue } from '@twipay/security';
+import { decryptSensitiveString, encryptSensitiveString, fingerprintSensitiveValue } from '@twipay/security';
 import { LedgerInvariantError } from '@twipay/ledger';
 import { PrismaService } from '../../../platform/database/prisma.service.js';
 import { FinancialAuthorizationService, type FinancialAuthorization } from './financial-authorization.service.js';
@@ -56,7 +56,7 @@ export class TransferService {
 
   async quoteTransfer(input: {
     userId: string; providerCode: EnabledPaymentProvider; bankCode: string; accountNumber: string;
-    amountMinor: bigint; narration: string;
+    amountMinor: bigint; narration: string; savedBeneficiaryId?: string;
   }) {
     const resolved = await this.resolveBankAccount({ providerCode: input.providerCode, bankCode: input.bankCode, accountNumber: input.accountNumber, currency: 'NGN' });
     if (resolved.accountNumber !== input.accountNumber || resolved.currency !== 'NGN' || resolved.bankCode !== input.bankCode || resolved.providerCode !== input.providerCode || !resolved.accountName?.trim()) {
@@ -65,7 +65,7 @@ export class TransferService {
     const { token, terms } = issueTransferQuote({
       userId: input.userId, provider: input.providerCode, bankCode: input.bankCode,
       accountFingerprint: this.accountFingerprint(input.accountNumber), accountName: resolved.accountName,
-      narration: input.narration, amountMinor: input.amountMinor,
+      narration: input.narration, amountMinor: input.amountMinor, savedBeneficiaryId: input.savedBeneficiaryId,
     });
     return {
       quoteToken: token, quoteId: terms.id, expiresAt: new Date(terms.expiresAt).toISOString(),
@@ -79,7 +79,7 @@ export class TransferService {
   async savedBeneficiaries(userId: string) {
     const rows = await this.prisma.beneficiary.findMany({
       where: { userId, saved: true, archivedAt: null }, orderBy: { updatedAt: 'desc' }, take: 100,
-      select: { id: true, bankCode: true, accountName: true, accountNumberLast4: true, currency: true, nickname: true, updatedAt: true },
+      select: { id: true, bankCode: true, providerCode: true, accountName: true, accountNumberLast4: true, currency: true, nickname: true, updatedAt: true },
     });
     return rows.map(row => ({ ...row, accountNumberMasked: `******${row.accountNumberLast4}`, accountNumberLast4: undefined }));
   }
@@ -94,12 +94,39 @@ export class TransferService {
       where: { userId_bankCode_accountNumberFingerprint_currency: { userId: input.userId, bankCode: input.bankCode, accountNumberFingerprint: fingerprint, currency: 'NGN' } },
       create: { userId: input.userId, bankCode: input.bankCode, currency: 'NGN', accountNumberFingerprint: fingerprint,
         accountNumberCiphertext: encryptSensitiveString(input.accountNumber, process.env['DATA_ENCRYPTION_KEY']!),
-        accountNumberLast4: input.accountNumber.slice(-4), accountName: resolved.accountName, saved: true, nickname: input.nickname ?? null },
-      update: { accountName: resolved.accountName, saved: true, archivedAt: null, nickname: input.nickname ?? null },
-      select: { id: true, bankCode: true, accountName: true, accountNumberLast4: true, nickname: true },
+        accountNumberLast4: input.accountNumber.slice(-4), accountName: resolved.accountName, saved: true, providerCode: input.providerCode, nickname: input.nickname ?? null },
+      update: { accountName: resolved.accountName, saved: true, providerCode: input.providerCode, archivedAt: null, nickname: input.nickname ?? null },
+      select: { id: true, bankCode: true, providerCode: true, accountName: true, accountNumberLast4: true, nickname: true },
     });
-    return { id: record.id, bankCode: record.bankCode, accountName: record.accountName,
+    return { id: record.id, bankCode: record.bankCode, providerCode: record.providerCode, accountName: record.accountName,
       accountNumberMasked: `******${record.accountNumberLast4}`, nickname: record.nickname };
+  }
+
+  /** Full account numbers never leave the API. Legacy records lacking verified provider
+   * provenance cannot be used for this shortcut until saved again. */
+  async savedTransferDestination(userId: string, id: string): Promise<{
+    providerCode: EnabledPaymentProvider; bankCode: string; accountNumber: string; accountName: string;
+  }> {
+    const row = await this.prisma.beneficiary.findFirst({
+      where: { id, userId, saved: true, archivedAt: null, currency: 'NGN', providerCode: { in: ['paystack', 'monnify'] } },
+      select: { providerCode: true, bankCode: true, accountNumberCiphertext: true,
+        accountNumberFingerprint: true, accountNumberLast4: true, accountName: true },
+    });
+    if (!row || (row.providerCode !== 'paystack' && row.providerCode !== 'monnify')) {
+      throw new NotFoundException({ code: 'SAVED_RECIPIENT_UNAVAILABLE' });
+    }
+    const accountNumber = decryptSensitiveString(row.accountNumberCiphertext, process.env['DATA_ENCRYPTION_KEY']!);
+    if (!/^\d{10}$/.test(accountNumber) || accountNumber.slice(-4) !== row.accountNumberLast4 ||
+        this.accountFingerprint(accountNumber) !== row.accountNumberFingerprint) {
+      throw new ForbiddenException({ code: 'SAVED_RECIPIENT_INTEGRITY_FAILED' });
+    }
+    return { providerCode: row.providerCode, bankCode: row.bankCode, accountNumber, accountName: row.accountName };
+  }
+
+  async quoteSavedTransfer(input: { userId: string; savedBeneficiaryId: string; amountMinor: bigint; narration: string }) {
+    const destination = await this.savedTransferDestination(input.userId, input.savedBeneficiaryId);
+    return this.quoteTransfer({ ...destination, userId: input.userId, amountMinor: input.amountMinor,
+      narration: input.narration, savedBeneficiaryId: input.savedBeneficiaryId });
   }
 
   async renameSavedBeneficiary(userId: string, id: string, nickname: string | null): Promise<void> {
@@ -119,11 +146,12 @@ export class TransferService {
 
   validatedTransferTotal(input: {
     token: string; userId: string; providerCode: EnabledPaymentProvider; bankCode: string;
-    accountNumber: string; accountName: string; narration: string; amountMinor: bigint;
+    accountNumber: string; accountName: string; narration: string; amountMinor: bigint; savedBeneficiaryId?: string;
   }): bigint {
     const quote = verifyTransferQuote({ token: input.token, userId: input.userId, provider: input.providerCode,
       bankCode: input.bankCode, accountFingerprint: this.accountFingerprint(input.accountNumber),
-      accountName: input.accountName, narration: input.narration, amountMinor: input.amountMinor });
+      accountName: input.accountName, narration: input.narration, amountMinor: input.amountMinor,
+      savedBeneficiaryId: input.savedBeneficiaryId });
     return BigInt(quote.totalDebitMinor);
   }
 
@@ -139,11 +167,12 @@ export class TransferService {
     narration: string;
     expectedAccountName: string;
     quoteToken: string;
+    savedBeneficiaryId?: string;
   }): Promise<{ statusCode: number; body: JsonObject }> {
     const quote = verifyTransferQuote({
       token: input.quoteToken, userId: input.userId, provider: input.providerCode, bankCode: input.bankCode,
       accountFingerprint: this.accountFingerprint(input.accountNumber), accountName: input.expectedAccountName ?? '',
-      narration: input.narration, amountMinor: input.amountMinor,
+      narration: input.narration, amountMinor: input.amountMinor, savedBeneficiaryId: input.savedBeneficiaryId,
     });
     if (input.authorization.amountMinor !== BigInt(quote.totalDebitMinor)) {
       throw new ForbiddenException({ code: 'TRANSFER_TOTAL_AUTHORIZATION_MISMATCH' });
@@ -185,9 +214,20 @@ export class TransferService {
       prepared = await this.prisma.$transaction(async (tx) => {
         const fresh = verifyTransferQuote({ token: input.quoteToken, userId: input.userId,
           provider: input.providerCode, bankCode: input.bankCode, accountFingerprint: accountNumberFingerprint,
-          accountName: resolved.accountName, narration: input.narration, amountMinor: input.amountMinor });
+          accountName: resolved.accountName, narration: input.narration, amountMinor: input.amountMinor,
+          savedBeneficiaryId: input.savedBeneficiaryId });
         if (fresh.id !== quote.id) throw new ForbiddenException({ code: 'TRANSFER_QUOTE_CHANGED' });
         await this.authorization.assertCurrentWithTx(tx, input.authorization, BigInt(quote.totalDebitMinor), { userId: input.userId, intent: 'TRANSFER' });
+        if (input.savedBeneficiaryId) {
+          // Locks the saved row against simultaneous archive or replacement until the hold commits.
+          const locked = await tx.$queryRaw<Array<{ id: string }>>`
+            SELECT "id" FROM "beneficiaries"
+            WHERE "id" = ${input.savedBeneficiaryId}::uuid AND "userId" = ${input.userId}::uuid
+              AND "saved" = true AND "archivedAt" IS NULL AND "providerCode" = ${input.providerCode}
+              AND "bankCode" = ${input.bankCode} AND "accountNumberFingerprint" = ${accountNumberFingerprint}
+            FOR UPDATE`;
+          if (locked.length !== 1) throw new ForbiddenException({ code: 'SAVED_RECIPIENT_CHANGED' });
+        }
         const beneficiary = await tx.beneficiary.upsert({
           where: {
             userId_bankCode_accountNumberFingerprint_currency: {
@@ -310,7 +350,11 @@ export class TransferService {
           },
         });
       });
-      const body: JsonObject = { transactionReference: reference, provider: input.providerCode, status: 'UNKNOWN', code: 'PROVIDER_OUTCOME_UNKNOWN' };
+      const body: JsonObject = { transactionReference: reference, provider: input.providerCode,
+        status: 'UNKNOWN', code: 'PROVIDER_OUTCOME_UNKNOWN',
+        amountMinor: input.amountMinor.toString(), feeMinor: quote.feeMinor, totalDebitMinor: quote.totalDebitMinor,
+        currency: input.currency, beneficiary: { bankCode: input.bankCode,
+          accountNumber: maskAccountNumber(input.accountNumber), accountName: resolved.accountName } };
       await this.idempotency.complete(recordId, 202, body);
       return { statusCode: 202, body };
     }

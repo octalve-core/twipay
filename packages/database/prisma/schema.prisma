@@ -891,6 +891,8 @@ model Beneficiary {
   keyVersion    Int      @default(1)
   accountName   String   @db.VarChar(180)
   saved         Boolean  @default(false)
+  // Legacy saved records have unknown provider provenance and are not eligible for one-tap transfers.
+  providerCode  String?  @db.VarChar(40)
   nickname      String?  @db.VarChar(60)
   archivedAt    DateTime? @db.Timestamptz(6)
   createdAt     DateTime @default(now()) @db.Timestamptz(6)

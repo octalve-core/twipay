@@ -45,6 +45,10 @@ const TransferQuoteSchema = z.object({
   bankCode: z.string().regex(/^[A-Za-z0-9_-]{2,20}$/), accountNumber: z.string().regex(/^\d{10}$/),
   narration: z.string().trim().min(3).max(120),
 }).strict();
+const SavedTransferQuoteSchema = z.object({ amountMinor: MinorAmountSchema, currency: z.literal('NGN'),
+  narration: z.string().trim().min(3).max(120) }).strict();
+const SavedTransferSchema = SavedTransferQuoteSchema.extend({ expectedAccountName: z.string().trim().min(2).max(160),
+  quoteToken: z.string().min(80).max(3000), transactionPin: FinancialPinSchema }).strict();
 const SaveBeneficiarySchema = z.object({
   provider: ProviderSchema, bankCode: z.string().regex(/^[A-Za-z0-9_-]{2,20}$/),
   accountNumber: z.string().regex(/^\d{10}$/), nickname: z.string().trim().min(1).max(60).optional(),
@@ -257,6 +261,41 @@ export class FinanceController {
     if (!z.string().uuid().safeParse(id).success) throw new BadRequestException({ code: 'INVALID_BENEFICIARY_ID' });
     await this.transfers.removeSavedBeneficiary(principal.userId, id);
     return { removed: true };
+  }
+
+  @Post('transfers/beneficiaries/:id/quote')
+  async quoteSavedTransfer(@Param('id') id: string,
+    @Body(new ZodValidationPipe(SavedTransferQuoteSchema)) body: z.infer<typeof SavedTransferQuoteSchema>,
+    @Req() req: AuthenticatedFastifyRequest) {
+    if (!z.string().uuid().safeParse(id).success) throw new BadRequestException({ code: 'INVALID_BENEFICIARY_ID' });
+    const principal = requirePrincipal(req);
+    const destination = await this.transfers.savedTransferDestination(principal.userId, id);
+    this.assertBankTransferSandbox(destination.providerCode);
+    return this.transfers.quoteSavedTransfer({ userId: principal.userId, savedBeneficiaryId: id,
+      amountMinor: BigInt(body.amountMinor), narration: body.narration });
+  }
+
+  @Post('transfers/beneficiaries/:id/transfer')
+  async transferSaved(@Param('id') id: string,
+    @Body(new ZodValidationPipe(SavedTransferSchema)) body: z.infer<typeof SavedTransferSchema>,
+    @Headers('idempotency-key') idempotencyKey: string | undefined,
+    @Req() req: AuthenticatedFastifyRequest,
+    @Res({ passthrough: true }) res: FastifyReply) {
+    if (!z.string().uuid().safeParse(id).success) throw new BadRequestException({ code: 'INVALID_BENEFICIARY_ID' });
+    const principal = requirePrincipal(req);
+    const destination = await this.transfers.savedTransferDestination(principal.userId, id);
+    this.assertBankTransferSandbox(destination.providerCode);
+    const totalDebitMinor = this.transfers.validatedTransferTotal({ token: body.quoteToken,
+      userId: principal.userId, ...destination, accountName: body.expectedAccountName,
+      amountMinor: BigInt(body.amountMinor), narration: body.narration, savedBeneficiaryId: id });
+    const authorization = await this.financialAuthorization.authorize({ principal,
+      transactionPin: body.transactionPin, amountMinor: totalDebitMinor, intent: 'TRANSFER' });
+    const result = await this.transfers.createTransfer({ authorization, userId: principal.userId,
+      idempotencyKey: requireIdempotencyKey(idempotencyKey), ...destination,
+      expectedAccountName: body.expectedAccountName, amountMinor: BigInt(body.amountMinor),
+      currency: body.currency, narration: body.narration, quoteToken: body.quoteToken, savedBeneficiaryId: id });
+    res.status(result.statusCode);
+    return result.body;
   }
 
   @Post('transfers/quote')

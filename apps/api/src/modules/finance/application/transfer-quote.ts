@@ -4,7 +4,7 @@ import { ForbiddenException, ServiceUnavailableException } from '@nestjs/common'
 
 export type TransferQuoteTerms = {
   id: string; userId: string; provider: 'paystack' | 'monnify'; bankCode: string;
-  accountFingerprint: string; nameDigest: string; narrationDigest: string;
+  accountFingerprint: string; savedBeneficiaryId?: string; nameDigest: string; narrationDigest: string;
   amountMinor: string; feeMinor: string; totalDebitMinor: string; expiresAt: number;
 };
 const MAX_AMOUNT = BigInt(Number.MAX_SAFE_INTEGER);
@@ -26,14 +26,15 @@ export function approvedFee(provider: 'paystack' | 'monnify'): bigint {
 }
 export function issueTransferQuote(input: {
   userId: string; provider: 'paystack' | 'monnify'; bankCode: string;
-  accountFingerprint: string; accountName: string; narration: string; amountMinor: bigint;
+  accountFingerprint: string; accountName: string; narration: string; amountMinor: bigint; savedBeneficiaryId?: string;
 }): { token: string; terms: TransferQuoteTerms } {
   const fee = approvedFee(input.provider);
   const total = input.amountMinor + fee;
   if (input.amountMinor <= 0n || total > MAX_AMOUNT || input.accountName.trim().length < 2) blocked();
   const terms: TransferQuoteTerms = {
     id: randomUUID(), userId: input.userId, provider: input.provider, bankCode: input.bankCode,
-    accountFingerprint: input.accountFingerprint, nameDigest: hash(input.accountName), narrationDigest: hash(input.narration),
+    accountFingerprint: input.accountFingerprint, ...(input.savedBeneficiaryId ? { savedBeneficiaryId: input.savedBeneficiaryId } : {}),
+    nameDigest: hash(input.accountName), narrationDigest: hash(input.narration),
     amountMinor: input.amountMinor.toString(), feeMinor: fee.toString(), totalDebitMinor: total.toString(),
     expiresAt: Date.now() + 5 * 60_000,
   };
@@ -43,7 +44,7 @@ export function issueTransferQuote(input: {
 }
 export function verifyTransferQuote(input: {
   token: string; userId: string; provider: 'paystack' | 'monnify'; bankCode: string;
-  accountFingerprint: string; accountName: string; narration: string; amountMinor: bigint;
+  accountFingerprint: string; accountName: string; narration: string; amountMinor: bigint; savedBeneficiaryId?: string;
 }): TransferQuoteTerms {
   if (typeof input.token !== 'string' || input.token.length > 3000 || !/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(input.token)) {
     throw new ForbiddenException({ code: 'TRANSFER_QUOTE_INVALID' });
@@ -56,7 +57,7 @@ export function verifyTransferQuote(input: {
   try { quote = JSON.parse(Buffer.from(payload!, 'base64url').toString('utf8')) as TransferQuoteTerms; }
   catch { throw new ForbiddenException({ code: 'TRANSFER_QUOTE_INVALID' }); }
   if (!quote || !/^[0-9a-f-]{36}$/.test(quote.id) || quote.userId !== input.userId || quote.provider !== input.provider || quote.bankCode !== input.bankCode
-    || quote.accountFingerprint !== input.accountFingerprint || quote.nameDigest !== hash(input.accountName) || quote.narrationDigest !== hash(input.narration)
+    || quote.accountFingerprint !== input.accountFingerprint || quote.savedBeneficiaryId !== input.savedBeneficiaryId || quote.nameDigest !== hash(input.accountName) || quote.narrationDigest !== hash(input.narration)
     || quote.amountMinor !== input.amountMinor.toString() || !Number.isSafeInteger(quote.expiresAt) || quote.expiresAt <= Date.now() || quote.expiresAt > Date.now() + 5 * 60_000) {
     throw new ForbiddenException({ code: 'TRANSFER_QUOTE_EXPIRED_OR_CHANGED' });
   }
