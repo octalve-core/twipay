@@ -49,7 +49,12 @@ const PasswordResetCompleteSchema = z.object({ email: z.email().max(320), code: 
 const ChangePasswordSchema = z.object({ currentPassword: z.string().min(1).max(128), newPassword: z.string().min(12).max(128) }).strict();
 const RevokeOtherSessionsSchema = z.object({ currentPassword: z.string().min(1).max(128) }).strict();
 const EmailCodeSchema = z.object({ code: z.string().regex(/^\d{6}$/) }).strict();
-const ProfileSchema = z.object({ givenName: z.string().trim().min(1).max(100).nullable().optional(), familyName: z.string().trim().min(1).max(100).nullable().optional() }).strict().refine((value) => value.givenName !== undefined || value.familyName !== undefined, 'at least one field must change');
+const ProfileSchema = z.object({
+  givenName: z.string().trim().min(1).max(100).nullable().optional(),
+  familyName: z.string().trim().min(1).max(100).nullable().optional(),
+  countryCode: z.string().regex(/^[A-Z]{2}$/).nullable().optional(),
+  stateRegion: z.string().trim().min(1).max(100).nullable().optional(),
+}).strict().refine(value => Object.values(value).some(item => item !== undefined), 'at least one field must change');
 const LoginSchema = z
   .object({ email: z.email().max(320), password: z.string().min(1).max(128) })
   .strict();
@@ -327,6 +332,8 @@ export class AuthController {
         email: session.user.email,
         givenName: session.user.givenName,
         familyName: session.user.familyName,
+        countryCode: session.user.countryCode,
+        stateRegion: session.user.stateRegion,
         status: session.user.status,
         emailVerifiedAt: session.user.emailVerifiedAt,
         phoneVerifiedAt: session.user.phoneE164 ? session.user.phoneVerifiedAt : null,

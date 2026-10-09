@@ -48,19 +48,24 @@ export class AuthService {
     });
     if (verified) return 'VERIFIED';
     const any = await this.prisma.identityVerification.findFirst({
-      where: { userId, status: { in: ['CREATED', 'AWAITING_CONSENT', 'PENDING'] } }, select: { id: true },
+      where: { userId, OR: [
+        { status: { in: ['CREATED', 'PENDING'] } },
+        { status: 'AWAITING_CONSENT', OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }] },
+      ] }, select: { id: true },
     });
     return any ? 'IN_PROGRESS' : 'NOT_STARTED';
   }
 
-  async updateProfile(userId: string, input: { givenName?: string | null; familyName?: string | null }) {
+  async updateProfile(userId: string, input: { givenName?: string | null; familyName?: string | null; countryCode?: string | null; stateRegion?: string | null }) {
     return this.prisma.user.update({
       where: { id: userId },
       data: {
         ...(input.givenName !== undefined ? { givenName: input.givenName || null } : {}),
         ...(input.familyName !== undefined ? { familyName: input.familyName || null } : {}),
+        ...(input.countryCode !== undefined ? { countryCode: input.countryCode } : {}),
+        ...(input.stateRegion !== undefined ? { stateRegion: input.stateRegion } : {}),
       },
-      select: { id: true, email: true, givenName: true, familyName: true, status: true },
+      select: { id: true, email: true, givenName: true, familyName: true, countryCode: true, stateRegion: true, status: true },
     });
   }
 

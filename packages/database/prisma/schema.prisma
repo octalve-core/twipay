@@ -348,6 +348,8 @@ model User {
   familyName      String?       @db.VarChar(100)
   phoneE164       String?       @unique @db.VarChar(20)
   phoneVerifiedAt DateTime?     @db.Timestamptz(6)
+  countryCode     String?       @db.Char(2)
+  stateRegion     String?       @db.VarChar(100)
   status          UserStatus    @default(PENDING)
   lastLoginAt     DateTime?     @db.Timestamptz(6)
   createdAt       DateTime      @default(now()) @db.Timestamptz(6)
