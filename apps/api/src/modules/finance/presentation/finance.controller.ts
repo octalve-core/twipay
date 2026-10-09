@@ -26,6 +26,7 @@ import { PaymentService } from '../application/payment.service.js';
 import { TransferService } from '../application/transfer.service.js';
 import { VirtualAccountService } from '../application/virtual-account.service.js';
 import { WalletService } from '../application/wallet.service.js';
+import { FinancialAuthorizationService } from '../application/financial-authorization.service.js';
 import { PrismaService } from '../../../platform/database/prisma.service.js';
 
 const MAX_PROVIDER_SAFE_MINOR = BigInt(Number.MAX_SAFE_INTEGER);
@@ -34,7 +35,8 @@ const MinorAmountSchema = z.string()
   .max(16)
   .refine((value) => BigInt(value) <= MAX_PROVIDER_SAFE_MINOR, 'amount exceeds the provider-safe integer range');
 const ProviderSchema = z.enum(['paystack', 'monnify']);
-const CollectionSchema = z.object({ provider: ProviderSchema, amountMinor: MinorAmountSchema, currency: z.literal('NGN') }).strict();
+const FinancialPinSchema = z.string().regex(/^\d{4}$/);
+const CollectionSchema = z.object({ provider: ProviderSchema, amountMinor: MinorAmountSchema, currency: z.literal('NGN'), transactionPin: FinancialPinSchema }).strict();
 const ResolveAccountSchema = z.object({ provider: ProviderSchema, bankCode: z.string().trim().min(2).max(20), accountNumber: z.string().regex(/^\d{10}$/), currency: z.literal('NGN') }).strict();
 const TransferSchema = z.object({
   provider: ProviderSchema,
@@ -44,11 +46,13 @@ const TransferSchema = z.object({
   accountNumber: z.string().regex(/^\d{10}$/),
   narration: z.string().trim().min(3).max(120),
   expectedAccountName: z.string().trim().min(2).max(160).optional(),
+  transactionPin: FinancialPinSchema,
 }).strict();
 const VirtualAccountSchema = z.discriminatedUnion('provider', [
   z.object({
     provider: z.literal('paystack'),
     consent: z.literal(true),
+    transactionPin: FinancialPinSchema,
     preferredBank: z.string().trim().min(2).max(80).optional(),
     validationBankCode: z.string().trim().min(2).max(20),
     validationAccountNumber: z.string().regex(/^\d{10}$/),
@@ -56,6 +60,7 @@ const VirtualAccountSchema = z.discriminatedUnion('provider', [
   z.object({
     provider: z.literal('monnify'),
     consent: z.literal(true),
+    transactionPin: FinancialPinSchema,
     preferredBank: z.string().trim().min(2).max(80).optional(),
   }).strict(),
 ]);
@@ -97,6 +102,7 @@ export class FinanceController {
     private readonly transfers: TransferService,
     private readonly virtualAccounts: VirtualAccountService,
     private readonly prisma: PrismaService,
+    private readonly financialAuthorization: FinancialAuthorizationService,
   ) {}
 
   @Get('wallets')
@@ -139,7 +145,9 @@ export class FinanceController {
       throw new ServiceUnavailableException({ code: 'MONNIFY_SANDBOX_REQUIRED' });
     }
     const principal = requirePrincipal(req);
+    const authorization = await this.financialAuthorization.authorize({ principal, transactionPin: body.transactionPin, amountMinor: BigInt(body.amountMinor), intent: 'FUNDING' });
     const result = await this.payments.createCollection({
+      authorization,
       userId: principal.userId,
       idempotencyKey: requireIdempotencyKey(idempotencyKey),
       providerCode: body.provider,
@@ -212,7 +220,9 @@ export class FinanceController {
   ) {
     const principal = requirePrincipal(req);
     this.assertBankTransferSandbox(body.provider);
+    const authorization = await this.financialAuthorization.authorize({ principal, transactionPin: body.transactionPin, amountMinor: BigInt(body.amountMinor), intent: 'TRANSFER' });
     const result = await this.transfers.createTransfer({
+      authorization,
       userId: principal.userId,
       idempotencyKey: requireIdempotencyKey(idempotencyKey),
       providerCode: body.provider,
@@ -272,7 +282,9 @@ export class FinanceController {
   ) {
     this.assertVirtualAccountSandbox(body.provider);
     const principal = requirePrincipal(req);
+    const authorization = await this.financialAuthorization.authorize({ principal, transactionPin: body.transactionPin, amountMinor: 0n, intent: 'VIRTUAL_ACCOUNT' });
     const result = await this.virtualAccounts.create({
+      authorization,
       userId: principal.userId,
       idempotencyKey: requireIdempotencyKey(idempotencyKey),
       providerCode: body.provider,

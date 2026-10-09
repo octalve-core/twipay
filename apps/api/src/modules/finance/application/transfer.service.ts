@@ -3,6 +3,7 @@ import type { JsonObject, NormalizedProviderStatus, PayoutResult, ResolvedBankAc
 import { encryptSensitiveString, fingerprintSensitiveValue } from '@twipay/security';
 import { LedgerInvariantError } from '@twipay/ledger';
 import { PrismaService } from '../../../platform/database/prisma.service.js';
+import { FinancialAuthorizationService, type FinancialAuthorization } from './financial-authorization.service.js';
 import { PaymentProviderRegistry, type EnabledPaymentProvider } from '../../providers/payment-provider.registry.js';
 import { FinancialTransactionService } from './financial-transaction.service.js';
 import { IdempotencyService } from './idempotency.service.js';
@@ -24,6 +25,7 @@ function payoutState(status: NormalizedProviderStatus): 'PROCESSING' | 'SUCCEEDE
 export class TransferService {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly authorization: FinancialAuthorizationService,
     private readonly providers: PaymentProviderRegistry,
     private readonly idempotency: IdempotencyService,
     private readonly financial: FinancialTransactionService,
@@ -48,6 +50,7 @@ export class TransferService {
   }
 
   async createTransfer(input: {
+    authorization: FinancialAuthorization;
     userId: string;
     idempotencyKey: string;
     providerCode: EnabledPaymentProvider;
@@ -59,7 +62,7 @@ export class TransferService {
     expectedAccountName?: string;
   }): Promise<{ statusCode: number; body: JsonObject }> {
     const provider = this.providers.get(input.providerCode);
-    const idem = await this.idempotency.begin({ scope: 'transfer:create', key: input.idempotencyKey, userId: input.userId, request: input });
+    const idem = await this.idempotency.begin({ scope: 'transfer:create', key: input.idempotencyKey, userId: input.userId, request: { userId: input.userId, providerCode: input.providerCode, amountMinor: input.amountMinor, currency: input.currency, bankCode: input.bankCode, accountNumber: input.accountNumber, narration: input.narration, expectedAccountName: input.expectedAccountName } });
     if (idem.replay) return { statusCode: idem.replay.status, body: idem.replay.body };
     const recordId = idem.recordId!;
 
@@ -93,6 +96,7 @@ export class TransferService {
     let prepared: { financial: { id: string }; hold: { id: string }; operation: { id: string } };
     try {
       prepared = await this.prisma.$transaction(async (tx) => {
+        await this.authorization.assertCurrentWithTx(tx, input.authorization, input.amountMinor, { userId: input.userId, intent: 'TRANSFER' });
         const beneficiary = await tx.beneficiary.upsert({
           where: {
             userId_bankCode_accountNumberFingerprint_currency: {

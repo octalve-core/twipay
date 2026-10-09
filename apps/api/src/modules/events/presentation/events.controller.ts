@@ -6,6 +6,7 @@ import { ZodValidationPipe } from '../../../platform/http/zod-validation.pipe.js
 import { SessionAuthGuard, requirePrincipal, type AuthenticatedFastifyRequest } from '../../auth/presentation/session-auth.guard.js';
 import { EventService } from '../application/event.service.js';
 import { ProductConfigService } from '../../product/application/product-config.service.js';
+import { FinancialAuthorizationService } from '../../finance/application/financial-authorization.service.js';
 
 const Slug = z.string().trim().min(3).max(160).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
 const DateTime = z.string().refine((value) => Number.isFinite(Date.parse(value)), 'invalid datetime');
@@ -28,6 +29,7 @@ const CheckoutSchema = z.object({
   items: z.array(z.object({ ticketTypeId: z.uuid(), quantity: z.number().int().min(1).max(20) }).strict()).min(1).max(10),
   issuedToName: z.string().trim().min(2).max(180).optional(),
   expectedTotalMinor: z.string().regex(/^[1-9]\d{0,18}$/),
+  transactionPin: z.string().regex(/^\d{4}$/),
 }).strict();
 const CheckInSchema = z.object({ qrPayload: z.string().min(60).max(300), requestId: z.string().trim().min(8).max(64).optional() }).strict();
 const StaffSchema = z.object({ email: z.email().max(320) }).strict();
@@ -53,7 +55,7 @@ function serializeEvent(event: {
 @ApiTags('events')
 @Controller('events')
 export class EventsController {
-  constructor(private readonly events: EventService, private readonly product: ProductConfigService) {}
+  constructor(private readonly events: EventService, private readonly product: ProductConfigService, private readonly financialAuthorization: FinancialAuthorizationService) {}
 
   @Get()
   async list() {
@@ -134,7 +136,9 @@ export class EventsController {
       throw new BadRequestException({ code: 'EVENT_CHECKOUT_NOT_QUALIFIED' });
     }
     const principal = requirePrincipal(req);
+    const authorization = await this.financialAuthorization.authorize({ principal, transactionPin: body.transactionPin, amountMinor: BigInt(body.expectedTotalMinor), intent: 'EVENT_PURCHASE' });
     const result = await this.events.checkout({
+      authorization,
       userId: principal.userId, idempotencyKey: requireIdempotencyKey(idempotencyKey), eventId: body.eventId, items: body.items,
       ...(body.issuedToName ? { issuedToName: body.issuedToName } : {}),
       expectedTotalMinor: body.expectedTotalMinor,

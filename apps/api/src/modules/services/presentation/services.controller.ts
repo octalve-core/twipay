@@ -8,6 +8,7 @@ import { SessionAuthGuard, requirePrincipal, type AuthenticatedFastifyRequest } 
 import { PermissionGuard, RequirePermissions } from '../../auth/presentation/permission.guard.js';
 import { BillCatalogService } from '../application/catalog.service.js';
 import { BillService } from '../application/bill.service.js';
+import { FinancialAuthorizationService } from '../../finance/application/financial-authorization.service.js';
 import { ProductConfigService } from '../../product/application/product-config.service.js';
 
 const CategorySchema = z.enum(['AIRTIME', 'DATA', 'ELECTRICITY', 'CABLE']);
@@ -18,6 +19,7 @@ const PurchaseSchema = z.object({
   amountMinor: z.string().regex(/^[1-9]\d{0,17}$/).refine((value) => BigInt(value) <= BigInt(Number.MAX_SAFE_INTEGER), 'amount exceeds provider-safe integer range'),
   validationId: z.uuid().optional(),
   contactPhoneE164: z.string().regex(/^\+[1-9]\d{7,14}$/).optional(),
+  transactionPin: z.string().regex(/^\d{4}$/),
 }).strict();
 
 function requireIdempotencyKey(value: string | undefined): string {
@@ -29,7 +31,7 @@ function requireIdempotencyKey(value: string | undefined): string {
 @UseGuards(SessionAuthGuard)
 @Controller('services')
 export class ServicesController {
-  constructor(private readonly catalog: BillCatalogService, private readonly bills: BillService, private readonly product: ProductConfigService) {}
+  constructor(private readonly catalog: BillCatalogService, private readonly bills: BillService, private readonly product: ProductConfigService, private readonly financialAuthorization: FinancialAuthorizationService) {}
 
   @Get('products')
   async products(@Query('category') categoryValue?: string) {
@@ -91,7 +93,9 @@ export class ServicesController {
     await this.product.assertFeatureEnabled('services.utilities', true);
     this.assertSandboxPurchasesEnabled();
     const principal = requirePrincipal(req);
+    const authorization = await this.financialAuthorization.authorize({ principal, transactionPin: body.transactionPin, amountMinor: BigInt(body.amountMinor), intent: 'BILL_PAYMENT' });
     const result = await this.bills.purchase({
+      authorization,
       userId: principal.userId,
       idempotencyKey: requireIdempotencyKey(idempotencyKey),
       productCode: body.productCode,

@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import type { JsonObject, NormalizedProviderStatus, VirtualAccountCreditEvent } from '@twipay/contracts';
 import { fingerprintSensitiveValue } from '@twipay/security';
 import { PrismaService } from '../../../platform/database/prisma.service.js';
+import { FinancialAuthorizationService, type FinancialAuthorization } from './financial-authorization.service.js';
 import { PaymentProviderRegistry, type EnabledPaymentProvider } from '../../providers/payment-provider.registry.js';
 import { IdempotencyService } from './idempotency.service.js';
 import { FinancialTransactionService } from './financial-transaction.service.js';
@@ -18,6 +19,7 @@ function providerOperationStatus(status: NormalizedProviderStatus) {
 export class PaymentService {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly authorization: FinancialAuthorizationService,
     private readonly providers: PaymentProviderRegistry,
     private readonly idempotency: IdempotencyService,
     private readonly financial: FinancialTransactionService,
@@ -26,6 +28,7 @@ export class PaymentService {
   ) {}
 
   async createCollection(input: {
+    authorization: FinancialAuthorization;
     userId: string;
     idempotencyKey: string;
     providerCode: EnabledPaymentProvider;
@@ -37,7 +40,7 @@ export class PaymentService {
       scope: 'funding:create',
       key: input.idempotencyKey,
       userId: input.userId,
-      request: input,
+      request: { userId: input.userId, providerCode: input.providerCode, amountMinor: input.amountMinor, currency: input.currency },
     });
     if (idem.replay) return { statusCode: idem.replay.status, body: idem.replay.body };
     const recordId = idem.recordId!;
@@ -45,6 +48,7 @@ export class PaymentService {
     await this.wallets.ensureUserWallet(input.userId, input.currency);
     const reference = createFinancialReference('fund');
     const created = await this.prisma.$transaction(async (tx) => {
+      await this.authorization.assertCurrentWithTx(tx, input.authorization, input.amountMinor, { userId: input.userId, intent: 'FUNDING' });
       const financial = await this.financial.createWithTx(tx, {
         reference,
         userId: input.userId,

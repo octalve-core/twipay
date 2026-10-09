@@ -13,6 +13,7 @@ import {
 import { decryptSensitiveString, encryptSensitiveString } from '@twipay/security';
 import { publicCheckoutResponse } from './event-response.js';
 import { PrismaService } from '../../../platform/database/prisma.service.js';
+import { FinancialAuthorizationService, type FinancialAuthorization } from '../../finance/application/financial-authorization.service.js';
 import { FinancialTransactionService } from '../../finance/application/financial-transaction.service.js';
 import { IdempotencyService } from '../../finance/application/idempotency.service.js';
 import { LedgerService } from '../../finance/application/ledger.service.js';
@@ -54,6 +55,7 @@ function orderExpiryMinutes(): number {
 export class EventService {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly authorization: FinancialAuthorizationService,
     private readonly idempotency: IdempotencyService,
     private readonly financial: FinancialTransactionService,
     private readonly wallets: WalletService,
@@ -166,6 +168,7 @@ export class EventService {
   }
 
   async checkout(input: {
+    authorization: FinancialAuthorization;
     userId: string; idempotencyKey: string; eventId: string;
     items: readonly { ticketTypeId: string; quantity: number }[]; issuedToName?: string; expectedTotalMinor: string;
   }): Promise<{ statusCode: number; body: JsonObject }> {
@@ -215,6 +218,7 @@ export class EventService {
         if (totalMinor > 9_223_372_036_854_775_807n) throw new BadRequestException({ code: 'EVENT_TOTAL_OUT_OF_RANGE' });
         // The customer must explicitly approve the final quoted total before funds are reserved.
         if (totalMinor.toString() !== input.expectedTotalMinor) throw new ConflictException({ code: 'EVENT_QUOTE_CHANGED' });
+        await this.authorization.assertCurrentWithTx(tx, input.authorization, totalMinor, { userId: input.userId, intent: 'EVENT_PURCHASE' });
         const settlement = calculateSettlement({ grossMinor: totalMinor, platformFeeMinor });
         if (settlement.organizerMinor !== subtotalMinor) throw new Error('EVENT_SETTLEMENT_CALCULATION_MISMATCH');
 

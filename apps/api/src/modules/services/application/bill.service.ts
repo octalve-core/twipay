@@ -4,6 +4,7 @@ import { assertBillAmount, assertBillPurchaseTransition } from '@twipay/services
 import { decryptSensitiveString, encryptSensitiveString, fingerprintSensitiveValue } from '@twipay/security';
 import type { Prisma } from '@prisma/client';
 import { PrismaService } from '../../../platform/database/prisma.service.js';
+import { FinancialAuthorizationService, type FinancialAuthorization } from '../../finance/application/financial-authorization.service.js';
 import { BillProviderRegistry, type EnabledBillProvider } from '../../providers/bill-provider.registry.js';
 import { FinancialTransactionService } from '../../finance/application/financial-transaction.service.js';
 import { IdempotencyService } from '../../finance/application/idempotency.service.js';
@@ -48,6 +49,7 @@ function operationStatus(status: NormalizedProviderStatus): 'PENDING' | 'PROCESS
 export class BillService {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly authorization: FinancialAuthorizationService,
     private readonly providers: BillProviderRegistry,
     private readonly router: BillProviderRouterService,
     private readonly idempotency: IdempotencyService,
@@ -129,6 +131,7 @@ export class BillService {
   }
 
   async purchase(input: {
+    authorization: FinancialAuthorization;
     userId: string;
     idempotencyKey: string;
     productCode: string;
@@ -138,7 +141,7 @@ export class BillService {
     contactPhoneE164?: string;
   }): Promise<{ statusCode: number; body: JsonObject }> {
     const normalizedIdentifier = normalizeIdentifier(input.customerIdentifier);
-    const idem = await this.idempotency.begin({ scope: 'bill:purchase', key: input.idempotencyKey, userId: input.userId, request: input });
+    const idem = await this.idempotency.begin({ scope: 'bill:purchase', key: input.idempotencyKey, userId: input.userId, request: { userId: input.userId, productCode: input.productCode, customerIdentifier: input.customerIdentifier, amountMinor: input.amountMinor, validationId: input.validationId, contactPhoneE164: input.contactPhoneE164 } });
     if (idem.replay) return { statusCode: idem.replay.status, body: idem.replay.body };
     const idemId = idem.recordId!;
     let submittedContext: { purchaseId: string; financialId: string; operationId: string; reference: string } | undefined;
@@ -186,6 +189,7 @@ export class BillService {
         throw new Error('BILL_PROVIDER_REQUEST_REFERENCE_INVALID');
       }
       const created = await this.prisma.$transaction(async (tx) => {
+        await this.authorization.assertCurrentWithTx(tx, input.authorization, input.amountMinor, { userId: input.userId, intent: 'BILL_PAYMENT' });
         const wallet = await this.wallets.ensureUserWalletWithTx(tx, input.userId, 'NGN');
         const financial = await this.financial.createWithTx(tx, {
           reference,
