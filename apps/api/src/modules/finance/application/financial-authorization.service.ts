@@ -93,7 +93,7 @@ export class FinancialAuthorizationService {
       if (pin.lockedUntil && pin.lockedUntil > now) return { status: 'LOCKED' as const };
       const correct = await this.hasher.verify(pin.pinHash, pinMaterial(userId, input.transactionPin));
       if (!correct) {
-        const failures = pin.failedAttempts + 1;
+        const failures = (pin.lockedUntil ? 0 : pin.failedAttempts) + 1;
         const lock = failures >= MAX_FAILURES;
         await tx.transactionPinCredential.update({ where: { userId }, data: { failedAttempts: failures, lockedUntil: lock ? new Date(now.getTime() + LOCK_MS) : null } });
         await tx.securityEvent.create({ data: { userId, type: lock ? 'TRANSACTION_PIN_LOCKED' : 'TRANSACTION_PIN_FAILED' } });

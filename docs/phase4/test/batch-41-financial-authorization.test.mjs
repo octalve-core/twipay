@@ -107,3 +107,9 @@ test('authorization cannot cross customer, operation type or amount boundaries',
  await assert.rejects(h.service.assertCurrentWithTx(h.tx,a,30000n,{userId:'u1',intent:'BILL_PAYMENT'}),{code:'FINANCIAL_INTENT_BINDING_MISMATCH'});
  await assert.rejects(h.service.assertCurrentWithTx(h.tx,a,30001n,{userId:'u1',intent:'TRANSFER'}),{code:'FINANCIAL_INTENT_BINDING_MISMATCH'});
 });
+
+test('expired PIN lockout resets failure counter instead of violating database check',async()=>{
+ const h=harness();h.state.failed=5;h.state.lockUntil=ago(1000);
+ await assert.rejects(h.auth('9999'),{code:'PIN_AUTHORIZATION_FAILED'});
+ assert.equal(h.state.failed,1);assert.equal(h.state.lockUntil,null);
+});
