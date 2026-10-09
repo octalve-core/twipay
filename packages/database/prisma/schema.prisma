@@ -370,6 +370,9 @@ model User {
   passwordResetChallenges PasswordResetChallenge[]
   passwordEnrollmentChallenges PasswordEnrollmentChallenge[]
   financialEligibility FinancialEligibilityPolicy?
+  financialTierReviews FinancialTierReview[] @relation("FinancialTierCustomer")
+  financialTierPrepared FinancialTierReview[] @relation("FinancialTierMaker")
+  financialTierChecked FinancialTierReview[] @relation("FinancialTierChecker")
   transactionPin TransactionPinCredential?
   transactionPinResetChallenges TransactionPinResetChallenge[]
   securityEvents        SecurityEvent[]
@@ -477,6 +480,36 @@ model FinancialEligibilityPolicy {
   user                User                       @relation(fields: [userId], references: [id], onDelete: Restrict)
 
   @@map("financial_eligibility_policies")
+}
+
+/** Staged maker/checker customer tier decision; never an automatic KYC approval. */
+enum FinancialTierReviewStatus {
+  PREPARED
+  APPROVED
+  REJECTED
+}
+
+model FinancialTierReview {
+  id                  String                    @id @default(uuid()) @db.Uuid
+  userId              String                    @db.Uuid
+  status              FinancialTierReviewStatus @default(PREPARED)
+  proposedTier        Int
+  maxPerIntentMinor   BigInt
+  maxDailyDebitMinor  BigInt
+  evidenceReference   String                    @db.VarChar(150)
+  note                String                    @db.VarChar(1000)
+  preparedByUserId    String                    @db.Uuid
+  checkedByUserId     String?                   @db.Uuid
+  checkedAt           DateTime?                 @db.Timestamptz(6)
+  rejectionReason     String?                   @db.VarChar(500)
+  createdAt           DateTime                  @default(now()) @db.Timestamptz(6)
+  user                User                      @relation("FinancialTierCustomer", fields: [userId], references: [id], onDelete: Restrict)
+  maker               User                      @relation("FinancialTierMaker", fields: [preparedByUserId], references: [id], onDelete: Restrict)
+  checker             User?                     @relation("FinancialTierChecker", fields: [checkedByUserId], references: [id], onDelete: Restrict)
+
+  @@index([status, createdAt])
+  @@index([userId, createdAt])
+  @@map("financial_tier_reviews")
 }
 
 model TransactionPinCredential {

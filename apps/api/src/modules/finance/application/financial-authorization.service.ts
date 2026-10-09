@@ -54,7 +54,8 @@ export class FinancialAuthorizationService {
       tx.user.findUnique({ where: { id: input.userId }, select: { status: true, emailVerifiedAt: true, phoneVerifiedAt: true } }),
       tx.session.findUnique({ where: { id: input.sessionId }, select: { userId: true, status: true, expiresAt: true, lastSeenAt: true, mfaSatisfiedAt: true } }),
       tx.mfaCredential.count({ where: { userId: input.userId, status: 'ACTIVE' } }),
-      tx.identityVerification.count({ where: { userId: input.userId, type: 'BVN', status: 'VERIFIED' } }),
+      tx.identityVerification.count({ where: { userId: input.userId, type: 'BVN', status: 'VERIFIED',
+        OR: [{ expiresAt: null }, { expiresAt: { gt: now } }] } }),
       tx.financialEligibilityPolicy.findUnique({ where: { userId: input.userId } }),
     ]);
     if (!user || user.status !== 'ACTIVE') denied('FINANCIAL_ACCOUNT_NOT_ELIGIBLE');

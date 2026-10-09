@@ -12,13 +12,14 @@ import { OrganizerPayoutService } from './application/organizer-payout.service.j
 import { ProviderOperationsService } from './application/provider-operations.service.js';
 import { ReportsService } from './application/reports.service.js';
 import { FinancialExceptionService } from './application/financial-exception.service.js';
+import { FinancialTierReviewService } from './application/financial-tier-review.service.js';
 import { CustomerOperationsController } from './presentation/customer-operations.controller.js';
 import { OperationsController } from './presentation/operations.controller.js';
 
 @Module({
   imports:[AuthModule,FinanceModule,ProvidersModule,ProductModule,NotificationsModule],
   controllers:[CustomerOperationsController,OperationsController],
-  providers:[AuditService,ComplianceService,DisputeRefundService,OrganizerPayoutService,ProviderOperationsService,ReportsService,FinancialExceptionService,CustomerSupportService],
-  exports:[AuditService,ComplianceService,DisputeRefundService,OrganizerPayoutService,ProviderOperationsService,ReportsService,FinancialExceptionService,CustomerSupportService],
+  providers:[AuditService,ComplianceService,DisputeRefundService,OrganizerPayoutService,ProviderOperationsService,ReportsService,FinancialExceptionService,FinancialTierReviewService,CustomerSupportService],
+  exports:[AuditService,ComplianceService,DisputeRefundService,OrganizerPayoutService,ProviderOperationsService,ReportsService,FinancialExceptionService,FinancialTierReviewService,CustomerSupportService],
 })
 export class OperationsModule {}

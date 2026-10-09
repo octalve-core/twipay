@@ -12,11 +12,19 @@ import { OrganizerPayoutService } from '../application/organizer-payout.service.
 import { ProviderOperationsService } from '../application/provider-operations.service.js';
 import { ReportsService } from '../application/reports.service.js';
 import { FinancialExceptionService } from '../application/financial-exception.service.js';
+import { FinancialTierReviewService } from '../application/financial-tier-review.service.js';
 
 const SupportReply = z.object({message:z.string().trim().min(2).max(3000),requestKey:z.uuid()}).strict();
 const SupportRef = z.string().regex(/^sup_[0-9a-f-]{36}$/);
 const Reason = z.object({ reason: z.string().trim().min(5).max(500) }).strict();
 const PrepareRefund = z.object({ note: z.string().trim().min(5).max(2000) }).strict();
+const TierProposal = z.object({ tier: z.number().int().min(1).max(3),
+  maxPerIntentMinor: z.string().regex(/^[1-9]\d{0,17}$/),
+  maxDailyDebitMinor: z.string().regex(/^[1-9]\d{0,17}$/),
+  evidenceReference: z.uuid(),
+  note: z.string().trim().min(30).max(1000),
+}).strict();
+const UuidParam = z.uuid();
 const ExceptionReview = z.object({ note: z.string().trim().min(20).max(1200) }).strict();
 const OfferControl = z.object({ active: z.boolean().optional(), priority: z.number().int().min(-100).max(100).optional(), estimatedCostMinor: z.string().regex(/^[1-9]\d{0,17}$/).nullable().optional(), reason: z.string().trim().min(5).max(500) }).strict().refine((v) => v.active !== undefined || v.priority !== undefined || v.estimatedCostMinor !== undefined, 'at least one control must change');
 const Mapping = z.object({ canonicalProductId: z.uuid(), reason: z.string().trim().min(5).max(500), evidence: z.object({ source: z.string().trim().min(3).max(1000), verificationNote: z.string().trim().min(10).max(2000), verifiedProductName: z.string().trim().min(2).max(180) }).strict() }).strict();
@@ -25,7 +33,7 @@ const Mapping = z.object({ canonicalProductId: z.uuid(), reason: z.string().trim
 @UseGuards(SessionAuthGuard, PermissionGuard)
 @Controller('operations')
 export class OperationsController {
-  constructor(private readonly disputes: DisputeRefundService, private readonly payouts: OrganizerPayoutService, private readonly providers: ProviderOperationsService, private readonly reports: ReportsService, private readonly audit: AuditService, private readonly compliance: ComplianceService, private readonly exceptions: FinancialExceptionService, private readonly support: CustomerSupportService) {}
+  constructor(private readonly disputes: DisputeRefundService, private readonly payouts: OrganizerPayoutService, private readonly providers: ProviderOperationsService, private readonly reports: ReportsService, private readonly audit: AuditService, private readonly compliance: ComplianceService, private readonly exceptions: FinancialExceptionService, private readonly tiers: FinancialTierReviewService, private readonly support: CustomerSupportService) {}
 
   @Get('dashboard') @RequirePermissions('ops.dashboard.read') async dashboard() { return this.reports.dashboard(); }
   @Get('compliance') @RequirePermissions('ops.compliance.read') async complianceSnapshot() { return this.compliance.snapshot(); }
@@ -55,6 +63,37 @@ export class OperationsController {
   @Post('payouts/:reference/approve') @RequirePermissions('ops.payouts.approve')
   async approvePayout(@Param('reference') reference:string,@Req() req:AuthenticatedFastifyRequest){requireMfa(req);const p=requirePrincipal(req);return {payout:await this.payouts.approveAndSubmit({reference,checkerUserId:p.userId,sessionId:p.sessionId,mfaSatisfied:p.mfaSatisfied,requestId:req.id})};}
   @Post('payouts/:reference/reconcile') @RequirePermissions('ops.payouts.prepare') async reconcile(@Param('reference') reference:string,@Req() req:AuthenticatedFastifyRequest){const p=requirePrincipal(req);return {payout:await this.payouts.reconcile(reference,p.userId,req.id)};}
+
+  @Get('financial-eligibility/reviews') @RequirePermissions('ops.tiers.read')
+  async financialTierQueue(@Req() req: AuthenticatedFastifyRequest) { requireMfa(req); return this.tiers.queue(); }
+
+  @Post('financial-eligibility/:userId/prepare') @RequirePermissions('ops.tiers.prepare')
+  async prepareFinancialTier(@Param('userId', new ZodValidationPipe(UuidParam)) userId: string,
+    @Body(new ZodValidationPipe(TierProposal)) body: z.infer<typeof TierProposal>,
+    @Req() req: AuthenticatedFastifyRequest) {
+    requireMfa(req); const actor = requirePrincipal(req);
+    return { review: await this.tiers.prepare({ userId, actorUserId: actor.userId, sessionId: actor.sessionId,
+      tier: body.tier, maxPerIntentMinor: BigInt(body.maxPerIntentMinor),
+      maxDailyDebitMinor: BigInt(body.maxDailyDebitMinor), evidenceReference: body.evidenceReference,
+      note: body.note, requestId: req.id }) };
+  }
+
+  @Post('financial-eligibility/reviews/:reviewId/approve') @RequirePermissions('ops.tiers.approve')
+  async approveFinancialTier(@Param('reviewId', new ZodValidationPipe(UuidParam)) reviewId: string,
+    @Req() req: AuthenticatedFastifyRequest) {
+    requireMfa(req); const actor = requirePrincipal(req);
+    return { review: await this.tiers.approve({ reviewId, actorUserId: actor.userId,
+      sessionId: actor.sessionId, requestId: req.id }) };
+  }
+
+  @Post('financial-eligibility/reviews/:reviewId/reject') @RequirePermissions('ops.tiers.approve')
+  async rejectFinancialTier(@Param('reviewId', new ZodValidationPipe(UuidParam)) reviewId: string,
+    @Body(new ZodValidationPipe(Reason)) body: z.infer<typeof Reason>,
+    @Req() req: AuthenticatedFastifyRequest) {
+    requireMfa(req); const actor = requirePrincipal(req);
+    return { review: await this.tiers.reject({ reviewId, actorUserId: actor.userId,
+      sessionId: actor.sessionId, reason: body.reason, requestId: req.id }) };
+  }
 
   @Get('financial-exceptions') @RequirePermissions('ops.reconciliation.read')
   async financialExceptions() { return this.exceptions.queue(); }
