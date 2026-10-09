@@ -1,0 +1,14 @@
+
+> twipay@0.1.0 test:repo
+> node scripts/typescript-syntax-check.mjs && node scripts/repository-security-check.mjs && node scripts/architecture-check.mjs && node scripts/financial-invariant-check.mjs && node scripts/services-events-invariant-check.mjs && node scripts/product-operations-invariant-check.mjs && node scripts/production-hardening-invariant-check.mjs && node scripts/design/erhapay-ui-inventory.mjs --check
+
+TypeScript syntax check PASS (491 source files)
+Repository security check PASS (995 text files inspected)
+Architecture check PASS
+Financial invariant check PASS
+Services/events invariant check PASS
+Product/operations invariant check PASS
+Production hardening invariant check PASS
+PASS: design inventory matches 339 source files
+PASS: 123 original visual assets present; 69 byte-identical, 54 CRLF-only normalized, 0 material changes
+PASS: 67 declared route paths; 15 UI primitives catalogued
