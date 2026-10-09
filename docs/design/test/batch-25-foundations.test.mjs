@@ -53,10 +53,19 @@ test('transaction PIN is explicitly pending a server-enforced authorization poli
  assert.match(page,/Coming soon|FoundationUnavailable/);
  assert.doesNotMatch(page,/onSubmit|pin:\s*\d|\/auth\/set-pin|\/wallet\/debit/);
 });
-test('saved beneficiary page does not fabricate a list or submit bank credentials',()=>{
+test('saved beneficiary page uses server-owned masked records, is default off and does not fabricate recipients',()=>{
  const source=read(root+'routes/dashboard/foundations/SavedBeneficiaries.tsx');
- assert.match(source,/not available yet/);
- assert.doesNotMatch(source,/useState|localStorage|accountNumber|\.post\(|\.delete\(|beneficiaries=\[/);
+ const api=read(root+'lib/api/dashboard-apis/transfers.ts');
+ const backend=read('apps/api/src/modules/finance/application/transfer.service.ts');
+ assert.match(source,/listSavedBeneficiaries/);
+ assert.match(source,/VITE_TWIPAY_TRANSFER_SANDBOX_ENABLED === 'true'/);
+ assert.match(source,/entry\.accountNumberMasked/);
+ assert.match(source,/saveTransferBeneficiary/);
+ assert.match(source,/removeSavedBeneficiary/);
+ assert.match(backend,/where: \{ userId, saved: true, archivedAt: null \}/);
+ assert.match(backend,/encryptSensitiveString\(input\.accountNumber/);
+ assert.match(api,/api\.get\('\/transfers\/beneficiaries'\)/);
+ assert.doesNotMatch(source,/localStorage|beneficiaries=\[/);
 });
 test('notification preferences and support centre do not imply unimplemented messages are sent',()=>{
  const notif=read(root+'routes/dashboard/foundations/NotificationPreferences.tsx');

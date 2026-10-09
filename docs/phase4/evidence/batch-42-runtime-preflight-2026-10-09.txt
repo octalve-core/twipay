@@ -1,0 +1,16 @@
+PASS    Workspace dependency references — 19 workspaces, 0 missing/duplicate references
+PASS    Pinned pnpm packageManager — pnpm@12.9.1
+PASS    Prisma 7 source configuration — Prisma client adapter and CLI source verified; no Prisma generation or database command executed
+PASS    Migration source completeness — Migration folders: 0001_identity_foundation, 0002_financial_core, 0003_services_events, 0004_product_operations, 0005_production_hardening_mfa, 0006_verified_contact_onboarding, 0007_password_recovery_and_sessions, 0008_google_oidc_transactions, 0009_account_security_transaction_pin, 0010_profile_and_kyc_continuity, 0011_financial_eligibility_default_deny, 0012_bank_transfer_quotes_beneficiaries
+PASS    Original five migration hashes unchanged — Original ledger/security migrations match pinned Phase 1.3 baseline
+BLOCKED Root lockfile importer coverage — Root pnpm-lock.yaml does not exist; frozen install still required
+BLOCKED Node.js 24 runtime — Found v22.16.0; required >=24 <25
+BLOCKED Exact pnpm runtime — Installed unavailable; required 12.9.1
+BLOCKED Docker Compose available — Docker Compose not available
+BLOCKED Frozen dependency installation — Must execute pnpm install --frozen-lockfile against the registry with exact pinned pnpm
+BLOCKED Prisma generate/validate/migration deploy — Must execute in isolated Node 24 / pnpm / PostgreSQL 18 runtime
+BLOCKED PostgreSQL 18 financial tests — Must execute against disposable PostgreSQL 18; migration hashes alone do not prove DB integrity
+BLOCKED Redis 8 / BullMQ integration — Must execute with disposable Redis 8
+BLOCKED Combined workspace build — Requires installed pnpm dependency graph and Prisma generation
+Summary PASS 5, FAIL 0, BLOCKED 9
+Full results: out/phase1-3-gates.json (contains no database credentials)
