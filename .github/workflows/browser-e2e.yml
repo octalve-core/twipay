@@ -2,6 +2,8 @@ name: Browser E2E
 
 on:
   pull_request:
+  push:
+    branches: ["phase3/**", "phase4/**", "phase5/**", "phase6/**", main, develop]
   workflow_dispatch:
 
 permissions:

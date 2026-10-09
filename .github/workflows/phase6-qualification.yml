@@ -52,6 +52,8 @@ jobs:
         run: |
           pnpm exec playwright install --with-deps chromium
           bash scripts/qualification/phase1-3-run-local.sh --smoke > out/phase6-browser.txt 2>&1 || { cat out/phase6-browser.txt; exit 1; }
+      - name: Verify built customer bundle excludes prohibited betting implementation
+        run: pnpm test:betting-bundle
       - name: Explicit release boundary
         if: success()
         run: |

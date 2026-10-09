@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   pull_request:
   push:
-    branches: [main, develop]
+    branches: [main, develop, "phase3/**", "phase4/**", "phase5/**", "phase6/**"]
 
 permissions:
   contents: read
@@ -97,6 +97,10 @@ jobs:
       - name: Redis/BullMQ worker integration
         run: pnpm --filter @twipay/worker test:integration
       - run: pnpm build
+      - name: Check production customer bundle excludes prohibited betting implementation
+        run: pnpm test:betting-bundle
+      - name: Verify all customer-browser specifications load on the current code
+        run: pnpm exec playwright test --config playwright.customer-ui.config.ts --list
       - name: Upload qualification evidence
         if: always()
         uses: actions/upload-artifact@v4
