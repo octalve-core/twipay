@@ -79,7 +79,7 @@ test('API requires independent non-production sandbox gate for validation and pu
   assert.match(src,/BILL_PROVIDER_SANDBOX_REQUIRED/);
   assert.match(src,/sandbox\.vtpass\.com/);
   assert.match(src,/sandbox\.monnify\.com/);
-  assert.equal((src.match(/this\.assertSandboxPurchasesEnabled\(\)/g)||[]).length,2);
+  assert.equal((src.match(/this\.assertSandboxPurchasesEnabled\(\)/g)||[]).length,3);
   assert.match(src, /requireIdempotencyKey/);
   assert.match(source('apps/api/src/platform/config/env.ts'),/BILL_PURCHASES_SANDBOX_ENABLED: z\.enum\(\['true', 'false'\]\)\.default\('false'\)/);
 });
