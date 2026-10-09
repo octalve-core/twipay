@@ -8,14 +8,14 @@
     "stylesheet": "src/index.css"
   },
   "colors": {
-    "#112929": 472,
-    "#344054": 361,
-    "#667085": 286,
-    "#D0D5DD": 172,
+    "#112929": 475,
+    "#344054": 362,
+    "#667085": 288,
+    "#D0D5DD": 173,
     "#717171": 140,
-    "#101828": 78,
+    "#101828": 79,
     "#464E60": 76,
-    "#475467": 75,
+    "#475467": 76,
     "#727884": 29,
     "#1018280D": 24,
     "#F0F2F5": 20,
@@ -58,6 +58,7 @@
     "#D42620": 3,
     "#E1E1E1": 3,
     "#E4E7EC": 3,
+    "#E9E9E9": 3,
     "#F2F4F7": 3,
     "#F8F8F8": 3,
     "#000000": 2,
@@ -69,7 +70,6 @@
     "#C4C3C3": 2,
     "#D3D3D3": 2,
     "#D9D9D9": 2,
-    "#E9E9E9": 2,
     "#ECFDF3": 2,
     "#F0F5FB": 2,
     "#F56630": 2,
@@ -130,6 +130,7 @@
       "/terms",
       "/auth",
       "login",
+      "google-complete",
       "two-factor-authentication",
       "signup",
       "verify-phone",
@@ -188,6 +189,7 @@
       "*"
     ],
     "authPages": [
+      "src/routes/auth-pages/GoogleComplete.tsx",
       "src/routes/auth-pages/LogIn.tsx",
       "src/routes/auth-pages/ResetPassword.tsx",
       "src/routes/auth-pages/SetTransactionPin.tsx",
@@ -521,9 +523,9 @@
     "baseline": "docs/design/ERHAPAY_ORIGINAL_VISUAL_ASSETS.json"
   },
   "counts": {
-    "reactFiles": 267,
-    "sourceFiles": 329,
-    "totalSrcFiles": 469
+    "reactFiles": 268,
+    "sourceFiles": 330,
+    "totalSrcFiles": 470
   },
   "keyFiles": {
     "dashboardLayout": "src/routes/layout/DashboardLayout.tsx",

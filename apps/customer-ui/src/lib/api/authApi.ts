@@ -25,7 +25,11 @@ export const verify2FaOtp = async ({otp}: {otp: string}) => (await api.post("/au
 
 // The following legacy ErhaPay API calls are deliberately disabled pending typed TwiPay contracts.
 function unavailable(): never { throw new Error("This account workflow is not yet integrated with TwiPay"); }
-export const SignInWithGoogle = async (_value?: unknown): Promise<any> => unavailable();
+export const getGoogleAvailability = async (): Promise<{enabled:boolean}> => (await api.get('/auth/google/status')).data;
+export const startGoogleSignIn = async (): Promise<{authorizationUrl:string}> => (await api.post('/auth/google/start', {})).data;
+export const getGoogleLinkStatus = async (): Promise<{linked:boolean}> => (await api.get('/auth/google/link/status')).data;
+export const startGoogleAccountLink = async (currentPassword:string): Promise<{authorizationUrl:string}> =>
+  (await api.post('/auth/google/link/start', {currentPassword})).data;
 export const resend2FaOtp = async (_value?: unknown): Promise<any> => unavailable();
 export const verifyEmail = async (code: string) => (await api.post<{verified: boolean}>("/auth/contact/email/confirm", {code})).data;
 export const resendOtpFn = async () => (await api.post<{deliveryStatus: 'DELIVERED' | 'ACCEPTED' | 'PENDING' | 'ALREADY_VERIFIED'}>("/auth/contact/email/resend")).data;

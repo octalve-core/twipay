@@ -4,7 +4,7 @@ import ChangeTxnPinModal from "./ChangeTxnPinModal"
 import Set2FAModal from "./set2FAModal"
 import BackButton from "@/components/Authentication/BackButton"
 import { useEffect, useState } from "react"
-import { listAccountSessions, revokeOtherAccountSessions } from "@/lib/api/authApi"
+import { listAccountSessions, revokeOtherAccountSessions, getGoogleAvailability, getGoogleLinkStatus, startGoogleAccountLink } from "@/lib/api/authApi"
 import { toast } from "sonner"
 
 const SecuritySettings = () => {
@@ -12,6 +12,26 @@ const SecuritySettings = () => {
   const [sessionsUnavailable, setSessionsUnavailable] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
   const [pending, setPending] = useState(false);
+  const [googleEnabled, setGoogleEnabled] = useState(false);
+  const [googleLinked, setGoogleLinked] = useState(false);
+  const [googlePassword, setGooglePassword] = useState('');
+  const [googlePending, setGooglePending] = useState(false);
+  useEffect(() => {
+    let active = true;
+    void Promise.all([getGoogleAvailability(), getGoogleLinkStatus()]).then(([available, linked]) => {
+      if (active) { setGoogleEnabled(available.enabled); setGoogleLinked(linked.linked); }
+    }).catch(() => {});
+    return () => { active = false; };
+  }, []);
+  const linkGoogle = async () => {
+    if (googlePending || !googlePassword) return;
+    setGooglePending(true);
+    try {
+      const result = await startGoogleAccountLink(googlePassword);
+      setGooglePassword('');
+      window.location.assign(result.authorizationUrl);
+    } catch { toast.error('We couldn’t connect Google. Check your password and try again.'); setGooglePending(false); }
+  };
   useEffect(() => {
     let active = true;
     void listAccountSessions().then((data) => { if (active) setSessions(data.sessions); })
@@ -51,6 +71,16 @@ const SecuritySettings = () => {
                 <UpdatePhoneModal />
                 <ChangeTxnPinModal />
                 <Set2FAModal />
+                {googleEnabled && <section className="mt-5 pt-5 border-t border-[#E9E9E9]" aria-labelledby="google-account-title">
+                  <h2 id="google-account-title" className="text-[#112929] font-semibold text-base">Google sign-in</h2>
+                  {googleLinked ? <p className="text-sm text-[#667085] mt-2">Google is connected to your TwiPay account.</p>
+                    : <>
+                      <p className="text-sm text-[#667085] mt-2">Connect your Google account to sign in more easily. Confirm your TwiPay password first.</p>
+                      <label htmlFor="google-account-password" className="block text-sm text-[#344054] mt-3">Current password</label>
+                      <input id="google-account-password" className="mt-1 w-full border border-[#D0D5DD] rounded-md px-3 py-2" type="password" autoComplete="current-password" value={googlePassword} onChange={(event) => setGooglePassword(event.target.value)} />
+                      <button type="button" className="mt-3 rounded-md bg-[#112929] px-4 py-2 text-white text-sm disabled:opacity-50" disabled={!googlePassword || googlePending} onClick={() => void linkGoogle()}>Connect Google</button>
+                    </>}
+                </section>}
                 <section className="mt-5 pt-5 border-t border-[#E9E9E9]" aria-labelledby="active-sessions-title">
                   <h2 id="active-sessions-title" className="text-[#112929] font-semibold text-base">Signed-in devices</h2>
                   <p className="text-sm text-[#667085] mt-1">Review sessions on your account. You can sign out other devices here.</p>

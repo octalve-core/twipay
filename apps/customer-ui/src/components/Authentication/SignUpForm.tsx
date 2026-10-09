@@ -12,6 +12,7 @@ import { toast } from "sonner"
 import { useAuth } from "@/context/AuthContext"
 import { SignUpUser } from "@/lib/api/authApi"
 import { AxiosError } from "axios"
+import GoogleLoginButton from "./GoogleLoginButton"
 
 export type TFormData = z.infer<typeof signUpFormSchema>
 
@@ -95,6 +96,7 @@ const SignUpForm = () => {
             </div>
             <CustomButton isLoading={isPending} disabled={isPending} className="w-full mt-6 px-2">Create account</CustomButton>
         </form>
+        <GoogleLoginButton disabled={isPending} />
     </div>
   )
 }

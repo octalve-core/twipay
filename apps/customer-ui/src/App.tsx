@@ -27,6 +27,7 @@ import SetTransactionPin from "./routes/auth-pages/SetTransactionPin";
 import ResetPassword from "./routes/auth-pages/ResetPassword";
 import SignUp from "./routes/auth-pages/SignUp";
 import Login from "./routes/auth-pages/LogIn";
+import GoogleComplete from "./routes/auth-pages/GoogleComplete";
 
 import AccountSecurityOverview from "./routes/dashboard/foundations/AccountSecurityOverview";
 import SavedBeneficiaries from "./routes/dashboard/foundations/SavedBeneficiaries";
@@ -133,6 +134,10 @@ function App() {
         {
           path: "login",
           element: <Login />,
+        },
+        {
+          path: "google-complete",
+          element: <GoogleComplete />,
         },
         {
           path: "two-factor-authentication",

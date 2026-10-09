@@ -13,7 +13,7 @@ import { toast } from "sonner"
 import { useAuth } from "@/context/AuthContext"
 import { GetMfaStatus, LogInUser, getCurrentSession } from "@/lib/api/authApi"
 import { AxiosError } from "axios"
-// import GoogleLoginButton from "./GoogleLoginButton"
+import GoogleLoginButton from "./GoogleLoginButton"
 
 export type TFormData = z.infer<typeof logInFormSchema>;
 
@@ -103,13 +103,9 @@ const LogInForm = () => {
 
             <CustomButton isLoading={isLoggingIn} disabled={isLoggingIn} className="w-full">Log in</CustomButton>
 
-            {/* SOCIAL LOG IN BUTTONS */}
-            {/* <GoogleLoginButton disabled={isLoggingIn} />
-            <CustomButton onClick={()=>{}} disabled={isLoggingIn} type="button" className="flex items-center justify-center gap-3 bg-black mt-4 text-white w-full">
-                <img src={AppleIcon} alt="google" className="size-6" /> 
-                <span>Log in with Apple</span>
-            </CustomButton> */}
         </form>
+        <GoogleLoginButton disabled={isLoggingIn} />
+
     </div>
   )
 }

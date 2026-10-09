@@ -1,73 +1,34 @@
-import { auth, googleProvider } from "@/lib/firebase";
-import { signInWithPopup } from "firebase/auth";
-import CustomButton from "../CustomButton";
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import GoogleIcon from '@/assets/auth/google-icon.png';
+import { getGoogleAvailability, startGoogleSignIn } from '@/lib/api/authApi';
+import CustomButton from '../CustomButton';
 
-import GoogleIcon from "@/assets/auth/apple-icon.png";
-import { useMutation } from "@tanstack/react-query";
-import { SignInWithGoogle } from "@/lib/api/authApi";
-import { useAuth, User } from "@/context/AuthContext";
-import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
-import { AxiosError } from "axios";
+/** Google authorization happens on TwiPay's backend, never through Firebase or browser token storage. */
+export default function GoogleLoginButton({ disabled = false }: { disabled?: boolean }) {
+  const [available, setAvailable] = useState(false);
+  const [pending, setPending] = useState(false);
+  useEffect(() => {
+    let active = true;
+    void getGoogleAvailability().then((status) => { if (active) setAvailable(status.enabled); }).catch(() => {});
+    return () => { active = false; };
+  }, []);
+  if (!available) return null; // Do not market an unconfigured authentication method as working.
 
-const GoogleLoginButton = ({disabled}: {disabled?: boolean}) => {
-    const {setAuthData} = useAuth();
-
-    const navigate = useNavigate()
-
-      const {mutate, isPending: isLoggingIn} = useMutation({
-          mutationFn: SignInWithGoogle,
-          onSuccess: (data) => {
-              (void 0)
-              // if(data.error === "TWO_FA_REQUIRED"){
-              //     return navigate("/auth/two-factor-authentication", {
-              //         state: {
-              //             email: variables.payload.email,
-              //         }
-              //     })
-              // }
-              
-              const user = data.data.user as User;
-              const accessToken = data.data.accessToken;
-              const refreshToken = data.data.refreshToken;
-  
-              setAuthData(user, accessToken, refreshToken)
-              toast.success(data.message || "Logged in successfully")
-              navigate("/dashboard")
-          },
-          onError: (error: AxiosError) => {
-              (void 0)
-              const errData = error.response?.data as { message?: string };
-              if(errData.message){
-                  return toast.error(errData.message)
-              }
-              toast.error("Something went wrong, please try again")
-          }
-      })
-
-
-  const handleGoogleLogin = async () => {
+  const begin = async () => {
+    if (pending || disabled) return;
+    setPending(true);
     try {
-      const result = await signInWithPopup(auth, googleProvider);
-
-      const user = result.user;
-      const idToken = await user.getIdToken(true);
-
-      (void 0);
-      (void 0);
-
-      mutate({payload: {googleIdToken: idToken}});
-    } catch (error) {
-      (void 0);
+      const { authorizationUrl } = await startGoogleSignIn();
+      // Full navigation to Google's authorization endpoint; cookies remain HttpOnly.
+      window.location.assign(authorizationUrl);
+    } catch {
+      setPending(false);
+      toast.error('Google sign-in is temporarily unavailable. Please try your email and password.');
     }
   };
-
-  return (
-    <CustomButton onClick={handleGoogleLogin} disabled={disabled || isLoggingIn} type="button" variant="primary" className="flex items-center justify-center gap-3 mt-11 w-full border border-[#D0D5DD]">
-        <img src={GoogleIcon} alt="google" className="size-6" /> 
-        <span>Log in with Google</span>
-    </CustomButton>
-  );
-};
-
-export default GoogleLoginButton;
+  return <CustomButton onClick={() => void begin()} disabled={disabled || pending} type="button" variant="primary" className="flex items-center justify-center gap-3 mt-5 w-full border border-[#D0D5DD]">
+    <img src={GoogleIcon} alt="" className="size-6" />
+    <span>Continue with Google</span>
+  </CustomButton>;
+}
