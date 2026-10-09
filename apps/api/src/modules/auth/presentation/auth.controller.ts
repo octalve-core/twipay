@@ -1,8 +1,10 @@
 import {
   Body,
   Controller,
+  ConflictException,
   Get,
   Post,
+  Query,
   Patch,
   Req,
   Res,
@@ -16,6 +18,7 @@ import { isRecentMfaAssurance } from '@twipay/security';
 import { ZodValidationPipe } from '../../../platform/http/zod-validation.pipe.js';
 import { AuthService } from '../application/auth.service.js';
 import { PasswordSecurityService } from '../application/password-security.service.js';
+import { GoogleOidcService, GOOGLE_OIDC_COOKIE, GOOGLE_OIDC_FLOW_TTL_SECONDS } from '../infrastructure/google-oidc.service.js';
 import { SessionAuthGuard, requirePrincipal, type AuthenticatedFastifyRequest } from './session-auth.guard.js';
 import { SessionService } from '../application/session.service.js';
 import { ContactVerificationService } from '../application/contact-verification.service.js';
@@ -23,6 +26,7 @@ import { contactVerified } from '../application/contact-permissions.js';
 import { AllowUnverifiedContact } from './session-auth.guard.js';
 import { clearSessionCookies, csrfCookieName, sessionCookieName, setSessionCookies } from './session-cookie.js';
 
+const GoogleLinkSchema = z.object({currentPassword: z.string().min(1).max(128)}).strict();
 const RegisterSchema = z
   .object({
     email: z.email().max(320),
@@ -49,7 +53,80 @@ export class AuthController {
     private readonly sessions: SessionService,
     private readonly contacts: ContactVerificationService,
     private readonly passwordSecurity: PasswordSecurityService,
+    private readonly google: GoogleOidcService,
   ) {}
+
+  @Get('google/status')
+  googleStatus() {
+    return { enabled: this.google.enabled() };
+  }
+
+  @Post('google/start')
+  async startGoogleSignIn(@Res({ passthrough: true }) res: FastifyReply) {
+    const flow = await this.google.start({ purpose: 'SIGN_IN' });
+    res.setCookie(GOOGLE_OIDC_COOKIE, flow.browserBinding, {
+      httpOnly: true,
+      secure: process.env['NODE_ENV'] === 'production',
+      sameSite: 'lax', // Required for Google's top-level cross-site callback navigation.
+      path: '/v1/auth/google/callback',
+      maxAge: GOOGLE_OIDC_FLOW_TTL_SECONDS,
+    });
+    return { authorizationUrl: flow.authorizationUrl };
+  }
+
+  @Post('google/link/start')
+  @UseGuards(SessionAuthGuard)
+  async startGoogleLink(
+    @Body(new ZodValidationPipe(GoogleLinkSchema)) body: z.infer<typeof GoogleLinkSchema>,
+    @Req() req: AuthenticatedFastifyRequest,
+    @Res({ passthrough: true }) res: FastifyReply,
+  ) {
+    const principal = requirePrincipal(req);
+    const flow = await this.google.start({ purpose: 'LINK', userId: principal.userId, sessionId: principal.sessionId, currentPassword: body.currentPassword });
+    res.setCookie(GOOGLE_OIDC_COOKIE, flow.browserBinding, {
+      httpOnly: true,
+      secure: process.env['NODE_ENV'] === 'production',
+      sameSite: 'lax',
+      path: '/v1/auth/google/callback',
+      maxAge: GOOGLE_OIDC_FLOW_TTL_SECONDS,
+    });
+    return { authorizationUrl: flow.authorizationUrl };
+  }
+
+  @Get('google/link/status')
+  @UseGuards(SessionAuthGuard)
+  async googleLinkStatus(@Req() req: AuthenticatedFastifyRequest) {
+    const principal = requirePrincipal(req);
+    return { linked: await this.google.isLinked(principal.userId) };
+  }
+
+  @Get('google/callback')
+  async googleCallback(
+    @Query('state') state: string | undefined,
+    @Query('code') code: string | undefined,
+    @Req() req: FastifyRequest,
+    @Res() res: FastifyReply,
+  ) {
+    // No provider response data is echoed to the browser or logs.
+    let outcome = 'failed';
+    let linked = false;
+    try {
+      const result = await this.google.complete({ state, code, binding: req.cookies[GOOGLE_OIDC_COOKIE], userAgent: req.headers['user-agent'], ip: req.ip });
+      if (result.purpose === 'SIGN_IN' && result.session) setSessionCookies(res, result.session);
+      linked = result.purpose === 'LINK';
+      outcome = 'ok';
+    } catch (error) {
+      if (error instanceof ConflictException) outcome = 'link_required';
+    }
+    res.clearCookie(GOOGLE_OIDC_COOKIE, {
+      path: '/v1/auth/google/callback',
+      secure: process.env['NODE_ENV'] === 'production',
+      sameSite: 'lax',
+    });
+    const target = new URL(linked && outcome === 'ok' ? '/dashboard/settings/security' : '/auth/google-complete', process.env['APP_URL']);
+    target.searchParams.set('google', linked ? 'linked' : outcome);
+    return res.status(303).redirect(target.href);
+  }
 
   @Post('password/reset/request')
   async requestPasswordReset(@Body(new ZodValidationPipe(PasswordResetRequestSchema)) body: z.infer<typeof PasswordResetRequestSchema>) {

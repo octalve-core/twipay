@@ -16,7 +16,7 @@ import {
 } from '@twipay/security';
 import { SessionService } from '../application/session.service.js';
 
-const unauthenticatedBrowserMutations = new Set(['/v1/auth/register', '/v1/auth/login', '/v1/auth/password/reset/request', '/v1/auth/password/reset/complete']);
+const unauthenticatedBrowserMutations = new Set(['/v1/auth/register', '/v1/auth/login', '/v1/auth/password/reset/request', '/v1/auth/password/reset/complete', '/v1/auth/google/start']);
 // These routes authenticate the calling provider cryptographically and therefore do not use browser Origin/CSRF controls.
 const signedServerMutations = new Set(['/v1/webhooks/paystack', '/v1/webhooks/monnify']);
 

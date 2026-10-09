@@ -347,6 +347,7 @@ model User {
 
   passwordCredential    PasswordCredential?
   oauthIdentities       OAuthIdentity[]
+  googleOidcTransactions GoogleOidcTransaction[]
   sessions              Session[]
   contactChallenges     ContactVerificationChallenge[]
   passwordResetChallenges PasswordResetChallenge[]
@@ -442,6 +443,25 @@ model OAuthIdentity {
   @@unique([provider, providerSubject])
   @@index([userId])
   @@map("oauth_identities")
+}
+
+/** Short-lived, one-time OIDC authorization state, never an authentication credential. */
+model GoogleOidcTransaction {
+  id                 String    @id @default(uuid()) @db.Uuid
+  stateHash          String    @unique @db.Char(64)
+  bindingHash        String    @db.Char(64)
+  verifierCiphertext String    @db.Text
+  nonce              String    @db.VarChar(255)
+  purpose            String    @db.VarChar(12)
+  userId             String?   @db.Uuid
+  sessionId          String?   @db.Uuid
+  createdAt          DateTime  @default(now()) @db.Timestamptz(6)
+  expiresAt          DateTime  @db.Timestamptz(6)
+  consumedAt         DateTime? @db.Timestamptz(6)
+  user               User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([expiresAt])
+  @@map("google_oidc_transactions")
 }
 
 model Session {

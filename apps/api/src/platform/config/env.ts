@@ -55,6 +55,11 @@ const EnvSchema = z.object({
   TERMII_SENDER_ID: z.string().min(1).max(32).optional(),
   TERMII_CHANNEL: z.string().min(1).max(32).optional(),
   TERMII_BASE_URL: z.url().optional(),
+  GOOGLE_OIDC_ENABLED: z.enum(['true', 'false']).default('false'),
+  GOOGLE_CLIENT_ID: optionalSecret,
+  GOOGLE_CLIENT_SECRET: optionalSecret,
+  GOOGLE_REDIRECT_URI: z.url().optional(),
+  GOOGLE_OIDC_TRANSACTION_KEY: z.string().optional(),
   RESEND_API_KEY: optionalSecret,
   RESEND_FROM: z.string().min(3).max(320).optional(),
   RESEND_BASE_URL: z.url().optional(),
@@ -75,6 +80,17 @@ const EnvSchema = z.object({
 
 export function validateEnvironment(env: NodeJS.ProcessEnv): void {
   const result = EnvSchema.safeParse(env);
+  if (env['GOOGLE_OIDC_ENABLED'] === 'true') {
+    const parsed = Buffer.from(env['GOOGLE_OIDC_TRANSACTION_KEY'] ?? '', 'base64');
+    if (parsed.length !== 32 || !env['GOOGLE_CLIENT_ID'] || !env['GOOGLE_CLIENT_SECRET'] || !env['GOOGLE_REDIRECT_URI']) {
+      throw new Error('Google OIDC requires client ID, client secret, approved redirect and an independent 32-byte base64 transaction key');
+    }
+    const callback = new URL(env['GOOGLE_REDIRECT_URI']);
+    if (callback.pathname !== '/v1/auth/google/callback' || callback.search || callback.hash ||
+        (callback.protocol !== 'https:' && !(callback.protocol === 'http:' && ['localhost', '127.0.0.1'].includes(callback.hostname)))) {
+      throw new Error('Invalid GOOGLE_REDIRECT_URI');
+    }
+  }
   if (!result.success) {
     const fields = result.error.issues.map((issue) => issue.path.join('.')).join(', ');
     throw new Error(`Invalid TwiPay server environment: ${fields}`);
