@@ -22,6 +22,9 @@ export function riskRatePolicy(request: Pick<FastifyRequest, 'method' | 'url'>):
   if (method === 'POST' && (path === '/v1/auth/login' || path === '/v1/auth/register')) {
     return { bucket: 'auth-entry', max: 10, timeWindowMs: 60_000 };
   }
+  if (path.startsWith('/v1/auth/transaction-pin/')) {
+    return { bucket: 'transaction-pin', max: 6, timeWindowMs: 60_000 };
+  }
   if (path.startsWith('/v1/auth/google/')) {
     return { bucket: 'google-oidc', max: 6, timeWindowMs: 60_000 };
   }

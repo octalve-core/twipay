@@ -19,6 +19,7 @@ const EnvSchema = z.object({
   DATABASE_URL: z.string().min(1),
   REDIS_URL: z.string().min(1),
   SESSION_HASH_PEPPER: z.string().min(32),
+  TRANSACTION_PIN_PEPPER: z.string().min(32).optional(),
   SESSION_ABSOLUTE_TTL_SECONDS: z.coerce.number().int().min(300).max(2_592_000).default(604800),
   SESSION_IDLE_TTL_SECONDS: z.coerce.number().int().min(60).max(604800).default(86400),
   SESSION_TOUCH_INTERVAL_SECONDS: z.coerce.number().int().min(30).max(3600).default(300),

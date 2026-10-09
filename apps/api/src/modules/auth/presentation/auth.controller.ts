@@ -17,6 +17,8 @@ import { z } from 'zod';
 import { isRecentMfaAssurance } from '@twipay/security';
 import { ZodValidationPipe } from '../../../platform/http/zod-validation.pipe.js';
 import { AuthService } from '../application/auth.service.js';
+import { PasswordEnrollmentService } from '../application/password-enrollment.service.js';
+import { TransactionPinService } from '../application/transaction-pin.service.js';
 import { PasswordSecurityService } from '../application/password-security.service.js';
 import { GoogleOidcService, GOOGLE_OIDC_COOKIE, GOOGLE_OIDC_FLOW_TTL_SECONDS } from '../infrastructure/google-oidc.service.js';
 import { SessionAuthGuard, requirePrincipal, type AuthenticatedFastifyRequest } from './session-auth.guard.js';
@@ -26,6 +28,13 @@ import { contactVerified } from '../application/contact-permissions.js';
 import { AllowUnverifiedContact } from './session-auth.guard.js';
 import { clearSessionCookies, csrfCookieName, sessionCookieName, setSessionCookies } from './session-cookie.js';
 
+const FourDigitPin = z.string().regex(/^\d{4}$/);
+const EightDigitCode = z.string().regex(/^\d{8}$/);
+const PinSetSchema = z.object({ password: z.string().min(1).max(128), pin: FourDigitPin }).strict();
+const PinChangeSchema = z.object({ password: z.string().min(1).max(128), oldPin: FourDigitPin, newPin: FourDigitPin }).strict();
+const PinResetRequestSchema = z.object({ password: z.string().min(1).max(128) }).strict();
+const PinResetCompleteSchema = z.object({ password: z.string().min(1).max(128), code: EightDigitCode, newPin: FourDigitPin }).strict();
+const PasswordEnrollmentSchema = z.object({ code: EightDigitCode, password: z.string().min(12).max(128) }).strict();
 const GoogleLinkSchema = z.object({currentPassword: z.string().min(1).max(128)}).strict();
 const RegisterSchema = z
   .object({
@@ -54,7 +63,63 @@ export class AuthController {
     private readonly contacts: ContactVerificationService,
     private readonly passwordSecurity: PasswordSecurityService,
     private readonly google: GoogleOidcService,
+    private readonly pin: TransactionPinService,
+    private readonly passwordEnrollment: PasswordEnrollmentService,
   ) {}
+
+  @Get('password/enrollment/status')
+  @UseGuards(SessionAuthGuard)
+  passwordEnrollmentStatus(@Req() req: AuthenticatedFastifyRequest) {
+    return this.passwordEnrollment.status(requirePrincipal(req).userId);
+  }
+
+  @Post('password/enrollment/request')
+  @UseGuards(SessionAuthGuard)
+  passwordEnrollmentRequest(@Req() req: AuthenticatedFastifyRequest) {
+    const principal = requirePrincipal(req);
+    return this.passwordEnrollment.request(principal.userId, principal.sessionId);
+  }
+
+  @Post('password/enrollment/complete')
+  @UseGuards(SessionAuthGuard)
+  async passwordEnrollmentComplete(@Body(new ZodValidationPipe(PasswordEnrollmentSchema)) body: z.infer<typeof PasswordEnrollmentSchema>, @Req() req: AuthenticatedFastifyRequest, @Res({ passthrough: true }) res: FastifyReply) {
+    const principal = requirePrincipal(req);
+    const result = await this.passwordEnrollment.complete(principal.userId, principal.sessionId, body.code, body.password);
+    clearSessionCookies(res);
+    return result;
+  }
+
+  @Get('transaction-pin/status')
+  @UseGuards(SessionAuthGuard)
+  async transactionPinStatus(@Req() req: AuthenticatedFastifyRequest) {
+    return { status: await this.pin.status(requirePrincipal(req).userId) };
+  }
+
+  @Post('transaction-pin/set')
+  @UseGuards(SessionAuthGuard)
+  transactionPinSet(@Body(new ZodValidationPipe(PinSetSchema)) body: z.infer<typeof PinSetSchema>, @Req() req: AuthenticatedFastifyRequest) {
+    return this.pin.setPin(requirePrincipal(req).userId, body.password, body.pin);
+  }
+
+  @Post('transaction-pin/change')
+  @UseGuards(SessionAuthGuard)
+  transactionPinChange(@Body(new ZodValidationPipe(PinChangeSchema)) body: z.infer<typeof PinChangeSchema>, @Req() req: AuthenticatedFastifyRequest) {
+    return this.pin.changePin(requirePrincipal(req).userId, body.password, body.oldPin, body.newPin);
+  }
+
+  @Post('transaction-pin/reset/request')
+  @UseGuards(SessionAuthGuard)
+  transactionPinResetRequest(@Body(new ZodValidationPipe(PinResetRequestSchema)) body: z.infer<typeof PinResetRequestSchema>, @Req() req: AuthenticatedFastifyRequest) {
+    const principal = requirePrincipal(req);
+    return this.pin.requestReset(principal.userId, principal.sessionId, body.password);
+  }
+
+  @Post('transaction-pin/reset/complete')
+  @UseGuards(SessionAuthGuard)
+  transactionPinResetComplete(@Body(new ZodValidationPipe(PinResetCompleteSchema)) body: z.infer<typeof PinResetCompleteSchema>, @Req() req: AuthenticatedFastifyRequest) {
+    const principal = requirePrincipal(req);
+    return this.pin.completeReset(principal.userId, principal.sessionId, body.password, body.code, body.newPin);
+  }
 
   @Get('google/status')
   googleStatus() {
@@ -267,7 +332,7 @@ export class AuthController {
         phoneVerifiedAt: session.user.phoneE164 ? session.user.phoneVerifiedAt : null,
         contactVerified: contactVerified(session.user),
         identityVerificationStatus: verifiedIdentity,
-        transactionPinStatus: 'NOT_AVAILABLE',
+        transactionPinStatus: await this.pin.status(session.userId),
       },
       roles: session.user.roleAssignments.map((assignment) => assignment.role.code),
       permissions: [...new Set(session.user.roleAssignments.flatMap((assignment) => assignment.role.permissions.map((item) => item.permission.code)))],

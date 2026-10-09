@@ -51,6 +51,14 @@ enum SecurityEventType {
   CONTACT_CHALLENGE_ISSUED
   CONTACT_CHALLENGE_FAILED
   CONTACT_EMAIL_VERIFIED
+  PASSWORD_ENROLLMENT_REQUESTED
+  PASSWORD_ENROLLED
+  TRANSACTION_PIN_SET
+  TRANSACTION_PIN_CHANGED
+  TRANSACTION_PIN_FAILED
+  TRANSACTION_PIN_LOCKED
+  TRANSACTION_PIN_RESET_REQUESTED
+  TRANSACTION_PIN_RESET
 }
 
 enum LedgerAccountCategory {
@@ -351,6 +359,9 @@ model User {
   sessions              Session[]
   contactChallenges     ContactVerificationChallenge[]
   passwordResetChallenges PasswordResetChallenge[]
+  passwordEnrollmentChallenges PasswordEnrollmentChallenge[]
+  transactionPin TransactionPinCredential?
+  transactionPinResetChallenges TransactionPinResetChallenge[]
   securityEvents        SecurityEvent[]
   mfaCredentials        MfaCredential[]
   roleAssignments       UserRole[]
@@ -418,6 +429,54 @@ model PasswordResetChallenge {
   @@index([userId, createdAt])
   @@index([expiresAt])
   @@map("password_reset_challenges")
+}
+
+/** Only an authenticated, email-verified Google-only account may request password enrollment. */
+model PasswordEnrollmentChallenge {
+  id             String    @id @default(uuid()) @db.Uuid
+  userId         String    @db.Uuid
+  sessionId      String    @db.Uuid
+  email          String    @db.VarChar(320)
+  codeHash       String    @db.Char(64)
+  failedAttempts Int       @default(0)
+  expiresAt      DateTime  @db.Timestamptz(6)
+  consumedAt     DateTime? @db.Timestamptz(6)
+  createdAt      DateTime  @default(now()) @db.Timestamptz(6)
+  user           User      @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([userId, createdAt])
+  @@index([expiresAt])
+  @@map("password_enrollment_challenges")
+}
+
+/** HMAC-secret peppered, Argon2id transaction PIN; never a session or MFA credential. */
+model TransactionPinCredential {
+  userId         String    @id @db.Uuid
+  pinHash        String    @db.Text
+  failedAttempts Int       @default(0)
+  lockedUntil    DateTime? @db.Timestamptz(6)
+  createdAt      DateTime  @default(now()) @db.Timestamptz(6)
+  changedAt      DateTime  @default(now()) @db.Timestamptz(6)
+  user           User      @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@map("transaction_pin_credentials")
+}
+
+model TransactionPinResetChallenge {
+  id             String    @id @default(uuid()) @db.Uuid
+  userId         String    @db.Uuid
+  sessionId      String    @db.Uuid
+  email          String    @db.VarChar(320)
+  codeHash       String    @db.Char(64)
+  failedAttempts Int       @default(0)
+  expiresAt      DateTime  @db.Timestamptz(6)
+  consumedAt     DateTime? @db.Timestamptz(6)
+  createdAt      DateTime  @default(now()) @db.Timestamptz(6)
+  user           User      @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([userId, createdAt])
+  @@index([expiresAt])
+  @@map("transaction_pin_reset_challenges")
 }
 
 model PasswordCredential {
