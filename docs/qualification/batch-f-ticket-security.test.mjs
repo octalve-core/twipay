@@ -46,8 +46,10 @@ test('sensitive endpoint is authenticated, sandbox-only, input-bounded and no-st
   const ctl=read('apps/api/src/modules/events/presentation/events.controller.ts');
   const route=ctl.slice(ctl.indexOf("@Get('orders/:reference/tickets/:publicCode/credential')"), ctl.indexOf("@Post(':eventId/staff')"));
   assert.match(route,/@UseGuards\(SessionAuthGuard\)/);
-  assert.match(route,/NODE_ENV'\] === 'production'/);
-  assert.match(route,/EVENT_TICKET_QR_SANDBOX_ENABLED/);
+  assert.match(route,/assertTicketAdmissionSandbox\(\)/);
+  const admissionGate=ctl.slice(ctl.indexOf('function assertTicketAdmissionSandbox'),ctl.indexOf('function serializeEvent'));
+  assert.match(admissionGate,/NODE_ENV'\] === 'production'/);
+  assert.match(admissionGate,/EVENT_TICKET_QR_SANDBOX_ENABLED/);
   assert.match(route,/principal\.userId/);
   assert.match(route,/Cache-Control', 'no-store, private, max-age=0'/);
   assert.match(read('.env.example'),/EVENT_TICKET_QR_SANDBOX_ENABLED=false/);

@@ -49,7 +49,8 @@ test('existing customer routes and financial feature guards remain in place',()=
  assert.match(appRouter,/isDeferredOrExcludedRoute/);
  assert.match(appRouter,/InactiveAuthGuard/);
  assert.match(appRouter,/DashboardLayout/);
- assert.equal(inventory.routes.paths.length,66);
+ assert.equal(inventory.routes.paths.length,67);
+ assert.match(appRouter,/path: "event-check-in"/); // Authorized QR check-in is an additive ErhaPay foundation.
  assert.match(appRouter,/path: "google-complete"/); // The additive OIDC callback completion route is intentional.
 });
 test('existing interaction controls reused rather than replaced',()=>{
