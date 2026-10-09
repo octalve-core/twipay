@@ -389,6 +389,8 @@ model User {
   eventStaffMemberships  EventStaffAssignment[] @relation("EventStaffMember")
   eventStaffAssignmentsMade EventStaffAssignment[] @relation("EventStaffInviter")
   notifications          Notification[]
+  notificationInboxItems NotificationInboxItem[]
+  notificationPreference NotificationPreference?
   billPurchases          BillPurchase[]
   billCustomerValidations BillCustomerValidation[]
   supportCases          SupportCase[]
@@ -1495,6 +1497,8 @@ model Notification {
   bodyCiphertext String             @db.Text
   status         NotificationStatus @default(PENDING)
   idempotencyKey String             @unique @db.VarChar(160)
+  deliverySuppressed Boolean         @default(false)
+  inboxItem      NotificationInboxItem?
   createdAt      DateTime           @default(now()) @db.Timestamptz(6)
   updatedAt      DateTime           @updatedAt @db.Timestamptz(6)
   user           User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
@@ -1503,6 +1507,37 @@ model Notification {
   @@index([status, createdAt])
   @@index([userId, createdAt])
   @@map("notifications")
+}
+
+/** Inbox summaries are written only from allowlisted templates, never from provider text or OTP content. */
+model NotificationInboxItem {
+  id             String        @id @default(uuid()) @db.Uuid
+  userId         String        @db.Uuid
+  notificationId String        @unique @db.Uuid
+  category       String        @db.VarChar(24)
+  title          String        @db.VarChar(120)
+  message        String        @db.VarChar(240)
+  targetPath     String        @db.VarChar(180)
+  readAt         DateTime?     @db.Timestamptz(6)
+  createdAt      DateTime      @default(now()) @db.Timestamptz(6)
+  user           User          @relation(fields: [userId], references: [id], onDelete: Restrict)
+  notification   Notification  @relation(fields: [notificationId], references: [id], onDelete: Restrict)
+
+  @@index([userId, createdAt, id])
+  @@index([userId, readAt])
+  @@map("notification_inbox_items")
+}
+
+/** Security alerts and essential transactional delivery cannot be disabled. */
+model NotificationPreference {
+  userId         String   @id @db.Uuid
+  supportInApp   Boolean  @default(true)
+  eventInApp     Boolean  @default(true)
+  supportEmail   Boolean  @default(true)
+  updatedAt      DateTime @updatedAt @db.Timestamptz(6)
+  user           User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@map("notification_preferences")
 }
 
 model NotificationAttempt {
