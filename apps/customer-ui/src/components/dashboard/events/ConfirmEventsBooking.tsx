@@ -12,20 +12,20 @@ function savePending(value:PendingIntent){sessionStorage.setItem(storageKey,JSON
 export default function ConfirmEventsBooking(){
  const {selectedEvent,selectedTicketTypeId,quantity,recipientName,update}=useEventsStore();const queryClient=useQueryClient();
  const sandbox=import.meta.env.VITE_TWIPAY_EVENT_CHECKOUT_SANDBOX_ENABLED==='true';
- const [pending,setPending]=useState<PendingIntent|null>(()=>readPending());const [checkedStatus,setCheckedStatus]=useState<string|null>(null);const [busy,setBusy]=useState(false);const [error,setError]=useState('');const locked=useRef(false);
+ const [pending,setPending]=useState<PendingIntent|null>(()=>readPending());const [checkedStatus,setCheckedStatus]=useState<string|null>(null);const [busy,setBusy]=useState(false);const [error,setError]=useState('');const [pin,setPin]=useState('');const [ack,setAck]=useState(false);const locked=useRef(false);
  const quote=useQuery({queryKey:['twipay','event-quote',selectedEvent,selectedTicketTypeId,quantity],queryFn:()=>quoteEventOrder(selectedEvent!,selectedTicketTypeId!,quantity),enabled:!!selectedEvent&&!!selectedTicketTypeId&&quantity>=1&&quantity<=20,retry:false});
- const canSubmit=!!quote.data&&sandbox&&!busy&&!!recipientName&&(!pending||checkedStatus==='NOT_FOUND');
+ const canSubmit=!!quote.data&&sandbox&&!busy&&!!recipientName&&/^\d{4}$/.test(pin)&&ack&&(!pending||checkedStatus==='NOT_FOUND');
  async function onCheckout(){
    if(locked.current||!canSubmit||!quote.data)return;
    setError('');locked.current=true;setBusy(true);
    try{
      // Persist the key *before* network transmission, so an uncertain outcome cannot be retried with a new key.
      const attempt=pending??{key:`twipay-event:${crypto.randomUUID()}`};savePending(attempt);setPending(attempt);setCheckedStatus(null);
-     const order=await checkoutEvent(quote.data,recipientName,attempt.key);
+     const order=await checkoutEvent(quote.data,recipientName,attempt.key,pin);
      const stored={...attempt,reference:order.reference};savePending(stored);setPending(stored);update({order,quote:quote.data,step:4});
      await queryClient.invalidateQueries({queryKey:['twipay','event-orders']});
    }catch{setError('Payment outcome is not confirmed. Review your orders before attempting a new checkout. Your original attempt has been preserved.');}
-   finally{locked.current=false;setBusy(false);}
+   finally{setPin('');locked.current=false;setBusy(false);}
  }
  async function reviewExisting(){
    if(!pending||busy)return;
@@ -46,7 +46,7 @@ export default function ConfirmEventsBooking(){
  function newAttempt(){
    if(!pending||!['NOT_FOUND','FAILED','PAID','REFUNDED'].includes(checkedStatus||'')) {setError('Check the original checkout status before starting another booking.');return;}
    if(!window.confirm('Start a DIFFERENT booking? First verify the old transaction in your wallet and event orders. A pending payment can still complete.'))return;
-   sessionStorage.removeItem(storageKey);setPending(null);setCheckedStatus(null);setError('');update({step:1,quote:null,order:null});
+   sessionStorage.removeItem(storageKey);setPending(null);setCheckedStatus(null);setError('');setPin('');setAck(false);update({step:1,quote:null,order:null});
  }
  return <section className="w-full max-w-[390px] mx-auto flex flex-col justify-center min-h-full"><BackButton action={()=>update({step:2})} className="mb-8"/><h1 className="text-[#112929] font-medium text-2xl">Confirm purchase</h1><p className="text-[#717171] mt-2">Review the exact event order price before checkout.</p>
  {quote.isPending&&<p className="mt-6 text-[#667085]" role="status">Calculating price…</p>}
@@ -58,6 +58,7 @@ export default function ConfirmEventsBooking(){
    <div className="flex justify-between gap-3 font-semibold"><span>Total wallet debit</span><span>{formatNgnMinorUnits(quote.data.totalMinor)}</span></div>
    <p>Ticket holder: {recipientName}</p><p className="text-xs text-[#667085]">Your total and ticket availability will be checked again before payment.</p>
  </div>}
+ {sandbox&&quote.data&&<div className="space-y-3 text-sm mt-3"><label htmlFor="event-transaction-pin" className="block text-[#344054] font-medium">Transaction PIN</label><input id="event-transaction-pin" type="password" inputMode="numeric" autoComplete="off" maxLength={4} value={pin} onChange={event=>setPin(event.target.value.replace(/\D/g,'').slice(0,4))} className="w-full rounded-lg border border-[#D0D5DD] p-3" placeholder="4-digit PIN"/><label className="flex items-start gap-2 text-[#475467]"><input type="checkbox" checked={ack} onChange={event=>setAck(event.target.checked)}/><span>I have reviewed my tickets, total cost and wallet debit. A pending payment must be checked before retrying.</span></label></div>}
  {!sandbox&&<p role="status" className="text-amber-700 text-sm mt-5">Ticket payments are temporarily unavailable. You can still explore events and view your bookings.</p>}
  {pending&&<div className="text-sm mt-5 p-3 rounded-md bg-amber-50 text-amber-900"><p>There is an earlier checkout attempt. Do not submit a different payment without checking its status.</p>{pending.reference&&<p>Reference: {pending.reference}</p>}
   <button type="button" className="underline mt-2 block" onClick={reviewExisting} disabled={busy}>Check original checkout status</button>

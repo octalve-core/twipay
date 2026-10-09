@@ -7,10 +7,10 @@ export async function quoteEventOrder(eventId:string,ticketTypeId:string,quantit
   if(!isEventId(eventId)||!isEventId(ticketTypeId)||!Number.isInteger(quantity)||quantity<1||quantity>20)throw new TypeError('Invalid ticket selection');
   const {data}=await api.post('/events/quote',{eventId,items:[{ticketTypeId,quantity}]});return readEventQuote(data,{eventId,ticketTypeId,quantity});
 }
-export async function checkoutEvent(quote:EventQuote,name:string,key:string):Promise<EventOrder> {
+export async function checkoutEvent(quote:EventQuote,name:string,key:string,transactionPin:string):Promise<EventOrder> {
   if(import.meta.env.VITE_TWIPAY_EVENT_CHECKOUT_SANDBOX_ENABLED!=='true')throw new Error('Event checkout is not enabled');
-  if(!/^twipay-event:[0-9a-f-]{36}$/.test(key)||name.trim().length<2||name.trim().length>180)throw new TypeError('Invalid event purchase request');
-  const {data}=await api.post('/events/checkout',{eventId:quote.eventId,items:quote.items,issuedToName:name.trim(),expectedTotalMinor:quote.totalMinor},{headers:{'Idempotency-Key':key}});
+  if(!/^\d{4}$/.test(transactionPin)||!/^twipay-event:[0-9a-f-]{36}$/.test(key)||name.trim().length<2||name.trim().length>180)throw new TypeError('Invalid event purchase request');
+  const {data}=await api.post('/events/checkout',{eventId:quote.eventId,items:quote.items,issuedToName:name.trim(),expectedTotalMinor:quote.totalMinor,transactionPin},{headers:{'Idempotency-Key':key}});
   const order=readEventOrder(data);if(order.totalMinor!==quote.totalMinor)throw new TypeError('Unexpected checkout total');return order;
 }
 export async function listEventOrders():Promise<EventOrder[]> {const {data}=await api.get('/events/orders');if(!Array.isArray(data?.orders)||data.orders.length>100)throw new TypeError('Invalid order history');return data.orders.map(readEventOrder);}
