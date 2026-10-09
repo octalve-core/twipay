@@ -24,6 +24,8 @@ export type BankPayoutResponse = {
   provider: PayoutProvider;
   status: 'PENDING' | 'REQUIRES_ACTION' | 'PROCESSING' | 'UNKNOWN' | 'SUCCEEDED' | 'FAILED' | 'REVERSED';
   amountMinor?: string;
+  feeMinor?: string;
+  totalDebitMinor?: string;
   currency?: 'NGN';
   beneficiary?: {bankCode: string;accountNumber:string;accountName:string};
   code?: string;
@@ -81,6 +83,59 @@ export async function resolveBankAccount(provider: PayoutProvider, bankCode: str
   return account;
 }
 
+export type BankTransferQuote = {
+  quoteToken: string; quoteId: string; expiresAt: string;
+  provider: PayoutProvider; bankCode: string; bankName?: string | null;
+  accountNumberMasked: string; accountName: string;
+  amountMinor: string; feeMinor: string; totalDebitMinor: string; currency: 'NGN';
+};
+export async function getBankTransferQuote(input: TransferIntent): Promise<BankTransferQuote> {
+  if (import.meta.env.VITE_TWIPAY_TRANSFER_SANDBOX_ENABLED !== 'true') throw new Error('Bank transfers are currently unavailable');
+  const d = details(input);
+  const response = await api.post('/transfers/quote',{ provider:d.provider,bankCode:d.bankCode,accountNumber:d.accountNumber,
+    narration:d.narration,amountMinor:d.amountMinor,currency:'NGN' });
+  const q = response.data as BankTransferQuote;
+  if (!q || q.provider !== d.provider || q.bankCode !== d.bankCode || q.amountMinor !== d.amountMinor
+    || q.accountName !== d.accountName || q.accountNumberMasked !== `******${d.accountNumber.slice(-4)}`
+    || q.currency !== 'NGN' || !/^[a-f0-9-]{36}$/.test(q.quoteId)
+    || typeof q.quoteToken !== 'string' || q.quoteToken.length < 80
+    || typeof q.feeMinor !== 'string' || !/^(0|[1-9]\d*)$/.test(q.feeMinor)
+    || q.totalDebitMinor !== (BigInt(q.amountMinor) + BigInt(q.feeMinor)).toString()
+    || !Number.isFinite(Date.parse(q.expiresAt)) || Date.parse(q.expiresAt) <= Date.now()) {
+    throw new Error('Bank transfer quote could not be verified');
+  }
+  return q;
+}
+export type SavedBeneficiary = {
+  id: string; bankCode: string; accountName: string; accountNumberMasked: string;
+  nickname: string | null; currency: string; updatedAt?: string;
+};
+export async function listSavedBeneficiaries(): Promise<SavedBeneficiary[]> {
+  const response = await api.get('/transfers/beneficiaries');
+  const records = (response.data as {beneficiaries?: unknown}).beneficiaries;
+  if (!Array.isArray(records) || records.length > 100) throw new Error('Invalid saved beneficiaries response');
+  return records.map((record:unknown) => {
+    const b = record as SavedBeneficiary;
+    if (!b || !/^[0-9a-f-]{36}$/.test(b.id) || !/^\*{6}\d{4}$/.test(b.accountNumberMasked)
+      || typeof b.accountName !== 'string' || typeof b.bankCode !== 'string' || b.currency !== 'NGN') {
+      throw new Error('Invalid saved beneficiary');
+    }
+    return b;
+  });
+}
+export async function saveTransferBeneficiary(input: {provider:PayoutProvider;bankCode:string;accountNumber:string;nickname?:string}) {
+  if (import.meta.env.VITE_TWIPAY_TRANSFER_SANDBOX_ENABLED !== 'true') throw new Error('Saving recipients is unavailable');
+  await api.post('/transfers/beneficiaries',input);
+}
+export async function renameSavedBeneficiary(id:string,nickname:string|null){
+  if (!/^[0-9a-f-]{36}$/.test(id) || (nickname!==null&&(nickname.trim().length<1||nickname.trim().length>60))) throw new Error('Invalid saved-recipient update');
+  await api.patch(`/transfers/beneficiaries/${id}`,{nickname:nickname?.trim()??null});
+}
+export async function removeSavedBeneficiary(id: string) {
+  if (!/^[0-9a-f-]{36}$/.test(id)) throw new Error('Invalid recipient');
+  await api.delete(`/transfers/beneficiaries/${id}`);
+}
+
 type SavedPayout = { digest: string; key: string; createdAt: number; reference?: string };
 function existingAttempt(): SavedPayout | null {
   try {
@@ -129,17 +184,23 @@ export function validateTransferResponse(value: unknown, instruction: TransferIn
   }
   return r as BankPayoutResponse;
 }
-export async function initiateBankTransfer(input: TransferIntent): Promise<BankPayoutResponse> {
+export async function initiateBankTransfer(input: TransferIntent, transactionPin: string, quote: BankTransferQuote): Promise<BankPayoutResponse> {
   if (import.meta.env.VITE_TWIPAY_TRANSFER_SANDBOX_ENABLED !== 'true') {
     throw new Error('Bank transfers are not yet release-qualified');
   }
   const d=details(input);
+  if (!/^\d{4}$/.test(transactionPin)) throw new Error('Enter your four-digit transaction PIN');
+  if (quote.amountMinor !== d.amountMinor || quote.provider !== d.provider || quote.bankCode !== d.bankCode ||
+      quote.accountName !== d.accountName || quote.accountNumberMasked !== `******${d.accountNumber.slice(-4)}` ||
+      Date.parse(quote.expiresAt) <= Date.now()) throw new Error('Transfer details changed. Request a new quote.');
   const key=await transferAttempt(input);
   const response=await api.post('/transfers',{
     provider:d.provider, amountMinor:d.amountMinor,currency:'NGN',bankCode:d.bankCode,
     accountNumber:d.accountNumber,expectedAccountName:d.accountName,narration:d.narration,
+    quoteToken:quote.quoteToken,transactionPin,
   },{headers:{'Idempotency-Key':key}});
   const result=validateTransferResponse(response.data,input);
+  if (result.feeMinor !== quote.feeMinor || result.totalDebitMinor !== quote.totalDebitMinor) throw new Error('Untrusted fee or debit total: check transaction history');
   const attempt=existingAttempt();
   if(attempt && attempt.key===key){
     try {sessionStorage.setItem(INTENT_STORAGE_KEY,JSON.stringify({...attempt,reference:result.transactionReference}));} catch {/* keep current retry key */}
