@@ -36,3 +36,12 @@
 - Keyboard/screenreader/manual accessibility and real a11y browser audit: **NOT EXECUTED**.
 - PostgreSQL/Redis, live auth, payments/provider sandboxes and Phase 1 runtime gates remain unqualified.
 - Release status: **SOURCE-TESTED CHECKPOINT ONLY**. Production and payment activation remain disabled.
+
+## Executed source-level checkpoint results
+
+- Batch A–F isolated regression: **104/104 pass**.
+- Phase 1 isolated regression: **43/43 pass**, with the required Node TypeScript-stripping option.
+- Phase 2 design/inventory regression: **58/58 pass**, including 8 newly added Batch 2.6 source tests.
+- Combined isolated tests: **205/205 pass**, no skipped or failed tests.
+- Syntax, repository security, architecture, financial, services/events, product/operations, production-hardening, original visual asset inventory and Git-history secret scans: **PASS**.
+- Chromium successfully rendered two **static source-derived** login comparison previews at 1440×900 and 390×844 outside Git; these are not live React screenshots.
