@@ -4,8 +4,8 @@
 set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")/../.."
 MODE="${1:-}"
-if [[ "$MODE" != --prepare-lock && "$MODE" != --qualify && "$MODE" != --smoke ]]; then
-  echo 'Usage: scripts/qualification/phase1-3-run-local.sh --prepare-lock|--qualify|--smoke' >&2; exit 2
+if [[ "$MODE" != --prepare-lock && "$MODE" != --qualify && "$MODE" != --smoke && "$MODE" != --phase3-1 ]]; then
+  echo 'Usage: scripts/qualification/phase1-3-run-local.sh --prepare-lock|--qualify|--smoke|--phase3-1' >&2; exit 2
 fi
 if [[ "$(node -p 'process.versions.node.split(".")[0]')" != 24 ]]; then
   echo 'BLOCKED: Node 24 required. Do not bypass package engine checks.' >&2; exit 2
@@ -56,8 +56,9 @@ export VITE_TWIPAY_EVENT_CHECKOUT_SANDBOX_ENABLED=false
 export APP_URL=http://127.0.0.1:3000 ADMIN_URL=http://127.0.0.1:3001 API_URL=http://127.0.0.1:4000
 export VITE_TWIPAY_API_URL="$API_URL"
 export API_BIND_HOST=127.0.0.1
-# Only disposable, random secrets for local read-only smoke; no real provider keys.
-if [[ "$MODE" == --smoke ]]; then
+# Only disposable, random secrets for local read-only smoke and Phase 3.1
+# authentication integration. No real provider keys are permitted here.
+if [[ "$MODE" == --smoke || "$MODE" == --phase3-1 ]]; then
   export SESSION_HASH_PEPPER="$(openssl rand -hex 32)"
   export MFA_RECOVERY_HMAC_KEY="$(openssl rand -hex 32)"
   export DATA_ENCRYPTION_KEY="$(openssl rand -base64 32 | tr -d '\n')"
@@ -101,6 +102,16 @@ pnpm test:phase1
 pnpm test:phase1-3
 pnpm typecheck
 pnpm build
+if [[ "$MODE" == --phase3-1 ]]; then
+  # The opt-in suites REFUSE any database other than this local Compose fixture.
+  # This exercises real Postgres row locks and the actual compiled Fastify API,
+  # but intentionally NEVER sends provider email or moves money.
+  node scripts/qualification/assert-loopback-ports-free.mjs 15401
+  TWIPAY_PHASE31_REAL_DB=1 pnpm --filter @twipay/api exec vitest run \
+    test/contact-verification.postgres.integration.test.ts \
+    test/contact-verification.http.integration.test.ts --reporter=verbose
+  echo 'Phase 3.1 disposable Postgres and live-loopback Fastify tests PASSED; real email inbox still NOT VERIFIED.'
+fi
 if [[ "$MODE" == --smoke ]]; then
   # Read-only browser journey, not provider testing. Refuse preexisting app ports.
   mkdir -p out

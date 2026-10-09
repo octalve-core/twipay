@@ -1,0 +1,1 @@
+BLOCKED: Node 24 required. Do not bypass package engine checks.

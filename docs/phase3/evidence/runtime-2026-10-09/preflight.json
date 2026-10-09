@@ -1,0 +1,61 @@
+{
+  "type": "TWIPAY_PHASE_3_1_READ_ONLY_RUNTIME_PREFLIGHT",
+  "timestamp": "2026-10-09T07:28:54.225Z",
+  "source": "actual repository working tree",
+  "qualification": "NOT_RUN_OR_NOT_QUALIFIED",
+  "passedPrerequisites": 1,
+  "blockedPrerequisites": 8,
+  "checks": [
+    {
+      "id": "git-embedded-history",
+      "status": "READY_FOR_NEXT_GATE",
+      "detail": "HEAD a6ea2fea4ef42674c5da01ddf7cf93a367e9f10c on phase3/low-friction-contact-20261009"
+    },
+    {
+      "id": "git-clean-working-tree",
+      "status": "BLOCKED",
+      "detail": "Uncommitted paths exist or Git unavailable"
+    },
+    {
+      "id": "node-24",
+      "status": "BLOCKED",
+      "detail": "available 22.16.0; required Node 24"
+    },
+    {
+      "id": "pinned-pnpm",
+      "status": "BLOCKED",
+      "detail": "required pnpm 12.9.1; available not installed"
+    },
+    {
+      "id": "authentic-frozen-lockfile",
+      "status": "BLOCKED",
+      "detail": "pnpm-lock.yaml absent; frozen workspace installation cannot be verified"
+    },
+    {
+      "id": "postgres18-local-reachability",
+      "status": "BLOCKED",
+      "detail": "loopback port 5435 unreachable"
+    },
+    {
+      "id": "redis8-local-reachability",
+      "status": "BLOCKED",
+      "detail": "loopback port 6382 unreachable"
+    },
+    {
+      "id": "prisma7-cli-install",
+      "status": "BLOCKED",
+      "detail": "Prisma CLI absent; database generate/validate/migrate not executable"
+    },
+    {
+      "id": "resend-controlled-inbox",
+      "status": "BLOCKED",
+      "detail": "requires RESEND_API_KEY, RESEND_FROM, TWIPAY_TEST_EMAIL_INBOX; no message sent"
+    }
+  ],
+  "warnings": [
+    "TCP reachability is not PostgreSQL/Redis schema, version, transaction or concurrency verification.",
+    "No real email is sent; no sandbox delivery claim may be made.",
+    "This preflight never runs real HTTP, Prisma migrations, or builds.",
+    "Never use production customer data or production database credentials for qualification."
+  ]
+}
