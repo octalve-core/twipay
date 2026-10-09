@@ -12,19 +12,23 @@ test('profile changes match exactly the supported backend contract', () => {
   const api = read('apps/api/src/modules/auth/presentation/auth.controller.ts');
   const frontend = customer('src/lib/api/authApi.ts');
   assert.match(api, /@Patch\('me'\)/);
-  assert.match(api, /const ProfileSchema = z\.object\(\{ givenName:/);
+  assert.match(api, /const ProfileSchema = z\.object\(\{/);
+  assert.match(api, /givenName: z\.string\(\)\.trim\(\)\.min\(1\)\.max\(100\)/);
+  assert.match(api, /countryCode: z\.string\(\)\.regex/);
+  assert.match(api, /stateRegion: z\.string\(\)\.trim\(\)\.min\(1\)\.max\(100\)/);
   assert.match(api, /familyName: z\.string\(\)\.trim\(\)\.min\(1\)\.max\(100\)/);
   assert.match(frontend, /api\.patch<\{ user: Profile \}>\("\/auth\/me", profile\)/);
 });
 
-test('ErhaPay account form uses only supported mutable name fields', () => {
+test('ErhaPay account form uses only backend-supported optional profile fields', () => {
   const form = customer('src/components/dashboard/settings/AccountSettingForm.tsx');
   assert.match(form, /mutationFn: updateProfile/);
   assert.match(form, /givenName: first, familyName: last/);
   assert.match(form, /await refreshSession\(\)/);
-  for (const unsupported of ['username', 'country', 'state']) {
-    assert.match(form, new RegExp(`<input id="${unsupported}"[^>]*disabled`));
-  }
+  assert.doesNotMatch(form, /<input id="username"/);
+  assert.match(form, /id="country" name="countryCode"/);
+  assert.match(form, /id="state" name="stateRegion"/);
+  assert.match(form, /It does not verify your identity or change account limits/);
   assert.doesNotMatch(form, /fetchCountries|\/reference\/states\/|accessToken|refreshToken/);
 });
 
