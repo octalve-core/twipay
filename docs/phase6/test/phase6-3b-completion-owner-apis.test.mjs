@@ -130,6 +130,6 @@ test('product admin mutations explicitly require MFA, and high-risk flags cannot
   const idx=p.indexOf(`@Patch('${path}')`);assert.ok(idx>=0,path);
   const next=p.indexOf('\n  }',idx);assert.match(p.slice(idx,next),/requireMfa\(req\)/);
  }
- assert.match(p,/process\.env\['NODE_ENV'\] === 'production' \|\| process\.env\['HIGH_RISK_FEATURES_RELEASE_QUALIFIED'\]/);
+ assert.equal((p.match(/DIRECT_CONFIGURATION_MUTATION_DISABLED_USE_TWO_OWNER_REVIEW/g)||[]).length,3);
  assert.match(read('apps/api/src/modules/operations/application/provider-operations.service.ts'),/SELECT "id" FROM "bill_products"/);
 });
