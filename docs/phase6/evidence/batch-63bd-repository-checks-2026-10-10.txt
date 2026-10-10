@@ -1,0 +1,17 @@
+TypeScript syntax check PASS (494 source files)
+--- repository-security-check ---
+Repository security check PASS (1041 text files inspected)
+--- architecture-check ---
+Architecture check PASS
+--- financial-invariant-check ---
+Financial invariant check PASS
+--- services-events-invariant-check ---
+Services/events invariant check PASS
+--- product-operations-invariant-check ---
+Product/operations invariant check PASS
+--- production-hardening-invariant-check ---
+Production hardening invariant check PASS
+PASS: design inventory matches 333 source files
+PASS: 123 original visual assets present; 69 byte-identical, 54 CRLF-only normalized, 0 material changes
+PASS: 67 declared route paths; 15 UI primitives catalogued
+Git history secret check PASS (1098 tracked paths, full reachable patch history scanned)
