@@ -14,13 +14,15 @@ import { ReportsService } from './application/reports.service.js';
 import { FinancialExceptionService } from './application/financial-exception.service.js';
 import { FinancialTierReviewService } from './application/financial-tier-review.service.js';
 import { OwnerGovernanceService } from './application/owner-governance.service.js';
+import { OwnerStaffInvitationService } from './application/owner-staff-invitation.service.js';
+import { OwnerConfigurationReviewService } from './application/owner-configuration-review.service.js';
 import { CustomerOperationsController } from './presentation/customer-operations.controller.js';
 import { OperationsController } from './presentation/operations.controller.js';
 
 @Module({
   imports:[AuthModule,FinanceModule,ProvidersModule,ProductModule,NotificationsModule],
   controllers:[CustomerOperationsController,OperationsController],
-  providers:[AuditService,ComplianceService,DisputeRefundService,OrganizerPayoutService,ProviderOperationsService,ReportsService,FinancialExceptionService,FinancialTierReviewService,OwnerGovernanceService,CustomerSupportService],
-  exports:[AuditService,ComplianceService,DisputeRefundService,OrganizerPayoutService,ProviderOperationsService,ReportsService,FinancialExceptionService,FinancialTierReviewService,OwnerGovernanceService,CustomerSupportService],
+  providers:[OwnerStaffInvitationService,OwnerConfigurationReviewService,AuditService,ComplianceService,DisputeRefundService,OrganizerPayoutService,ProviderOperationsService,ReportsService,FinancialExceptionService,FinancialTierReviewService,OwnerGovernanceService,CustomerSupportService],
+  exports:[OwnerStaffInvitationService,OwnerConfigurationReviewService,AuditService,ComplianceService,DisputeRefundService,OrganizerPayoutService,ProviderOperationsService,ReportsService,FinancialExceptionService,FinancialTierReviewService,OwnerGovernanceService,CustomerSupportService],
 })
 export class OperationsModule {}

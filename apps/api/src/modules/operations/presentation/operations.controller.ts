@@ -17,6 +17,8 @@ import { FinancialTierReviewService } from '../application/financial-tier-review
 import { OwnerGovernanceService, DELEGABLE_STAFF_ROLES } from '../application/owner-governance.service.js';
 import { ForbiddenException } from '@nestjs/common';
 import { OwnerApiContracts } from './owner-openapi.js';
+import { OwnerStaffInvitationService } from '../application/owner-staff-invitation.service.js';
+import { OwnerConfigurationReviewService, ConfigProposal } from '../application/owner-configuration-review.service.js';
 
 const SupportReply = z.object({message:z.string().trim().min(2).max(3000),requestKey:z.uuid()}).strict();
 const SupportRef = z.string().regex(/^sup_[0-9a-f-]{36}$/);
@@ -49,7 +51,7 @@ const Mapping = z.object({ canonicalProductId: z.uuid(), reason: z.string().trim
 @UseGuards(SessionAuthGuard, PermissionGuard)
 @Controller('operations')
 export class OperationsController {
-  constructor(private readonly disputes: DisputeRefundService, private readonly payouts: OrganizerPayoutService, private readonly providers: ProviderOperationsService, private readonly reports: ReportsService, private readonly audit: AuditService, private readonly compliance: ComplianceService, private readonly exceptions: FinancialExceptionService, private readonly tiers: FinancialTierReviewService, private readonly support: CustomerSupportService, private readonly owner: OwnerGovernanceService) {}
+  constructor(private readonly disputes: DisputeRefundService, private readonly payouts: OrganizerPayoutService, private readonly providers: ProviderOperationsService, private readonly reports: ReportsService, private readonly audit: AuditService, private readonly compliance: ComplianceService, private readonly exceptions: FinancialExceptionService, private readonly tiers: FinancialTierReviewService, private readonly support: CustomerSupportService, private readonly owner: OwnerGovernanceService, private readonly invitations: OwnerStaffInvitationService, private readonly configReviews: OwnerConfigurationReviewService) {}
 
   @Get('owner/overview')
   @ApiOperation({ summary: 'Owner overview: observed database figures, not settlement' })
@@ -154,6 +156,86 @@ export class OperationsController {
     requireOwner(req);const actor=requirePrincipal(req);
     return {review:await this.owner.decideSuspension({reviewId,actorUserId:actor.userId,sessionId:actor.sessionId,
       decision:'REJECTED',reason:body.reason,requestId:req.id})};
+  }
+
+  // New-staff invitations: prepared and checked by separate owners, then accepted only by the
+  // verified email holder with an active recent-MFA session. No token is returned to admins.
+  @Get('owner/staff/invitations') @RequirePermissions('ops.owner.read')
+  @ApiOperation({ summary: 'Pending and approved limited-role invitations; email masked' })
+  @ApiResponse({ status: 200, schema: OwnerApiContracts.invitationsResponse })
+  async ownerInvitations(@Req() req: AuthenticatedFastifyRequest) { requireOwner(req); return this.invitations.queue(); }
+
+  @Post('owner/staff/invitations') @RequirePermissions('ops.owner.staff.prepare')
+  @ApiHeader({ name: 'x-csrf-token', required: true })
+  @ApiBody({ schema: OwnerApiContracts.invitationProposal })
+  @ApiResponse({ status: 201, schema: OwnerApiContracts.mutationResponse })
+  async ownerPrepareInvitation(@Req() req: AuthenticatedFastifyRequest,
+    @Body(new ZodValidationPipe(z.object({ email: z.email().max(320), roleCode: z.enum(DELEGABLE_STAFF_ROLES),
+      reason: z.string().trim().min(20).max(500) }).strict())) body: { email: string; roleCode: string; reason: string }) {
+    requireOwner(req); const principal = requirePrincipal(req);
+    return { review: await this.invitations.prepare({ ...body, actorUserId: principal.userId,
+      sessionId: principal.sessionId, requestId: req.id }) };
+  }
+  @Post('owner/staff/invitations/:invitationId/:action') @RequirePermissions('ops.owner.staff.approve')
+  @ApiHeader({ name: 'x-csrf-token', required: true })
+  @ApiParam({ name: 'invitationId', schema: { type: 'string', format: 'uuid' } })
+  @ApiParam({ name: 'action', schema: { type: 'string', enum: ['approve','reject','revoke'] } })
+  @ApiBody({ schema: OwnerApiContracts.invitationDecision })
+  @ApiResponse({ status: 201, schema: OwnerApiContracts.mutationResponse })
+  async ownerDecideInvitation(@Req() req: AuthenticatedFastifyRequest,
+    @Param('invitationId', new ZodValidationPipe(UuidParam)) invitationId: string,
+    @Param('action', new ZodValidationPipe(z.enum(['approve','reject','revoke']))) action: 'approve'|'reject'|'revoke',
+    @Body(new ZodValidationPipe(z.object({ reason: z.string().trim().min(20).max(500).optional() }).strict())) body: { reason?: string }) {
+    requireOwner(req); const principal = requirePrincipal(req);
+    const map = { approve: 'APPROVED', reject: 'REJECTED', revoke: 'REVOKED' } as const;
+    return { review: await this.invitations.decide({ invitationId, actorUserId: principal.userId,
+      sessionId: principal.sessionId, action: map[action], reason: body.reason, requestId: req.id }) };
+  }
+  @Get('staff/invitations/mine')
+  @ApiOperation({ summary: 'Authenticated email-verified customer: own approved pending staff invitations' })
+  @ApiResponse({ status: 200, schema: OwnerApiContracts.myInvitationsResponse })
+  async myStaffInvitations(@Req() req: AuthenticatedFastifyRequest) {
+    return this.invitations.mine(requirePrincipal(req).userId);
+  }
+  @Post('staff/invitations/:invitationId/accept')
+  @ApiHeader({ name: 'x-csrf-token', required: true })
+  @ApiParam({ name: 'invitationId', schema: { type: 'string', format: 'uuid' } })
+  @ApiOperation({ summary: 'Verified invited customer consents to a limited role; revokes active sessions' })
+  @ApiResponse({ status: 201, schema: OwnerApiContracts.acceptanceResponse })
+  async acceptStaffInvitation(@Req() req: AuthenticatedFastifyRequest,
+    @Param('invitationId', new ZodValidationPipe(UuidParam)) invitationId: string) {
+    requireMfa(req); const principal = requirePrincipal(req);
+    return this.invitations.accept({ invitationId, userId: principal.userId,
+      sessionId: principal.sessionId, requestId: req.id });
+  }
+  @Get('owner/config/reviews') @RequirePermissions('ops.owner.read')
+  @ApiOperation({ summary: 'Read bounded pending owner-approved nonfinancial configuration changes' })
+  @ApiResponse({ status: 200, schema: OwnerApiContracts.configReviewsResponse })
+  async ownerConfigQueue(@Req() req: AuthenticatedFastifyRequest) { requireOwner(req); return this.configReviews.queue(); }
+  @Post('owner/config/reviews') @RequirePermissions('ops.owner.staff.prepare')
+  @ApiHeader({ name: 'x-csrf-token', required: true })
+  @ApiBody({ schema: OwnerApiContracts.configProposal })
+  @ApiResponse({ status: 201, schema: OwnerApiContracts.mutationResponse })
+  async ownerPrepareConfig(@Req() req: AuthenticatedFastifyRequest,
+    @Body(new ZodValidationPipe(ConfigProposal)) body: z.infer<typeof ConfigProposal>) {
+    requireOwner(req); const principal = requirePrincipal(req);
+    return { review: await this.configReviews.prepare({ ...body, actorUserId: principal.userId,
+      sessionId: principal.sessionId, requestId: req.id }) };
+  }
+  @Post('owner/config/reviews/:reviewId/:decision') @RequirePermissions('ops.owner.staff.approve')
+  @ApiHeader({ name: 'x-csrf-token', required: true })
+  @ApiParam({ name: 'reviewId', schema: { type: 'string', format: 'uuid' } })
+  @ApiParam({ name: 'decision', schema: { type: 'string', enum: ['approve','reject'] } })
+  @ApiBody({ schema: OwnerApiContracts.invitationDecision })
+  @ApiResponse({ status: 201, schema: OwnerApiContracts.mutationResponse })
+  async ownerDecideConfig(@Req() req: AuthenticatedFastifyRequest,
+    @Param('reviewId', new ZodValidationPipe(UuidParam)) reviewId: string,
+    @Param('decision', new ZodValidationPipe(z.enum(['approve','reject']))) decision: 'approve'|'reject',
+    @Body(new ZodValidationPipe(z.object({ reason: z.string().trim().min(20).max(500).optional() }).strict())) body: { reason?: string }) {
+    requireOwner(req); const principal = requirePrincipal(req);
+    return { review: await this.configReviews.decide({ reviewId, actorUserId: principal.userId,
+      sessionId: principal.sessionId, decision: decision === 'approve' ? 'APPROVED' : 'REJECTED',
+      reason: body.reason, requestId: req.id }) };
   }
 
   @Get('dashboard') @RequirePermissions('ops.dashboard.read') async dashboard() { return this.reports.dashboard(); }

@@ -1,9 +1,9 @@
-import { Body, Controller, ForbiddenException, Get, Patch, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, ServiceUnavailableException, Get, Patch, Req, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { z } from 'zod';
 import { ZodValidationPipe } from '../../../platform/http/zod-validation.pipe.js';
 import { PermissionGuard, RequirePermissions, requireMfa } from '../../auth/presentation/permission.guard.js';
-import { SessionAuthGuard, requirePrincipal, type AuthenticatedFastifyRequest } from '../../auth/presentation/session-auth.guard.js';
+import { SessionAuthGuard, type AuthenticatedFastifyRequest } from '../../auth/presentation/session-auth.guard.js';
 import { ProductConfigService } from '../application/product-config.service.js';
 
 const FlagSchema = z.object({ key: z.string().min(3).max(120).regex(/^[a-z][a-z0-9_.-]{2,119}$/), enabled: z.boolean(), public: z.boolean(), description: z.string().max(500).optional(), config: z.record(z.string(), z.unknown()).optional(), reason: z.string().trim().min(5).max(500) }).strict();
@@ -33,14 +33,7 @@ export class ProductController {
   @RequirePermissions('ops.feature_flags.manage')
   async updateFlag(@Body(new ZodValidationPipe(FlagSchema)) body: z.infer<typeof FlagSchema>, @Req() req: AuthenticatedFastifyRequest) {
     requireMfa(req);
-    const principal = requirePrincipal(req);
-    if (body.enabled && ['events.refunds', 'operations.organizer_payouts'].includes(body.key)) {
-      if (process.env['NODE_ENV'] === 'production' || process.env['HIGH_RISK_FEATURES_RELEASE_QUALIFIED'] !== 'true') {
-        throw new ForbiddenException({ code: 'RELEASE_QUALIFICATION_REQUIRED' });
-      }
-    }
-    const { reason, ...flag } = body;
-    return { flag: await this.product.upsertFlag({ ...flag, actorUserId: principal.userId, reason, requestId: req.id }) };
+    throw new ServiceUnavailableException({ code: 'DIRECT_CONFIGURATION_MUTATION_DISABLED_USE_TWO_OWNER_REVIEW' });
   }
 
   @Patch('admin/brand')
@@ -48,9 +41,7 @@ export class ProductController {
   @RequirePermissions('ops.branding.manage')
   async updateBrand(@Body(new ZodValidationPipe(BrandSchema)) body: z.infer<typeof BrandSchema>, @Req() req: AuthenticatedFastifyRequest) {
     requireMfa(req);
-    const principal = requirePrincipal(req);
-    const { reason, ...brand } = body;
-    return { brand: await this.product.updateBrand({ ...brand, actorUserId: principal.userId, reason, requestId: req.id }) };
+    throw new ServiceUnavailableException({ code: 'DIRECT_CONFIGURATION_MUTATION_DISABLED_USE_TWO_OWNER_REVIEW' });
   }
 
   @Get('admin/deployment')
@@ -63,8 +54,7 @@ export class ProductController {
   @RequirePermissions('ops.branding.manage')
   async updateDeployment(@Body(new ZodValidationPipe(DeploymentSchema)) body: z.infer<typeof DeploymentSchema>, @Req() req: AuthenticatedFastifyRequest) {
     requireMfa(req);
-    const principal = requirePrincipal(req);
-    return { deployment: await this.product.updateDeployment({ ...body, allowedModules: body.allowedModules, validUntil: body.validUntil ? new Date(body.validUntil) : null, actorUserId: principal.userId, requestId: req.id }) };
+    throw new ServiceUnavailableException({ code: 'DIRECT_CONFIGURATION_MUTATION_DISABLED_USE_TWO_OWNER_REVIEW' });
   }
 
 }

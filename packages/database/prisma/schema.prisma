@@ -384,6 +384,11 @@ model User {
   suspensionReviewsTarget OwnerCustomerSuspensionReview[] @relation("OwnerSuspensionTarget")
   suspensionReviewsPrepared OwnerCustomerSuspensionReview[] @relation("OwnerSuspensionMaker")
   suspensionReviewsChecked OwnerCustomerSuspensionReview[] @relation("OwnerSuspensionChecker")
+  invitationsPrepared OwnerStaffInvitation[] @relation("OwnerInviteMaker")
+  invitationsChecked OwnerStaffInvitation[] @relation("OwnerInviteChecker")
+  invitationsAccepted OwnerStaffInvitation[] @relation("OwnerInviteAcceptor")
+  configReviewsPrepared OwnerConfigReview[] @relation("OwnerConfigMaker")
+  configReviewsChecked OwnerConfigReview[] @relation("OwnerConfigChecker")
   staffReviewsTarget OwnerStaffReview[] @relation("OwnerStaffTarget")
   staffReviewsPrepared OwnerStaffReview[] @relation("OwnerStaffMaker")
   staffReviewsChecked OwnerStaffReview[] @relation("OwnerStaffChecker")
@@ -569,6 +574,54 @@ model OwnerCustomerSuspensionReview {
   @@index([status, createdAt])
   @@index([targetUserId, createdAt])
   @@map("owner_customer_suspension_reviews")
+}
+
+/** Invitation is not an account or role until a matching verified user consents. */
+model OwnerStaffInvitation {
+  id               String   @id @default(uuid()) @db.Uuid
+  emailCiphertext  String   @db.Text
+  emailFingerprint String   @db.Char(64)
+  emailMasked      String   @db.VarChar(320)
+  roleCode         String   @db.VarChar(80)
+  status           String   @default("PREPARED") @db.VarChar(20)
+  preparedByUserId String   @db.Uuid
+  checkedByUserId  String?  @db.Uuid
+  acceptedByUserId String?  @db.Uuid
+  createdAt        DateTime @default(now()) @db.Timestamptz(6)
+  checkedAt        DateTime? @db.Timestamptz(6)
+  acceptedAt       DateTime? @db.Timestamptz(6)
+  expiresAt        DateTime @db.Timestamptz(6)
+  reason           String   @db.VarChar(500)
+  rejectionReason  String?  @db.VarChar(500)
+  maker            User     @relation("OwnerInviteMaker", fields: [preparedByUserId], references: [id], onDelete: Restrict)
+  checker          User?    @relation("OwnerInviteChecker", fields: [checkedByUserId], references: [id], onDelete: Restrict)
+  acceptor         User?    @relation("OwnerInviteAcceptor", fields: [acceptedByUserId], references: [id], onDelete: Restrict)
+
+  @@index([emailFingerprint, status])
+  @@index([status, createdAt])
+  @@map("owner_staff_invitations")
+}
+
+/** Bounded nonfinancial configuration change, immutably staged before checker approval. */
+model OwnerConfigReview {
+  id               String   @id @default(uuid()) @db.Uuid
+  kind             String   @db.VarChar(30)
+  targetKey        String   @db.VarChar(120)
+  payload          Json
+  baselineHash     String   @db.Char(64)
+  status           String   @default("PREPARED") @db.VarChar(20)
+  preparedByUserId String   @db.Uuid
+  checkedByUserId  String?  @db.Uuid
+  createdAt        DateTime @default(now()) @db.Timestamptz(6)
+  checkedAt        DateTime? @db.Timestamptz(6)
+  expiresAt        DateTime @db.Timestamptz(6)
+  reason           String   @db.VarChar(500)
+  rejectionReason  String?  @db.VarChar(500)
+  maker            User     @relation("OwnerConfigMaker", fields: [preparedByUserId], references: [id], onDelete: Restrict)
+  checker          User?    @relation("OwnerConfigChecker", fields: [checkedByUserId], references: [id], onDelete: Restrict)
+
+  @@index([status, createdAt])
+  @@map("owner_config_reviews")
 }
 
 model TransactionPinCredential {
