@@ -32,7 +32,8 @@ requireMatch('packages/security/src/mfa.ts',/lastAcceptedTimeStep/,'TOTP replay 
 requireMatch('packages/database/prisma/migrations/0005_production_hardening_mfa/migration.sql',/TOTP timestep must advance/,'database must guard TOTP replay timestep');
 requireMatch('packages/database/prisma/migrations/0005_production_hardening_mfa/migration.sql',/security events are append-only/,'security evidence must be append-only');
 requireMatch('apps/api/src/modules/operations/presentation/customer-operations.controller.ts',/requestPayout[\s\S]{0,800}requireMfa\(req\)/,'organizer payout request must require recent MFA');
-requireMatch('apps/api/src/modules/product/presentation/product.controller.ts',/HIGH_RISK_FEATURES_RELEASE_QUALIFIED[\s\S]{0,400}requireMfa\(req\)/,'high-risk feature activation must require release qualification and recent MFA');
+requireMatch('apps/api/src/modules/product/presentation/product.controller.ts',/async updateFlag[\s\S]{0,500}requireMfa\(req\)[\s\S]{0,350}HIGH_RISK_FEATURES_RELEASE_QUALIFIED/,'every flag mutation must require recent MFA before high-risk release qualification is evaluated');
+requireMatch('apps/api/src/modules/product/presentation/product.controller.ts',/if \(body\.enabled[\s\S]{0,230}NODE_ENV[^\n]*production/,'high-risk feature activation must remain denied in production');
 requireMatch('packages/database/prisma/migrations/0004_product_operations/migration.sql',/events\.refunds[^\n]*false|events\.refunds[\s\S]{0,160}FALSE/i,'refund feature flag must be seeded off');
 requireMatch('packages/database/prisma/migrations/0004_product_operations/migration.sql',/operations\.organizer_payouts[^\n]*false|operations\.organizer_payouts[\s\S]{0,160}FALSE/i,'organizer payout feature flag must be seeded off');
 requireMatch('apps/web/proxy.ts',/strict-dynamic/,'web CSP must be nonce-based');

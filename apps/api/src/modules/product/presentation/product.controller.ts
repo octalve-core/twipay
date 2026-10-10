@@ -32,12 +32,12 @@ export class ProductController {
   @UseGuards(SessionAuthGuard, PermissionGuard)
   @RequirePermissions('ops.feature_flags.manage')
   async updateFlag(@Body(new ZodValidationPipe(FlagSchema)) body: z.infer<typeof FlagSchema>, @Req() req: AuthenticatedFastifyRequest) {
+    requireMfa(req);
     const principal = requirePrincipal(req);
     if (body.enabled && ['events.refunds', 'operations.organizer_payouts'].includes(body.key)) {
-      if (process.env['HIGH_RISK_FEATURES_RELEASE_QUALIFIED'] !== 'true') {
+      if (process.env['NODE_ENV'] === 'production' || process.env['HIGH_RISK_FEATURES_RELEASE_QUALIFIED'] !== 'true') {
         throw new ForbiddenException({ code: 'RELEASE_QUALIFICATION_REQUIRED' });
       }
-      requireMfa(req);
     }
     const { reason, ...flag } = body;
     return { flag: await this.product.upsertFlag({ ...flag, actorUserId: principal.userId, reason, requestId: req.id }) };
@@ -47,6 +47,7 @@ export class ProductController {
   @UseGuards(SessionAuthGuard, PermissionGuard)
   @RequirePermissions('ops.branding.manage')
   async updateBrand(@Body(new ZodValidationPipe(BrandSchema)) body: z.infer<typeof BrandSchema>, @Req() req: AuthenticatedFastifyRequest) {
+    requireMfa(req);
     const principal = requirePrincipal(req);
     const { reason, ...brand } = body;
     return { brand: await this.product.updateBrand({ ...brand, actorUserId: principal.userId, reason, requestId: req.id }) };
@@ -61,6 +62,7 @@ export class ProductController {
   @UseGuards(SessionAuthGuard, PermissionGuard)
   @RequirePermissions('ops.branding.manage')
   async updateDeployment(@Body(new ZodValidationPipe(DeploymentSchema)) body: z.infer<typeof DeploymentSchema>, @Req() req: AuthenticatedFastifyRequest) {
+    requireMfa(req);
     const principal = requirePrincipal(req);
     return { deployment: await this.product.updateDeployment({ ...body, allowedModules: body.allowedModules, validUntil: body.validUntil ? new Date(body.validUntil) : null, actorUserId: principal.userId, requestId: req.id }) };
   }
