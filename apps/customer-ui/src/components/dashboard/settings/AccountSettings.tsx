@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+import api from '@/lib/api/axios';
 import AccountSettingForm from "./AccountSettingForm";
 import ImageAddIcon from "@/assets/dashboard/image-add.png";
 import BackButton from "@/components/Authentication/BackButton";
@@ -33,7 +35,42 @@ export default function AccountSettings() {
           </div>
         </div>
         <AccountSettingForm />
+        <StaffInvitationAcceptance />
       </div>
     </div>
   );
+}
+
+/** This optional customer-facing consent does not grant access by itself.
+ * The server binds the invitation to a verified email and recent MFA, then revokes sessions.
+ */
+function StaffInvitationAcceptance() {
+  const [items, setItems] = useState<Array<{ id: string; roleCode: string; expiresAt: string }>>([]);
+  const [message, setMessage] = useState('');
+  useEffect(() => { let active = true;
+    api.get('/operations/staff/invitations/mine').then(res => {
+      if (active) setItems(res.data.invitations ?? []);
+    }).catch(() => { if (active) setItems([]); });
+    return () => { active = false; };
+  }, []);
+  async function accept(id: string) {
+    setMessage('');
+    try {
+      await api.post(`/operations/staff/invitations/${id}/accept`, {});
+      setItems(current => current.filter(item => item.id !== id));
+      setMessage('Your limited staff access was accepted. Your sessions were revoked; please sign in again.');
+    } catch {
+      setMessage('Acceptance was denied. Verify your email, enable MFA, complete a recent MFA challenge and try again.');
+    }
+  }
+  if (items.length === 0 && !message) return null;
+  return <section className="mt-8 rounded-lg border border-[#F0F2F5] bg-white p-5" aria-label="Staff invitations">
+    <h2 className="text-[#344054] font-bold">Staff invitations</h2>
+    <p className="text-sm text-[#667085] mt-2">Invitations must be approved by two different platform owners. Staff access never permits direct financial actions.</p>
+    {items.map(item => <div key={item.id} className="mt-4 flex flex-wrap items-center justify-between gap-3">
+      <span className="text-sm text-[#344054]">{item.roleCode.replaceAll('_',' ')} — expires {new Date(item.expiresAt).toLocaleDateString()}</span>
+      <button type="button" className="rounded-md bg-[#112929] px-4 py-2 text-white" onClick={() => void accept(item.id)}>Accept staff invitation</button>
+    </div>)}
+    {message && <p role="status" className="mt-3 text-sm text-[#344054]">{message}</p>}
+  </section>;
 }

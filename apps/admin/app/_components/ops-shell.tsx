@@ -9,7 +9,7 @@ const nav:[string,string,string][]=[
  ['/exceptions','Exceptions','ops.reconciliation.read'],['/financial-tiers','Financial tiers','ops.tiers.read'],
  ['/payouts','Payouts','ops.dashboard.read'],['/providers','Providers','ops.dashboard.read'],
  ['/compliance','Compliance','ops.compliance.read'],['/reports','Reports','ops.reports.read'],
- ['/config','Configuration','ops.feature_flags.manage'],['/security','Security',''],['/audit','Audit','ops.audit.read'],
+ ['/config','Configuration','ops.owner.read'],['/security','Security',''],['/audit','Audit','ops.audit.read'],
 ];
 const ownerNav:[string,string][]=[['/owner','Owner overview'],['/owner/customers','Customers'],['/owner/staff','Staff governance']];
 export function OpsShell({title,children}:{title:string;children:React.ReactNode}){
