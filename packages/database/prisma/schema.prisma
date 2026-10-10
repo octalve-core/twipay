@@ -6,6 +6,17 @@ datasource db {
   provider = "postgresql"
 }
 
+enum OwnerStaffReviewStatus {
+  PREPARED
+  APPROVED
+  REJECTED
+}
+
+enum OwnerStaffReviewAction {
+  GRANT
+  REVOKE
+}
+
 enum UserStatus {
   PENDING
   ACTIVE
@@ -370,6 +381,12 @@ model User {
   passwordResetChallenges PasswordResetChallenge[]
   passwordEnrollmentChallenges PasswordEnrollmentChallenge[]
   financialEligibility FinancialEligibilityPolicy?
+  suspensionReviewsTarget OwnerCustomerSuspensionReview[] @relation("OwnerSuspensionTarget")
+  suspensionReviewsPrepared OwnerCustomerSuspensionReview[] @relation("OwnerSuspensionMaker")
+  suspensionReviewsChecked OwnerCustomerSuspensionReview[] @relation("OwnerSuspensionChecker")
+  staffReviewsTarget OwnerStaffReview[] @relation("OwnerStaffTarget")
+  staffReviewsPrepared OwnerStaffReview[] @relation("OwnerStaffMaker")
+  staffReviewsChecked OwnerStaffReview[] @relation("OwnerStaffChecker")
   financialTierReviews FinancialTierReview[] @relation("FinancialTierCustomer")
   financialTierPrepared FinancialTierReview[] @relation("FinancialTierMaker")
   financialTierChecked FinancialTierReview[] @relation("FinancialTierChecker")
@@ -510,6 +527,48 @@ model FinancialTierReview {
   @@index([status, createdAt])
   @@index([userId, createdAt])
   @@map("financial_tier_reviews")
+}
+
+/** Staff grants are reviewed by two different owner accounts; never bootstraps SUPER_ADMIN. */
+model OwnerStaffReview {
+  id               String                 @id @default(uuid()) @db.Uuid
+  targetUserId     String                 @db.Uuid
+  roleCode         String                 @db.VarChar(80)
+  action           OwnerStaffReviewAction
+  status           OwnerStaffReviewStatus @default(PREPARED)
+  preparedByUserId String                 @db.Uuid
+  checkedByUserId  String?                @db.Uuid
+  checkedAt        DateTime?              @db.Timestamptz(6)
+  reason           String                 @db.VarChar(500)
+  rejectionReason  String?                @db.VarChar(500)
+  createdAt        DateTime               @default(now()) @db.Timestamptz(6)
+  target           User                   @relation("OwnerStaffTarget", fields: [targetUserId], references: [id], onDelete: Restrict)
+  maker            User                   @relation("OwnerStaffMaker", fields: [preparedByUserId], references: [id], onDelete: Restrict)
+  checker          User?                  @relation("OwnerStaffChecker", fields: [checkedByUserId], references: [id], onDelete: Restrict)
+
+  @@index([status, createdAt])
+  @@index([targetUserId, createdAt])
+  @@map("owner_staff_reviews")
+}
+
+/** Owner-only, independently reviewed account access restriction. Financial holds are NOT touched. */
+model OwnerCustomerSuspensionReview {
+  id               String                 @id @default(uuid()) @db.Uuid
+  targetUserId     String                 @db.Uuid
+  status           OwnerStaffReviewStatus @default(PREPARED)
+  preparedByUserId String                 @db.Uuid
+  checkedByUserId  String?                @db.Uuid
+  checkedAt        DateTime?              @db.Timestamptz(6)
+  reason           String                 @db.VarChar(500)
+  rejectionReason  String?                @db.VarChar(500)
+  createdAt        DateTime               @default(now()) @db.Timestamptz(6)
+  target           User                   @relation("OwnerSuspensionTarget", fields: [targetUserId], references: [id], onDelete: Restrict)
+  maker            User                   @relation("OwnerSuspensionMaker", fields: [preparedByUserId], references: [id], onDelete: Restrict)
+  checker          User?                  @relation("OwnerSuspensionChecker", fields: [checkedByUserId], references: [id], onDelete: Restrict)
+
+  @@index([status, createdAt])
+  @@index([targetUserId, createdAt])
+  @@map("owner_customer_suspension_reviews")
 }
 
 model TransactionPinCredential {

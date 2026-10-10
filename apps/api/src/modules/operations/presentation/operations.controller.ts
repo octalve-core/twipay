@@ -13,6 +13,8 @@ import { ProviderOperationsService } from '../application/provider-operations.se
 import { ReportsService } from '../application/reports.service.js';
 import { FinancialExceptionService } from '../application/financial-exception.service.js';
 import { FinancialTierReviewService } from '../application/financial-tier-review.service.js';
+import { OwnerGovernanceService, DELEGABLE_STAFF_ROLES } from '../application/owner-governance.service.js';
+import { ForbiddenException } from '@nestjs/common';
 
 const SupportReply = z.object({message:z.string().trim().min(2).max(3000),requestKey:z.uuid()}).strict();
 const SupportRef = z.string().regex(/^sup_[0-9a-f-]{36}$/);
@@ -25,6 +27,15 @@ const TierProposal = z.object({ tier: z.number().int().min(1).max(3),
   note: z.string().trim().min(30).max(1000),
 }).strict();
 const UuidParam = z.uuid();
+const StaffProposal = z.object({ targetUserId: z.uuid(), roleCode: z.enum(DELEGABLE_STAFF_ROLES),
+  action: z.enum(['GRANT','REVOKE']), reason: z.string().trim().min(20).max(500) }).strict();
+const StaffRejection = z.object({ reason: z.string().trim().min(20).max(500) }).strict();
+function requireOwner(req: AuthenticatedFastifyRequest) {
+  requireMfa(req);
+  if (!requirePrincipal(req).roles.includes('SUPER_ADMIN')) {
+    throw new ForbiddenException({ code: 'OWNER_REQUIRED' });
+  }
+}
 const ExceptionReview = z.object({ note: z.string().trim().min(20).max(1200) }).strict();
 const OfferControl = z.object({ active: z.boolean().optional(), priority: z.number().int().min(-100).max(100).optional(), estimatedCostMinor: z.string().regex(/^[1-9]\d{0,17}$/).nullable().optional(), reason: z.string().trim().min(5).max(500) }).strict().refine((v) => v.active !== undefined || v.priority !== undefined || v.estimatedCostMinor !== undefined, 'at least one control must change');
 const Mapping = z.object({ canonicalProductId: z.uuid(), reason: z.string().trim().min(5).max(500), evidence: z.object({ source: z.string().trim().min(3).max(1000), verificationNote: z.string().trim().min(10).max(2000), verifiedProductName: z.string().trim().min(2).max(180) }).strict() }).strict();
@@ -33,7 +44,64 @@ const Mapping = z.object({ canonicalProductId: z.uuid(), reason: z.string().trim
 @UseGuards(SessionAuthGuard, PermissionGuard)
 @Controller('operations')
 export class OperationsController {
-  constructor(private readonly disputes: DisputeRefundService, private readonly payouts: OrganizerPayoutService, private readonly providers: ProviderOperationsService, private readonly reports: ReportsService, private readonly audit: AuditService, private readonly compliance: ComplianceService, private readonly exceptions: FinancialExceptionService, private readonly tiers: FinancialTierReviewService, private readonly support: CustomerSupportService) {}
+  constructor(private readonly disputes: DisputeRefundService, private readonly payouts: OrganizerPayoutService, private readonly providers: ProviderOperationsService, private readonly reports: ReportsService, private readonly audit: AuditService, private readonly compliance: ComplianceService, private readonly exceptions: FinancialExceptionService, private readonly tiers: FinancialTierReviewService, private readonly support: CustomerSupportService, private readonly owner: OwnerGovernanceService) {}
+
+  @Get('owner/overview') @RequirePermissions('ops.owner.read')
+  async ownerOverview(@Req() req: AuthenticatedFastifyRequest) { requireOwner(req); return this.owner.overview(); }
+  @Get('owner/customers') @RequirePermissions('ops.owner.read')
+  async ownerCustomers(@Req() req: AuthenticatedFastifyRequest, @Query('search') search?: string) {
+    requireOwner(req); return this.owner.customers({ search });
+  }
+  @Get('owner/staff') @RequirePermissions('ops.owner.read')
+  async ownerStaff(@Req() req: AuthenticatedFastifyRequest) { requireOwner(req); return this.owner.staff(); }
+  @Get('owner/staff/reviews') @RequirePermissions('ops.owner.read')
+  async ownerReviews(@Req() req: AuthenticatedFastifyRequest) { requireOwner(req); return this.owner.reviews(); }
+  @Post('owner/staff/reviews') @RequirePermissions('ops.owner.staff.prepare')
+  async ownerPrepare(@Req() req: AuthenticatedFastifyRequest,
+    @Body(new ZodValidationPipe(StaffProposal)) body: z.infer<typeof StaffProposal>) {
+    requireOwner(req); const actor = requirePrincipal(req);
+    return { review: await this.owner.prepare({ ...body, actorUserId: actor.userId,
+      sessionId: actor.sessionId, requestId: req.id }) };
+  }
+  @Post('owner/staff/reviews/:reviewId/approve') @RequirePermissions('ops.owner.staff.approve')
+  async ownerApprove(@Req() req: AuthenticatedFastifyRequest,
+    @Param('reviewId', new ZodValidationPipe(UuidParam)) reviewId: string) {
+    requireOwner(req); const actor = requirePrincipal(req);
+    return { review: await this.owner.decide({ reviewId, actorUserId: actor.userId,
+      sessionId: actor.sessionId, decision: 'APPROVED', requestId: req.id }) };
+  }
+  @Post('owner/staff/reviews/:reviewId/reject') @RequirePermissions('ops.owner.staff.approve')
+  async ownerReject(@Req() req: AuthenticatedFastifyRequest,
+    @Param('reviewId', new ZodValidationPipe(UuidParam)) reviewId: string,
+    @Body(new ZodValidationPipe(StaffRejection)) body: z.infer<typeof StaffRejection>) {
+    requireOwner(req); const actor = requirePrincipal(req);
+    return { review: await this.owner.decide({ reviewId, actorUserId: actor.userId,
+      sessionId: actor.sessionId, decision: 'REJECTED', reason: body.reason, requestId: req.id }) };
+  }
+
+  @Get('owner/customers/suspensions') @RequirePermissions('ops.owner.read')
+  async ownerSuspensions(@Req() req:AuthenticatedFastifyRequest){requireOwner(req);return this.owner.suspensionReviews();}
+  @Post('owner/customers/suspensions') @RequirePermissions('ops.owner.staff.prepare')
+  async ownerPrepareSuspension(@Req() req:AuthenticatedFastifyRequest,
+    @Body(new ZodValidationPipe(z.object({targetUserId:z.uuid(),reason:z.string().trim().min(20).max(500)}).strict())) body:{targetUserId:string;reason:string}) {
+    requireOwner(req);const actor=requirePrincipal(req);
+    return {review:await this.owner.prepareSuspension({...body,actorUserId:actor.userId,sessionId:actor.sessionId,requestId:req.id})};
+  }
+  @Post('owner/customers/suspensions/:reviewId/approve') @RequirePermissions('ops.owner.staff.approve')
+  async ownerApproveSuspension(@Req() req:AuthenticatedFastifyRequest,
+    @Param('reviewId',new ZodValidationPipe(UuidParam)) reviewId:string){
+    requireOwner(req);const actor=requirePrincipal(req);
+    return {review:await this.owner.decideSuspension({reviewId,actorUserId:actor.userId,sessionId:actor.sessionId,
+      decision:'APPROVED',requestId:req.id})};
+  }
+  @Post('owner/customers/suspensions/:reviewId/reject') @RequirePermissions('ops.owner.staff.approve')
+  async ownerRejectSuspension(@Req() req:AuthenticatedFastifyRequest,
+    @Param('reviewId',new ZodValidationPipe(UuidParam)) reviewId:string,
+    @Body(new ZodValidationPipe(StaffRejection)) body:z.infer<typeof StaffRejection>){
+    requireOwner(req);const actor=requirePrincipal(req);
+    return {review:await this.owner.decideSuspension({reviewId,actorUserId:actor.userId,sessionId:actor.sessionId,
+      decision:'REJECTED',reason:body.reason,requestId:req.id})};
+  }
 
   @Get('dashboard') @RequirePermissions('ops.dashboard.read') async dashboard() { return this.reports.dashboard(); }
   @Get('compliance') @RequirePermissions('ops.compliance.read') async complianceSnapshot() { return this.compliance.snapshot(); }
