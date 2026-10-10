@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Param, Patch, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiCookieAuth, ApiForbiddenResponse, ApiHeader, ApiOperation, ApiParam, ApiResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { z } from 'zod';
 import { ZodValidationPipe } from '../../../platform/http/zod-validation.pipe.js';
 import { PermissionGuard, RequirePermissions, requireMfa } from '../../auth/presentation/permission.guard.js';
@@ -15,6 +16,7 @@ import { FinancialExceptionService } from '../application/financial-exception.se
 import { FinancialTierReviewService } from '../application/financial-tier-review.service.js';
 import { OwnerGovernanceService, DELEGABLE_STAFF_ROLES } from '../application/owner-governance.service.js';
 import { ForbiddenException } from '@nestjs/common';
+import { OwnerApiContracts } from './owner-openapi.js';
 
 const SupportReply = z.object({message:z.string().trim().min(2).max(3000),requestKey:z.uuid()}).strict();
 const SupportRef = z.string().regex(/^sup_[0-9a-f-]{36}$/);
@@ -41,36 +43,72 @@ const OfferControl = z.object({ active: z.boolean().optional(), priority: z.numb
 const Mapping = z.object({ canonicalProductId: z.uuid(), reason: z.string().trim().min(5).max(500), evidence: z.object({ source: z.string().trim().min(3).max(1000), verificationNote: z.string().trim().min(10).max(2000), verifiedProductName: z.string().trim().min(2).max(180) }).strict() }).strict();
 
 @ApiTags('operations')
+@ApiCookieAuth()
+@ApiUnauthorizedResponse({ description: 'Valid active opaque session required' })
+@ApiForbiddenResponse({ description: 'MFA, owner role or required permission missing' })
 @UseGuards(SessionAuthGuard, PermissionGuard)
 @Controller('operations')
 export class OperationsController {
   constructor(private readonly disputes: DisputeRefundService, private readonly payouts: OrganizerPayoutService, private readonly providers: ProviderOperationsService, private readonly reports: ReportsService, private readonly audit: AuditService, private readonly compliance: ComplianceService, private readonly exceptions: FinancialExceptionService, private readonly tiers: FinancialTierReviewService, private readonly support: CustomerSupportService, private readonly owner: OwnerGovernanceService) {}
 
-  @Get('owner/overview') @RequirePermissions('ops.owner.read')
+  @Get('owner/overview')
+  @ApiOperation({ summary: 'Owner overview: observed database figures, not settlement' })
+  @ApiResponse({ status: 200, schema: OwnerApiContracts.overviewResponse }) @RequirePermissions('ops.owner.read')
   async ownerOverview(@Req() req: AuthenticatedFastifyRequest) { requireOwner(req); return this.owner.overview(); }
-  @Get('owner/customers') @RequirePermissions('ops.owner.read')
+  @Get('owner/risk') @RequirePermissions('ops.owner.read')
+  @ApiOperation({ summary: 'Owner aggregate provider, ticket, security and pending-review observations (read-only)' })
+  @ApiResponse({ status: 200, schema: OwnerApiContracts.riskResponse })
+  async ownerRisk(@Req() req: AuthenticatedFastifyRequest) { requireOwner(req); return this.owner.riskOverview(); }
+  @Get('owner/customers/:userId/activity') @RequirePermissions('ops.owner.read')
+  @ApiParam({ name: 'userId', schema: { type: 'string', format: 'uuid' } })
+  @ApiOperation({ summary: 'Owner view of masked, aggregate customer activity (read-only)' })
+  @ApiResponse({ status: 200, schema: OwnerApiContracts.activityResponse })
+  async ownerCustomerActivity(@Req() req: AuthenticatedFastifyRequest,
+    @Param('userId', new ZodValidationPipe(UuidParam)) userId: string) {
+    requireOwner(req); return this.owner.customerActivity(userId);
+  }
+  @Get('owner/customers')
+  @ApiOperation({ summary: 'Owner masked customer directory; exact lookup or bounded list' })
+  @ApiResponse({ status: 200, schema: OwnerApiContracts.customersResponse }) @RequirePermissions('ops.owner.read')
   async ownerCustomers(@Req() req: AuthenticatedFastifyRequest, @Query('search') search?: string) {
     requireOwner(req); return this.owner.customers({ search });
   }
-  @Get('owner/staff') @RequirePermissions('ops.owner.read')
+  @Get('owner/staff')
+  @ApiOperation({ summary: 'Owner active role-assignment snapshot' })
+  @ApiResponse({ status: 200, schema: OwnerApiContracts.staffResponse }) @RequirePermissions('ops.owner.read')
   async ownerStaff(@Req() req: AuthenticatedFastifyRequest) { requireOwner(req); return this.owner.staff(); }
-  @Get('owner/staff/reviews') @RequirePermissions('ops.owner.read')
+  @Get('owner/staff/reviews')
+  @ApiOperation({ summary: 'Read pending two-owner staff reviews' })
+  @ApiResponse({ status: 200, schema: OwnerApiContracts.reviewsResponse }) @RequirePermissions('ops.owner.read')
   async ownerReviews(@Req() req: AuthenticatedFastifyRequest) { requireOwner(req); return this.owner.reviews(); }
-  @Post('owner/staff/reviews') @RequirePermissions('ops.owner.staff.prepare')
+  @Post('owner/staff/reviews')
+  @ApiHeader({ name: 'x-csrf-token', required: true, description: 'Current opaque-session CSRF token from /v1/auth/csrf' })
+  @ApiOperation({ summary: 'Prepare staff role grant/revocation; does not change access' })
+  @ApiResponse({ status: 201, schema: OwnerApiContracts.mutationResponse })
+  @ApiBody({ schema: OwnerApiContracts.staffProposal }) @RequirePermissions('ops.owner.staff.prepare')
   async ownerPrepare(@Req() req: AuthenticatedFastifyRequest,
     @Body(new ZodValidationPipe(StaffProposal)) body: z.infer<typeof StaffProposal>) {
     requireOwner(req); const actor = requirePrincipal(req);
     return { review: await this.owner.prepare({ ...body, actorUserId: actor.userId,
       sessionId: actor.sessionId, requestId: req.id }) };
   }
-  @Post('owner/staff/reviews/:reviewId/approve') @RequirePermissions('ops.owner.staff.approve')
+  @Post('owner/staff/reviews/:reviewId/approve')
+  @ApiParam({ name: 'reviewId', schema: { type: 'string', format: 'uuid' } })
+  @ApiHeader({ name: 'x-csrf-token', required: true, description: 'Current opaque-session CSRF token from /v1/auth/csrf' })
+  @ApiOperation({ summary: 'Second owner approves staged staff role change; may revoke target sessions' })
+  @ApiResponse({ status: 201, schema: OwnerApiContracts.mutationResponse }) @RequirePermissions('ops.owner.staff.approve')
   async ownerApprove(@Req() req: AuthenticatedFastifyRequest,
     @Param('reviewId', new ZodValidationPipe(UuidParam)) reviewId: string) {
     requireOwner(req); const actor = requirePrincipal(req);
     return { review: await this.owner.decide({ reviewId, actorUserId: actor.userId,
       sessionId: actor.sessionId, decision: 'APPROVED', requestId: req.id }) };
   }
-  @Post('owner/staff/reviews/:reviewId/reject') @RequirePermissions('ops.owner.staff.approve')
+  @Post('owner/staff/reviews/:reviewId/reject')
+  @ApiParam({ name: 'reviewId', schema: { type: 'string', format: 'uuid' } })
+  @ApiHeader({ name: 'x-csrf-token', required: true, description: 'Current opaque-session CSRF token from /v1/auth/csrf' })
+  @ApiOperation({ summary: 'Second owner rejects staged staff role change' })
+  @ApiResponse({ status: 201, schema: OwnerApiContracts.mutationResponse })
+  @ApiBody({ schema: OwnerApiContracts.staffRejection }) @RequirePermissions('ops.owner.staff.approve')
   async ownerReject(@Req() req: AuthenticatedFastifyRequest,
     @Param('reviewId', new ZodValidationPipe(UuidParam)) reviewId: string,
     @Body(new ZodValidationPipe(StaffRejection)) body: z.infer<typeof StaffRejection>) {
@@ -79,22 +117,37 @@ export class OperationsController {
       sessionId: actor.sessionId, decision: 'REJECTED', reason: body.reason, requestId: req.id }) };
   }
 
-  @Get('owner/customers/suspensions') @RequirePermissions('ops.owner.read')
+  @Get('owner/customers/suspensions')
+  @ApiOperation({ summary: 'Read pending independently reviewed account restrictions' })
+  @ApiResponse({ status: 200, schema: OwnerApiContracts.suspensionsResponse }) @RequirePermissions('ops.owner.read')
   async ownerSuspensions(@Req() req:AuthenticatedFastifyRequest){requireOwner(req);return this.owner.suspensionReviews();}
-  @Post('owner/customers/suspensions') @RequirePermissions('ops.owner.staff.prepare')
+  @Post('owner/customers/suspensions')
+  @ApiHeader({ name: 'x-csrf-token', required: true, description: 'Current opaque-session CSRF token from /v1/auth/csrf' })
+  @ApiOperation({ summary: 'Prepare independently reviewed account suspension; no wallet changes' })
+  @ApiResponse({ status: 201, schema: OwnerApiContracts.mutationResponse })
+  @ApiBody({ schema: OwnerApiContracts.suspensionProposal }) @RequirePermissions('ops.owner.staff.prepare')
   async ownerPrepareSuspension(@Req() req:AuthenticatedFastifyRequest,
     @Body(new ZodValidationPipe(z.object({targetUserId:z.uuid(),reason:z.string().trim().min(20).max(500)}).strict())) body:{targetUserId:string;reason:string}) {
     requireOwner(req);const actor=requirePrincipal(req);
     return {review:await this.owner.prepareSuspension({...body,actorUserId:actor.userId,sessionId:actor.sessionId,requestId:req.id})};
   }
-  @Post('owner/customers/suspensions/:reviewId/approve') @RequirePermissions('ops.owner.staff.approve')
+  @Post('owner/customers/suspensions/:reviewId/approve')
+  @ApiParam({ name: 'reviewId', schema: { type: 'string', format: 'uuid' } })
+  @ApiHeader({ name: 'x-csrf-token', required: true, description: 'Current opaque-session CSRF token from /v1/auth/csrf' })
+  @ApiOperation({ summary: 'Second owner approves account suspension and session revocation' })
+  @ApiResponse({ status: 201, schema: OwnerApiContracts.mutationResponse }) @RequirePermissions('ops.owner.staff.approve')
   async ownerApproveSuspension(@Req() req:AuthenticatedFastifyRequest,
     @Param('reviewId',new ZodValidationPipe(UuidParam)) reviewId:string){
     requireOwner(req);const actor=requirePrincipal(req);
     return {review:await this.owner.decideSuspension({reviewId,actorUserId:actor.userId,sessionId:actor.sessionId,
       decision:'APPROVED',requestId:req.id})};
   }
-  @Post('owner/customers/suspensions/:reviewId/reject') @RequirePermissions('ops.owner.staff.approve')
+  @Post('owner/customers/suspensions/:reviewId/reject')
+  @ApiParam({ name: 'reviewId', schema: { type: 'string', format: 'uuid' } })
+  @ApiHeader({ name: 'x-csrf-token', required: true, description: 'Current opaque-session CSRF token from /v1/auth/csrf' })
+  @ApiOperation({ summary: 'Second owner rejects account suspension' })
+  @ApiResponse({ status: 201, schema: OwnerApiContracts.mutationResponse })
+  @ApiBody({ schema: OwnerApiContracts.staffRejection }) @RequirePermissions('ops.owner.staff.approve')
   async ownerRejectSuspension(@Req() req:AuthenticatedFastifyRequest,
     @Param('reviewId',new ZodValidationPipe(UuidParam)) reviewId:string,
     @Body(new ZodValidationPipe(StaffRejection)) body:z.infer<typeof StaffRejection>){
@@ -127,7 +180,7 @@ export class OperationsController {
   @Post('payouts/:reference/prepare') @RequirePermissions('ops.payouts.prepare')
   async preparePayout(@Param('reference') reference:string,@Req() req:AuthenticatedFastifyRequest){const p=requirePrincipal(req);return {payout:await this.payouts.prepare({reference,makerUserId:p.userId,requestId:req.id})};}
   @Post('payouts/:reference/reject') @RequirePermissions('ops.payouts.prepare')
-  async rejectPayout(@Param('reference') reference:string,@Body(new ZodValidationPipe(Reason)) body:z.infer<typeof Reason>,@Req() req:AuthenticatedFastifyRequest){const p=requirePrincipal(req);return {payout:await this.payouts.reject({reference,actorUserId:p.userId,reason:body.reason,requestId:req.id})};}
+  async rejectPayout(@Param('reference') reference:string,@Body(new ZodValidationPipe(Reason)) body:z.infer<typeof Reason>,@Req() req:AuthenticatedFastifyRequest){const p=requirePrincipal(req);return {payout:await this.payouts.reject({reference,actorUserId:p.userId,sessionId:p.sessionId,reason:body.reason,requestId:req.id})};}
   @Post('payouts/:reference/approve') @RequirePermissions('ops.payouts.approve')
   async approvePayout(@Param('reference') reference:string,@Req() req:AuthenticatedFastifyRequest){requireMfa(req);const p=requirePrincipal(req);return {payout:await this.payouts.approveAndSubmit({reference,checkerUserId:p.userId,sessionId:p.sessionId,mfaSatisfied:p.mfaSatisfied,requestId:req.id})};}
   @Post('payouts/:reference/reconcile') @RequirePermissions('ops.payouts.prepare') async reconcile(@Param('reference') reference:string,@Req() req:AuthenticatedFastifyRequest){const p=requirePrincipal(req);return {payout:await this.payouts.reconcile(reference,p.userId,req.id)};}
@@ -184,11 +237,11 @@ export class OperationsController {
 
   @Get('providers') @RequirePermissions('ops.dashboard.read') async providerSnapshot(){return this.providers.snapshot();}
   @Patch('providers/offers/:offerId') @RequirePermissions('ops.providers.manage')
-  async updateOffer(@Param('offerId') offerId:string,@Body(new ZodValidationPipe(OfferControl)) body:z.infer<typeof OfferControl>,@Req() req:AuthenticatedFastifyRequest){const p=requirePrincipal(req);return {offer:await this.providers.updateOffer({offerId,actorUserId:p.userId,reason:body.reason,requestId:req.id,...(body.active!==undefined?{active:body.active}:{}),...(body.priority!==undefined?{priority:body.priority}:{}),...(body.estimatedCostMinor!==undefined?{estimatedCostMinor:body.estimatedCostMinor===null?null:BigInt(body.estimatedCostMinor)}:{})})};}
+  async updateOffer(@Param('offerId') offerId:string,@Body(new ZodValidationPipe(OfferControl)) body:z.infer<typeof OfferControl>,@Req() req:AuthenticatedFastifyRequest){const p=requirePrincipal(req);return {offer:await this.providers.updateOffer({offerId,actorUserId:p.userId,sessionId:p.sessionId,reason:body.reason,requestId:req.id,...(body.active!==undefined?{active:body.active}:{}),...(body.priority!==undefined?{priority:body.priority}:{}),...(body.estimatedCostMinor!==undefined?{estimatedCostMinor:body.estimatedCostMinor===null?null:BigInt(body.estimatedCostMinor)}:{})})};}
   @Post('providers/health/:healthId/reset') @RequirePermissions('ops.providers.manage')
-  async resetCircuit(@Param('healthId') healthId:string,@Body(new ZodValidationPipe(Reason)) body:z.infer<typeof Reason>,@Req() req:AuthenticatedFastifyRequest){const p=requirePrincipal(req);return {health:await this.providers.resetCircuit({healthId,actorUserId:p.userId,reason:body.reason,requestId:req.id})};}
+  async resetCircuit(@Param('healthId') healthId:string,@Body(new ZodValidationPipe(Reason)) body:z.infer<typeof Reason>,@Req() req:AuthenticatedFastifyRequest){const p=requirePrincipal(req);return {health:await this.providers.resetCircuit({healthId,actorUserId:p.userId,sessionId:p.sessionId,reason:body.reason,requestId:req.id})};}
   @Post('catalog/offers/:offerId/verify-equivalence') @RequirePermissions('ops.catalog.map')
-  async verifyMapping(@Param('offerId') offerId:string,@Body(new ZodValidationPipe(Mapping)) body:z.infer<typeof Mapping>,@Req() req:AuthenticatedFastifyRequest){const p=requirePrincipal(req);return {offer:await this.providers.verifyEquivalence({offerId,canonicalProductId:body.canonicalProductId,actorUserId:p.userId,evidence:body.evidence,reason:body.reason,requestId:req.id})};}
+  async verifyMapping(@Param('offerId') offerId:string,@Body(new ZodValidationPipe(Mapping)) body:z.infer<typeof Mapping>,@Req() req:AuthenticatedFastifyRequest){const p=requirePrincipal(req);return {offer:await this.providers.verifyEquivalence({offerId,canonicalProductId:body.canonicalProductId,actorUserId:p.userId,sessionId:p.sessionId,evidence:body.evidence,reason:body.reason,requestId:req.id})};}
 
   @Get('reports') @RequirePermissions('ops.reports.read') async reportsView(){return this.reports.dashboard();}
   @Get('audit') @RequirePermissions('ops.audit.read') async auditTrail(@Query('limit') limit?:string){const parsed=Number(limit??100);return {events:await this.audit.list(Number.isFinite(parsed)?parsed:100)};}

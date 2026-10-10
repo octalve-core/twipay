@@ -46,6 +46,70 @@ export class OwnerGovernanceService {
       notice: 'Counts are database observations, not proof of provider settlement or live revenue.' };
   }
 
+  /** Read-only, time-bounded operational risk indicators. Not live banking-provider monitoring.
+   * No customer identifiers, webhook bodies, credentials, provider references, or secrets.
+   */
+  async riskOverview() {
+    const now = new Date();
+    const since = new Date(now.getTime() - 30 * 86400_000);
+    const [providerOutcomes, providerCircuits, securityEvents, ticketStatuses, recentCheckIns,
+      draftEvents, waitingStaff, waitingSuspension, recentOwnerActions] = await Promise.all([
+      this.prisma.providerOperation.groupBy({ by: ['type', 'status'],
+        where: { createdAt: { gte: since } }, _count: { _all: true } }),
+      this.prisma.providerCapabilityHealth.findMany({ orderBy: [{ providerCode: 'asc' }, { capability: 'asc' }],
+        take: 100, select: { providerCode: true, capability: true, circuitState: true,
+          consecutiveFailures: true, lastFailureAt: true, updatedAt: true } }),
+      this.prisma.securityEvent.groupBy({ by: ['type'], where: { occurredAt: { gte: since } },
+        _count: { _all: true } }),
+      this.prisma.eventTicket.groupBy({ by: ['status'], _count: { _all: true } }),
+      this.prisma.ticketCheckIn.count({ where: { checkedInAt: { gte: since } } }),
+      this.prisma.event.count({ where: { status: 'DRAFT' } }),
+      this.prisma.ownerStaffReview.count({ where: { status: 'PREPARED' } }),
+      this.prisma.ownerCustomerSuspensionReview.count({ where: { status: 'PREPARED' } }),
+      this.prisma.operationalAuditEvent.count({ where: { occurredAt: { gte: since },
+        action: { startsWith: 'OWNER_' } } }),
+    ]);
+    return {
+      period: { from: since, to: now },
+      providerOutcomes: providerOutcomes.map(row => ({ type: row.type, status: row.status, count: row._count._all })),
+      providerCircuits,
+      securityEvents: securityEvents.map(row => ({ type: row.type, count: row._count._all })),
+      tickets: { byStatus: ticketStatuses.map(row => ({ status: row.status, count: row._count._all })),
+        checkInsInPeriod: recentCheckIns, draftEvents },
+      pendingOwnerReviews: { staff: waitingStaff, customerSuspensions: waitingSuspension },
+      ownerAuditActionsInPeriod: recentOwnerActions,
+      caveat: 'Database observations only. Provider outcomes are not settlement confirmation; the absence of observations does not establish availability.',
+    };
+  }
+
+  /** No raw transaction references, sensitive identity documents, support messages, or wallet balances. */
+  async customerActivity(userId: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { id: true, status: true } });
+    if (!user) throw new NotFoundException({ code: 'CUSTOMER_NOT_FOUND' });
+    const since = new Date(Date.now() - 30 * 86400_000);
+    const [transactions, supportCases, eventOrders, securityEventCount, recentTransactions, recentSupport] = await Promise.all([
+      this.prisma.financialTransaction.groupBy({ by: ['type', 'status'],
+        where: { userId, createdAt: { gte: since } }, _count: { _all: true } }),
+      this.prisma.supportCase.groupBy({ by: ['status'], where: { userId }, _count: { _all: true } }),
+      this.prisma.eventOrder.groupBy({ by: ['status'], where: { userId, createdAt: { gte: since } },
+        _count: { _all: true } }),
+      this.prisma.securityEvent.count({ where: { userId, occurredAt: { gte: since } } }),
+      this.prisma.financialTransaction.findMany({ where: { userId, createdAt: { gte: since } },
+        orderBy: { createdAt: 'desc' }, take: 20,
+        select: { id: true, type: true, status: true, createdAt: true } }),
+      this.prisma.supportCase.findMany({ where: { userId }, orderBy: { updatedAt: 'desc' }, take: 20,
+        select: { reference: true, status: true, createdAt: true } }),
+    ]);
+    return {
+      userId, status: user.status, period: { from: since, to: new Date() },
+      transactions: transactions.map(row => ({ type: row.type, status: row.status, count: row._count._all })),
+      supportCases: supportCases.map(row => ({ status: row.status, count: row._count._all })),
+      eventOrders: eventOrders.map(row => ({ status: row.status, count: row._count._all })),
+      securityEventCount, recentTransactions, recentSupport,
+      caveat: 'Aggregate operational observations; no balances, identity records, or settled-revenue assertion.',
+    };
+  }
+
   /** Bounded, masked customer discovery; no KYC documents, phone, account numbers or balances. */
   async customers(input: { search?: string }) {
     const search = input.search?.trim().toLowerCase();
