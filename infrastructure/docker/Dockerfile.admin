@@ -6,6 +6,8 @@ COPY apps ./apps
 COPY packages ./packages
 ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_DEV_MAIL=false
+ENV NEXT_PUBLIC_DEV_MAIL=$NEXT_PUBLIC_DEV_MAIL
 RUN pnpm install --frozen-lockfile
 RUN pnpm --filter @twipay/admin build
 

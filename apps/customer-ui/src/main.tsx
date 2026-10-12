@@ -8,6 +8,14 @@ import { AuthContextProvider } from './context/AuthContext.tsx'
 
 const querClient = new QueryClient()
 
+// Local development inbox (compose.stack.yaml): floating button that shows captured emails and codes.
+if (import.meta.env['VITE_TWIPAY_DEV_MAIL'] === 'true') {
+  const widget = document.createElement('script')
+  widget.src = '/__devmail/widget.js'
+  widget.async = true
+  document.head.append(widget)
+}
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AuthContextProvider>

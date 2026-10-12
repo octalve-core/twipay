@@ -2,6 +2,12 @@
 #
 #   docker compose -f compose.stack.yaml up -d --build
 #
+# Outgoing email never leaves this machine: the API and worker send through the Resend adapter to the
+# `devmail` service, a local inbox (http://localhost:${DEVMAIL_PORT:-8025}) that shows every message and
+# verification code. This overrides any RESEND_* values in .env. Both front ends also load a floating inbox
+# button (VITE_TWIPAY_DEV_MAIL / NEXT_PUBLIC_DEV_MAIL) through a read-only same-origin proxy at /__devmail/.
+# Anyone who can open the apps can read every message, including codes: keep this stack off the public internet.
+#
 # Local development only. NODE_ENV is "development" so non-production sandbox switches can be exercised;
 # every financial/provider switch stays OFF unless you enable it in .env. Secrets come from the git-ignored
 # root .env (copy .env.example and fill it in). Connection strings are overridden below to use service names.
@@ -9,6 +15,12 @@
 # Browser-facing URLs (CUSTOMER_UI_PORT / ADMIN_PORT / API_PORT) must match what you open in the browser:
 # the API only accepts CORS requests from APP_URL and ADMIN_URL, and the front ends bake the API URL at build time.
 #   e.g. CUSTOMER_UI_PORT=3002 docker compose -f compose.stack.yaml up -d --build   (when port 3000 is taken)
+#
+# Remote access (e.g. Tailscale Funnel): set the three public origins, which are baked into the front ends,
+# so a rebuild is needed whenever they change. All three must share one hostname (different ports are fine)
+# so session/CSRF cookies stay same-site:
+#   CUSTOMER_UI_ORIGIN=https://host.example.ts.net ADMIN_ORIGIN=https://host.example.ts.net:8443 \
+#   API_ORIGIN=https://host.example.ts.net:10000 docker compose -f compose.stack.yaml up -d --build
 
 name: twipay
 
@@ -19,12 +31,30 @@ x-api-env: &api-env
   NODE_ENV: development
   DATABASE_URL: postgresql://twipay:development_password@postgres:5432/twipay
   REDIS_URL: redis://redis:6379
-  APP_URL: http://localhost:${CUSTOMER_UI_PORT:-3000}
-  ADMIN_URL: http://localhost:${ADMIN_PORT:-3001}
-  API_URL: http://localhost:${API_PORT:-4000}
+  APP_URL: ${CUSTOMER_UI_ORIGIN:-http://localhost:${CUSTOMER_UI_PORT:-3000}}
+  ADMIN_URL: ${ADMIN_ORIGIN:-http://localhost:${ADMIN_PORT:-3001}}
+  API_URL: ${API_ORIGIN:-http://localhost:${API_PORT:-4000}}
   API_PORT: "4000"
+  RESEND_BASE_URL: http://devmail:8025
+  RESEND_API_KEY: dev-inbox-not-a-real-key
+  RESEND_FROM: TwiPay Dev <noreply@twipay.local>
 
 services:
+  devmail:
+    image: node:24.21.0-bookworm-slim
+    command: ["node", "/app/server.mjs"]
+    volumes:
+      - ./infrastructure/dev-mail:/app:ro
+      - twipay_devmail:/data
+    user: node
+    ports: ["127.0.0.1:${DEVMAIL_PORT:-8025}:8025"]
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8025/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
   migrate:
     image: twipay/api:local
     build:
@@ -46,6 +76,7 @@ services:
     depends_on:
       migrate: { condition: service_completed_successfully }
       redis: { condition: service_healthy }
+      devmail: { condition: service_healthy }
     healthcheck:
       test: ["CMD", "node", "-e", "require('net').connect(4000,'127.0.0.1').on('connect',()=>process.exit(0)).on('error',()=>process.exit(1))"]
       interval: 5s
@@ -70,7 +101,8 @@ services:
       context: .
       dockerfile: infrastructure/docker/Dockerfile.admin
       args:
-        NEXT_PUBLIC_API_URL: http://localhost:${API_PORT:-4000}
+        NEXT_PUBLIC_API_URL: ${API_ORIGIN:-http://localhost:${API_PORT:-4000}}
+        NEXT_PUBLIC_DEV_MAIL: "true"
     ports: ["127.0.0.1:${ADMIN_PORT:-3001}:3001"]
     depends_on:
       api: { condition: service_healthy }
@@ -82,8 +114,12 @@ services:
       context: .
       dockerfile: infrastructure/docker/Dockerfile.customer-ui
       args:
-        VITE_TWIPAY_API_URL: http://localhost:${API_PORT:-4000}
+        VITE_TWIPAY_API_URL: ${API_ORIGIN:-http://localhost:${API_PORT:-4000}}
+        VITE_TWIPAY_DEV_MAIL: "true"
     ports: ["127.0.0.1:${CUSTOMER_UI_PORT:-3000}:8080"]
     depends_on:
       api: { condition: service_healthy }
     restart: unless-stopped
+
+volumes:
+  twipay_devmail:
