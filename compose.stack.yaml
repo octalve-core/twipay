@@ -1,0 +1,89 @@
+# Full LOCAL TwiPay stack: PostgreSQL 18, Redis 8, migrations, API, worker, admin and customer UI.
+#
+#   docker compose -f compose.stack.yaml up -d --build
+#
+# Local development only. NODE_ENV is "development" so non-production sandbox switches can be exercised;
+# every financial/provider switch stays OFF unless you enable it in .env. Secrets come from the git-ignored
+# root .env (copy .env.example and fill it in). Connection strings are overridden below to use service names.
+#
+# Browser-facing URLs (CUSTOMER_UI_PORT / ADMIN_PORT / API_PORT) must match what you open in the browser:
+# the API only accepts CORS requests from APP_URL and ADMIN_URL, and the front ends bake the API URL at build time.
+#   e.g. CUSTOMER_UI_PORT=3002 docker compose -f compose.stack.yaml up -d --build   (when port 3000 is taken)
+
+name: twipay
+
+include:
+  - compose.yaml # postgres + redis (same project/volumes as `docker compose up postgres redis`)
+
+x-api-env: &api-env
+  NODE_ENV: development
+  DATABASE_URL: postgresql://twipay:development_password@postgres:5432/twipay
+  REDIS_URL: redis://redis:6379
+  APP_URL: http://localhost:${CUSTOMER_UI_PORT:-3000}
+  ADMIN_URL: http://localhost:${ADMIN_PORT:-3001}
+  API_URL: http://localhost:${API_PORT:-4000}
+  API_PORT: "4000"
+
+services:
+  migrate:
+    image: twipay/api:local
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.api
+    env_file: [.env]
+    environment: *api-env
+    working_dir: /app/packages/database
+    command: ["/app/packages/database/node_modules/.bin/prisma", "migrate", "deploy"]
+    depends_on:
+      postgres: { condition: service_healthy }
+    restart: "no"
+
+  api:
+    image: twipay/api:local
+    env_file: [.env]
+    environment: *api-env
+    ports: ["127.0.0.1:${API_PORT:-4000}:4000"]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      redis: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('net').connect(4000,'127.0.0.1').on('connect',()=>process.exit(0)).on('error',()=>process.exit(1))"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  worker:
+    image: twipay/worker:local
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.worker
+    env_file: [.env]
+    environment: *api-env
+    depends_on:
+      api: { condition: service_healthy }
+    restart: unless-stopped
+
+  admin:
+    image: twipay/admin:local
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.admin
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:${API_PORT:-4000}
+    ports: ["127.0.0.1:${ADMIN_PORT:-3001}:3001"]
+    depends_on:
+      api: { condition: service_healthy }
+    restart: unless-stopped
+
+  customer-ui:
+    image: twipay/customer-ui:local
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.customer-ui
+      args:
+        VITE_TWIPAY_API_URL: http://localhost:${API_PORT:-4000}
+    ports: ["127.0.0.1:${CUSTOMER_UI_PORT:-3000}:8080"]
+    depends_on:
+      api: { condition: service_healthy }
+    restart: unless-stopped

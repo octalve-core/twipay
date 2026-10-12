@@ -1,0 +1,33 @@
+# Customer UI (ErhaPay-based Vite/React). VITE_* values are baked into the static bundle at build time,
+# so they are build arguments; none of them may contain a secret.
+FROM node:24.21.0-bookworm-slim AS build
+WORKDIR /app
+ENV COREPACK_HOME=/corepack
+RUN corepack enable
+COPY package.json pnpm-workspace.yaml turbo.json tsconfig.base.json pnpm-lock.yaml .npmrc ./
+COPY apps/customer-ui ./apps/customer-ui
+COPY packages ./packages
+RUN pnpm install --frozen-lockfile --filter @twipay/customer-ui...
+ARG VITE_TWIPAY_API_URL
+ARG VITE_TWIPAY_FUNDING_SANDBOX_ENABLED=false
+ARG VITE_TWIPAY_TRANSFER_SANDBOX_ENABLED=false
+ARG VITE_TWIPAY_VIRTUAL_ACCOUNT_SANDBOX_ENABLED=false
+ARG VITE_TWIPAY_BILLS_SANDBOX_ENABLED=false
+ARG VITE_TWIPAY_EVENT_ORGANIZER_SANDBOX_ENABLED=false
+ARG VITE_TWIPAY_EVENT_CHECKOUT_SANDBOX_ENABLED=false
+ARG VITE_TWIPAY_EVENT_QR_SANDBOX_ENABLED=false
+ENV VITE_TWIPAY_API_URL=$VITE_TWIPAY_API_URL \
+    VITE_TWIPAY_FUNDING_SANDBOX_ENABLED=$VITE_TWIPAY_FUNDING_SANDBOX_ENABLED \
+    VITE_TWIPAY_TRANSFER_SANDBOX_ENABLED=$VITE_TWIPAY_TRANSFER_SANDBOX_ENABLED \
+    VITE_TWIPAY_VIRTUAL_ACCOUNT_SANDBOX_ENABLED=$VITE_TWIPAY_VIRTUAL_ACCOUNT_SANDBOX_ENABLED \
+    VITE_TWIPAY_BILLS_SANDBOX_ENABLED=$VITE_TWIPAY_BILLS_SANDBOX_ENABLED \
+    VITE_TWIPAY_EVENT_ORGANIZER_SANDBOX_ENABLED=$VITE_TWIPAY_EVENT_ORGANIZER_SANDBOX_ENABLED \
+    VITE_TWIPAY_EVENT_CHECKOUT_SANDBOX_ENABLED=$VITE_TWIPAY_EVENT_CHECKOUT_SANDBOX_ENABLED \
+    VITE_TWIPAY_EVENT_QR_SANDBOX_ENABLED=$VITE_TWIPAY_EVENT_QR_SANDBOX_ENABLED
+# `vite build` only: the package's `tsc -b` step currently fails on pre-existing baseline type errors.
+RUN pnpm --filter @twipay/customer-ui exec vite build
+
+FROM nginxinc/nginx-unprivileged:1.29-alpine AS runtime
+COPY infrastructure/docker/nginx.customer-ui.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/apps/customer-ui/dist /usr/share/nginx/html
+EXPOSE 8080

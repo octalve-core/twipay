@@ -1,7 +1,7 @@
 FROM node:24.21.0-bookworm-slim AS build
 WORKDIR /app
 RUN corepack enable
-COPY package.json pnpm-workspace.yaml turbo.json tsconfig.base.json pnpm-lock.yaml ./
+COPY package.json pnpm-workspace.yaml turbo.json tsconfig.base.json pnpm-lock.yaml .npmrc ./
 COPY apps ./apps
 COPY packages ./packages
 ARG NEXT_PUBLIC_API_URL
@@ -16,4 +16,6 @@ RUN corepack enable && groupadd --system twipay && useradd --system --gid twipay
 COPY --from=build --chown=twipay:twipay /app /app
 USER twipay
 EXPOSE 3000
-CMD ["pnpm","--filter","@twipay/web","start"]
+# Run next directly: pnpm/corepack cannot write its cache as the non-root runtime user.
+WORKDIR /app/apps/web
+CMD ["node","./node_modules/next/dist/bin/next","start","-p","3000"]
