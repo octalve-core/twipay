@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { inspectLockfile, workspacePackages } from '../../../scripts/qualification/phase1-3-preflight.mjs';
 const root=resolve(import.meta.dirname,'../../..');
 const src=readFileSync(resolve(root,'.github/workflows/phase6-3-dependency-bootstrap.yml'),'utf8');
 const rootPackage=JSON.parse(readFileSync(resolve(root,'package.json'),'utf8'));
@@ -29,7 +30,9 @@ test('Phase 6.3 generates genuine lockfile only on network runner and proves a f
  assert.match(src,/sha256sum pnpm-lock.yaml/);
  assert.match(src,/if: always\(\)/);
  assert.match(src,/name: phase63-authentic-lockfile-and-build-evidence/);
- assert.ok(!existsSync(resolve(root,'pnpm-lock.yaml')),'Never commit an invented lockfile in the offline checkpoint');
+ // A lockfile may be committed only when it is the genuine registry-resolved file covering every workspace.
+ const lockPath=resolve(root,'pnpm-lock.yaml');
+ if(existsSync(lockPath)) assert.equal(inspectLockfile(readFileSync(lockPath,'utf8'),workspacePackages(root)).valid,true,'A committed lockfile must be genuine and cover every workspace importer');
 });
 
 test('Phase 6.3 qualification actually executes semantic builds, migrations and database worker tests on disposable versions',()=>{

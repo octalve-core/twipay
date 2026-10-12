@@ -19,8 +19,7 @@ test('every workspace package has a unique name and all local package dependenci
 test('the developer reference lockfile is rejected as incomplete',()=>{
   const check=inspectLockfile(source('docs/integration/developer-export-lockfile.reference.yaml'),workspacePackages(base));
   assert.equal(check.valid,false);
-  assert.ok(check.missing.includes('apps/customer-ui'));
-  assert.ok(check.missing.includes('packages/database'));
+  assert.deepEqual(check.missing,['apps/customer-ui']);
 });
 test('lockfile structural inspection detects complete importer coverage and missing importers',()=>{
   const paths=workspacePackages(base);

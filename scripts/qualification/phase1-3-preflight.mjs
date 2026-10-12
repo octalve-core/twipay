@@ -50,16 +50,20 @@ export function inspectWorkspace(base = root) {
 export function inspectLockfile(contents, packages) {
   if (!contents) return {valid:false,missing:['.', ...packages],message:'Root pnpm-lock.yaml does not exist'};
   const lines = contents.split(/\r?\n/);
-  const rootKey = lines.findIndex(line => /^importers:\s*$/.test(line));
+  // pnpm 12 may emit a multi-document lockfile (tool config first, workspace document second),
+  // so every `importers:` section is inspected. An importer without dependencies is written `path: {}`.
+  const rootKeys = lines.flatMap((line, index) => /^importers:\s*$/.test(line) ? [index] : []);
   const versionFound = lines.some(line => /^lockfileVersion:\s*\S/.test(line));
-  if (rootKey < 0 || !versionFound) return {valid:false,missing:['.', ...packages],message:'Missing lockfileVersion or importers section'};
+  if (rootKeys.length === 0 || !versionFound) return {valid:false,missing:['.', ...packages],message:'Missing lockfileVersion or importers section'};
   const found = new Set();
-  for (let i = rootKey + 1; i < lines.length; i++) {
-    const line = lines[i];
-    if (line.trim() === '' || line.trim().startsWith('#')) continue;
-    if (/^[^\s]/.test(line)) break;
-    const hit = line.match(/^  (['"]?)([^'":]+)\1:\s*$/);
-    if (hit) found.add(hit[2]);
+  for (const rootKey of rootKeys) {
+    for (let i = rootKey + 1; i < lines.length; i++) {
+      const line = lines[i];
+      if (line.trim() === '' || line.trim().startsWith('#')) continue;
+      if (/^[^\s]/.test(line)) break;
+      const hit = line.match(/^  (['"]?)([^'":]+)\1:(?:\s*\{\})?\s*$/);
+      if (hit) found.add(hit[2]);
+    }
   }
   const missing = ['.',...packages].filter(path => !found.has(path));
   return {valid:missing.length===0,missing,importerCount:found.size,message:missing.length?`Missing ${missing.length} workspace importers`:'All workspace importers represented (dependency resolution not independently verified)'};
