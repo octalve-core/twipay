@@ -10,7 +10,7 @@ export type BillQuoteTerms = {
   amountMinor: string; feeMinor: string; totalDebitMinor: string; expiresAt: number;
 };
 const invalid = (): never => { throw new ForbiddenException({ code: 'BILL_QUOTE_INVALID_EXPIRED_OR_CHANGED' }); };
-const unavailable = (): never => { throw new ServiceUnavailableException({ code: 'BILL_PRICING_POLICY_NOT_APPROVED' }); };
+const unavailable: () => never = () => { throw new ServiceUnavailableException({ code: 'BILL_PRICING_POLICY_NOT_APPROVED' }); };
 const sha = (v: string): string => createHash('sha256').update(v).digest('hex');
 function secret(): Buffer {
   const raw = process.env['BILL_QUOTE_HMAC_KEY'];

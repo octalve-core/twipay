@@ -146,11 +146,11 @@ export class GoogleOidcService {
       });
       const claims = tokens.claims();
       if (!claims || (claims.iss !== GOOGLE_ISSUER && claims.iss !== 'accounts.google.com') ||
-          !claims.sub || claims.sub.length > 255 || typeof claims.email !== 'string' ||
-          claims.email_verified !== true || !/^\S+@\S+\.\S+$/.test(claims.email)) throw new Error('GOOGLE_IDENTITY_INVALID');
-      identity = { sub: claims.sub, email: claims.email.toLowerCase(), email_verified: true,
-        ...(typeof claims.given_name === 'string' ? { given_name: claims.given_name } : {}),
-        ...(typeof claims.family_name === 'string' ? { family_name: claims.family_name } : {}) };
+          !claims.sub || claims.sub.length > 255 || typeof claims['email'] !== 'string' ||
+          claims['email_verified'] !== true || !/^\S+@\S+\.\S+$/.test(claims['email'])) throw new Error('GOOGLE_IDENTITY_INVALID');
+      identity = { sub: claims.sub, email: claims['email'].toLowerCase(), email_verified: true,
+        ...(typeof claims['given_name'] === 'string' ? { given_name: claims['given_name'] } : {}),
+        ...(typeof claims['family_name'] === 'string' ? { family_name: claims['family_name'] } : {}) };
     } catch {
       throw new UnauthorizedException(LOGIN_DENIED);
     }

@@ -14,7 +14,8 @@ const group = { type: 'array', items: observedCount } as const;
 const staffReview = { type: 'object', required: ['id','status'], properties: {
   id: uuid, status: { type: 'string' },
 } } as const;
-export const OwnerApiContracts = {
+type Mutable<T> = { -readonly [K in keyof T]: Mutable<T[K]> };
+const contracts = {
   overviewResponse: { type: 'object', properties: {
     operations: { type: 'object', description: 'Observed operational aggregates; see /operations/reports for definitions' },
     customersByStatus: group, openSupportCases: count, delegatedRoleAssignments: count,
@@ -134,3 +135,5 @@ export const OwnerApiContracts = {
   },
   mutationResponse: { type: 'object', properties: { review: staffReview } },
 } as const;
+/** Swagger's SchemaObject requires mutable arrays; the values themselves are unchanged. */
+export const OwnerApiContracts = contracts as Mutable<typeof contracts>;
