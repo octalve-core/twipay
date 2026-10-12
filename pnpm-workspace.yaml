@@ -7,6 +7,10 @@ packages:
 allowBuilds:
   "@prisma/engines": true
   "@scarf/scarf": false
+  # customer-ui dependencies; install scripts are optional (banner/telemetry/native fallbacks) and stay disabled.
+  "@firebase/util": false
+  core-js: false
+  protobufjs: false
   argon2: true
   esbuild: true
   msgpackr-extract: true
