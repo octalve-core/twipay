@@ -1,0 +1,40 @@
+TwiPay Phase 3 Batch 3.2 offline validation (2026-10-09)
+HEAD: 565b951c781729f88169b226dd778d251d66a108
+BRANCH: phase3/low-friction-contact-20261009
+Node: v22.16.0
+Node 24, PostgreSQL 18, Redis 8, real Resend, semantic builds: NOT EXECUTED.
+
+COMMAND: node --experimental-strip-types --test docs/migration/test/*.test.mjs docs/qualification/*.test.mjs docs/integration/test/*.test.mjs docs/phase3/test/*.test.mjs docs/design/test/*.test.mjs scripts/test/*.test.mjs
+  ---
+  duration_ms: 0.533916
+  type: 'test'
+  ...
+1..255
+# tests 255
+# suites 0
+# pass 255
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1858.524167
+
+COMMAND: node scripts/typescript-syntax-check.mjs
+TypeScript syntax check PASS (467 source files)
+COMMAND: node scripts/repository-security-check.mjs
+Repository security check PASS (904 text files inspected)
+COMMAND: node scripts/architecture-check.mjs
+Architecture check PASS
+COMMAND: node scripts/financial-invariant-check.mjs
+Financial invariant check PASS
+COMMAND: node scripts/services-events-invariant-check.mjs
+Services/events invariant check PASS
+COMMAND: node scripts/product-operations-invariant-check.mjs
+Product/operations invariant check PASS
+COMMAND: node scripts/production-hardening-invariant-check.mjs
+Production hardening invariant check PASS
+COMMAND: node scripts/design/erhapay-ui-inventory.mjs --check
+PASS: design inventory matches 329 source files
+PASS: 123 original visual assets present; 69 byte-identical, 54 CRLF-only normalized, 0 material changes
+PASS: 65 declared route paths; 15 UI primitives catalogued
+COMMAND: git diff --check

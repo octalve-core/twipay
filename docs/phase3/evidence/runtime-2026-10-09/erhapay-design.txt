@@ -1,0 +1,3 @@
+PASS: design inventory matches 329 source files
+PASS: 123 original visual assets present; 69 byte-identical, 54 CRLF-only normalized, 0 material changes
+PASS: 65 declared route paths; 15 UI primitives catalogued

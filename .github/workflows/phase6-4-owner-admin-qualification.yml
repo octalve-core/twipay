@@ -1,0 +1,78 @@
+name: Phase 6.4 - Owner and Admin Live Qualification (Disposable Only)
+
+on:
+  workflow_dispatch:
+    inputs:
+      sandbox_approval:
+        description: 'Type DISPOSABLE-NO-LIVE-FUNDS to authorize browser tests against qualified sandbox only'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  owner-admin-e2e:
+    if: ${{ inputs.sandbox_approval == 'DISPOSABLE-NO-LIVE-FUNDS' }}
+    runs-on: ubuntu-latest
+    environment: qualification
+    timeout-minutes: 30
+    env:
+      NODE_ENV: test
+      TWIPAY_QUALIFICATION_DISPOSABLE: 'true'
+      OWNER_GOVERNANCE_SANDBOX_ENABLED: 'true'
+      OWNER_CONFIGURATION_SANDBOX_ENABLED: 'true'
+      PROVIDER_OPERATIONS_SANDBOX_ENABLED: 'false'
+      FINANCIAL_AUTHORIZATION_SANDBOX_ENABLED: 'false'
+      WALLET_COLLECTIONS_SANDBOX_ENABLED: 'false'
+      BANK_TRANSFERS_SANDBOX_ENABLED: 'false'
+      VIRTUAL_ACCOUNTS_SANDBOX_ENABLED: 'false'
+      BILL_PURCHASES_SANDBOX_ENABLED: 'false'
+      EVENT_CHECKOUT_SANDBOX_ENABLED: 'false'
+      EVENT_TICKET_QR_SANDBOX_ENABLED: 'false'
+      HIGH_RISK_FEATURES_RELEASE_QUALIFIED: 'false'
+      TWIPAY_ADMIN_URL: ${{ secrets.QUALIFICATION_ADMIN_URL }}
+      TWIPAY_API_URL: ${{ secrets.QUALIFICATION_API_URL }}
+      TWIPAY_OWNER_A_EMAIL: ${{ secrets.QUALIFICATION_OWNER_A_EMAIL }}
+      TWIPAY_OWNER_A_PASSWORD: ${{ secrets.QUALIFICATION_OWNER_A_PASSWORD }}
+      TWIPAY_OWNER_A_TOTP_SECRET: ${{ secrets.QUALIFICATION_OWNER_A_TOTP_SECRET }}
+      TWIPAY_OWNER_B_EMAIL: ${{ secrets.QUALIFICATION_OWNER_B_EMAIL }}
+      TWIPAY_OWNER_B_PASSWORD: ${{ secrets.QUALIFICATION_OWNER_B_PASSWORD }}
+      TWIPAY_OWNER_B_TOTP_SECRET: ${{ secrets.QUALIFICATION_OWNER_B_TOTP_SECRET }}
+      TWIPAY_QUALIFIED_STAFF_USER_ID: ${{ secrets.QUALIFICATION_STAFF_USER_ID }}
+      TWIPAY_STAFF_EMAIL: ${{ secrets.QUALIFICATION_STAFF_EMAIL }}
+      TWIPAY_STAFF_PASSWORD: ${{ secrets.QUALIFICATION_STAFF_PASSWORD }}
+      TWIPAY_INVITEE_EMAIL: ${{ secrets.QUALIFICATION_INVITEE_EMAIL }}
+      TWIPAY_INVITEE_PASSWORD: ${{ secrets.QUALIFICATION_INVITEE_PASSWORD }}
+      TWIPAY_INVITEE_TOTP_SECRET: ${{ secrets.QUALIFICATION_INVITEE_TOTP_SECRET }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+      - run: corepack enable
+      - name: Reject missing genuine reviewed lockfile and unapproved targets
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f pnpm-lock.yaml || { echo 'Real reviewed lockfile not yet committed'; exit 2; }
+          test -n "$TWIPAY_ADMIN_URL" && test -n "$TWIPAY_API_URL" || { echo 'Qualification stack URLs missing'; exit 2; }
+          [[ "$TWIPAY_ADMIN_URL" =~ ^https?:// ]] && [[ "$TWIPAY_API_URL" =~ ^https?:// ]] || { echo 'Invalid qualification target'; exit 2; }
+          test "$TWIPAY_ADMIN_URL" != "$TWIPAY_API_URL" || { echo 'Admin and API must be independently identified'; exit 2; }
+          node scripts/qualification/phase1-3-preflight.mjs --check-lock
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: Execute real owner/MFA/maker-checker browser and API journeys
+        run: pnpm exec playwright test --config playwright.admin-qualification.config.ts
+      - name: Preserve qualification failure evidence, never credentials
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: owner-admin-phase64-browser-evidence
+          retention-days: 7
+          if-no-files-found: ignore
+          path: |
+            test-results/
+            playwright-report/

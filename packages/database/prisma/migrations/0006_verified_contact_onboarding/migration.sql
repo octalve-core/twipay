@@ -1,0 +1,20 @@
+-- Additive contact verification audit and one-time challenge state. No financial tables altered.
+ALTER TYPE "SecurityEventType" ADD VALUE 'CONTACT_CHALLENGE_ISSUED';
+ALTER TYPE "SecurityEventType" ADD VALUE 'CONTACT_CHALLENGE_FAILED';
+ALTER TYPE "SecurityEventType" ADD VALUE 'CONTACT_EMAIL_VERIFIED';
+
+CREATE TABLE "contact_verification_challenges" (
+  "id" UUID NOT NULL,
+  "userId" UUID NOT NULL,
+  "email" VARCHAR(320) NOT NULL,
+  "codeHash" CHAR(64) NOT NULL,
+  "failedAttempts" INTEGER NOT NULL DEFAULT 0,
+  "expiresAt" TIMESTAMPTZ(6) NOT NULL,
+  "consumedAt" TIMESTAMPTZ(6),
+  "createdAt" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT "contact_verification_challenges_pkey" PRIMARY KEY ("id"),
+  CONSTRAINT "contact_verification_challenges_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT "contact_verification_challenges_failedAttempts_check" CHECK ("failedAttempts" >= 0 AND "failedAttempts" <= 5)
+);
+CREATE INDEX "contact_verification_challenges_userId_createdAt_idx" ON "contact_verification_challenges"("userId", "createdAt");
+CREATE INDEX "contact_verification_challenges_expiresAt_idx" ON "contact_verification_challenges"("expiresAt");

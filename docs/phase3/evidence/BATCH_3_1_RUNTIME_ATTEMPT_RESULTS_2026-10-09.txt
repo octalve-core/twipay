@@ -1,0 +1,24 @@
+TWIPAY PHASE 3.1 — RUNTIME ATTEMPT / ISOLATED VERIFICATION (2026-10-09)
+Starting HEAD: f86ea399dc5f0db36ef99e7a9e2512c4c8171b51
+Runtime qualification status: BLOCKED / NOT APPROVED
+
+EXECUTED:
+- Existing isolated source/pure suite: 214 PASS, 0 FAIL.
+- NEW actual TypeScript contact verification, session guard, and CSRF guard behavior with explicit in-memory dependencies: 17 PASS, 0 FAIL.
+- NEW actual Resend adapter against local loopback HTTP, *not* real email provider: 4 PASS, 0 FAIL.
+- Combined isolated and local-mock suite: 235 PASS, 0 FAIL.
+- Initial HTTP adapter fault reproduced: malformed non-JSON HTTP 422/200 responses failed two tests; narrow fix applied; four tests now pass.
+- TypeScript syntax, repository security, architecture, financial, services/events, operations, production-hardening source scanners: PASS.
+- ErhaPay visual inventory: PASS; 329 customer files, 123 assets, 0 materially changed.
+
+NOT EXECUTED / NOT PROVEN:
+- Node 24 builds and pnpm frozen install: unavailable Node24, pinned pnpm and lockfile.
+- Prisma 7 generate/validate/deploy in PostgreSQL 18: unavailable dependencies/service.
+- PostgreSQL 18 real row-lock and multi-process concurrency: unavailable.
+- Redis 8 distributed throttling/concurrency: unavailable.
+- Real Fastify HTTP, MFA sessions, browser cookies and CSRF: dependencies unavailable; guards executed under explicit stubs only.
+- Resend real sandbox send/receipt/bounce: sandbox credentials and controlled inbox unavailable. Local HTTP mock does not establish delivery.
+- Real original-ErhaPay/TwiPay Playwright visual comparison and provider sandbox qualification: unavailable.
+- Financial transaction activation or live production release: NOT AUTHORIZED.
+
+See docs/phase3/BATCH_3_1_RUNTIME_QUALIFICATION_2026-10-09.md and scripts/qualification/phase3-1-runtime-preflight.mjs.

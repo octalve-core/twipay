@@ -11,7 +11,9 @@ import {
   parseAndVerifyTicketCredential,
 } from '@twipay/events';
 import { decryptSensitiveString, encryptSensitiveString } from '@twipay/security';
+import { publicCheckoutResponse } from './event-response.js';
 import { PrismaService } from '../../../platform/database/prisma.service.js';
+import { FinancialAuthorizationService, type FinancialAuthorization } from '../../finance/application/financial-authorization.service.js';
 import { FinancialTransactionService } from '../../finance/application/financial-transaction.service.js';
 import { IdempotencyService } from '../../finance/application/idempotency.service.js';
 import { LedgerService } from '../../finance/application/ledger.service.js';
@@ -53,6 +55,7 @@ function orderExpiryMinutes(): number {
 export class EventService {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly authorization: FinancialAuthorizationService,
     private readonly idempotency: IdempotencyService,
     private readonly financial: FinancialTransactionService,
     private readonly wallets: WalletService,
@@ -99,27 +102,39 @@ export class EventService {
   async createTicketType(input: {
     ownerUserId: string; eventId: string; name: string; priceMinor: bigint; capacity: number; salesStartsAt?: Date; salesEndsAt?: Date;
   }) {
-    const event = await this.prisma.event.findUnique({ where: { id: input.eventId }, include: { organizer: true } });
-    if (!event) throw new NotFoundException({ code: 'EVENT_NOT_FOUND' });
-    if (event.organizer.ownerUserId !== input.ownerUserId) throw new NotFoundException({ code: 'EVENT_NOT_FOUND' });
-    if (event.status !== 'DRAFT' && event.status !== 'SALES_PAUSED') throw new ConflictException({ code: 'EVENT_TICKET_TYPE_CHANGE_NOT_ALLOWED' });
     if (input.priceMinor <= 0n) throw new BadRequestException({ code: 'EVENT_FREE_TICKETS_NOT_ENABLED_V1' });
-    if (!Number.isInteger(input.capacity) || input.capacity < 1) throw new BadRequestException({ code: 'EVENT_CAPACITY_INVALID' });
-    return this.prisma.eventTicketType.create({
-      data: {
-        eventId: event.id, name: input.name, priceMinor: input.priceMinor, currency: 'NGN', capacity: input.capacity,
-        salesStartsAt: input.salesStartsAt, salesEndsAt: input.salesEndsAt,
-      },
+    if (!Number.isInteger(input.capacity) || input.capacity < 1 || input.capacity > 1_000_000) throw new BadRequestException({ code: 'EVENT_CAPACITY_INVALID' });
+    // A publish request must not race a ticket-type creation after the draft was inspected.
+    return this.prisma.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT "id" FROM "events" WHERE "id" = ${input.eventId}::uuid FOR UPDATE`;
+      const event = await tx.event.findUnique({ where: { id: input.eventId }, include: { organizer: true } });
+      if (!event || event.organizer.ownerUserId !== input.ownerUserId) throw new NotFoundException({ code: 'EVENT_NOT_FOUND' });
+      if (event.organizer.status !== 'ACTIVE') throw new ConflictException({ code: 'EVENT_ORGANIZER_NOT_ACTIVE' });
+      if (event.status !== 'DRAFT' && event.status !== 'SALES_PAUSED') throw new ConflictException({ code: 'EVENT_TICKET_TYPE_CHANGE_NOT_ALLOWED' });
+      return tx.eventTicketType.create({
+        data: {
+          eventId: event.id, name: input.name, priceMinor: input.priceMinor, currency: 'NGN', capacity: input.capacity,
+          salesStartsAt: input.salesStartsAt, salesEndsAt: input.salesEndsAt,
+        },
+      });
     });
   }
 
   async publish(ownerUserId: string, eventId: string) {
-    const event = await this.prisma.event.findUnique({ where: { id: eventId }, include: { organizer: true, ticketTypes: { where: { status: 'ACTIVE' } } } });
-    if (!event || event.organizer.ownerUserId !== ownerUserId) throw new NotFoundException({ code: 'EVENT_NOT_FOUND' });
-    if (event.ticketTypes.length === 0) throw new ConflictException({ code: 'EVENT_REQUIRES_ACTIVE_TICKET_TYPE' });
-    if (event.startsAt <= new Date()) throw new ConflictException({ code: 'EVENT_START_MUST_BE_FUTURE' });
-    assertEventTransition(event.status, 'PUBLISHED');
-    return this.prisma.event.update({ where: { id: event.id }, data: { status: 'PUBLISHED' } });
+    // Publishing is separate from building a draft. No unqualified live marketplace listings.
+    if (process.env['NODE_ENV'] === 'production' || process.env['EVENT_PUBLISH_SANDBOX_ENABLED'] !== 'true') {
+      throw new ConflictException({ code: 'EVENT_PUBLISH_NOT_QUALIFIED' });
+    }
+    return this.prisma.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT "id" FROM "events" WHERE "id" = ${eventId}::uuid FOR UPDATE`;
+      const event = await tx.event.findUnique({ where: { id: eventId }, include: { organizer: true, ticketTypes: { where: { status: 'ACTIVE' } } } });
+      if (!event || event.organizer.ownerUserId !== ownerUserId) throw new NotFoundException({ code: 'EVENT_NOT_FOUND' });
+      if (event.organizer.status !== 'ACTIVE') throw new ConflictException({ code: 'EVENT_ORGANIZER_NOT_ACTIVE' });
+      if (event.ticketTypes.length === 0) throw new ConflictException({ code: 'EVENT_REQUIRES_ACTIVE_TICKET_TYPE' });
+      if (event.startsAt <= new Date()) throw new ConflictException({ code: 'EVENT_START_MUST_BE_FUTURE' });
+      assertEventTransition(event.status, 'PUBLISHED');
+      return tx.event.update({ where: { id: event.id }, data: { status: 'PUBLISHED' } });
+    });
   }
 
   async listPublished() {
@@ -138,9 +153,36 @@ export class EventService {
     });
   }
 
+  async quoteCheckout(eventId: string, rawItems: readonly { ticketTypeId: string; quantity: number }[]) {
+    if (rawItems.length < 1 || rawItems.length > 10) throw new BadRequestException({ code: 'EVENT_ORDER_ITEMS_INVALID' });
+    const consolidated = new Map<string, number>();
+    for (const item of rawItems) consolidated.set(item.ticketTypeId, (consolidated.get(item.ticketTypeId) ?? 0) + item.quantity);
+    const items = [...consolidated.entries()].map(([ticketTypeId, quantity]) => ({ ticketTypeId, quantity }));
+    if (items.length < 1 || items.some((item) => !Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > 20)) {
+      throw new BadRequestException({ code: 'EVENT_ORDER_ITEMS_INVALID' });
+    }
+    const event = await this.prisma.event.findUnique({ where: { id: eventId }, include: { ticketTypes: true } });
+    if (!event || event.status !== 'PUBLISHED' || event.startsAt <= new Date()) throw new NotFoundException({ code: 'EVENT_NOT_ON_SALE' });
+    const now = new Date();
+    if ((event.salesStartsAt && event.salesStartsAt > now) || (event.salesEndsAt && event.salesEndsAt <= now)) throw new ConflictException({ code: 'EVENT_NOT_ON_SALE' });
+    let subtotalMinor = 0n;
+    for (const item of items) {
+      const type = event.ticketTypes.find((ticket) => ticket.id === item.ticketTypeId);
+      if (!type || type.status !== 'ACTIVE' || type.currency !== 'NGN' || type.priceMinor <= 0n) throw new ConflictException({ code: 'EVENT_TICKET_TYPE_NOT_AVAILABLE' });
+      if ((type.salesStartsAt && type.salesStartsAt > now) || (type.salesEndsAt && type.salesEndsAt <= now)) throw new ConflictException({ code: 'EVENT_TICKET_SALES_NOT_AVAILABLE' });
+      const sold = await this.prisma.eventTicket.count({ where: { ticketTypeId: type.id, status: { in: ['ACTIVE', 'CHECKED_IN'] } } });
+      assertCapacityAvailable(type.capacity, sold, item.quantity);
+      subtotalMinor += type.priceMinor * BigInt(item.quantity);
+    }
+    const platformFeeMinor = calculatePlatformFeeMinor(subtotalMinor, eventFeeBps());
+    if (subtotalMinor + platformFeeMinor > 9_223_372_036_854_775_807n) throw new BadRequestException({ code: 'EVENT_TOTAL_OUT_OF_RANGE' });
+    return { eventId, currency: 'NGN', items, subtotalMinor: subtotalMinor.toString(), platformFeeMinor: platformFeeMinor.toString(), totalMinor: (subtotalMinor + platformFeeMinor).toString() };
+  }
+
   async checkout(input: {
+    authorization: FinancialAuthorization;
     userId: string; idempotencyKey: string; eventId: string;
-    items: readonly { ticketTypeId: string; quantity: number }[]; issuedToName?: string;
+    items: readonly { ticketTypeId: string; quantity: number }[]; issuedToName?: string; expectedTotalMinor: string;
   }): Promise<{ statusCode: number; body: JsonObject }> {
     const consolidated = new Map<string, number>();
     for (const item of input.items) consolidated.set(item.ticketTypeId, (consolidated.get(item.ticketTypeId) ?? 0) + item.quantity);
@@ -148,8 +190,8 @@ export class EventService {
     if (items.length < 1 || items.length > 10 || items.some((item) => !Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > 20)) {
       throw new BadRequestException({ code: 'EVENT_ORDER_ITEMS_INVALID' });
     }
-    const idem = await this.idempotency.begin({ scope: 'event:checkout', key: input.idempotencyKey, userId: input.userId, request: { eventId: input.eventId, items, issuedToName: input.issuedToName } });
-    if (idem.replay) return { statusCode: idem.replay.status, body: idem.replay.body };
+    const idem = await this.idempotency.begin({ scope: 'event:checkout', key: input.idempotencyKey, userId: input.userId, request: { eventId: input.eventId, items, issuedToName: input.issuedToName, expectedTotalMinor: input.expectedTotalMinor } });
+    if (idem.replay) return { statusCode: idem.replay.status, body: publicCheckoutResponse(idem.replay.body) };
     const idemId = idem.recordId!;
 
     try {
@@ -185,6 +227,10 @@ export class EventService {
 
         const platformFeeMinor = calculatePlatformFeeMinor(subtotalMinor, eventFeeBps());
         const totalMinor = subtotalMinor + platformFeeMinor;
+        if (totalMinor > 9_223_372_036_854_775_807n) throw new BadRequestException({ code: 'EVENT_TOTAL_OUT_OF_RANGE' });
+        // The customer must explicitly approve the final quoted total before funds are reserved.
+        if (totalMinor.toString() !== input.expectedTotalMinor) throw new ConflictException({ code: 'EVENT_QUOTE_CHANGED' });
+        await this.authorization.assertCurrentWithTx(tx, input.authorization, totalMinor, { userId: input.userId, intent: 'EVENT_PURCHASE' });
         const settlement = calculateSettlement({ grossMinor: totalMinor, platformFeeMinor });
         if (settlement.organizerMinor !== subtotalMinor) throw new Error('EVENT_SETTLEMENT_CALCULATION_MISMATCH');
 
@@ -223,12 +269,12 @@ export class EventService {
         const user = await tx.user.findUniqueOrThrow({ where: { id: input.userId }, select: { email: true } });
         const ticketSigning = ticketSigningConfig();
         const ticketSigningKey = ticketSigning.keys.get(ticketSigning.currentVersion)!;
-        const issued: Array<{ id: string; publicCode: string; qrPayload: string; ticketTypeId: string }> = [];
+        const issued: Array<{ publicCode: string; ticketTypeId: string }> = [];
         for (const item of itemRows) {
           for (let index = 0; index < item.quantity; index += 1) {
             const publicCode = `TWP-${randomUUID().replaceAll('-', '').slice(0, 24)}`;
             const credential = createTicketCredential(publicCode, ticketSigningKey);
-            const ticket = await tx.eventTicket.create({
+            await tx.eventTicket.create({
               data: {
                 publicCode,
                 orderId: order.id,
@@ -240,7 +286,7 @@ export class EventService {
                 issuedToEmail: user.email,
               },
             });
-            issued.push({ id: ticket.id, publicCode, qrPayload: credential.qrPayload, ticketTypeId: item.ticketTypeId });
+            issued.push({ publicCode, ticketTypeId: item.ticketTypeId });
           }
         }
         const body: JsonObject = {
@@ -252,7 +298,7 @@ export class EventService {
           platformFeeMinor: order.platformFeeMinor.toString(),
           totalMinor: order.totalMinor.toString(),
           currency: order.currency,
-          tickets: issued.map((ticket) => ({ publicCode: ticket.publicCode, ticketTypeId: ticket.ticketTypeId, qrPayload: ticket.qrPayload })),
+          tickets: issued.map((ticket) => ({ publicCode: ticket.publicCode, ticketTypeId: ticket.ticketTypeId })),
         };
         await this.idempotency.attachResourceWithTx(tx, idemId, 'event_order', order.id);
         await this.idempotency.completeWithTx(tx, idemId, 201, body);
@@ -274,6 +320,18 @@ export class EventService {
     }
   }
 
+
+  /** Resumable read-only status for uncertain checkout attempts; never returns encrypted ticket credentials. */
+  async checkoutIntentStatus(userId: string, key: string) {
+    const record = await this.prisma.idempotencyRecord.findUnique({ where: { userId_scope_key: { userId, scope: 'event:checkout', key } }, select: { status: true, expiresAt: true, resourceType: true, resourceId: true } });
+    if (!record || record.expiresAt <= new Date()) return { status: 'NOT_FOUND' as const };
+    if (record.status === 'PROCESSING') return { status: 'PROCESSING' as const };
+    if (record.status === 'FAILED') return { status: 'FAILED' as const };
+    if (record.resourceType !== 'event_order' || !record.resourceId) return { status: 'UNKNOWN' as const };
+    const order = await this.prisma.eventOrder.findFirst({ where: { id: record.resourceId, userId }, select: { reference: true, status: true } });
+    if (!order) return { status: 'UNKNOWN' as const };
+    return { status: order.status, reference: order.reference };
+  }
 
   async listOrdersForUser(userId: string) {
     const orders = await this.prisma.eventOrder.findMany({
@@ -311,29 +369,56 @@ export class EventService {
   async getOrderForUser(userId: string, reference: string): Promise<JsonObject | null> {
     const order = await this.prisma.eventOrder.findFirst({
       where: { userId, reference },
-      include: { event: true, items: { include: { ticketType: true } }, tickets: true },
+      include: { event: true, items: { include: { ticketType: true } }, tickets: { select: { publicCode: true, status: true } } },
     });
     if (!order) return null;
     return {
       reference: order.reference, status: order.status, eventId: order.eventId, eventTitle: order.event.title,
       subtotalMinor: order.subtotalMinor.toString(), platformFeeMinor: order.platformFeeMinor.toString(), totalMinor: order.totalMinor.toString(), currency: order.currency,
       items: order.items.map((item) => ({ name: item.ticketType.name, quantity: item.quantity, unitPriceMinor: item.unitPriceMinor.toString(), lineTotalMinor: item.lineTotalMinor.toString() })),
-      tickets: order.tickets.map((ticket) => ({ publicCode: ticket.publicCode, status: ticket.status, qrPayload: decryptSensitiveString(ticket.credentialCiphertext, process.env['DATA_ENCRYPTION_KEY']!) })),
+      tickets: order.tickets.map((ticket) => ({ publicCode: ticket.publicCode, status: ticket.status })),
     };
+  }
+
+
+  /** Sensitive ticket credential: owner + paid order + active ticket, never included in order/list responses. */
+  async getTicketCredentialForUser(userId: string, reference: string, publicCode: string) {
+    const order = await this.prisma.eventOrder.findFirst({
+      where: { userId, reference, status: 'PAID' },
+      select: { id: true, event: { select: { status: true, organizer: { select: { status: true } } } } },
+    });
+    if (!order || !['PUBLISHED', 'SOLD_OUT'].includes(order.event.status) || order.event.organizer.status !== 'ACTIVE') {
+      throw new NotFoundException({ code: 'EVENT_TICKET_NOT_FOUND' });
+    }
+    const ticket = await this.prisma.eventTicket.findFirst({
+      where: { orderId: order.id, publicCode, status: 'ACTIVE' },
+      select: { id: true, publicCode: true, status: true, credentialCiphertext: true, credentialFingerprint: true, credentialKeyVersion: true },
+    });
+    if (!ticket) throw new NotFoundException({ code: 'EVENT_TICKET_NOT_FOUND' });
+    const qrPayload = decryptSensitiveString(ticket.credentialCiphertext, process.env['DATA_ENCRYPTION_KEY']!);
+    const key = ticketSigningConfig().keys.get(ticket.credentialKeyVersion);
+    if (!key) throw new ConflictException({ code: 'TICKET_SIGNING_KEY_VERSION_UNAVAILABLE' });
+    parseAndVerifyTicketCredential(qrPayload, ticket.credentialFingerprint, key);
+    // Audit only identifiers, never the reusable entrance credential. Deny on audit-store failure.
+    await this.prisma.operationalAuditEvent.create({
+      data: { actorUserId: userId, action: 'EVENT_TICKET_CREDENTIAL_VIEWED', targetType: 'event_ticket', targetId: ticket.id },
+    });
+    return { publicCode: ticket.publicCode, status: ticket.status, qrPayload };
   }
 
 
   async assignCheckInStaff(input: { ownerUserId: string; eventId: string; staffEmail: string }) {
     const event = await this.prisma.event.findUnique({ where: { id: input.eventId }, include: { organizer: true } });
     if (!event || event.organizer.ownerUserId !== input.ownerUserId) throw new NotFoundException({ code: 'EVENT_NOT_FOUND' });
-    const staff = await this.prisma.user.findUnique({ where: { email: input.staffEmail.trim().toLowerCase() }, select: { id: true, email: true, givenName: true, familyName: true, status: true } });
-    if (!staff || staff.status !== 'ACTIVE') throw new NotFoundException({ code: 'EVENT_STAFF_USER_NOT_FOUND' });
+    const staff = await this.prisma.user.findUnique({ where: { email: input.staffEmail.trim().toLowerCase() }, select: { id: true, email: true, emailVerifiedAt: true, givenName: true, familyName: true, status: true } });
+    if (!staff || staff.status !== 'ACTIVE' || !staff.emailVerifiedAt) throw new NotFoundException({ code: 'EVENT_STAFF_USER_NOT_FOUND' });
     if (staff.id === input.ownerUserId) throw new ConflictException({ code: 'ORGANIZER_OWNER_ALREADY_AUTHORIZED' });
     const assignment = await this.prisma.eventStaffAssignment.upsert({
       where: { eventId_userId_role: { eventId: event.id, userId: staff.id, role: 'CHECK_IN' } },
       create: { eventId: event.id, userId: staff.id, role: 'CHECK_IN', invitedByUserId: input.ownerUserId },
-      update: { status: 'ACTIVE' },
+      update: {}, // A revoked assignment is never silently reactivated by an idempotent invitation.
     });
+    if (assignment.status !== 'ACTIVE') throw new ConflictException({ code: 'EVENT_STAFF_ASSIGNMENT_REVOKED' });
     return { id: assignment.id, eventId: assignment.eventId, role: assignment.role, status: assignment.status, staff };
   }
 
@@ -353,8 +438,26 @@ export class EventService {
     return this.prisma.eventStaffAssignment.update({ where: { id: assignment.id }, data: { status: 'REVOKED' } });
   }
 
-  async checkIn(input: { staffUserId: string; qrPayload: string; requestId?: string }) {
-    const publicCode = extractTicketPublicCode(input.qrPayload);
+  /** Authorized event metadata only: never return ticket credentials or buyer details. */
+  async listCheckInEvents(userId: string) {
+    const events = await this.prisma.event.findMany({
+      where: {
+        status: { in: ['PUBLISHED', 'SOLD_OUT'] }, organizer: { status: 'ACTIVE' },
+        OR: [
+          { organizer: { ownerUserId: userId, status: 'ACTIVE' } },
+          { staffAssignments: { some: { userId, role: 'CHECK_IN', status: 'ACTIVE' } } },
+        ],
+      },
+      select: { id: true, title: true, startsAt: true, venueName: true, status: true },
+      orderBy: { startsAt: 'desc' }, take: 100,
+    });
+    return events;
+  }
+
+  async checkIn(input: { staffUserId: string; eventId: string; qrPayload: string; requestId?: string }) {
+    let publicCode: string;
+    try { publicCode = extractTicketPublicCode(input.qrPayload); }
+    catch { throw new BadRequestException({ code: 'TICKET_INVALID_CREDENTIAL' }); }
     return this.prisma.$transaction(async (tx) => {
       await tx.$queryRaw`SELECT "id" FROM "event_tickets" WHERE "publicCode" = ${publicCode} FOR UPDATE`;
       const ticket = await tx.eventTicket.findUnique({
@@ -362,20 +465,39 @@ export class EventService {
         include: { order: { include: { event: { include: { organizer: true } } } }, ticketType: true, checkIn: true },
       });
       if (!ticket) throw new NotFoundException({ code: 'TICKET_NOT_FOUND' });
+      if (ticket.order.event.id !== input.eventId) throw new NotFoundException({ code: 'TICKET_NOT_FOUND' });
+      // Recheck ownership and staff revocation inside the same locked ticket transaction.
+      if (ticket.order.event.organizer.status !== 'ACTIVE' ||
+          !['PUBLISHED', 'SOLD_OUT'].includes(ticket.order.event.status) ||
+          ticket.order.status !== 'PAID') throw new NotFoundException({ code: 'TICKET_NOT_FOUND' });
       const organizerOwns = ticket.order.event.organizer.ownerUserId === input.staffUserId;
-      const delegated = organizerOwns ? null : await tx.eventStaffAssignment.findFirst({ where: { eventId: ticket.order.event.id, userId: input.staffUserId, role: 'CHECK_IN', status: 'ACTIVE' }, select: { id: true } });
-      if (!organizerOwns && !delegated) throw new NotFoundException({ code: 'TICKET_NOT_FOUND' });
+      if (!organizerOwns) {
+        // Share lock serializes scans with concurrent staff revocation (which updates this row).
+        const assignments = await tx.$queryRaw<Array<{ id: string }>>`
+          SELECT "id" FROM "event_staff_assignments"
+          WHERE "eventId" = ${ticket.order.event.id}::uuid
+            AND "userId" = ${input.staffUserId}::uuid AND "role" = 'CHECK_IN'::"EventStaffRole"
+            AND "status" = 'ACTIVE'::"EventStaffStatus" FOR SHARE`;
+        if (assignments.length === 0) throw new NotFoundException({ code: 'TICKET_NOT_FOUND' });
+      }
       const ticketSigning = ticketSigningConfig();
       const signingKey = ticketSigning.keys.get(ticket.credentialKeyVersion);
       if (!signingKey) throw new ConflictException({ code: 'TICKET_SIGNING_KEY_VERSION_UNAVAILABLE' });
-      parseAndVerifyTicketCredential(input.qrPayload, ticket.credentialFingerprint, signingKey);
+      try { parseAndVerifyTicketCredential(input.qrPayload, ticket.credentialFingerprint, signingKey); }
+      catch { throw new BadRequestException({ code: 'TICKET_INVALID_CREDENTIAL' }); }
       if (ticket.status === 'CHECKED_IN' || ticket.checkIn) throw new ConflictException({ code: 'TICKET_ALREADY_CHECKED_IN', checkedInAt: ticket.checkIn?.checkedInAt });
       if (ticket.status !== 'ACTIVE') throw new ConflictException({ code: 'TICKET_NOT_ACTIVE', status: ticket.status });
       const checkIn = await tx.ticketCheckIn.create({
         data: { ticketId: ticket.id, checkedInByUserId: input.staffUserId, requestId: input.requestId },
       });
       await tx.eventTicket.update({ where: { id: ticket.id }, data: { status: 'CHECKED_IN' } });
-      return { publicCode: ticket.publicCode, status: 'CHECKED_IN', checkedInAt: checkIn.checkedInAt, ticketType: ticket.ticketType.name, eventTitle: ticket.order.event.title };
+      await tx.operationalAuditEvent.create({ data: {
+        actorUserId: input.staffUserId, action: 'EVENT_TICKET_CHECKED_IN',
+        targetType: 'event_ticket', targetId: ticket.id,
+        ...(input.requestId ? { requestId: input.requestId } : {}),
+        afterState: { eventId: ticket.order.event.id, orderId: ticket.order.id, status: 'CHECKED_IN' },
+      } });
+      return { eventId: ticket.order.event.id, publicCode: ticket.publicCode, status: 'CHECKED_IN', checkedInAt: checkIn.checkedInAt, ticketType: ticket.ticketType.name, eventTitle: ticket.order.event.title };
     });
   }
 

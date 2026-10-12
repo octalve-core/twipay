@@ -161,6 +161,15 @@ export class DisputeRefundService {
     }, { isolationLevel: 'Serializable' });
   }
 
+  /** Status-only queue: no ciphertext, payout credentials or customer email is returned. */
+  async listReviewDisputes() {
+    return this.prisma.dispute.findMany({
+      where: { status: { in: ['OPEN', 'UNDER_REVIEW'] } },
+      orderBy: { openedAt: 'asc' }, take: 100,
+      select: { reference: true, status: true, category: true, reasonCode: true, openedAt: true },
+    });
+  }
+
   async disputeDetail(reference: string) {
     const row = await this.prisma.dispute.findUnique({
       where: { reference },

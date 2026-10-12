@@ -6,6 +6,17 @@ datasource db {
   provider = "postgresql"
 }
 
+enum OwnerStaffReviewStatus {
+  PREPARED
+  APPROVED
+  REJECTED
+}
+
+enum OwnerStaffReviewAction {
+  GRANT
+  REVOKE
+}
+
 enum UserStatus {
   PENDING
   ACTIVE
@@ -15,6 +26,12 @@ enum UserStatus {
 
 enum IdentityProvider {
   GOOGLE
+}
+
+enum FinancialEligibilityStatus {
+  PENDING
+  APPROVED
+  SUSPENDED
 }
 
 enum SessionStatus {
@@ -48,6 +65,18 @@ enum SecurityEventType {
   SESSION_ROTATED
   SESSION_EXPIRED
   ACCOUNT_SUSPENDED
+  CONTACT_CHALLENGE_ISSUED
+  CONTACT_CHALLENGE_FAILED
+  CONTACT_EMAIL_VERIFIED
+  PASSWORD_ENROLLMENT_REQUESTED
+  PASSWORD_ENROLLED
+  TRANSACTION_PIN_SET
+  TRANSACTION_PIN_CHANGED
+  TRANSACTION_PIN_FAILED
+  TRANSACTION_PIN_LOCKED
+  TRANSACTION_PIN_RESET_REQUESTED
+  TRANSACTION_PIN_RESET
+  FINANCIAL_PIN_AUTHORIZED
 }
 
 enum LedgerAccountCategory {
@@ -337,6 +366,8 @@ model User {
   familyName      String?       @db.VarChar(100)
   phoneE164       String?       @unique @db.VarChar(20)
   phoneVerifiedAt DateTime?     @db.Timestamptz(6)
+  countryCode     String?       @db.Char(2)
+  stateRegion     String?       @db.VarChar(100)
   status          UserStatus    @default(PENDING)
   lastLoginAt     DateTime?     @db.Timestamptz(6)
   createdAt       DateTime      @default(now()) @db.Timestamptz(6)
@@ -344,7 +375,28 @@ model User {
 
   passwordCredential    PasswordCredential?
   oauthIdentities       OAuthIdentity[]
+  googleOidcTransactions GoogleOidcTransaction[]
   sessions              Session[]
+  contactChallenges     ContactVerificationChallenge[]
+  passwordResetChallenges PasswordResetChallenge[]
+  passwordEnrollmentChallenges PasswordEnrollmentChallenge[]
+  financialEligibility FinancialEligibilityPolicy?
+  suspensionReviewsTarget OwnerCustomerSuspensionReview[] @relation("OwnerSuspensionTarget")
+  suspensionReviewsPrepared OwnerCustomerSuspensionReview[] @relation("OwnerSuspensionMaker")
+  suspensionReviewsChecked OwnerCustomerSuspensionReview[] @relation("OwnerSuspensionChecker")
+  invitationsPrepared OwnerStaffInvitation[] @relation("OwnerInviteMaker")
+  invitationsChecked OwnerStaffInvitation[] @relation("OwnerInviteChecker")
+  invitationsAccepted OwnerStaffInvitation[] @relation("OwnerInviteAcceptor")
+  configReviewsPrepared OwnerConfigReview[] @relation("OwnerConfigMaker")
+  configReviewsChecked OwnerConfigReview[] @relation("OwnerConfigChecker")
+  staffReviewsTarget OwnerStaffReview[] @relation("OwnerStaffTarget")
+  staffReviewsPrepared OwnerStaffReview[] @relation("OwnerStaffMaker")
+  staffReviewsChecked OwnerStaffReview[] @relation("OwnerStaffChecker")
+  financialTierReviews FinancialTierReview[] @relation("FinancialTierCustomer")
+  financialTierPrepared FinancialTierReview[] @relation("FinancialTierMaker")
+  financialTierChecked FinancialTierReview[] @relation("FinancialTierChecker")
+  transactionPin TransactionPinCredential?
+  transactionPinResetChallenges TransactionPinResetChallenge[]
   securityEvents        SecurityEvent[]
   mfaCredentials        MfaCredential[]
   roleAssignments       UserRole[]
@@ -362,8 +414,12 @@ model User {
   eventStaffMemberships  EventStaffAssignment[] @relation("EventStaffMember")
   eventStaffAssignmentsMade EventStaffAssignment[] @relation("EventStaffInviter")
   notifications          Notification[]
+  notificationInboxItems NotificationInboxItem[]
+  notificationPreference NotificationPreference?
   billPurchases          BillPurchase[]
   billCustomerValidations BillCustomerValidation[]
+  supportCases          SupportCase[]
+  supportMessages       SupportMessage[]
   disputes              Dispute[]
   refundRequests        RefundRequest[] @relation("RefundRequester")
   refundReviews         RefundRequest[] @relation("RefundReviewer")
@@ -379,6 +435,222 @@ model User {
 
   @@index([status])
   @@map("users")
+}
+
+model ContactVerificationChallenge {
+  id             String   @id @default(uuid()) @db.Uuid
+  userId         String   @db.Uuid
+  email          String   @db.VarChar(320)
+  codeHash       String   @db.Char(64)
+  failedAttempts Int      @default(0)
+  expiresAt      DateTime @db.Timestamptz(6)
+  consumedAt     DateTime? @db.Timestamptz(6)
+  createdAt      DateTime @default(now()) @db.Timestamptz(6)
+  user           User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([userId, createdAt])
+  @@index([expiresAt])
+  @@map("contact_verification_challenges")
+}
+
+/** Password recovery codes are never stored in plaintext. A password reset never issues a session. */
+model PasswordResetChallenge {
+  id             String    @id @default(uuid()) @db.Uuid
+  userId         String    @db.Uuid
+  email          String    @db.VarChar(320)
+  codeHash       String    @db.Char(64)
+  failedAttempts Int       @default(0)
+  expiresAt      DateTime  @db.Timestamptz(6)
+  consumedAt     DateTime? @db.Timestamptz(6)
+  createdAt      DateTime  @default(now()) @db.Timestamptz(6)
+  user           User      @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([userId, createdAt])
+  @@index([expiresAt])
+  @@map("password_reset_challenges")
+}
+
+/** Only an authenticated, email-verified Google-only account may request password enrollment. */
+model PasswordEnrollmentChallenge {
+  id             String    @id @default(uuid()) @db.Uuid
+  userId         String    @db.Uuid
+  sessionId      String    @db.Uuid
+  email          String    @db.VarChar(320)
+  codeHash       String    @db.Char(64)
+  failedAttempts Int       @default(0)
+  expiresAt      DateTime  @db.Timestamptz(6)
+  consumedAt     DateTime? @db.Timestamptz(6)
+  createdAt      DateTime  @default(now()) @db.Timestamptz(6)
+  user           User      @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([userId, createdAt])
+  @@index([expiresAt])
+  @@map("password_enrollment_challenges")
+}
+
+/** HMAC-secret peppered, Argon2id transaction PIN; never a session or MFA credential. */
+/** Explicit approval record; absent records and zero limits deny all financial intents.
+ *  Never auto-create APPROVED records from a KYC provider response. */
+model FinancialEligibilityPolicy {
+  userId              String                     @id @db.Uuid
+  status              FinancialEligibilityStatus @default(PENDING)
+  approvedKycTier     Int                        @default(0)
+  maxPerIntentMinor   BigInt                     @default(0)
+  maxDailyDebitMinor  BigInt                     @default(0)
+  approvedAt          DateTime?                  @db.Timestamptz(6)
+  updatedAt           DateTime                   @updatedAt @db.Timestamptz(6)
+  user                User                       @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@map("financial_eligibility_policies")
+}
+
+/** Staged maker/checker customer tier decision; never an automatic KYC approval. */
+enum FinancialTierReviewStatus {
+  PREPARED
+  APPROVED
+  REJECTED
+}
+
+model FinancialTierReview {
+  id                  String                    @id @default(uuid()) @db.Uuid
+  userId              String                    @db.Uuid
+  status              FinancialTierReviewStatus @default(PREPARED)
+  proposedTier        Int
+  maxPerIntentMinor   BigInt
+  maxDailyDebitMinor  BigInt
+  evidenceReference   String                    @db.VarChar(150)
+  note                String                    @db.VarChar(1000)
+  preparedByUserId    String                    @db.Uuid
+  checkedByUserId     String?                   @db.Uuid
+  checkedAt           DateTime?                 @db.Timestamptz(6)
+  rejectionReason     String?                   @db.VarChar(500)
+  createdAt           DateTime                  @default(now()) @db.Timestamptz(6)
+  user                User                      @relation("FinancialTierCustomer", fields: [userId], references: [id], onDelete: Restrict)
+  maker               User                      @relation("FinancialTierMaker", fields: [preparedByUserId], references: [id], onDelete: Restrict)
+  checker             User?                     @relation("FinancialTierChecker", fields: [checkedByUserId], references: [id], onDelete: Restrict)
+
+  @@index([status, createdAt])
+  @@index([userId, createdAt])
+  @@map("financial_tier_reviews")
+}
+
+/** Staff grants are reviewed by two different owner accounts; never bootstraps SUPER_ADMIN. */
+model OwnerStaffReview {
+  id               String                 @id @default(uuid()) @db.Uuid
+  targetUserId     String                 @db.Uuid
+  roleCode         String                 @db.VarChar(80)
+  action           OwnerStaffReviewAction
+  status           OwnerStaffReviewStatus @default(PREPARED)
+  preparedByUserId String                 @db.Uuid
+  checkedByUserId  String?                @db.Uuid
+  checkedAt        DateTime?              @db.Timestamptz(6)
+  reason           String                 @db.VarChar(500)
+  rejectionReason  String?                @db.VarChar(500)
+  createdAt        DateTime               @default(now()) @db.Timestamptz(6)
+  target           User                   @relation("OwnerStaffTarget", fields: [targetUserId], references: [id], onDelete: Restrict)
+  maker            User                   @relation("OwnerStaffMaker", fields: [preparedByUserId], references: [id], onDelete: Restrict)
+  checker          User?                  @relation("OwnerStaffChecker", fields: [checkedByUserId], references: [id], onDelete: Restrict)
+
+  @@index([status, createdAt])
+  @@index([targetUserId, createdAt])
+  @@map("owner_staff_reviews")
+}
+
+/** Owner-only, independently reviewed account access restriction. Financial holds are NOT touched. */
+model OwnerCustomerSuspensionReview {
+  id               String                 @id @default(uuid()) @db.Uuid
+  targetUserId     String                 @db.Uuid
+  status           OwnerStaffReviewStatus @default(PREPARED)
+  preparedByUserId String                 @db.Uuid
+  checkedByUserId  String?                @db.Uuid
+  checkedAt        DateTime?              @db.Timestamptz(6)
+  reason           String                 @db.VarChar(500)
+  rejectionReason  String?                @db.VarChar(500)
+  createdAt        DateTime               @default(now()) @db.Timestamptz(6)
+  target           User                   @relation("OwnerSuspensionTarget", fields: [targetUserId], references: [id], onDelete: Restrict)
+  maker            User                   @relation("OwnerSuspensionMaker", fields: [preparedByUserId], references: [id], onDelete: Restrict)
+  checker          User?                  @relation("OwnerSuspensionChecker", fields: [checkedByUserId], references: [id], onDelete: Restrict)
+
+  @@index([status, createdAt])
+  @@index([targetUserId, createdAt])
+  @@map("owner_customer_suspension_reviews")
+}
+
+/** Invitation is not an account or role until a matching verified user consents. */
+model OwnerStaffInvitation {
+  id               String   @id @default(uuid()) @db.Uuid
+  emailCiphertext  String   @db.Text
+  emailFingerprint String   @db.Char(64)
+  emailMasked      String   @db.VarChar(320)
+  roleCode         String   @db.VarChar(80)
+  status           String   @default("PREPARED") @db.VarChar(20)
+  preparedByUserId String   @db.Uuid
+  checkedByUserId  String?  @db.Uuid
+  acceptedByUserId String?  @db.Uuid
+  createdAt        DateTime @default(now()) @db.Timestamptz(6)
+  checkedAt        DateTime? @db.Timestamptz(6)
+  acceptedAt       DateTime? @db.Timestamptz(6)
+  expiresAt        DateTime @db.Timestamptz(6)
+  reason           String   @db.VarChar(500)
+  rejectionReason  String?  @db.VarChar(500)
+  maker            User     @relation("OwnerInviteMaker", fields: [preparedByUserId], references: [id], onDelete: Restrict)
+  checker          User?    @relation("OwnerInviteChecker", fields: [checkedByUserId], references: [id], onDelete: Restrict)
+  acceptor         User?    @relation("OwnerInviteAcceptor", fields: [acceptedByUserId], references: [id], onDelete: Restrict)
+
+  @@index([emailFingerprint, status])
+  @@index([status, createdAt])
+  @@map("owner_staff_invitations")
+}
+
+/** Bounded nonfinancial configuration change, immutably staged before checker approval. */
+model OwnerConfigReview {
+  id               String   @id @default(uuid()) @db.Uuid
+  kind             String   @db.VarChar(30)
+  targetKey        String   @db.VarChar(120)
+  payload          Json
+  baselineHash     String   @db.Char(64)
+  status           String   @default("PREPARED") @db.VarChar(20)
+  preparedByUserId String   @db.Uuid
+  checkedByUserId  String?  @db.Uuid
+  createdAt        DateTime @default(now()) @db.Timestamptz(6)
+  checkedAt        DateTime? @db.Timestamptz(6)
+  expiresAt        DateTime @db.Timestamptz(6)
+  reason           String   @db.VarChar(500)
+  rejectionReason  String?  @db.VarChar(500)
+  maker            User     @relation("OwnerConfigMaker", fields: [preparedByUserId], references: [id], onDelete: Restrict)
+  checker          User?    @relation("OwnerConfigChecker", fields: [checkedByUserId], references: [id], onDelete: Restrict)
+
+  @@index([status, createdAt])
+  @@map("owner_config_reviews")
+}
+
+model TransactionPinCredential {
+  userId         String    @id @db.Uuid
+  pinHash        String    @db.Text
+  failedAttempts Int       @default(0)
+  lockedUntil    DateTime? @db.Timestamptz(6)
+  createdAt      DateTime  @default(now()) @db.Timestamptz(6)
+  changedAt      DateTime  @default(now()) @db.Timestamptz(6)
+  user           User      @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@map("transaction_pin_credentials")
+}
+
+model TransactionPinResetChallenge {
+  id             String    @id @default(uuid()) @db.Uuid
+  userId         String    @db.Uuid
+  sessionId      String    @db.Uuid
+  email          String    @db.VarChar(320)
+  codeHash       String    @db.Char(64)
+  failedAttempts Int       @default(0)
+  expiresAt      DateTime  @db.Timestamptz(6)
+  consumedAt     DateTime? @db.Timestamptz(6)
+  createdAt      DateTime  @default(now()) @db.Timestamptz(6)
+  user           User      @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([userId, createdAt])
+  @@index([expiresAt])
+  @@map("transaction_pin_reset_challenges")
 }
 
 model PasswordCredential {
@@ -404,6 +676,25 @@ model OAuthIdentity {
   @@unique([provider, providerSubject])
   @@index([userId])
   @@map("oauth_identities")
+}
+
+/** Short-lived, one-time OIDC authorization state, never an authentication credential. */
+model GoogleOidcTransaction {
+  id                 String    @id @default(uuid()) @db.Uuid
+  stateHash          String    @unique @db.Char(64)
+  bindingHash        String    @db.Char(64)
+  verifierCiphertext String    @db.Text
+  nonce              String    @db.VarChar(255)
+  purpose            String    @db.VarChar(12)
+  userId             String?   @db.Uuid
+  sessionId          String?   @db.Uuid
+  createdAt          DateTime  @default(now()) @db.Timestamptz(6)
+  expiresAt          DateTime  @db.Timestamptz(6)
+  consumedAt         DateTime? @db.Timestamptz(6)
+  user               User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([expiresAt])
+  @@map("google_oidc_transactions")
 }
 
 model Session {
@@ -748,6 +1039,11 @@ model Beneficiary {
   accountNumberLast4 String @db.VarChar(4)
   keyVersion    Int      @default(1)
   accountName   String   @db.VarChar(180)
+  saved         Boolean  @default(false)
+  // Legacy saved records have unknown provider provenance and are not eligible for one-tap transfers.
+  providerCode  String?  @db.VarChar(40)
+  nickname      String?  @db.VarChar(60)
+  archivedAt    DateTime? @db.Timestamptz(6)
   createdAt     DateTime @default(now()) @db.Timestamptz(6)
   updatedAt     DateTime @updatedAt @db.Timestamptz(6)
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -778,6 +1074,10 @@ model BankTransfer {
   beneficiaryId          String             @db.Uuid
   status                 BankTransferStatus @default(CREATED)
   narration              String             @db.VarChar(160)
+  approvalQuoteId        String?            @unique @db.Uuid
+  accountNameSnapshot    String?            @db.VarChar(180)
+  bankCodeSnapshot       String?            @db.VarChar(40)
+  accountLast4Snapshot   String?            @db.VarChar(4)
   createdAt              DateTime           @default(now()) @db.Timestamptz(6)
   updatedAt              DateTime           @updatedAt @db.Timestamptz(6)
   financialTransaction   FinancialTransaction @relation(fields: [financialTransactionId], references: [id], onDelete: Restrict)
@@ -841,6 +1141,11 @@ model ReconciliationCase {
   summary                String                   @db.VarChar(255)
   evidence               Json?
   resolution             Json?
+  reviewPreparedByUserId String?                  @db.Uuid
+  reviewPreparedAt       DateTime?                @db.Timestamptz(6)
+  reviewNote             String?                  @db.VarChar(1200)
+  reviewCheckedByUserId  String?                  @db.Uuid
+  reviewCheckedAt        DateTime?                @db.Timestamptz(6)
   createdAt              DateTime                 @default(now()) @db.Timestamptz(6)
   resolvedAt             DateTime?                @db.Timestamptz(6)
   financialTransaction   FinancialTransaction?    @relation(fields: [financialTransactionId], references: [id], onDelete: Restrict)
@@ -953,6 +1258,7 @@ model BillPurchase {
   amountMinor                   BigInt
   currency                      String             @db.Char(3)
   providerRequestReference      String             @db.VarChar(160)
+  approvalQuoteId               String?            @unique @db.Uuid
   providerReference             String?            @db.VarChar(160)
   fulfillmentCiphertext         String?            @db.Text
   commissionMinor               BigInt?
@@ -1131,6 +1437,42 @@ model TicketCheckIn {
   @@map("ticket_check_ins")
 }
 
+
+/** General customer support conversations are separate from monetary disputes. */
+model SupportCase {
+  id            String   @id @default(uuid()) @db.Uuid
+  reference     String   @unique @db.VarChar(100)
+  userId        String   @db.Uuid
+  requestKey    String   @unique @db.Uuid
+  category      String   @db.VarChar(32)
+  subjectCiphertext String @db.Text
+  status        String   @default("WAITING_SUPPORT") @db.VarChar(24)
+  createdAt     DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt     DateTime @updatedAt @db.Timestamptz(6)
+  user          User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+  messages      SupportMessage[]
+
+  @@index([userId, updatedAt])
+  @@index([status, updatedAt])
+  @@map("support_cases")
+}
+
+/** Append-only encrypted message. No raw attachments or identity-document uploads. */
+model SupportMessage {
+  id           String   @id @default(uuid()) @db.Uuid
+  caseId       String   @db.Uuid
+  authorUserId String   @db.Uuid
+  authorType   String   @db.VarChar(12)
+  requestKey   String   @unique @db.Uuid
+  bodyCiphertext String @db.Text
+  createdAt    DateTime @default(now()) @db.Timestamptz(6)
+  supportCase  SupportCase @relation(fields: [caseId], references: [id], onDelete: Restrict)
+  author       User     @relation(fields: [authorUserId], references: [id], onDelete: Restrict)
+
+  @@index([caseId, createdAt])
+  @@map("support_messages")
+}
+
 model Dispute {
   id                     String        @id @default(uuid()) @db.Uuid
   reference              String        @unique @db.VarChar(100)
@@ -1300,6 +1642,8 @@ model Notification {
   bodyCiphertext String             @db.Text
   status         NotificationStatus @default(PENDING)
   idempotencyKey String             @unique @db.VarChar(160)
+  deliverySuppressed Boolean         @default(false)
+  inboxItem      NotificationInboxItem?
   createdAt      DateTime           @default(now()) @db.Timestamptz(6)
   updatedAt      DateTime           @updatedAt @db.Timestamptz(6)
   user           User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
@@ -1308,6 +1652,37 @@ model Notification {
   @@index([status, createdAt])
   @@index([userId, createdAt])
   @@map("notifications")
+}
+
+/** Inbox summaries are written only from allowlisted templates, never from provider text or OTP content. */
+model NotificationInboxItem {
+  id             String        @id @default(uuid()) @db.Uuid
+  userId         String        @db.Uuid
+  notificationId String        @unique @db.Uuid
+  category       String        @db.VarChar(24)
+  title          String        @db.VarChar(120)
+  message        String        @db.VarChar(240)
+  targetPath     String        @db.VarChar(180)
+  readAt         DateTime?     @db.Timestamptz(6)
+  createdAt      DateTime      @default(now()) @db.Timestamptz(6)
+  user           User          @relation(fields: [userId], references: [id], onDelete: Restrict)
+  notification   Notification  @relation(fields: [notificationId], references: [id], onDelete: Restrict)
+
+  @@index([userId, createdAt, id])
+  @@index([userId, readAt])
+  @@map("notification_inbox_items")
+}
+
+/** Security alerts and essential transactional delivery cannot be disabled. */
+model NotificationPreference {
+  userId         String   @id @db.Uuid
+  supportInApp   Boolean  @default(true)
+  eventInApp     Boolean  @default(true)
+  supportEmail   Boolean  @default(true)
+  updatedAt      DateTime @updatedAt @db.Timestamptz(6)
+  user           User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@map("notification_preferences")
 }
 
 model NotificationAttempt {

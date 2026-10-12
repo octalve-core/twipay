@@ -4,6 +4,7 @@ import { assertBillAmount, assertBillPurchaseTransition } from '@twipay/services
 import { decryptSensitiveString, encryptSensitiveString, fingerprintSensitiveValue } from '@twipay/security';
 import type { Prisma } from '@prisma/client';
 import { PrismaService } from '../../../platform/database/prisma.service.js';
+import { FinancialAuthorizationService, type FinancialAuthorization } from '../../finance/application/financial-authorization.service.js';
 import { BillProviderRegistry, type EnabledBillProvider } from '../../providers/bill-provider.registry.js';
 import { FinancialTransactionService } from '../../finance/application/financial-transaction.service.js';
 import { IdempotencyService } from '../../finance/application/idempotency.service.js';
@@ -11,6 +12,7 @@ import { LedgerService } from '../../finance/application/ledger.service.js';
 import { createFinancialReference } from '../../finance/application/reference.js';
 import { WalletService } from '../../finance/application/wallet.service.js';
 import { BillProviderRouterService } from './provider-router.service.js';
+import { billPricingDigest, issueBillQuote, verifyBillQuote } from './bill-quote.js';
 
 function normalizeIdentifier(value: string): string {
   const normalized = value.trim();
@@ -48,6 +50,7 @@ function operationStatus(status: NormalizedProviderStatus): 'PENDING' | 'PROCESS
 export class BillService {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly authorization: FinancialAuthorizationService,
     private readonly providers: BillProviderRegistry,
     private readonly router: BillProviderRouterService,
     private readonly idempotency: IdempotencyService,
@@ -128,17 +131,65 @@ export class BillService {
     return { id: row.id, valid: row.valid, customerName: row.customerName, providerCode: offer.providerCode, expiresAt };
   }
 
+  /** Quote only the currently active, validated provider offer and approved pricing. */
+  async quotePurchase(input: { userId: string; productCode: string; customerIdentifier: string;
+    amountMinor: bigint; validationId: string }) {
+    const product = await this.prisma.billProduct.findUnique({ where: { code: input.productCode } });
+    if (!product || product.status !== 'ACTIVE' || product.currency !== 'NGN') throw new NotFoundException({ code: 'BILL_PRODUCT_NOT_FOUND' });
+    assertBillAmount({ amountMinor: input.amountMinor,
+      ...(product.fixedAmountMinor !== null ? { fixedAmountMinor: product.fixedAmountMinor } : {}),
+      ...(product.minAmountMinor !== null ? { minAmountMinor: product.minAmountMinor } : {}),
+      ...(product.maxAmountMinor !== null ? { maxAmountMinor: product.maxAmountMinor } : {}),
+    });
+    const route = await this.router.resolve(product.id);
+    const identifierFingerprint = fingerprintSensitiveValue(normalizeIdentifier(input.customerIdentifier), process.env['PII_FINGERPRINT_KEY']!);
+    const validation = await this.prisma.billCustomerValidation.findFirst({
+      where: { id: input.validationId, userId: input.userId, providerOfferId: route.offerId,
+        customerIdentifierFingerprint: identifierFingerprint, valid: true, expiresAt: { gt: new Date() } },
+    });
+    if (!validation) throw new ConflictException({ code: 'BILL_VALIDATION_EXPIRED_RESTART' });
+    const { token, terms } = issueBillQuote({
+      userId: input.userId, productCode: product.code, productId: product.id, offerId: route.offerId,
+      identifierFingerprint, validationId: input.validationId, pricingDigest: billPricingDigest(product), amountMinor: input.amountMinor,
+    });
+    return { quoteToken: token, quoteId: terms.id, expiresAt: new Date(terms.expiresAt).toISOString(),
+      amountMinor: terms.amountMinor, feeMinor: terms.feeMinor, totalDebitMinor: terms.totalDebitMinor,
+      currency: 'NGN' as const, productCode: product.code, provider: validation.providerCode };
+  }
+
+  async totalDebitForQuote(input: { userId: string; token: string; productCode: string;
+    customerIdentifier: string; validationId: string; amountMinor: bigint }): Promise<bigint> {
+    const product = await this.prisma.billProduct.findUnique({ where: { code: input.productCode } });
+    if (!product || product.status !== 'ACTIVE' || product.currency !== 'NGN') throw new NotFoundException({ code: 'BILL_PRODUCT_NOT_FOUND' });
+    const route = await this.router.resolve(product.id);
+    const terms = verifyBillQuote({ token: input.token, userId: input.userId, productCode: input.productCode,
+      productId: product.id, offerId: route.offerId, identifierFingerprint: fingerprintSensitiveValue(normalizeIdentifier(input.customerIdentifier), process.env['PII_FINGERPRINT_KEY']!),
+      validationId: input.validationId, pricingDigest: billPricingDigest(product), amountMinor: input.amountMinor });
+    return BigInt(terms.totalDebitMinor);
+  }
+
   async purchase(input: {
+    authorization: FinancialAuthorization;
     userId: string;
     idempotencyKey: string;
     productCode: string;
     customerIdentifier: string;
     amountMinor: bigint;
-    validationId?: string;
+    validationId: string;
+    quoteToken: string;
     contactPhoneE164?: string;
   }): Promise<{ statusCode: number; body: JsonObject }> {
     const normalizedIdentifier = normalizeIdentifier(input.customerIdentifier);
-    const idem = await this.idempotency.begin({ scope: 'bill:purchase', key: input.idempotencyKey, userId: input.userId, request: input });
+    // Verify before any idempotency creation or provider side effect.
+    const productForQuote = await this.prisma.billProduct.findUnique({ where: { code: input.productCode } });
+    if (!productForQuote || productForQuote.status !== 'ACTIVE' || productForQuote.currency !== 'NGN') throw new NotFoundException({ code: 'BILL_PRODUCT_NOT_FOUND' });
+    const initialRoute = await this.router.resolve(productForQuote.id);
+    const identifierFingerprintForQuote = fingerprintSensitiveValue(normalizedIdentifier, process.env['PII_FINGERPRINT_KEY']!);
+    const quote = verifyBillQuote({ token: input.quoteToken, userId: input.userId, productCode: input.productCode,
+      productId: productForQuote.id, offerId: initialRoute.offerId, identifierFingerprint: identifierFingerprintForQuote,
+      validationId: input.validationId, pricingDigest: billPricingDigest(productForQuote), amountMinor: input.amountMinor });
+    if (input.authorization.amountMinor !== BigInt(quote.totalDebitMinor)) throw new ConflictException({ code: 'BILL_AUTHORIZED_TOTAL_CHANGED' });
+    const idem = await this.idempotency.begin({ scope: 'bill:purchase', key: input.idempotencyKey, userId: input.userId, request: { userId: input.userId, productCode: input.productCode, customerIdentifier: input.customerIdentifier, amountMinor: input.amountMinor, validationId: input.validationId, quoteId: quote.id, contactPhoneE164: input.contactPhoneE164 } });
     if (idem.replay) return { statusCode: idem.replay.status, body: idem.replay.body };
     const idemId = idem.recordId!;
     let submittedContext: { purchaseId: string; financialId: string; operationId: string; reference: string } | undefined;
@@ -155,8 +206,16 @@ export class BillService {
       });
 
       const route = await this.router.resolve(product.id);
+      if (route.offerId !== quote.offerId || product.id !== quote.productId
+          || billPricingDigest(product) !== quote.pricingDigest) throw new ConflictException({ code: 'BILL_PRICING_OR_ROUTE_CHANGED' });
       const offer = await this.prisma.billProviderOffer.findUniqueOrThrow({ where: { id: route.offerId } });
       const identifierFingerprint = fingerprintSensitiveValue(normalizedIdentifier, process.env['PII_FINGERPRINT_KEY']!);
+      // The quote always binds the owner, provider offer and recently verified recipient.
+      const approvedValidation = await this.prisma.billCustomerValidation.findFirst({
+        where: { id: input.validationId, userId: input.userId, providerOfferId: offer.id,
+          customerIdentifierFingerprint: identifierFingerprint, valid: true, expiresAt: { gt: new Date() } },
+      });
+      if (!approvedValidation) throw new ConflictException({ code: 'BILL_VALIDATION_EXPIRED_RESTART' });
       let validationReference: string | undefined;
       if (offer.requiresValidation) {
         let validation = input.validationId
@@ -186,6 +245,18 @@ export class BillService {
         throw new Error('BILL_PROVIDER_REQUEST_REFERENCE_INVALID');
       }
       const created = await this.prisma.$transaction(async (tx) => {
+        const currentProduct = await tx.billProduct.findUniqueOrThrow({ where: { id: product.id } });
+        const currentOffer = await tx.billProviderOffer.findUniqueOrThrow({ where: { id: offer.id } });
+        if (!currentOffer.active || currentProduct.status !== 'ACTIVE' || currentProduct.currency !== 'NGN') throw new ConflictException({ code: 'BILL_PRICING_OR_ROUTE_CHANGED' });
+        const fresh = verifyBillQuote({ token: input.quoteToken, userId: input.userId, productCode: input.productCode,
+          productId: currentProduct.id, offerId: currentOffer.id, identifierFingerprint,
+          validationId: input.validationId, pricingDigest: billPricingDigest(currentProduct), amountMinor: input.amountMinor });
+        if (fresh.id !== quote.id) throw new ConflictException({ code: 'BILL_QUOTE_CHANGED' });
+        const validNow = await tx.billCustomerValidation.findFirst({ where: { id: input.validationId,
+          userId: input.userId, providerOfferId: offer.id, customerIdentifierFingerprint: identifierFingerprint,
+          valid: true, expiresAt: { gt: new Date() } } });
+        if (!validNow) throw new ConflictException({ code: 'BILL_VALIDATION_EXPIRED_RESTART' });
+        await this.authorization.assertCurrentWithTx(tx, input.authorization, BigInt(fresh.totalDebitMinor), { userId: input.userId, intent: 'BILL_PAYMENT' });
         const wallet = await this.wallets.ensureUserWalletWithTx(tx, input.userId, 'NGN');
         const financial = await this.financial.createWithTx(tx, {
           reference,
@@ -211,6 +282,7 @@ export class BillService {
             amountMinor: input.amountMinor,
             currency: 'NGN',
             providerRequestReference,
+            approvalQuoteId: quote.id,
           },
         });
         assertBillPurchaseTransition('CREATED', 'VALIDATED');
@@ -536,6 +608,31 @@ export class BillService {
       await tx.$queryRaw`SELECT "id" FROM "financial_transactions" WHERE "id" = ${input.financialTransactionId}::uuid FOR UPDATE`;
       const financial = await tx.financialTransaction.findUniqueOrThrow({ where: { id: input.financialTransactionId } });
       const purchase = await tx.billPurchase.findUniqueOrThrow({ where: { id: input.purchaseId } });
+      const operation = await tx.providerOperation.findUniqueOrThrow({ where: { id: input.providerOperationId } });
+      const assignedOffer = await tx.billProviderOffer.findUniqueOrThrow({ where: { id: purchase.providerOfferId } });
+      // A late, wrongly routed or corrupted provider outcome cannot settle a
+      // different purchase or provider offer even if the amount happens to match.
+      if (operation.financialTransactionId !== financial.id || purchase.financialTransactionId !== financial.id
+        || operation.userId !== purchase.userId || operation.providerCode !== input.providerCode
+        || assignedOffer.providerCode !== input.providerCode || operation.type !== 'BILL_PURCHASE'
+        || operation.merchantReference !== financial.reference) {
+        await this.ensureReconciliationCaseWithTx(tx, {
+          type: 'PROVIDER_STATUS_MISMATCH', status: 'NEEDS_REVIEW',
+          financialTransactionId: financial.id, providerOperationId: input.providerOperationId,
+          summary: 'Bill provider operation, account or selected offer does not match the original instruction',
+          evidence: { recordedProvider: operation.providerCode, assignedProvider: assignedOffer.providerCode,
+            resultProvider: input.providerCode },
+        });
+        // Terminal ledgers must not be altered by a contradictory late response.
+        if (!['SUCCEEDED','FAILED','REVERSED','CANCELLED'].includes(financial.status)) {
+          await tx.providerOperation.update({ where: { id: operation.id }, data: { status: 'UNKNOWN' } });
+          if (!['SUCCEEDED','FAILED','REVERSED','CANCELLED','UNKNOWN'].includes(purchase.status)) {
+            await this.transitionPurchaseWithTx(tx, purchase.id, 'UNKNOWN');
+          }
+          if (financial.status !== 'UNKNOWN') await this.financial.applyProviderOutcomeWithTx(tx, financial.id, 'UNKNOWN', 'BILL_PROVIDER_CORRELATION_MISMATCH');
+        }
+        return 'UNKNOWN';
+      }
 
       const requestReferenceMismatch = Boolean(
         input.result.providerRequestReference

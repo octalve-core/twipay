@@ -6,6 +6,6 @@ export default defineConfig({
     path: 'prisma/migrations',
   },
   datasource: {
-    url: process.env.DATABASE_URL || 'postgresql://twipay:development_password@127.0.0.1:5435/twipay',
+    url: process.env.DATABASE_URL ?? '',
   },
 });

@@ -1,7 +1,17 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
 import type { Prisma } from '@prisma/client';
 import { PrismaService } from '../../../platform/database/prisma.service.js';
 import { AuditService } from './audit.service.js';
+import { assertTransactionalAuthorization } from './transaction-authorization.js';
+
+/** Changing routing or resetting circuit breakers is operationally sensitive even in a sandbox.
+ * Fail closed in production, and until operators opt in to an explicitly isolated sandbox.
+ */
+function requireQualifiedProviderOps() {
+  if (process.env['NODE_ENV'] === 'production' || process.env['PROVIDER_OPERATIONS_SANDBOX_ENABLED'] !== 'true') {
+    throw new ServiceUnavailableException({ code: 'PROVIDER_OPERATIONS_NOT_QUALIFIED' });
+  }
+}
 
 type ProductSemantics = { category: string; currency: string; customerIdentifierType: string; fixedAmountMinor: bigint|null; minAmountMinor: bigint|null; maxAmountMinor: bigint|null };
 function mappingCompatible(source: ProductSemantics, target: ProductSemantics): boolean {
@@ -36,8 +46,14 @@ export class ProviderOperationsService {
     };
   }
 
-  async updateOffer(input: { offerId: string; actorUserId: string; active?: boolean; priority?: number; estimatedCostMinor?: bigint|null; reason: string; requestId?: string }) {
+  async updateOffer(input: { offerId: string; actorUserId: string; sessionId: string; active?: boolean; priority?: number; estimatedCostMinor?: bigint|null; reason: string; requestId?: string }) {
+    requireQualifiedProviderOps();
     return this.prisma.$transaction(async (tx) => {
+      await assertTransactionalAuthorization(tx, { userId: input.actorUserId, sessionId: input.sessionId, permission: 'ops.providers.manage', recentMfa: true });
+      const locked = await tx.$queryRaw<Array<{ id: string }>>`
+        SELECT "id" FROM "bill_provider_offers" WHERE "id"=${input.offerId}::uuid FOR UPDATE
+      `;
+      if (locked.length !== 1) throw new NotFoundException({ code: 'PROVIDER_CONTROL_TARGET_NOT_FOUND' });
       const before = await tx.billProviderOffer.findUnique({ where: { id: input.offerId } });
       if (!before) throw new NotFoundException({ code: 'PROVIDER_OFFER_NOT_FOUND' });
       const updated = await tx.billProviderOffer.update({ where: { id: before.id }, data: {
@@ -47,22 +63,40 @@ export class ProviderOperationsService {
       } });
       await this.audit.recordWithTx(tx, { actorUserId: input.actorUserId, action: 'PROVIDER_OFFER_CONTROL_UPDATED', targetType: 'bill_provider_offer', targetId: before.id, reason: input.reason, requestId: input.requestId, beforeState: { active: before.active, priority: before.priority, estimatedCostMinor: before.estimatedCostMinor?.toString() ?? null }, afterState: { active: updated.active, priority: updated.priority, estimatedCostMinor: updated.estimatedCostMinor?.toString() ?? null } });
       return offerView(updated);
-    });
+    }, { isolationLevel: 'Serializable' });
   }
 
-  async resetCircuit(input: { healthId: string; actorUserId: string; reason: string; requestId?: string }) {
+  async resetCircuit(input: { healthId: string; actorUserId: string; sessionId: string; reason: string; requestId?: string }) {
+    requireQualifiedProviderOps();
     return this.prisma.$transaction(async (tx) => {
+      await assertTransactionalAuthorization(tx, { userId: input.actorUserId, sessionId: input.sessionId, permission: 'ops.providers.manage', recentMfa: true });
+      const locked = await tx.$queryRaw<Array<{ id: string }>>`
+        SELECT "id" FROM "provider_capability_health" WHERE "id"=${input.healthId}::uuid FOR UPDATE
+      `;
+      if (locked.length !== 1) throw new NotFoundException({ code: 'PROVIDER_CONTROL_TARGET_NOT_FOUND' });
       const before = await tx.providerCapabilityHealth.findUnique({ where: { id: input.healthId } });
       if (!before) throw new NotFoundException({ code: 'PROVIDER_HEALTH_NOT_FOUND' });
       const updated = await tx.providerCapabilityHealth.update({ where: { id: before.id }, data: { circuitState: 'CLOSED', consecutiveFailures: 0, openedAt: null, cooldownUntil: null } });
       await this.audit.recordWithTx(tx, { actorUserId: input.actorUserId, action: 'PROVIDER_CIRCUIT_RESET', targetType: 'provider_capability_health', targetId: before.id, reason: input.reason, requestId: input.requestId, beforeState: { state: before.circuitState, consecutiveFailures: before.consecutiveFailures }, afterState: { state: updated.circuitState, consecutiveFailures: updated.consecutiveFailures } });
       return healthView(updated);
-    });
+    }, { isolationLevel: 'Serializable' });
   }
 
-  async verifyEquivalence(input: { offerId: string; canonicalProductId: string; actorUserId: string; evidence: Prisma.InputJsonValue; reason: string; requestId?: string }) {
+  async verifyEquivalence(input: { offerId: string; canonicalProductId: string; actorUserId: string; sessionId: string; evidence: Prisma.InputJsonValue; reason: string; requestId?: string }) {
+    requireQualifiedProviderOps();
     return this.prisma.$transaction(async (tx) => {
+      await assertTransactionalAuthorization(tx, { userId: input.actorUserId, sessionId: input.sessionId, permission: 'ops.catalog.map', recentMfa: true });
+      const locked = await tx.$queryRaw<Array<{ id: string }>>`
+        SELECT "id" FROM "bill_provider_offers" WHERE "id"=${input.offerId}::uuid FOR UPDATE
+      `;
+      if (locked.length !== 1) throw new NotFoundException({ code: 'PROVIDER_CONTROL_TARGET_NOT_FOUND' });
       const offer = await tx.billProviderOffer.findUnique({ where: { id: input.offerId }, include: { product: true } });
+      // Serialize concurrent attempts to map different provider offers onto the same
+      // canonical product before evaluating the provider-equivalence evidence.
+      const targetLock = await tx.$queryRaw<Array<{ id: string }>>`
+        SELECT "id" FROM "bill_products" WHERE "id"=${input.canonicalProductId}::uuid FOR UPDATE
+      `;
+      if (targetLock.length !== 1) throw new NotFoundException({ code: 'CANONICAL_PRODUCT_NOT_FOUND' });
       const target = await tx.billProduct.findUnique({ where: { id: input.canonicalProductId }, include: { offers: true } });
       if (!offer || !target) throw new NotFoundException({ code: 'BILL_OFFER_OR_PRODUCT_NOT_FOUND' });
       if (offer.productId === target.id) throw new ConflictException({ code: 'OFFER_ALREADY_ON_CANONICAL_PRODUCT' });
@@ -72,6 +106,6 @@ export class ProviderOperationsService {
       const updated = await tx.billProviderOffer.update({ where: { id: offer.id }, data: { productId: target.id } });
       await this.audit.recordWithTx(tx, { actorUserId: input.actorUserId, action: 'BILL_OFFER_EQUIVALENCE_VERIFIED', targetType: 'bill_provider_offer', targetId: offer.id, reason: input.reason, requestId: input.requestId, beforeState: { productId: offer.productId, productCode: offer.product.code }, afterState: { productId: target.id, productCode: target.code, verificationId: verification.id } });
       return offerView(updated);
-    });
+    }, { isolationLevel: 'Serializable' });
   }
 }

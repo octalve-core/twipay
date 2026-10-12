@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Headers, Param, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Body, Controller, Get, Headers, Param, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import type { FastifyReply } from 'fastify';
 import { z } from 'zod';
@@ -8,16 +8,25 @@ import { SessionAuthGuard, requirePrincipal, type AuthenticatedFastifyRequest } 
 import { PermissionGuard, RequirePermissions } from '../../auth/presentation/permission.guard.js';
 import { BillCatalogService } from '../application/catalog.service.js';
 import { BillService } from '../application/bill.service.js';
+import { FinancialAuthorizationService } from '../../finance/application/financial-authorization.service.js';
 import { ProductConfigService } from '../../product/application/product-config.service.js';
 
 const CategorySchema = z.enum(['AIRTIME', 'DATA', 'ELECTRICITY', 'CABLE']);
 const ValidateSchema = z.object({ productCode: z.string().trim().min(3).max(120), customerIdentifier: z.string().trim().min(3).max(64) }).strict();
+const QuoteSchema = z.object({
+  productCode: z.string().trim().min(3).max(120),
+  customerIdentifier: z.string().trim().min(3).max(64),
+  amountMinor: z.string().regex(/^[1-9]\d{0,17}$/).refine(value => BigInt(value) <= BigInt(Number.MAX_SAFE_INTEGER)),
+  validationId: z.uuid(),
+}).strict();
 const PurchaseSchema = z.object({
   productCode: z.string().trim().min(3).max(120),
   customerIdentifier: z.string().trim().min(3).max(64),
-  amountMinor: z.string().regex(/^[1-9]\d{0,17}$/),
-  validationId: z.uuid().optional(),
+  amountMinor: z.string().regex(/^[1-9]\d{0,17}$/).refine((value) => BigInt(value) <= BigInt(Number.MAX_SAFE_INTEGER), 'amount exceeds provider-safe integer range'),
+  validationId: z.uuid(),
+  quoteToken: z.string().min(100).max(3000),
   contactPhoneE164: z.string().regex(/^\+[1-9]\d{7,14}$/).optional(),
+  transactionPin: z.string().regex(/^\d{4}$/),
 }).strict();
 
 function requireIdempotencyKey(value: string | undefined): string {
@@ -29,7 +38,7 @@ function requireIdempotencyKey(value: string | undefined): string {
 @UseGuards(SessionAuthGuard)
 @Controller('services')
 export class ServicesController {
-  constructor(private readonly catalog: BillCatalogService, private readonly bills: BillService, private readonly product: ProductConfigService) {}
+  constructor(private readonly catalog: BillCatalogService, private readonly bills: BillService, private readonly product: ProductConfigService, private readonly financialAuthorization: FinancialAuthorizationService) {}
 
   @Get('products')
   async products(@Query('category') categoryValue?: string) {
@@ -51,12 +60,44 @@ export class ServicesController {
     };
   }
 
+  private assertSandboxPurchasesEnabled(): void {
+    if (process.env['NODE_ENV'] === 'production' || process.env['BILL_PURCHASES_SANDBOX_ENABLED'] !== 'true') {
+      throw new ForbiddenException({ code: 'BILL_PURCHASES_NOT_QUALIFIED' });
+    }
+    // A developer enabling the sandbox flag cannot accidentally vend through live
+    // provider endpoints by supplying a production base URL.
+    for (const [variable, hostname] of [
+      ['VTPASS_BASE_URL', 'sandbox.vtpass.com'],
+      ['MONNIFY_BASE_URL', 'sandbox.monnify.com'],
+    ] as const) {
+      const configured = process.env[variable] ?? `https://${hostname}`;
+      let parsed: URL;
+      try { parsed = new URL(configured); }
+      catch { throw new ForbiddenException({ code: 'BILL_PROVIDER_SANDBOX_REQUIRED' }); }
+      if (parsed.protocol !== 'https:' || parsed.hostname !== hostname || parsed.port
+          || parsed.username || parsed.password || parsed.pathname !== '/' || parsed.search || parsed.hash) {
+        throw new ForbiddenException({ code: 'BILL_PROVIDER_SANDBOX_REQUIRED' });
+      }
+    }
+  }
+
   @Post('validations')
   async validate(@Body(new ZodValidationPipe(ValidateSchema)) body: z.infer<typeof ValidateSchema>, @Req() req: AuthenticatedFastifyRequest) {
     await this.product.assertFeatureEnabled('services.utilities', true);
+    this.assertSandboxPurchasesEnabled();
     const principal = requirePrincipal(req);
     const result = await this.bills.validateCustomer({ userId: principal.userId, productCode: body.productCode, customerIdentifier: body.customerIdentifier });
     return { validation: result };
+  }
+
+  @Post('quotes')
+  async quote(@Body(new ZodValidationPipe(QuoteSchema)) body: z.infer<typeof QuoteSchema>, @Req() req: AuthenticatedFastifyRequest) {
+    await this.product.assertFeatureEnabled('services.utilities', true);
+    this.assertSandboxPurchasesEnabled();
+    const principal = requirePrincipal(req);
+    return { quote: await this.bills.quotePurchase({ userId: principal.userId,
+      productCode: body.productCode, customerIdentifier: body.customerIdentifier,
+      amountMinor: BigInt(body.amountMinor), validationId: body.validationId }) };
   }
 
   @Post('purchases')
@@ -67,14 +108,20 @@ export class ServicesController {
     @Res({ passthrough: true }) res: FastifyReply,
   ) {
     await this.product.assertFeatureEnabled('services.utilities', true);
+    this.assertSandboxPurchasesEnabled();
     const principal = requirePrincipal(req);
+    const totalDebit = await this.bills.totalDebitForQuote({ userId: principal.userId, token: body.quoteToken,
+      productCode: body.productCode, customerIdentifier: body.customerIdentifier, validationId: body.validationId, amountMinor: BigInt(body.amountMinor) });
+    const authorization = await this.financialAuthorization.authorize({ principal, transactionPin: body.transactionPin, amountMinor: totalDebit, intent: 'BILL_PAYMENT' });
     const result = await this.bills.purchase({
+      authorization,
       userId: principal.userId,
       idempotencyKey: requireIdempotencyKey(idempotencyKey),
       productCode: body.productCode,
       customerIdentifier: body.customerIdentifier,
+      quoteToken: body.quoteToken,
+      validationId: body.validationId,
       amountMinor: BigInt(body.amountMinor),
-      ...(body.validationId ? { validationId: body.validationId } : {}),
       ...(body.contactPhoneE164 ? { contactPhoneE164: body.contactPhoneE164 } : {}),
     });
     res.status(result.statusCode);

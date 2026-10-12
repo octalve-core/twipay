@@ -22,8 +22,10 @@ jobs:
         with:
           node-version: 24.21.0
       - run: corepack enable
+      - run: node scripts/qualification/phase1-4-6-gates.mjs
       - name: Require genuine lockfile
         run: test -f pnpm-lock.yaml || (echo 'Security qualification requires the committed genuine pnpm lockfile' && exit 1)
+      - run: node scripts/qualification/phase1-3-preflight.mjs --check-lock
       - run: pnpm install --frozen-lockfile
       - run: node scripts/repository-security-check.mjs
       - run: node scripts/git-history-secret-check.mjs

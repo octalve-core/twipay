@@ -5,23 +5,24 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/main.ts",
+    "start": "node dist/main.js",
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint src --max-warnings=0",
-    "test": "node --env-file=../../.env ./node_modules/vitest/vitest.mjs run",
+    "test": "node --env-file-if-exists=../../.env ./node_modules/vitest/vitest.mjs run",
     "test:integration": "vitest run test/redis-worker.integration.test.ts"
   },
   "dependencies": {
-    "@nestjs/common": "12.1.2",
-    "@nestjs/core": "12.1.2",
-    "@twipay/api": "workspace:*",
-    "@types/ioredis": "^5.0.0",
     "bullmq": "6.3.10",
-    "ioredis": "^6.0.0",
-    "pino": "10.4.0",
     "redis": "6.3.0",
+    "pino": "10.4.0",
+    "@twipay/api": "workspace:*",
+    "@nestjs/core": "12.1.2",
+    "@nestjs/common": "12.1.2",
     "reflect-metadata": "0.2.2",
-    "rxjs": "7.8.2"
+    "rxjs": "7.8.2",
+    "ioredis": "^6.0.0",
+    "@types/ioredis": "^5.0.0"
   },
   "devDependencies": {
     "tsx": "4.23.15",

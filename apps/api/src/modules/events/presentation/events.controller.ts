@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, Get, Headers, Param, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Headers, NotFoundException, Param, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import type { FastifyReply } from 'fastify';
 import { z } from 'zod';
@@ -6,6 +6,7 @@ import { ZodValidationPipe } from '../../../platform/http/zod-validation.pipe.js
 import { SessionAuthGuard, requirePrincipal, type AuthenticatedFastifyRequest } from '../../auth/presentation/session-auth.guard.js';
 import { EventService } from '../application/event.service.js';
 import { ProductConfigService } from '../../product/application/product-config.service.js';
+import { FinancialAuthorizationService } from '../../finance/application/financial-authorization.service.js';
 
 const Slug = z.string().trim().min(3).max(160).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
 const DateTime = z.string().refine((value) => Number.isFinite(Date.parse(value)), 'invalid datetime');
@@ -19,12 +20,18 @@ const TicketTypeSchema = z.object({
   name: z.string().trim().min(2).max(160), priceMinor: z.string().regex(/^[1-9]\d{0,17}$/), capacity: z.number().int().min(1).max(1_000_000),
   salesStartsAt: DateTime.optional(), salesEndsAt: DateTime.optional(),
 }).strict();
+const QuoteSchema = z.object({
+  eventId: z.uuid(),
+  items: z.array(z.object({ ticketTypeId: z.uuid(), quantity: z.number().int().min(1).max(20) }).strict()).min(1).max(10),
+}).strict();
 const CheckoutSchema = z.object({
   eventId: z.uuid(),
   items: z.array(z.object({ ticketTypeId: z.uuid(), quantity: z.number().int().min(1).max(20) }).strict()).min(1).max(10),
   issuedToName: z.string().trim().min(2).max(180).optional(),
+  expectedTotalMinor: z.string().regex(/^[1-9]\d{0,18}$/),
+  transactionPin: z.string().regex(/^\d{4}$/),
 }).strict();
-const CheckInSchema = z.object({ qrPayload: z.string().min(60).max(300), requestId: z.string().trim().min(8).max(64).optional() }).strict();
+const CheckInSchema = z.object({ eventId: z.uuid(), qrPayload: z.string().regex(/^twipay-ticket:v1:[A-Za-z0-9_-]{8,100}:[A-Za-z0-9_-]{40,80}$/), requestId: z.string().trim().min(8).max(64).optional() }).strict();
 const StaffSchema = z.object({ email: z.email().max(320) }).strict();
 
 function requireIdempotencyKey(value: string | undefined): string {
@@ -32,6 +39,12 @@ function requireIdempotencyKey(value: string | undefined): string {
   return value;
 }
 function iso(value?: string): Date | undefined { return value ? new Date(value) : undefined; }
+/** Admission is independent of marketplace/public UI toggles and can never run in production until qualified. */
+function assertTicketAdmissionSandbox(): void {
+  if (process.env['NODE_ENV'] === 'production' || process.env['EVENT_TICKET_QR_SANDBOX_ENABLED'] !== 'true') {
+    throw new NotFoundException({ code: 'EVENT_TICKET_QR_NOT_QUALIFIED' });
+  }
+}
 function serializeEvent(event: {
   id: string; slug: string; title: string; description: string | null; status: string; venueName: string | null; venueAddress: string | null;
   startsAt: Date; endsAt: Date | null; salesStartsAt: Date | null; salesEndsAt: Date | null;
@@ -48,7 +61,7 @@ function serializeEvent(event: {
 @ApiTags('events')
 @Controller('events')
 export class EventsController {
-  constructor(private readonly events: EventService, private readonly product: ProductConfigService) {}
+  constructor(private readonly events: EventService, private readonly product: ProductConfigService, private readonly financialAuthorization: FinancialAuthorizationService) {}
 
   @Get()
   async list() {
@@ -107,6 +120,14 @@ export class EventsController {
     return { event: await this.events.publish(principal.userId, eventId) };
   }
 
+  /** Server-calculated exact quote. Not a reservation; checkout revalidates pricing and capacity. */
+  @Post('quote')
+  @UseGuards(SessionAuthGuard)
+  async quote(@Body(new ZodValidationPipe(QuoteSchema)) body: z.infer<typeof QuoteSchema>) {
+    await this.product.assertFeatureEnabled('events.marketplace', true);
+    return { quote: await this.events.quoteCheckout(body.eventId, body.items) };
+  }
+
   @Post('checkout')
   @UseGuards(SessionAuthGuard)
   async checkout(
@@ -116,15 +137,30 @@ export class EventsController {
     @Res({ passthrough: true }) res: FastifyReply,
   ) {
     await this.product.assertFeatureEnabled('events.marketplace', true);
+    // A feature flag exposed through the browser must never authorize a financial debit.
+    if (process.env['NODE_ENV'] === 'production' || process.env['EVENT_CHECKOUT_SANDBOX_ENABLED'] !== 'true') {
+      throw new BadRequestException({ code: 'EVENT_CHECKOUT_NOT_QUALIFIED' });
+    }
     const principal = requirePrincipal(req);
+    const authorization = await this.financialAuthorization.authorize({ principal, transactionPin: body.transactionPin, amountMinor: BigInt(body.expectedTotalMinor), intent: 'EVENT_PURCHASE' });
     const result = await this.events.checkout({
+      authorization,
       userId: principal.userId, idempotencyKey: requireIdempotencyKey(idempotencyKey), eventId: body.eventId, items: body.items,
       ...(body.issuedToName ? { issuedToName: body.issuedToName } : {}),
+      expectedTotalMinor: body.expectedTotalMinor,
     });
     res.status(result.statusCode);
     return result.body;
   }
 
+
+  @Get('checkout-intents/:key')
+  @UseGuards(SessionAuthGuard)
+  async checkoutIntent(@Param('key') key: string, @Req() req: AuthenticatedFastifyRequest) {
+    if (!/^twipay-event:[0-9a-f-]{36}$/.test(key)) throw new BadRequestException({ code: 'EVENT_INTENT_KEY_INVALID' });
+    const principal = requirePrincipal(req);
+    return { intent: await this.events.checkoutIntentStatus(principal.userId, key) };
+  }
 
   @Get('orders')
   @UseGuards(SessionAuthGuard)
@@ -155,6 +191,27 @@ export class EventsController {
   }
 
 
+  /** Never cache or log ticket bearer credentials; ticket display stays sandbox-only until QR verification. */
+  @Get('orders/:reference/tickets/:publicCode/credential')
+  @UseGuards(SessionAuthGuard)
+  async ticketCredential(
+    @Param('reference') reference: string,
+    @Param('publicCode') publicCode: string,
+    @Req() req: AuthenticatedFastifyRequest,
+    @Res({ passthrough: true }) res: FastifyReply,
+  ) {
+    assertTicketAdmissionSandbox();
+    if (!/^[A-Za-z0-9._:-]{1,100}$/.test(reference) || !/^TWP-[A-Za-z0-9_-]{8,100}$/.test(publicCode)) {
+      throw new NotFoundException({ code: 'EVENT_TICKET_NOT_FOUND' });
+    }
+    const principal = requirePrincipal(req);
+    const ticket = await this.events.getTicketCredentialForUser(principal.userId, reference, publicCode);
+    res.header('Cache-Control', 'no-store, private, max-age=0');
+    res.header('Pragma', 'no-cache');
+    res.header('Referrer-Policy', 'no-referrer');
+    return { ticket };
+  }
+
   @Post(':eventId/staff')
   @UseGuards(SessionAuthGuard)
   async assignStaff(@Param('eventId') eventId: string, @Body(new ZodValidationPipe(StaffSchema)) body: z.infer<typeof StaffSchema>, @Req() req: AuthenticatedFastifyRequest) {
@@ -176,11 +233,21 @@ export class EventsController {
     return { assignment: await this.events.revokeEventStaff({ ownerUserId: principal.userId, eventId, assignmentId }) };
   }
 
+  /** Only eligible organizer owners and delegated active staff are shown. No ticket secrets in this response. */
+  @Get('tickets/check-in/assignments')
+  @UseGuards(SessionAuthGuard)
+  async checkInAssignments(@Req() req: AuthenticatedFastifyRequest) {
+    assertTicketAdmissionSandbox();
+    const principal = requirePrincipal(req);
+    return { events: await this.events.listCheckInEvents(principal.userId) };
+  }
+
   @Post('tickets/check-in')
   @UseGuards(SessionAuthGuard)
   async checkIn(@Body(new ZodValidationPipe(CheckInSchema)) body: z.infer<typeof CheckInSchema>, @Req() req: AuthenticatedFastifyRequest) {
+    assertTicketAdmissionSandbox();
     const principal = requirePrincipal(req);
-    return { ticket: await this.events.checkIn({ staffUserId: principal.userId, qrPayload: body.qrPayload, ...(body.requestId ? { requestId: body.requestId } : {}) }) };
+    return { ticket: await this.events.checkIn({ staffUserId: principal.userId, eventId: body.eventId, qrPayload: body.qrPayload, ...(body.requestId ? { requestId: body.requestId } : {}) }) };
   }
 
   @Get('organizers/:organizerId/settlement')

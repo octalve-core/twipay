@@ -1,0 +1,124 @@
+{
+  "timestamp": "2026-10-08T21:43:50.854Z",
+  "gitHead": "d7cc57868f33b2fd16917cc4073f61a2ccd7f929",
+  "runtime": {
+    "node": "v22.16.0",
+    "pnpm": null,
+    "databaseTcp": false,
+    "redisTcp": false,
+    "customerTcp": false,
+    "apiTcp": false
+  },
+  "summary": {
+    "pass": 9,
+    "fail": 0,
+    "blocked": 12
+  },
+  "gates": [
+    {
+      "name": "Batch A–F isolated source/unit tests",
+      "status": "PASS",
+      "evidence": "# Subtest: ticket credential integrity is verified and reads are recorded without storing the secret\nok 104 - ticket credential integrity is verified and reads are recorded without storing the secret\n  ---\n  duration_ms: 0.417767\n  type: 'test'\n  ...\n1..104\n# tests 104\n# suites 0\n# pass 104\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 721.286748"
+    },
+    {
+      "name": "scripts/typescript-syntax-check.mjs",
+      "status": "PASS",
+      "evidence": "TypeScript syntax check PASS (445 source files)"
+    },
+    {
+      "name": "scripts/repository-security-check.mjs",
+      "status": "PASS",
+      "evidence": "Repository security check PASS (804 text files inspected)"
+    },
+    {
+      "name": "scripts/architecture-check.mjs",
+      "status": "PASS",
+      "evidence": "Architecture check PASS"
+    },
+    {
+      "name": "scripts/financial-invariant-check.mjs",
+      "status": "PASS",
+      "evidence": "Financial invariant check PASS"
+    },
+    {
+      "name": "scripts/services-events-invariant-check.mjs",
+      "status": "PASS",
+      "evidence": "Services/events invariant check PASS"
+    },
+    {
+      "name": "scripts/product-operations-invariant-check.mjs",
+      "status": "PASS",
+      "evidence": "Product/operations invariant check PASS"
+    },
+    {
+      "name": "scripts/production-hardening-invariant-check.mjs",
+      "status": "PASS",
+      "evidence": "Production hardening invariant check PASS"
+    },
+    {
+      "name": "scripts/git-history-secret-check.mjs",
+      "status": "PASS",
+      "evidence": "Git history secret check PASS (867 tracked paths, full reachable patch history scanned)"
+    },
+    {
+      "name": "Node 24 toolchain",
+      "status": "BLOCKED",
+      "evidence": "Current Node: v22.16.0"
+    },
+    {
+      "name": "pnpm package manager",
+      "status": "BLOCKED",
+      "evidence": "pnpm unavailable"
+    },
+    {
+      "name": "Pinned monorepo lockfile",
+      "status": "BLOCKED",
+      "evidence": "pnpm-lock.yaml missing from provisional backend"
+    },
+    {
+      "name": "PostgreSQL 18 integration",
+      "status": "BLOCKED",
+      "evidence": "Port 5435 unreachable; PostgreSQL version/concurrency NOT verified"
+    },
+    {
+      "name": "Redis 8 / BullMQ integration",
+      "status": "BLOCKED",
+      "evidence": "Port 6382 unreachable"
+    },
+    {
+      "name": "Customer Vite actual build",
+      "status": "BLOCKED",
+      "evidence": "Requires Node 24 / restored dependencies; client port reachable=false"
+    },
+    {
+      "name": "API/Admin/Worker actual builds",
+      "status": "BLOCKED",
+      "evidence": "Run pnpm install --frozen-lockfile and pnpm build with actual developer checkout"
+    },
+    {
+      "name": "Authenticated Playwright + ErhaPay visual baseline",
+      "status": "BLOCKED",
+      "evidence": "Customer port reachable=false, API port reachable=false; no browser suite executed by this script"
+    },
+    {
+      "name": "Real PostgreSQL finance concurrency and maker-checker",
+      "status": "BLOCKED",
+      "evidence": "No ledger/oversell/duplicate provisioning concurrent DB tests executed"
+    },
+    {
+      "name": "Real provider sandbox settlement and reconciliation",
+      "status": "BLOCKED",
+      "evidence": "No financial purchases, transfers, or test provider calls executed"
+    },
+    {
+      "name": "Ticket QR UI and check-in across browsers",
+      "status": "BLOCKED",
+      "evidence": "Credential retrieval isolated; QR renderer, staff scanner, concurrent check-in and browser tests not qualified"
+    },
+    {
+      "name": "Latest developer repository reconciliation",
+      "status": "BLOCKED",
+      "evidence": "Developer HEAD / ADR 016–018 unverified; must compare with latest Git checkout"
+    }
+  ]
+}

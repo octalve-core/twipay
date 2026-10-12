@@ -10,6 +10,7 @@ import { PaymentService } from './application/payment.service.js';
 import { TransferService } from './application/transfer.service.js';
 import { VirtualAccountService } from './application/virtual-account.service.js';
 import { ReconciliationService } from './application/reconciliation.service.js';
+import { FinancialAuthorizationService } from './application/financial-authorization.service.js';
 
 @Module({
   imports: [AuthModule, ProvidersModule],
@@ -23,6 +24,7 @@ import { ReconciliationService } from './application/reconciliation.service.js';
     TransferService,
     VirtualAccountService,
     ReconciliationService,
+    FinancialAuthorizationService,
   ],
   exports: [
     IdempotencyService,
@@ -33,6 +35,7 @@ import { ReconciliationService } from './application/reconciliation.service.js';
     TransferService,
     VirtualAccountService,
     ReconciliationService,
+    FinancialAuthorizationService,
   ],
 })
 export class FinanceModule {}

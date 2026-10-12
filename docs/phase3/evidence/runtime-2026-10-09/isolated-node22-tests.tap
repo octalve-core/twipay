@@ -1,0 +1,1434 @@
+TAP version 13
+# Subtest: deterministic inventory and original visual-asset integrity check
+ok 1 - deterministic inventory and original visual-asset integrity check
+  ---
+  duration_ms: 147.425405
+  type: 'test'
+  ...
+# Subtest: all 123 visual asset paths have frozen source SHA-256 evidence
+ok 2 - all 123 visual asset paths have frozen source SHA-256 evidence
+  ---
+  duration_ms: 0.497529
+  type: 'test'
+  ...
+# Subtest: original layout families remain the design authority
+ok 3 - original layout families remain the design authority
+  ---
+  duration_ms: 0.360753
+  type: 'test'
+  ...
+# Subtest: original typography, palette and page layout are intact
+ok 4 - original typography, palette and page layout are intact
+  ---
+  duration_ms: 0.219811
+  type: 'test'
+  ...
+# Subtest: new optional ErhaPay primitives reuse the actual settings typography and panels
+ok 5 - new optional ErhaPay primitives reuse the actual settings typography and panels
+  ---
+  duration_ms: 0.305951
+  type: 'test'
+  ...
+# Subtest: existing customer routes and financial feature guards remain in place
+ok 6 - existing customer routes and financial feature guards remain in place
+  ---
+  duration_ms: 0.140181
+  type: 'test'
+  ...
+# Subtest: existing interaction controls reused rather than replaced
+ok 7 - existing interaction controls reused rather than replaced
+  ---
+  duration_ms: 0.228875
+  type: 'test'
+  ...
+# Subtest: design audit documents blocked runtime and Phase 3 authentication requirements
+ok 8 - design audit documents blocked runtime and Phase 3 authentication requirements
+  ---
+  duration_ms: 0.307172
+  type: 'test'
+  ...
+# Subtest: CustomButton retains the exact original variant mapping
+ok 9 - CustomButton retains the exact original variant mapping
+  ---
+  duration_ms: 2.126173
+  type: 'test'
+  ...
+# Subtest: link-shaped product buttons cannot navigate when disabled or loading
+ok 10 - link-shaped product buttons cannot navigate when disabled or loading
+  ---
+  duration_ms: 0.279391
+  type: 'test'
+  ...
+# Subtest: loading product button disables native submissions, without changing default form semantics
+ok 11 - loading product button disables native submissions, without changing default form semantics
+  ---
+  duration_ms: 0.14596
+  type: 'test'
+  ...
+# Subtest: icon Back actions are named, non-submit and obey disabled state
+ok 12 - icon Back actions are named, non-submit and obey disabled state
+  ---
+  duration_ms: 0.149555
+  type: 'test'
+  ...
+# Subtest: dashboard mobile navigation is a labelled dialog with distinct open and close names
+ok 13 - dashboard mobile navigation is a labelled dialog with distinct open and close names
+  ---
+  duration_ms: 0.503709
+  type: 'test'
+  ...
+# Subtest: public mobile navigation is labelled and can scroll on short screens
+ok 14 - public mobile navigation is labelled and can scroll on short screens
+  ---
+  duration_ms: 0.19908
+  type: 'test'
+  ...
+# Subtest: anonymous login and signup inputs expose accessible error associations
+ok 15 - anonymous login and signup inputs expose accessible error associations
+  ---
+  duration_ms: 0.448976
+  type: 'test'
+  ...
+# Subtest: preserved sign-up form includes safe browser autocomplete labels
+ok 16 - preserved sign-up form includes safe browser autocomplete labels
+  ---
+  duration_ms: 0.158419
+  type: 'test'
+  ...
+# Subtest: unsupported remember-me function is not misrepresented as active
+ok 17 - unsupported remember-me function is not misrepresented as active
+  ---
+  duration_ms: 0.441636
+  type: 'test'
+  ...
+# Subtest: decorative UI images have empty alt text; navigational icons are described through their link
+ok 18 - decorative UI images have empty alt text; navigational icons are described through their link
+  ---
+  duration_ms: 0.412381
+  type: 'test'
+  ...
+# Subtest: visual baseline screenshot script is nonfinancial, local only and refuses missing reference
+ok 19 - visual baseline screenshot script is nonfinancial, local only and refuses missing reference
+  ---
+  duration_ms: 0.262335
+  type: 'test'
+  ...
+# (node:6145) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: canonical path matching rejects case/percent encoding bypass of excluded/deferred features
+ok 20 - canonical path matching rejects case/percent encoding bypass of excluded/deferred features
+  ---
+  duration_ms: 1.328301
+  type: 'test'
+  ...
+# Subtest: malformed and traversal-like path encodings fail closed
+ok 21 - malformed and traversal-like path encodings fail closed
+  ---
+  duration_ms: 0.205389
+  type: 'test'
+  ...
+# Subtest: real routes are preserved and future/internal-transfer links remain inactive
+ok 22 - real routes are preserved and future/internal-transfer links remain inactive
+  ---
+  duration_ms: 0.413342
+  type: 'test'
+  ...
+# Subtest: fake hardcoded success screen is unmounted but retained as historical source
+ok 23 - fake hardcoded success screen is unmounted but retained as historical source
+  ---
+  duration_ms: 0.379041
+  type: 'test'
+  ...
+# Subtest: standalone financial receipt now has the dashboard session and MFA requirements
+ok 24 - standalone financial receipt now has the dashboard session and MFA requirements
+  ---
+  duration_ms: 0.464019
+  type: 'test'
+  ...
+# Subtest: provider funding return remains informational and does not claim provider success
+ok 25 - provider funding return remains informational and does not claim provider success
+  ---
+  duration_ms: 0.217708
+  type: 'test'
+  ...
+# Subtest: keyboard-operable sidebar separates navigation link from submenu toggle
+ok 26 - keyboard-operable sidebar separates navigation link from submenu toggle
+  ---
+  duration_ms: 1.162632
+  type: 'test'
+  ...
+# Subtest: customer build, SPA entry and deployment identity stay ErhaPay/Vite-based
+ok 27 - customer build, SPA entry and deployment identity stay ErhaPay/Vite-based
+  ---
+  duration_ms: 1.036171
+  type: 'test'
+  ...
+# Subtest: MFA challenge route cannot display without a pending authenticated challenge
+ok 28 - MFA challenge route cannot display without a pending authenticated challenge
+  ---
+  duration_ms: 0.47796
+  type: 'test'
+  ...
+# Subtest: original logo remains unchanged as the temporary public favicon
+ok 29 - original logo remains unchanged as the temporary public favicon
+  ---
+  duration_ms: 2.023969
+  type: 'test'
+  ...
+# Subtest: customer login uses welcoming copy and avoids inactive authentication promises
+ok 30 - customer login uses welcoming copy and avoids inactive authentication promises
+  ---
+  duration_ms: 0.390148
+  type: 'test'
+  ...
+# Subtest: legacy simplified Next.js login no longer explains session internals to customers
+ok 31 - legacy simplified Next.js login no longer explains session internals to customers
+  ---
+  duration_ms: 0.319942
+  type: 'test'
+  ...
+# Subtest: landing-page claims are customer-friendly and evidence-respecting
+ok 32 - landing-page claims are customer-friendly and evidence-respecting
+  ---
+  duration_ms: 0.489497
+  type: 'test'
+  ...
+# Subtest: no unavailable financial service leaks sandbox qualification to customer-facing notices
+ok 33 - no unavailable financial service leaks sandbox qualification to customer-facing notices
+  ---
+  duration_ms: 0.661947
+  type: 'test'
+  ...
+# Subtest: payment confirmations remain status-safe with plain-language messages
+ok 34 - payment confirmations remain status-safe with plain-language messages
+  ---
+  duration_ms: 0.270327
+  type: 'test'
+  ...
+# Subtest: non-functional contact form cannot pretend to deliver a message
+ok 35 - non-functional contact form cannot pretend to deliver a message
+  ---
+  duration_ms: 0.245129
+  type: 'test'
+  ...
+# Subtest: retired in-app transfers have a plain message and no financial action
+ok 36 - retired in-app transfers have a plain message and no financial action
+  ---
+  duration_ms: 0.195845
+  type: 'test'
+  ...
+# Subtest: request security codes remain unchanged but customer error text contains no infrastructure details
+ok 37 - request security codes remain unchanged but customer error text contains no infrastructure details
+  ---
+  duration_ms: 0.477389
+  type: 'test'
+  ...
+# Subtest: six ErhaPay-styled foundations have exactly defined protected routes
+ok 38 - six ErhaPay-styled foundations have exactly defined protected routes
+  ---
+  duration_ms: 0.973186
+  type: 'test'
+  ...
+# Subtest: foundation pages reuse the actual ErhaPay design system without creating their own shell
+ok 39 - foundation pages reuse the actual ErhaPay design system without creating their own shell
+  ---
+  duration_ms: 0.524961
+  type: 'test'
+  ...
+# Subtest: all new pages are reachable through current settings navigation, not the retired UI
+ok 40 - all new pages are reachable through current settings navigation, not the retired UI
+  ---
+  duration_ms: 0.271029
+  type: 'test'
+  ...
+# Subtest: transaction PIN is explicitly pending a server-enforced authorization policy
+ok 41 - transaction PIN is explicitly pending a server-enforced authorization policy
+  ---
+  duration_ms: 0.230407
+  type: 'test'
+  ...
+# Subtest: saved beneficiary page does not fabricate a list or submit bank credentials
+ok 42 - saved beneficiary page does not fabricate a list or submit bank credentials
+  ---
+  duration_ms: 0.25868
+  type: 'test'
+  ...
+# Subtest: notification preferences and support centre do not imply unimplemented messages are sent
+ok 43 - notification preferences and support centre do not imply unimplemented messages are sent
+  ---
+  duration_ms: 0.283177
+  type: 'test'
+  ...
+# Subtest: ticket history calls real authenticated orders and never fetches ticket bearer credentials
+ok 44 - ticket history calls real authenticated orders and never fetches ticket bearer credentials
+  ---
+  duration_ms: 0.230407
+  type: 'test'
+  ...
+# Subtest: organizer overview is read-only and never displays payout/settlement financial state
+ok 45 - organizer overview is read-only and never displays payout/settlement financial state
+  ---
+  duration_ms: 0.174443
+  type: 'test'
+  ...
+# Subtest: organizer adapter only permits exact owned GET endpoint in client allowlist
+ok 46 - organizer adapter only permits exact owned GET endpoint in client allowlist
+  ---
+  duration_ms: 0.580464
+  type: 'test'
+  ...
+# Subtest: organizer adapter projects only display fields, excluding settlement and payout fields
+ok 47 - organizer adapter projects only display fields, excluding settlement and payout fields
+  ---
+  duration_ms: 65.116177
+  type: 'test'
+  ...
+# Subtest: organizer adapter rejects malformed and unbounded provider responses
+ok 48 - organizer adapter rejects malformed and unbounded provider responses
+  ---
+  duration_ms: 9.294543
+  type: 'test'
+  ...
+# Subtest: organizer list adapter makes one owner-scoped read without client-supplied user ID
+ok 49 - organizer list adapter makes one owner-scoped read without client-supplied user ID
+  ---
+  duration_ms: 8.575038
+  type: 'test'
+  ...
+# Subtest: all financial and ticketing activation flags remain default-off and no backend files are changed by this batch
+ok 50 - all financial and ticketing activation flags remain default-off and no backend files are changed by this batch
+  ---
+  duration_ms: 0.234834
+  type: 'test'
+  ...
+# Subtest: Visual reference requires two distinct loopback application servers
+ok 51 - Visual reference requires two distinct loopback application servers
+  ---
+  duration_ms: 1.474792
+  type: 'test'
+  ...
+# Subtest: Visual capture blocks absent approved endpoints before importing Playwright
+ok 52 - Visual capture blocks absent approved endpoints before importing Playwright
+  ---
+  duration_ms: 33.826131
+  type: 'test'
+  ...
+# Subtest: Visual captures may not leave their local origin or load service workers
+ok 53 - Visual captures may not leave their local origin or load service workers
+  ---
+  duration_ms: 0.297107
+  type: 'test'
+  ...
+# Subtest: Eight desktop/tablet/mobile landscape and portrait sizes are covered
+ok 54 - Eight desktop/tablet/mobile landscape and portrait sizes are covered
+  ---
+  duration_ms: 0.525532
+  type: 'test'
+  ...
+# Subtest: Captured evidence cannot be mistaken for blank-page success or accepted parity
+ok 55 - Captured evidence cannot be mistaken for blank-page success or accepted parity
+  ---
+  duration_ms: 0.22543
+  type: 'test'
+  ...
+# Subtest: Real browser auth smoke asserts exact copy, accessible controls, focus, no overflow
+ok 56 - Real browser auth smoke asserts exact copy, accessible controls, focus, no overflow
+  ---
+  duration_ms: 0.116886
+  type: 'test'
+  ...
+# Subtest: Decorative authentication dashboard mockups have non-announcing alternatives
+ok 57 - Decorative authentication dashboard mockups have non-announcing alternatives
+  ---
+  duration_ms: 0.278379
+  type: 'test'
+  ...
+# Subtest: The original ErhaPay asset inventory and source-test hooks remain protected
+ok 58 - The original ErhaPay asset inventory and source-test hooks remain protected
+  ---
+  duration_ms: 0.155494
+  type: 'test'
+  ...
+# Subtest: new combined source gates pass, but release qualification remains blocked
+ok 59 - new combined source gates pass, but release qualification remains blocked
+  ---
+  duration_ms: 64.040195
+  type: 'test'
+  ...
+# Subtest: the real customer UI—not simplified Next—receives Vite E2E and API integration
+ok 60 - the real customer UI—not simplified Next—receives Vite E2E and API integration
+  ---
+  duration_ms: 0.351739
+  type: 'test'
+  ...
+# Subtest: old Next-only E2E specifications remain recoverable and are not silently counted
+ok 61 - old Next-only E2E specifications remain recoverable and are not silently counted
+  ---
+  duration_ms: 0.301624
+  type: 'test'
+  ...
+# Subtest: financial and ticketing flags are explicitly off in browser CI and local smoke
+ok 62 - financial and ticketing flags are explicitly off in browser CI and local smoke
+  ---
+  duration_ms: 0.246201
+  type: 'test'
+  ...
+# Subtest: visual asset baseline records every current image from customer source/public
+ok 63 - visual asset baseline records every current image from customer source/public
+  ---
+  duration_ms: 17.252582
+  type: 'test'
+  ...
+# Subtest: stack readiness rejects a wrong 200 app shell before any Playwright tests
+ok 64 - stack readiness rejects a wrong 200 app shell before any Playwright tests
+  ---
+  duration_ms: 0.243397
+  type: 'test'
+  ...
+# Subtest: staging DAST refuses arbitrary hosts, production-like prefixes, credentials and local IPs
+ok 65 - staging DAST refuses arbitrary hosts, production-like prefixes, credentials and local IPs
+  ---
+  duration_ms: 12.262595
+  type: 'test'
+  ...
+# Subtest: unused qualification ports pass and occupied ports fail without killing their owners
+ok 66 - unused qualification ports pass and occupied ports fail without killing their owners
+  ---
+  duration_ms: 4.711788
+  type: 'test'
+  ...
+# Subtest: CI includes independent source checks, real database steps and artifact capture
+ok 67 - CI includes independent source checks, real database steps and artifact capture
+  ---
+  duration_ms: 0.376067
+  type: 'test'
+  ...
+# Subtest: read-only E2E tests require real Vite shell and reject anonymous money movement
+ok 68 - read-only E2E tests require real Vite shell and reject anonymous money movement
+  ---
+  duration_ms: 0.336036
+  type: 'test'
+  ...
+# Subtest: unknown CORS origins remain disallowed and unsafe mutations reach the 403 origin guard
+ok 69 - unknown CORS origins remain disallowed and unsafe mutations reach the 403 origin guard
+  ---
+  duration_ms: 0.184518
+  type: 'test'
+  ...
+# (node:6238) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: CSRF token is stable for parallel mutations of one active session
+ok 70 - CSRF token is stable for parallel mutations of one active session
+  ---
+  duration_ms: 1.712049
+  type: 'test'
+  ...
+# Subtest: CSRF helper rejects missing or weak session secrets
+ok 71 - CSRF helper rejects missing or weak session secrets
+  ---
+  duration_ms: 0.316157
+  type: 'test'
+  ...
+# Subtest: backend issues session-bound CSRF without rotating DB hash per request
+ok 72 - backend issues session-bound CSRF without rotating DB hash per request
+  ---
+  duration_ms: 3.379652
+  type: 'test'
+  ...
+# Subtest: origin, cookie and server-side CSRF hash must all pass for mutations
+ok 73 - origin, cookie and server-side CSRF hash must all pass for mutations
+  ---
+  duration_ms: 0.272661
+  type: 'test'
+  ...
+# Subtest: hosting policy accepts approved secure same-site, separate customer/admin/API hosts
+ok 74 - hosting policy accepts approved secure same-site, separate customer/admin/API hosts
+  ---
+  duration_ms: 4.399798
+  type: 'test'
+  ...
+# Subtest: hosting rejects third-party preview domain with strict cookie model
+ok 75 - hosting rejects third-party preview domain with strict cookie model
+  ---
+  duration_ms: 0.212239
+  type: 'test'
+  ...
+# Subtest: hosting rejects unsecured URLs, credentials, nonstandard ports or path origins
+ok 76 - hosting rejects unsecured URLs, credentials, nonstandard ports or path origins
+  ---
+  duration_ms: 0.283277
+  type: 'test'
+  ...
+# Subtest: hosting refuses production money flags even if frontend toggled only
+ok 77 - hosting refuses production money flags even if frontend toggled only
+  ---
+  duration_ms: 0.817201
+  type: 'test'
+  ...
+# Subtest: hosting rejects bundling credentials in VITE_ variables
+ok 78 - hosting rejects bundling credentials in VITE_ variables
+  ---
+  duration_ms: 0.370208
+  type: 'test'
+  ...
+# Subtest: hosting rejects missing SPA deep links and missing defensive headers
+ok 79 - hosting rejects missing SPA deep links and missing defensive headers
+  ---
+  duration_ms: 0.706565
+  type: 'test'
+  ...
+# Subtest: sensitive ticket, financial and identity API responses remain uncached
+ok 80 - sensitive ticket, financial and identity API responses remain uncached
+  ---
+  duration_ms: 0.406883
+  type: 'test'
+  ...
+# Subtest: Prisma 7 adapter imported with no implicit dev-password database
+ok 81 - Prisma 7 adapter imported with no implicit dev-password database
+  ---
+  duration_ms: 1.279367
+  type: 'test'
+  ...
+# Subtest: Prisma CLI datasource configured outside schema and without a hardcoded fallback
+ok 82 - Prisma CLI datasource configured outside schema and without a hardcoded fallback
+  ---
+  duration_ms: 1.068229
+  type: 'test'
+  ...
+# Subtest: Financial sandbox gates survive developer reconciliation
+ok 83 - Financial sandbox gates survive developer reconciliation
+  ---
+  duration_ms: 0.295676
+  type: 'test'
+  ...
+# Subtest: Newer event checkout and ticket credential security survives
+ok 84 - Newer event checkout and ticket credential security survives
+  ---
+  duration_ms: 0.308044
+  type: 'test'
+  ...
+# Subtest: Newer bank and virtual-account access controls survive
+ok 85 - Newer bank and virtual-account access controls survive
+  ---
+  duration_ms: 0.269997
+  type: 'test'
+  ...
+# Subtest: Developer export lockfile not misrepresented as current frozen-lockfile evidence
+ok 86 - Developer export lockfile not misrepresented as current frozen-lockfile evidence
+  ---
+  duration_ms: 0.373422
+  type: 'test'
+  ...
+# Subtest: Original ErhaPay files are preserved
+ok 87 - Original ErhaPay files are preserved
+  ---
+  duration_ms: 0.538111
+  type: 'test'
+  ...
+# Subtest: Identity decisions explicitly require OIDC and server-side transaction PIN
+ok 88 - Identity decisions explicitly require OIDC and server-side transaction PIN
+  ---
+  duration_ms: 0.254623
+  type: 'test'
+  ...
+# Subtest: workspace includes every actual application including ErhaPay customer UI and all providers
+ok 89 - workspace includes every actual application including ErhaPay customer UI and all providers
+  ---
+  duration_ms: 1.76601
+  type: 'test'
+  ...
+# Subtest: every workspace package has a unique name and all local package dependencies resolve
+ok 90 - every workspace package has a unique name and all local package dependencies resolve
+  ---
+  duration_ms: 2.52198
+  type: 'test'
+  ...
+# Subtest: the developer reference lockfile is rejected as incomplete
+ok 91 - the developer reference lockfile is rejected as incomplete
+  ---
+  duration_ms: 1.274139
+  type: 'test'
+  ...
+# Subtest: lockfile structural inspection detects complete importer coverage and missing importers
+ok 92 - lockfile structural inspection detects complete importer coverage and missing importers
+  ---
+  duration_ms: 0.585873
+  type: 'test'
+  ...
+# Subtest: root pnpm lockfile must cover every workspace whenever it is present
+ok 93 - root pnpm lockfile must cover every workspace whenever it is present
+  ---
+  duration_ms: 8.736271
+  type: 'test'
+  ...
+# Subtest: Prisma client and CLI are pinned coherently with existing migration sources
+ok 94 - Prisma client and CLI are pinned coherently with existing migration sources
+  ---
+  duration_ms: 1.332728
+  type: 'test'
+  ...
+# Subtest: qualification runtime script is fail-closed for prior provider credentials and uses throwaway database
+ok 95 - qualification runtime script is fail-closed for prior provider credentials and uses throwaway database
+  ---
+  duration_ms: 0.379041
+  type: 'test'
+  ...
+# Subtest: financial purchase/provisioning flags remain explicitly disabled in sample configuration
+ok 96 - financial purchase/provisioning flags remain explicitly disabled in sample configuration
+  ---
+  duration_ms: 0.166351
+  type: 'test'
+  ...
+# Subtest: original asset contents remain intact, allowing only the repository-mandated SVG CRLF normalization
+ok 97 - original asset contents remain intact, allowing only the repository-mandated SVG CRLF normalization
+  ---
+  duration_ms: 27.686892
+  type: 'test'
+  ...
+# Subtest: the original ErhaPay logo remains unchanged
+ok 98 - the original ErhaPay logo remains unchanged
+  ---
+  duration_ms: 1.038364
+  type: 'test'
+  ...
+# Subtest: TwiPay rebranding and preserved route entry points
+ok 99 - TwiPay rebranding and preserved route entry points
+  ---
+  duration_ms: 0.472702
+  type: 'test'
+  ...
+# Subtest: betting has no imported mounted route
+ok 100 - betting has no imported mounted route
+  ---
+  duration_ms: 0.39122
+  type: 'test'
+  ...
+# Subtest: future modules preserved but filtered from navigation/direct route access
+ok 101 - future modules preserved but filtered from navigation/direct route access
+  ---
+  duration_ms: 0.449888
+  type: 'test'
+  ...
+# Subtest: legacy bearer auth and BillPadi domain are absent from active Axios client
+ok 102 - legacy bearer auth and BillPadi domain are absent from active Axios client
+  ---
+  duration_ms: 0.237428
+  type: 'test'
+  ...
+# Subtest: auth endpoints mapped to actual TwiPay API controller
+ok 103 - auth endpoints mapped to actual TwiPay API controller
+  ---
+  duration_ms: 0.402426
+  type: 'test'
+  ...
+# Subtest: session authentication comes from the server, not persistent browser token storage
+ok 104 - session authentication comes from the server, not persistent browser token storage
+  ---
+  duration_ms: 0.282736
+  type: 'test'
+  ...
+# Subtest: no active mock credit-card number or fake live balance
+ok 105 - no active mock credit-card number or fake live balance
+  ---
+  duration_ms: 0.422887
+  type: 'test'
+  ...
+# Subtest: existing original TwiPay API and Next.js frontend remain present
+ok 106 - existing original TwiPay API and Next.js frontend remain present
+  ---
+  duration_ms: 0.436737
+  type: 'test'
+  ...
+# Subtest: logout is a protected mutation and must obtain a real session CSRF token
+ok 107 - logout is a protected mutation and must obtain a real session CSRF token
+  ---
+  duration_ms: 0.326723
+  type: 'test'
+  ...
+# Subtest: registration verifies server session before routing to contact verification, not dashboard
+ok 108 - registration verifies server session before routing to contact verification, not dashboard
+  ---
+  duration_ms: 0.153501
+  type: 'test'
+  ...
+# Subtest: MFA enrollment/confirm/disable/recovery routes match NestJS controller
+ok 109 - MFA enrollment/confirm/disable/recovery routes match NestJS controller
+  ---
+  duration_ms: 0.154954
+  type: 'test'
+  ...
+# Subtest: ErhaPay 2FA modal now uses TwiPay authenticator and session rotation, not email OTP toggles
+ok 110 - ErhaPay 2FA modal now uses TwiPay authenticator and session rotation, not email OTP toggles
+  ---
+  duration_ms: 0.256747
+  type: 'test'
+  ...
+# Subtest: MFA challenge screen supports backend one-time recovery codes and existing six-slot authenticator UI
+ok 111 - MFA challenge screen supports backend one-time recovery codes and existing six-slot authenticator UI
+  ---
+  duration_ms: 0.222325
+  type: 'test'
+  ...
+# Subtest: profile changes match exactly the supported backend contract
+ok 112 - profile changes match exactly the supported backend contract
+  ---
+  duration_ms: 1.919342
+  type: 'test'
+  ...
+# Subtest: ErhaPay account form uses only supported mutable name fields
+ok 113 - ErhaPay account form uses only supported mutable name fields
+  ---
+  duration_ms: 0.38466
+  type: 'test'
+  ...
+# Subtest: legacy direct avatar uploader is not active in ErhaPay account settings
+ok 114 - legacy direct avatar uploader is not active in ErhaPay account settings
+  ---
+  duration_ms: 0.188564
+  type: 'test'
+  ...
+# Subtest: KYC API requests mirror backend schemas and require deliberate consent and idempotency
+ok 115 - KYC API requests mirror backend schemas and require deliberate consent and idempotency
+  ---
+  duration_ms: 0.39792
+  type: 'test'
+  ...
+# Subtest: KYC client is the only new allowlisted path with strict continuation shape
+ok 116 - KYC client is the only new allowlisted path with strict continuation shape
+  ---
+  duration_ms: 0.163106
+  type: 'test'
+  ...
+# Subtest: KYC UI requires consent and never caches raw identifiers or invents provider verification methods
+ok 117 - KYC UI requires consent and never caches raw identifiers or invents provider verification methods
+  ---
+  duration_ms: 0.198158
+  type: 'test'
+  ...
+# Subtest: Original ErhaPay layout renders account and new verification under the same dashboard settings
+ok 118 - Original ErhaPay layout renders account and new verification under the same dashboard settings
+  ---
+  duration_ms: 0.279271
+  type: 'test'
+  ...
+# Subtest: C1 preserves unrounded kobo values and their exact displayed amounts
+ok 119 - C1 preserves unrounded kobo values and their exact displayed amounts
+  ---
+  duration_ms: 1.079487
+  type: 'test'
+  ...
+# Subtest: UNKNOWN, pending, failed and reversed are never presented as succeeded
+ok 120 - UNKNOWN, pending, failed and reversed are never presented as succeeded
+  ---
+  duration_ms: 0.266111
+  type: 'test'
+  ...
+# Subtest: malformed amount, unsupported currency and missing references fail closed
+ok 121 - malformed amount, unsupported currency and missing references fail closed
+  ---
+  duration_ms: 0.255044
+  type: 'test'
+  ...
+# Subtest: raw backend account number is already masked, and not fabricated
+ok 122 - raw backend account number is already masked, and not fabricated
+  ---
+  duration_ms: 0.270077
+  type: 'test'
+  ...
+# Subtest: naira range filtering converts accurately, rejects fractions exceeding two decimals
+ok 123 - naira range filtering converts accurately, rejects fractions exceeding two decimals
+  ---
+  duration_ms: 0.453574
+  type: 'test'
+  ...
+# Subtest: history request sends validated filters to TwiPay GET /transactions
+ok 124 - history request sends validated filters to TwiPay GET /transactions
+  ---
+  duration_ms: 1.691658
+  type: 'test'
+  ...
+# Subtest: detail response is owner-scoped by backend and rejects missing reference
+ok 125 - detail response is owner-scoped by backend and rejects missing reference
+  ---
+  duration_ms: 0.315686
+  type: 'test'
+  ...
+# Subtest: API query is bounded and enforces session-principal user ownership
+ok 126 - API query is bounded and enforces session-principal user ownership
+  ---
+  duration_ms: 0.23221
+  type: 'test'
+  ...
+# Subtest: only intended owner-authenticated transaction routes are enabled in client
+ok 127 - only intended owner-authenticated transaction routes are enabled in client
+  ---
+  duration_ms: 0.24604
+  type: 'test'
+  ...
+# Subtest: preserved history and receipt screens surface network and incomplete statuses
+ok 128 - preserved history and receipt screens surface network and incomplete statuses
+  ---
+  duration_ms: 0.515337
+  type: 'test'
+  ...
+# Subtest: permitted filter options exclude betting and travel products
+ok 129 - permitted filter options exclude betting and travel products
+  ---
+  duration_ms: 0.264729
+  type: 'test'
+  ...
+# (node:6308) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: minor-unit formatter preserves integer cents exactly, even outside Number.MAX_SAFE_INTEGER
+ok 130 - minor-unit formatter preserves integer cents exactly, even outside Number.MAX_SAFE_INTEGER
+  ---
+  duration_ms: 1.491727
+  type: 'test'
+  ...
+# Subtest: wallet read contract is directly evidenced by FinanceController
+ok 131 - wallet read contract is directly evidenced by FinanceController
+  ---
+  duration_ms: 0.501355
+  type: 'test'
+  ...
+# Subtest: ErhaPay balance card remains visually original with server-derived kobo string
+ok 132 - ErhaPay balance card remains visually original with server-derived kobo string
+  ---
+  duration_ms: 0.292821
+  type: 'test'
+  ...
+# Subtest: all existing wallet-reading surfaces use same scoped query key and exact formatter
+ok 133 - all existing wallet-reading surfaces use same scoped query key and exact formatter
+  ---
+  duration_ms: 0.6635
+  type: 'test'
+  ...
+# Subtest: financial writes remain closed to legacy routes and require future verified contracts
+ok 134 - financial writes remain closed to legacy routes and require future verified contracts
+  ---
+  duration_ms: 1.073718
+  type: 'test'
+  ...
+# Subtest: C2 exact amount parser rejects rounding, negatives, exponent and provider unsafe overflow
+ok 135 - C2 exact amount parser rejects rounding, negatives, exponent and provider unsafe overflow
+  ---
+  duration_ms: 1.100848
+  type: 'test'
+  ...
+# Subtest: C2 idempotency key is stable across same logical attempts and retries
+ok 136 - C2 idempotency key is stable across same logical attempts and retries
+  ---
+  duration_ms: 0.673845
+  type: 'test'
+  ...
+# Subtest: C2 collection sends one authorized shape to the real TwiPay API
+ok 137 - C2 collection sends one authorized shape to the real TwiPay API
+  ---
+  duration_ms: 0.784902
+  type: 'test'
+  ...
+# Subtest: C2 refuses fake statuses, mismatched amount, tampered providers and fabricated checkout data
+ok 138 - C2 refuses fake statuses, mismatched amount, tampered providers and fabricated checkout data
+  ---
+  duration_ms: 0.218099
+  type: 'test'
+  ...
+# Subtest: C2 checkout allowlist refuses attacker hosts, http, credentials and port smuggling
+ok 139 - C2 checkout allowlist refuses attacker hosts, http, credentials and port smuggling
+  ---
+  duration_ms: 0.267643
+  type: 'test'
+  ...
+# Subtest: C2 legacy external-wallet collection route remains disabled, integration allowlist is narrow
+ok 140 - C2 legacy external-wallet collection route remains disabled, integration allowlist is narrow
+  ---
+  duration_ms: 0.230197
+  type: 'test'
+  ...
+# Subtest: C2 server-side collection gate is disabled by default and forbidden in production
+ok 141 - C2 server-side collection gate is disabled by default and forbidden in production
+  ---
+  duration_ms: 0.269866
+  type: 'test'
+  ...
+# Subtest: C2 provider evidence and ledger settlement stay server-authoritative
+ok 142 - C2 provider evidence and ledger settlement stay server-authoritative
+  ---
+  duration_ms: 0.11255
+  type: 'test'
+  ...
+# Subtest: C2 original add-funds steps remain, with no invented bank-account details
+ok 143 - C2 original add-funds steps remain, with no invented bank-account details
+  ---
+  duration_ms: 0.548196
+  type: 'test'
+  ...
+# Subtest: C3 resolves only exact 10-digit NUBAN and verified provider bank code
+ok 144 - C3 resolves only exact 10-digit NUBAN and verified provider bank code
+  ---
+  duration_ms: 2.18423
+  type: 'test'
+  ...
+# Subtest: C3 transfer uses same idempotency key on retry and never stores plaintext bank account
+ok 145 - C3 transfer uses same idempotency key on retry and never stores plaintext bank account
+  ---
+  duration_ms: 8.623742
+  type: 'test'
+  ...
+# Subtest: C3 rejects changing recipient, amount, narration or provider without explicit reset
+ok 146 - C3 rejects changing recipient, amount, narration or provider without explicit reset
+  ---
+  duration_ms: 2.945438
+  type: 'test'
+  ...
+# Subtest: C3 validation refuses forged provider, beneficiary, amount and final status
+ok 147 - C3 validation refuses forged provider, beneficiary, amount and final status
+  ---
+  duration_ms: 0.455516
+  type: 'test'
+  ...
+# Subtest: C3 backend independently gates both bank resolution and payout, never production
+ok 148 - C3 backend independently gates both bank resolution and payout, never production
+  ---
+  duration_ms: 0.570329
+  type: 'test'
+  ...
+# Subtest: C3 bank payout checks expected beneficiary against fresh server-side provider resolution
+ok 149 - C3 bank payout checks expected beneficiary against fresh server-side provider resolution
+  ---
+  duration_ms: 0.31826
+  type: 'test'
+  ...
+# Subtest: C3 cannot treat a pending or unknown provider response as successful transfer
+ok 150 - C3 cannot treat a pending or unknown provider response as successful transfer
+  ---
+  duration_ms: 0.319391
+  type: 'test'
+  ...
+# Subtest: C3 original ErhaPay four-stage withdrawal UI is reused; email transfer stays disabled
+ok 151 - C3 original ErhaPay four-stage withdrawal UI is reused; email transfer stays disabled
+  ---
+  duration_ms: 0.421856
+  type: 'test'
+  ...
+# Subtest: C3 bank list uses authenticated TwiPay provider catalogue and validates payload
+ok 152 - C3 bank list uses authenticated TwiPay provider catalogue and validates payload
+  ---
+  duration_ms: 0.787126
+  type: 'test'
+  ...
+# Subtest: C3 provider-native listBanks adapters preserve source bank codes and paginate
+ok 153 - C3 provider-native listBanks adapters preserve source bank codes and paginate
+  ---
+  duration_ms: 0.920096
+  type: 'test'
+  ...
+# Subtest: C3 Paystack adapter consumes provider cursor pages without inventing bank codes
+ok 154 - C3 Paystack adapter consumes provider cursor pages without inventing bank codes
+  ---
+  duration_ms: 89.199665
+  type: 'test'
+  ...
+# Subtest: C3 Monnify adapter reads documented OAuth bank-directory envelope and rejects malformed data
+ok 155 - C3 Monnify adapter reads documented OAuth bank-directory envelope and rejects malformed data
+  ---
+  duration_ms: 61.146761
+  type: 'test'
+  ...
+# Subtest: C4 user-scoped GET parses actual account assignments and provisioning state
+ok 156 - C4 user-scoped GET parses actual account assignments and provisioning state
+  ---
+  duration_ms: 1.191505
+  type: 'test'
+  ...
+# Subtest: C4 rejects missing assignments, forged ACTIVE accounts and untrusted statuses
+ok 157 - C4 rejects missing assignments, forged ACTIVE accounts and untrusted statuses
+  ---
+  duration_ms: 1.152015
+  type: 'test'
+  ...
+# Subtest: C4 validation bank directory only accepts actual Paystack codes and bank names
+ok 158 - C4 validation bank directory only accepts actual Paystack codes and bank names
+  ---
+  duration_ms: 0.39851
+  type: 'test'
+  ...
+# Subtest: C4 provider consent and Paystack personal bank validation required
+ok 159 - C4 provider consent and Paystack personal bank validation required
+  ---
+  duration_ms: 0.305871
+  type: 'test'
+  ...
+# Subtest: C4 retries keep one idempotency key without storing BVN or bank account
+ok 160 - C4 retries keep one idempotency key without storing BVN or bank account
+  ---
+  duration_ms: 0.926166
+  type: 'test'
+  ...
+# Subtest: C4 cannot silently switch providers with pending idempotency intent
+ok 161 - C4 cannot silently switch providers with pending idempotency intent
+  ---
+  duration_ms: 0.353442
+  type: 'test'
+  ...
+# Subtest: C4 backend gates provider writes independently of frontend and never permits production
+ok 162 - C4 backend gates provider writes independently of frontend and never permits production
+  ---
+  duration_ms: 5.603642
+  type: 'test'
+  ...
+# Subtest: C4 API enforces BVN, consent and owner-scoped lists, webhooks retain provider evidence
+ok 163 - C4 API enforces BVN, consent and owner-scoped lists, webhooks retain provider evidence
+  ---
+  duration_ms: 0.288605
+  type: 'test'
+  ...
+# Subtest: C4 original ErhaPay static-account appearance is preserved but old OTP and foreign APIs are absent from active route
+ok 164 - C4 original ErhaPay static-account appearance is preserved but old OTP and foreign APIs are absent from active route
+  ---
+  duration_ms: 0.548606
+  type: 'test'
+  ...
+# (node:6352) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: catalogue accepts only verified category/currency and unique product codes
+ok 165 - catalogue accepts only verified category/currency and unique product codes
+  ---
+  duration_ms: 1.174189
+  type: 'test'
+  ...
+# Subtest: naira conversion is exact integer kobo, min/max enforced
+ok 166 - naira conversion is exact integer kobo, min/max enforced
+  ---
+  duration_ms: 0.300172
+  type: 'test'
+  ...
+# Subtest: fixed-price products reject different amounts
+ok 167 - fixed-price products reject different amounts
+  ---
+  duration_ms: 0.141934
+  type: 'test'
+  ...
+# Subtest: recipient identifiers are validated and controls excluded
+ok 168 - recipient identifiers are validated and controls excluded
+  ---
+  duration_ms: 0.204548
+  type: 'test'
+  ...
+# Subtest: customer validation ID, valid, expiry are verified
+ok 169 - customer validation ID, valid, expiry are verified
+  ---
+  duration_ms: 0.243106
+  type: 'test'
+  ...
+# Subtest: unknown provider state cannot become successful
+ok 170 - unknown provider state cannot become successful
+  ---
+  duration_ms: 0.227693
+  type: 'test'
+  ...
+# Subtest: uncertain 202 minimal response retains reference but never invents success or settlement
+ok 171 - uncertain 202 minimal response retains reference but never invents success or settlement
+  ---
+  duration_ms: 0.854918
+  type: 'test'
+  ...
+# Subtest: purchase list uses owner-scoped API responses and rejects forged status
+ok 172 - purchase list uses owner-scoped API responses and rejects forged status
+  ---
+  duration_ms: 0.263046
+  type: 'test'
+  ...
+# Subtest: sandbox function is default-off and never true in production
+ok 173 - sandbox function is default-off and never true in production
+  ---
+  duration_ms: 0.242055
+  type: 'test'
+  ...
+# Subtest: four service routes are mapped to the TwiPay bills adapter without old purchase code
+ok 174 - four service routes are mapped to the TwiPay bills adapter without old purchase code
+  ---
+  duration_ms: 0.815709
+  type: 'test'
+  ...
+# Subtest: API requires independent non-production sandbox gate for validation and purchase
+ok 175 - API requires independent non-production sandbox gate for validation and purchase
+  ---
+  duration_ms: 0.28536
+  type: 'test'
+  ...
+# Subtest: browser requires cookie session and idempotency, and route allowlist is narrow
+ok 176 - browser requires cookie session and idempotency, and route allowlist is narrow
+  ---
+  duration_ms: 0.578161
+  type: 'test'
+  ...
+# Subtest: server retains hold and provider reconciliation financial invariants
+ok 177 - server retains hold and provider reconciliation financial invariants
+  ---
+  duration_ms: 0.419973
+  type: 'test'
+  ...
+# (node:6363) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: published events are parsed from API without dummy list
+ok 178 - published events are parsed from API without dummy list
+  ---
+  duration_ms: 2.261146
+  type: 'test'
+  ...
+# Subtest: event adapter rejects forged currency, amounts, ticket IDs and dates
+ok 179 - event adapter rejects forged currency, amounts, ticket IDs and dates
+  ---
+  duration_ms: 0.33895
+  type: 'test'
+  ...
+# Subtest: server quote identity matches selected tickets and amount arithmetic
+ok 180 - server quote identity matches selected tickets and amount arithmetic
+  ---
+  duration_ms: 0.29846
+  type: 'test'
+  ...
+# Subtest: ticket order parser does not retain QR credential or trust non-integer amounts
+ok 181 - ticket order parser does not retain QR credential or trust non-integer amounts
+  ---
+  duration_ms: 0.428125
+  type: 'test'
+  ...
+# Subtest: unknown order never becomes PAID in the frontend contract
+ok 182 - unknown order never becomes PAID in the frontend contract
+  ---
+  duration_ms: 0.178229
+  type: 'test'
+  ...
+# Subtest: reference formats are constrained
+ok 183 - reference formats are constrained
+  ---
+  duration_ms: 0.128023
+  type: 'test'
+  ...
+# Subtest: all active event pages use the actual TwiPay adapter, not dummy prices or local PIN success
+ok 184 - all active event pages use the actual TwiPay adapter, not dummy prices or local PIN success
+  ---
+  duration_ms: 2.079734
+  type: 'test'
+  ...
+# Subtest: event backend requires exact quoted total, signed integer bound, ownership and idempotent ledger
+ok 185 - event backend requires exact quoted total, signed integer bound, ownership and idempotent ledger
+  ---
+  duration_ms: 0.383137
+  type: 'test'
+  ...
+# Subtest: checkout is server- and client-gated independently outside production
+ok 186 - checkout is server- and client-gated independently outside production
+  ---
+  duration_ms: 0.589939
+  type: 'test'
+  ...
+# Subtest: attempt lookup scoped to session principal and idempotency key
+ok 187 - attempt lookup scoped to session principal and idempotency key
+  ---
+  duration_ms: 0.500094
+  type: 'test'
+  ...
+# Subtest: notification delivery API is owner scoped, does not decrypt private message bodies
+ok 188 - notification delivery API is owner scoped, does not decrypt private message bodies
+  ---
+  duration_ms: 0.437419
+  type: 'test'
+  ...
+# Subtest: support disputes are authenticated and ownership-scoped, generic email claims removed
+ok 189 - support disputes are authenticated and ownership-scoped, generic email claims removed
+  ---
+  duration_ms: 0.300893
+  type: 'test'
+  ...
+# Subtest: refund and organizer payouts remain off until high-risk release qualification
+ok 190 - refund and organizer payouts remain off until high-risk release qualification
+  ---
+  duration_ms: 1.306619
+  type: 'test'
+  ...
+# Subtest: large valid integer amounts fit PostgreSQL bigint while overflow is rejected
+ok 191 - large valid integer amounts fit PostgreSQL bigint while overflow is rejected
+  ---
+  duration_ms: 0.220652
+  type: 'test'
+  ...
+# Subtest: notification bell does not claim unsupported unread counts
+ok 192 - notification bell does not claim unsupported unread counts
+  ---
+  duration_ms: 2.871607
+  type: 'test'
+  ...
+# Subtest: successful event orders link to existing owner-scoped transaction receipt
+ok 193 - successful event orders link to existing owner-scoped transaction receipt
+  ---
+  duration_ms: 0.179761
+  type: 'test'
+  ...
+# (node:6374) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: verified email permits dashboard regardless of unverified phone
+ok 194 - verified email permits dashboard regardless of unverified phone
+  ---
+  duration_ms: 0.999596
+  type: 'test'
+  ...
+# Subtest: verified phone requires both persisted E.164 value and timestamp
+ok 195 - verified phone requires both persisted E.164 value and timestamp
+  ---
+  duration_ms: 0.166591
+  type: 'test'
+  ...
+# Subtest: registration leaves contact unverified, does not use PENDING lifecycle
+ok 196 - registration leaves contact unverified, does not use PENDING lifecycle
+  ---
+  duration_ms: 0.387854
+  type: 'test'
+  ...
+# Subtest: token entropy, short expiry, owner/email binding and one-way storage
+ok 197 - token entropy, short expiry, owner/email binding and one-way storage
+  ---
+  duration_ms: 0.23907
+  type: 'test'
+  ...
+# Subtest: resends lock user, expire previous codes and limit daily and per-minute issuance
+ok 198 - resends lock user, expire previous codes and limit daily and per-minute issuance
+  ---
+  duration_ms: 0.220312
+  type: 'test'
+  ...
+# Subtest: confirmation locks identity, checks expiry/email/failed count and atomically consumes
+ok 199 - confirmation locks identity, checks expiry/email/failed count and atomically consumes
+  ---
+  duration_ms: 0.243336
+  type: 'test'
+  ...
+# Subtest: backend protects non-auth controllers by default, exceptions are narrowly annotated
+ok 200 - backend protects non-auth controllers by default, exceptions are narrowly annotated
+  ---
+  duration_ms: 0.531731
+  type: 'test'
+  ...
+# Subtest: frontend requires verification on first signup, restored sessions and MFA flow
+ok 201 - frontend requires verification on first signup, restored sessions and MFA flow
+  ---
+  duration_ms: 1.175451
+  type: 'test'
+  ...
+# Subtest: migration is additive and does not alter old ledger or financial tables
+ok 202 - migration is additive and does not alter old ledger or financial tables
+  ---
+  duration_ms: 0.578352
+  type: 'test'
+  ...
+# Subtest: real contact service stores only a digest and queues code for encrypted notification boundary
+ok 203 - real contact service stores only a digest and queues code for encrypted notification boundary
+  ---
+  duration_ms: 55.839766
+  type: 'test'
+  ...
+# Subtest: real service consumes code once and denies replay
+ok 204 - real service consumes code once and denies replay
+  ---
+  duration_ms: 31.331373
+  type: 'test'
+  ...
+# Subtest: five incorrect attempts persist then disable the challenge
+ok 205 - five incorrect attempts persist then disable the challenge
+  ---
+  duration_ms: 24.28014
+  type: 'test'
+  ...
+# Subtest: expired or email-mismatched challenges cannot verify account
+ok 206 - expired or email-mismatched challenges cannot verify account
+  ---
+  duration_ms: 35.729969
+  type: 'test'
+  ...
+# Subtest: resend cooldown, invalidation, and current-code verification
+ok 207 - resend cooldown, invalidation, and current-code verification
+  ---
+  duration_ms: 19.777927
+  type: 'test'
+  ...
+# Subtest: daily issuance cap is enforced by the real service
+ok 208 - daily issuance cap is enforced by the real service
+  ---
+  duration_ms: 17.343339
+  type: 'test'
+  ...
+# Subtest: concurrent confirmations and resends serialize in fixture; require separate PostgreSQL proof
+ok 209 - concurrent confirmations and resends serialize in fixture; require separate PostgreSQL proof
+  ---
+  duration_ms: 30.585925
+  type: 'test'
+  ...
+# Subtest: real service fails closed when notification dispatch is unavailable
+ok 210 - real service fails closed when notification dispatch is unavailable
+  ---
+  duration_ms: 10.01638
+  type: 'test'
+  ...
+# Subtest: verified phone requires a collected number
+ok 211 - verified phone requires a collected number
+  ---
+  duration_ms: 0.433132
+  type: 'test'
+  ...
+# Subtest: actual session guard denies unverified ordinary API requests
+ok 212 - actual session guard denies unverified ordinary API requests
+  ---
+  duration_ms: 10.913953
+  type: 'test'
+  ...
+# Subtest: actual session guard enforces login MFA independently
+ok 213 - actual session guard enforces login MFA independently
+  ---
+  duration_ms: 5.619766
+  type: 'test'
+  ...
+# Subtest: actual session guard allows verified + MFA-satisfied requests
+ok 214 - actual session guard allows verified + MFA-satisfied requests
+  ---
+  duration_ms: 4.852911
+  type: 'test'
+  ...
+# Subtest: restricted recovery endpoints allow contact verification but still require a session
+ok 215 - restricted recovery endpoints allow contact verification but still require a session
+  ---
+  duration_ms: 10.286958
+  type: 'test'
+  ...
+# Subtest: actual CSRF guard checks cookie, header and session binding on verification mutation
+ok 216 - actual CSRF guard checks cookie, header and session binding on verification mutation
+  ---
+  duration_ms: 5.365073
+  type: 'test'
+  ...
+# Subtest: actual CSRF guard rejects mismatched header or missing cookie on verification mutation
+ok 217 - actual CSRF guard rejects mismatched header or missing cookie on verification mutation
+  ---
+  duration_ms: 9.098498
+  type: 'test'
+  ...
+# Subtest: actual CSRF guard rejects unapproved Origin even with valid CSRF
+ok 218 - actual CSRF guard rejects unapproved Origin even with valid CSRF
+  ---
+  duration_ms: 5.1374
+  type: 'test'
+  ...
+# Subtest: actual CSRF guard exempts browser login but never contact confirmation
+ok 219 - actual CSRF guard exempts browser login but never contact confirmation
+  ---
+  duration_ms: 10.211189
+  type: 'test'
+  ...
+# Subtest: adapter sends authenticated idempotent HTTP request but reports acceptance only
+ok 220 - adapter sends authenticated idempotent HTTP request but reports acceptance only
+  ---
+  duration_ms: 29.906686
+  type: 'test'
+  ...
+# Subtest: explicit non-JSON 422 provider rejection is FAILED, not ambiguous transport failure
+ok 221 - explicit non-JSON 422 provider rejection is FAILED, not ambiguous transport failure
+  ---
+  duration_ms: 7.524325
+  type: 'test'
+  ...
+# Subtest: HTTP 200 with invalid body has UNKNOWN outcome, never falsely delivered
+ok 222 - HTTP 200 with invalid body has UNKNOWN outcome, never falsely delivered
+  ---
+  duration_ms: 4.576585
+  type: 'test'
+  ...
+# Subtest: HTTP 200 without provider ID remains UNKNOWN, not delivered
+ok 223 - HTTP 200 without provider ID remains UNKNOWN, not delivered
+  ---
+  duration_ms: 3.967417
+  type: 'test'
+  ...
+# (node:6407) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: legacy idempotency checkout replay removes bearer QR payloads without modifying original
+ok 224 - legacy idempotency checkout replay removes bearer QR payloads without modifying original
+  ---
+  duration_ms: 1.336584
+  type: 'test'
+  ...
+# Subtest: untrusted legacy ticket fields are dropped from idempotency replay
+ok 225 - untrusted legacy ticket fields are dropped from idempotency replay
+  ---
+  duration_ms: 0.124248
+  type: 'test'
+  ...
+# Subtest: ordinary event order listing/detail and checkout never include decrypted credential
+ok 226 - ordinary event order listing/detail and checkout never include decrypted credential
+  ---
+  duration_ms: 0.413243
+  type: 'test'
+  ...
+# Subtest: credential retrieval requires owner paid order and active ticket
+ok 227 - credential retrieval requires owner paid order and active ticket
+  ---
+  duration_ms: 0.254233
+  type: 'test'
+  ...
+# Subtest: sensitive endpoint is authenticated, sandbox-only, input-bounded and no-store
+ok 228 - sensitive endpoint is authenticated, sandbox-only, input-bounded and no-store
+  ---
+  duration_ms: 0.259031
+  type: 'test'
+  ...
+# Subtest: void PostgreSQL advisory locks use executeRaw, not queryRaw
+ok 229 - void PostgreSQL advisory locks use executeRaw, not queryRaw
+  ---
+  duration_ms: 1.271676
+  type: 'test'
+  ...
+# Subtest: ticket credential integrity is verified and reads are recorded without storing the secret
+ok 230 - ticket credential integrity is verified and reads are recorded without storing the secret
+  ---
+  duration_ms: 0.31852
+  type: 'test'
+  ...
+# Subtest: 4xx and 5xx responses do not qualify as a ready stack
+ok 231 - 4xx and 5xx responses do not qualify as a ready stack
+  ---
+  duration_ms: 0.768838
+  type: 'test'
+  ...
+# Subtest: a 404 health response fails readiness instead of being accepted
+ok 232 - a 404 health response fails readiness instead of being accepted
+  ---
+  duration_ms: 0.783731
+  type: 'test'
+  ...
+# Subtest: a service that becomes ready after an error succeeds
+ok 233 - a service that becomes ready after an error succeeds
+  ---
+  duration_ms: 0.251829
+  type: 'test'
+  ...
+# Subtest: customer shell identity rejects the reference Next app and default Vite template
+ok 234 - customer shell identity rejects the reference Next app and default Vite template
+  ---
+  duration_ms: 0.24538
+  type: 'test'
+  ...
+# Subtest: HTTP 200 from wrong customer application does not satisfy readiness
+ok 235 - HTTP 200 from wrong customer application does not satisfy readiness
+  ---
+  duration_ms: 0.412541
+  type: 'test'
+  ...
+1..235
+# tests 235
+# suites 0
+# pass 235
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1706.407175

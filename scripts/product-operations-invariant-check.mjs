@@ -12,6 +12,7 @@ const authGuard=read('apps/api/src/modules/auth/presentation/session-auth.guard.
 const financeIdem=read('apps/api/src/modules/finance/application/idempotency.service.ts');
 const compliance=read('apps/api/src/modules/operations/application/compliance.service.ts');
 const productController=read('apps/api/src/modules/product/presentation/product.controller.ts');
+const reviewedConfig=read('apps/api/src/modules/operations/application/owner-configuration-review.service.ts');
 
 const requirements=[
   [schema.includes('model OperationalAuditEvent'), 'operational audit model missing'],
@@ -35,7 +36,11 @@ const requirements=[
   [providers.includes('SKU_EQUIVALENCE_REQUIRES_EXACT_PRODUCT_SEMANTICS'), 'SKU mapping must reject guessed equivalence'],
   [permissions.includes('RequirePermissions'), 'permission guard missing'],
   [authGuard.includes('isRecentMfaAssurance'), 'MFA assurance must be time-bounded'],
-  [productController.includes("['events.refunds', 'operations.organizer_payouts'].includes(body.key)") && productController.includes('requireMfa(req)'), 'high-risk feature activation must require recent MFA'],
+  [(productController.match(/DIRECT_CONFIGURATION_MUTATION_DISABLED_USE_TWO_OWNER_REVIEW/g) ?? []).length === 3 &&
+    reviewedConfig.includes('z.literal(false)') && reviewedConfig.includes('recentMfa: true') &&
+    reviewedConfig.includes("process.env['NODE_ENV'] === 'production'") &&
+    reviewedConfig.includes('INDEPENDENT_OWNER_CHECKER_REQUIRED'),
+    'high-risk feature activation must be inaccessible via legacy API; reviewed changes require MFA, independent checker and disable-only flag policy'],
   [financeIdem.includes('releaseProcessing'), 'transient idempotency release path missing'],
   [!compliance.includes('identifierCiphertext: true') && !compliance.includes('result: true'), 'compliance API must not select encrypted identity/raw provider result'],
   [apiClient.includes("'x-csrf-token'"), 'customer mutation helper must send CSRF token'],

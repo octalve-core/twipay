@@ -4,7 +4,7 @@ import type { FastifyReply } from 'fastify';
 import { z } from 'zod';
 import { ZodValidationPipe } from '../../../platform/http/zod-validation.pipe.js';
 import { MfaService } from '../application/mfa.service.js';
-import { SessionAuthGuard, requirePrincipal, type AuthenticatedFastifyRequest } from './session-auth.guard.js';
+import { AllowUnverifiedContact, SessionAuthGuard, requirePrincipal, type AuthenticatedFastifyRequest } from './session-auth.guard.js';
 import { setSessionCookies } from './session-cookie.js';
 
 const EnrollmentSchema = z.object({ password: z.string().min(1).max(128) }).strict();
@@ -17,6 +17,7 @@ const DisableSchema = ChallengeSchema.extend({ reason: z.string().trim().min(3).
 export class MfaController {
   constructor(private readonly mfa: MfaService) {}
 
+  @AllowUnverifiedContact()
   @Get('status')
   async status(@Req() req: AuthenticatedFastifyRequest) {
     return { mfa: await this.mfa.status(requirePrincipal(req).userId) };
@@ -42,6 +43,7 @@ export class MfaController {
     return { recoveryCodes: result.recoveryCodes, mfaSatisfied: true };
   }
 
+  @AllowUnverifiedContact()
   @Post('challenge')
   async challenge(
     @Body(new ZodValidationPipe(ChallengeSchema)) body: z.infer<typeof ChallengeSchema>,

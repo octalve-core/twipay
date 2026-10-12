@@ -7,6 +7,7 @@ import {
 } from '@twipay/security';
 import type { Prisma } from '@prisma/client';
 import { PrismaService } from '../../../platform/database/prisma.service.js';
+import { FinancialAuthorizationService, type FinancialAuthorization } from './financial-authorization.service.js';
 import { PaymentProviderRegistry, type EnabledPaymentProvider } from '../../providers/payment-provider.registry.js';
 import { IdempotencyService } from './idempotency.service.js';
 import { createFinancialReference } from './reference.js';
@@ -17,11 +18,13 @@ const ACTIVE_PROVIDER_OPERATION_STATES = ['PENDING', 'PROCESSING', 'REQUIRES_ACT
 export class VirtualAccountService {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly authorization: FinancialAuthorizationService,
     private readonly providers: PaymentProviderRegistry,
     private readonly idempotency: IdempotencyService,
   ) {}
 
   async create(input: {
+    authorization: FinancialAuthorization;
     userId: string;
     idempotencyKey: string;
     providerCode: EnabledPaymentProvider;
@@ -30,12 +33,13 @@ export class VirtualAccountService {
     validationBankCode?: string;
     validationAccountNumber?: string;
   }): Promise<{ statusCode: number; body: JsonObject }> {
+    await this.prisma.$transaction((tx) => this.authorization.assertCurrentWithTx(tx, input.authorization, 0n, { userId: input.userId, intent: 'VIRTUAL_ACCOUNT' }));
     const provider = this.providers.get(input.providerCode);
     const idem = await this.idempotency.begin({
       scope: 'virtual-account:create',
       key: input.idempotencyKey,
       userId: input.userId,
-      request: input,
+      request: { userId: input.userId, providerCode: input.providerCode, consent: input.consent, preferredBank: input.preferredBank, validationBankCode: input.validationBankCode, validationAccountNumber: input.validationAccountNumber },
     });
     if (idem.replay) return { statusCode: idem.replay.status, body: idem.replay.body };
     const recordId = idem.recordId!;
@@ -191,6 +195,23 @@ export class VirtualAccountService {
     }
   }
 
+
+  // Read-only, owner-scoped lifecycle visibility even when the provider has not
+  // assigned an account yet. Never return BVN, correlation fingerprints or provider secrets.
+  async listProvisioningForUser(userId: string): Promise<JsonObject[]> {
+    const rows = await this.prisma.providerOperation.findMany({
+      where: { userId, type: 'VIRTUAL_ACCOUNT' },
+      select: { merchantReference: true, providerCode: true, status: true, createdAt: true },
+      orderBy: { createdAt: 'desc' },
+      take: 20,
+    });
+    return rows.map(row => ({
+      reference: row.merchantReference,
+      provider: row.providerCode,
+      status: row.status,
+      createdAt: row.createdAt.toISOString(),
+    }));
+  }
 
   async listForUser(userId: string): Promise<JsonObject[]> {
     const rows = await this.prisma.virtualAccount.findMany({

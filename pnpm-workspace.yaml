@@ -2,9 +2,11 @@ packages:
   - "apps/*"
   - "packages/*"
   - "packages/providers/*/*"
+
+# Merged from developer runtime qualification; review dependency install scripts before release.
 allowBuilds:
-  '@prisma/engines': true
-  '@scarf/scarf': set this to true or false
+  "@prisma/engines": true
+  "@scarf/scarf": false
   argon2: true
   esbuild: true
   msgpackr-extract: true

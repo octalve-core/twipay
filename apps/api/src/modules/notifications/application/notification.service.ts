@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { safeInboxTemplate } from './inbox-policy.js';
 import type { Prisma } from '@prisma/client';
 import type { NotificationChannel, NotificationProviderPort } from '@twipay/contracts';
 import { decryptSensitiveString, encryptSensitiveString, fingerprintSensitiveValue } from '@twipay/security';
@@ -19,6 +20,59 @@ function notificationRetryPolicy(): { maxAttempts: number; retryDelayMs: number;
 @Injectable()
 export class NotificationService {
   constructor(private readonly prisma: PrismaService, private readonly providers: NotificationProviderRegistry) {}
+
+  /** Owner-scoped delivery metadata; sensitive destination and encrypted body are intentionally excluded. */
+  async listDeliveryHistory(userId: string) {
+    const rows = await this.prisma.notification.findMany({
+      where: { userId }, orderBy: { createdAt: 'desc' }, take: 100,
+      select: { id: true, templateCode: true, subject: true, channel: true, status: true, createdAt: true, updatedAt: true },
+    });
+    return rows.map((n) => ({ id: n.id, title: n.subject ?? n.templateCode.replaceAll('_', ' '), templateCode: n.templateCode, channel: n.channel, deliveryStatus: n.status, createdAt: n.createdAt, updatedAt: n.updatedAt }));
+  }
+
+  /** Inbox content is intentionally independent of email/SMS delivery status and payload. */
+  async listInbox(userId: string, cursor?: string) {
+    const position=cursor ? await this.prisma.notificationInboxItem.findFirst({where:{id:cursor,userId},select:{id:true,createdAt:true}}) : null;
+    if(cursor && !position)throw new NotFoundException({code:'INBOX_CURSOR_NOT_FOUND'});
+    const where={userId,...(position?{OR:[{createdAt:{lt:position.createdAt}},
+      {createdAt:position.createdAt,id:{lt:position.id}}]}:{})};
+    const [items, unreadCount] = await Promise.all([
+      this.prisma.notificationInboxItem.findMany({where,orderBy:[{createdAt:'desc'},{id:'desc'}],take:51,
+        select:{id:true,category:true,title:true,message:true,targetPath:true,readAt:true,createdAt:true}}),
+      this.prisma.notificationInboxItem.count({where:{userId,readAt:null}}),
+    ]);
+    const visible=items.slice(0,50);
+    return {items:visible,hasMore:items.length>50,nextCursor:items.length>50?visible.at(-1)?.id??null:null,unreadCount};
+  }
+
+  async markRead(userId:string, notificationId:string) {
+    const updated=await this.prisma.notificationInboxItem.updateMany({where:{id:notificationId,userId,readAt:null},data:{readAt:new Date()}});
+    if(updated.count>0)return {updated:true};
+    const owned=await this.prisma.notificationInboxItem.findFirst({where:{id:notificationId,userId},select:{id:true}});
+    if(!owned)throw new NotFoundException({code:'INBOX_ITEM_NOT_FOUND'});
+    return {updated:false}; // idempotent repeat; cross-account identifiers never reveal existence
+  }
+
+  async markAllRead(userId:string) {
+    const result=await this.prisma.notificationInboxItem.updateMany({where:{userId,readAt:null},data:{readAt:new Date()}});
+    return {updatedCount:result.count};
+  }
+
+  async getPreferences(userId:string) {
+    const saved=await this.prisma.notificationPreference.findUnique({where:{userId}});
+    return {supportInApp:saved?.supportInApp??true,eventInApp:saved?.eventInApp??true,supportEmail:saved?.supportEmail??true};
+  }
+
+  async savePreferences(userId:string, input:{supportInApp:boolean;eventInApp:boolean;supportEmail:boolean}) {
+    const saved=await this.prisma.notificationPreference.upsert({where:{userId},create:{userId,...input},update:input});
+    return {supportInApp:saved.supportInApp,eventInApp:saved.eventInApp,supportEmail:saved.supportEmail};
+  }
+
+  /** Role and recent-MFA enforcement is performed by the operations controller. No PII or body data leaves this API. */
+  async deliverySummary() {
+    const totals=await this.prisma.notification.groupBy({by:['status','deliverySuppressed'],_count:{_all:true}});
+    return {counts:totals.map(row=>({status:row.status,suppressed:row.deliverySuppressed,count:row._count._all}))};
+  }
 
   async enqueue(input: {
     userId?: string;
@@ -43,6 +97,12 @@ export class NotificationService {
   }) {
     const existing = await tx.notification.findUnique({ where: { idempotencyKey: input.idempotencyKey } });
     if (existing) return existing;
+    const template=safeInboxTemplate(input.templateCode);
+    const preferences=input.userId && (template || input.templateCode==='SUPPORT_REPLY')
+      ? await tx.notificationPreference.findUnique({where:{userId:input.userId}}) : null;
+    const deliverySuppressed=input.templateCode==='SUPPORT_REPLY' && preferences?.supportEmail===false;
+    const inboxAllowed=Boolean(input.userId && template &&
+      (!('preference' in template) || preferences?.[template.preference as 'supportInApp'|'eventInApp']!==false));
     return tx.notification.create({
       data: {
         ...(input.userId ? { userId: input.userId } : {}),
@@ -54,6 +114,8 @@ export class NotificationService {
         ...(input.subject ? { subject: input.subject } : {}),
         bodyCiphertext: encryptSensitiveString(input.text, process.env['DATA_ENCRYPTION_KEY']!),
         idempotencyKey: input.idempotencyKey,
+        deliverySuppressed,
+        ...(inboxAllowed && template && input.userId ? {inboxItem:{create:{userId:input.userId,category:template.category,title:template.title,message:template.message,targetPath:template.targetPath}}} : {}),
       },
     });
   }
@@ -70,7 +132,15 @@ export class NotificationService {
       `;
       if (!locked[0]) return null;
       const current = await tx.notification.findUniqueOrThrow({ where: { id: notificationId } });
-      if (['ACCEPTED', 'DELIVERED'].includes(current.status)) return null;
+      if (current.deliverySuppressed || ['ACCEPTED', 'DELIVERED'].includes(current.status)) return null;
+      // Preferences may change between enqueue and provider dispatch. Fail closed for optional alerts.
+      if (current.templateCode === 'SUPPORT_REPLY' && current.userId) {
+        const preference = await tx.notificationPreference.findUnique({where:{userId:current.userId}});
+        if (preference?.supportEmail === false) {
+          await tx.notification.update({where:{id:current.id},data:{deliverySuppressed:true}});
+          return null;
+        }
+      }
       if (current.status === 'PROCESSING' && Date.now() - current.updatedAt.getTime() < policy.processingStaleMs) return null;
       return tx.notification.update({ where: { id: current.id }, data: { status: 'PROCESSING' } });
     });
@@ -119,7 +189,7 @@ export class NotificationService {
   async processPending(limit = 25): Promise<number> {
     const policy = notificationRetryPolicy();
     const rows = await this.prisma.notification.findMany({
-      where: { status: { in: ['PENDING', 'UNKNOWN', 'FAILED', 'PROCESSING'] } },
+      where: { deliverySuppressed:false, status: { in: ['PENDING', 'UNKNOWN', 'FAILED', 'PROCESSING'] } },
       orderBy: { createdAt: 'asc' },
       take: Math.min(Math.max(limit * 3, limit), 300),
       include: { attempts: { orderBy: { createdAt: 'desc' }, take: 1 } },

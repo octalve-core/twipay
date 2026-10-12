@@ -1,0 +1,2893 @@
+{
+  "originArchive": "erhapay-source(2).zip",
+  "originArchiveSha256": "aec7912e7d67e1d0db481f79544a048263dffae456198fa7adc6f2b19b0c84c6",
+  "originalFileCount": 460,
+  "originalSrcCount": 443,
+  "sourceAssetCount": 141,
+  "byteIdenticalOriginalFiles": 363,
+  "modifiedOriginalFiles": [
+    "index.html",
+    "package.json",
+    "src/App.tsx",
+    "src/components/Authentication/AuthButtons.tsx",
+    "src/components/Authentication/CreateNewPasswordForm.tsx",
+    "src/components/Authentication/GoogleLoginButton.tsx",
+    "src/components/Authentication/LogInForm.tsx",
+    "src/components/Authentication/SignUpForm.tsx",
+    "src/components/Authentication/VerifyEmailForm.tsx",
+    "src/components/dashboard/add-funds/EnterAmount.tsx",
+    "src/components/dashboard/add-funds/SelectPaymentMethod.tsx",
+    "src/components/dashboard/events/ConfirmEventsBooking.tsx",
+    "src/components/dashboard/flights/BookFlightForm.tsx",
+    "src/components/dashboard/flights/ConfirmFlightPayment.tsx",
+    "src/components/dashboard/flights/PassengerDetails.tsx",
+    "src/components/dashboard/flights/PassengerInfoForm.tsx",
+    "src/components/dashboard/history/data-table.tsx",
+    "src/components/dashboard/history/history-mobile/TxnDetailMobile.tsx",
+    "src/components/dashboard/hotels/ConfirmHotelPayment.tsx",
+    "src/components/dashboard/hotels/CustomerInfoForm.tsx",
+    "src/components/dashboard/main-page/BalanceCard.tsx",
+    "src/components/dashboard/main-page/Campaign.tsx",
+    "src/components/dashboard/main-page/CreditCard.tsx",
+    "src/components/dashboard/main-page/History.tsx",
+    "src/components/dashboard/main-page/MobileOtherServicesDrawer.tsx",
+    "src/components/dashboard/main-page/OtherServices.tsx",
+    "src/components/dashboard/main-page/ServicesList.tsx",
+    "src/components/dashboard/services/ServicesSection.tsx",
+    "src/components/dashboard/services/airtime/ConfirmAirtimePayment.tsx",
+    "src/components/dashboard/services/airtime/RecipientDetails.tsx",
+    "src/components/dashboard/services/betting/ConfirmBettingPayment.tsx",
+    "src/components/dashboard/services/betting/RecipientDetails.tsx",
+    "src/components/dashboard/services/data/ConfirmDataPayment.tsx",
+    "src/components/dashboard/services/data/RecipientDetails.tsx",
+    "src/components/dashboard/services/electricity/ConfirmElectricityPayment.tsx",
+    "src/components/dashboard/services/electricity/RecipientDetails.tsx",
+    "src/components/dashboard/services/epin/ConfirmEPinPayment.tsx",
+    "src/components/dashboard/services/epin/Epin.tsx",
+    "src/components/dashboard/services/epin/RecipientDetails.tsx",
+    "src/components/dashboard/services/epin/SelectProvider.tsx",
+    "src/components/dashboard/services/esim/ConfirmESimPayment.tsx",
+    "src/components/dashboard/services/international-airtime/ConfirmAirtimePayment.tsx",
+    "src/components/dashboard/services/international-data/ConfirmDataPayment.tsx",
+    "src/components/dashboard/services/mobile-money/ConfirmMobileMoneyPayment.tsx",
+    "src/components/dashboard/services/tv-cable/ConfirmTvCablePayment.tsx",
+    "src/components/dashboard/services/tv-cable/RecipientDetails.tsx",
+    "src/components/dashboard/settings/AccountSettingForm.tsx",
+    "src/components/dashboard/settings/AccountSettings.tsx",
+    "src/components/dashboard/settings/AddNewBank.tsx",
+    "src/components/dashboard/settings/DeactivateAccount.tsx",
+    "src/components/dashboard/settings/LogOutAccount.tsx",
+    "src/components/dashboard/settings/Set2FAForm.tsx",
+    "src/components/dashboard/settings/SetTxnPinForm.tsx",
+    "src/components/dashboard/settings/Support.tsx",
+    "src/components/dashboard/settings/set2FAModal.tsx",
+    "src/components/dashboard/sidebar/DashboardLinks.tsx",
+    "src/components/dashboard/sidebar/SidebarFooter.tsx",
+    "src/components/dashboard/static-account/CreateStaticAccount.tsx",
+    "src/components/dashboard/static-account/StaticAccountDetails.tsx",
+    "src/components/dashboard/static-account/VerifyValidationOtp.tsx",
+    "src/components/dashboard/transfer-funds/ConfirmFundsTransfer.tsx",
+    "src/components/dashboard/transfer-funds/TransferFundsForm.tsx",
+    "src/components/dashboard/virtual-card/EnterFundingPin.tsx",
+    "src/components/dashboard/virtual-card/EnterWithdrawalPin.tsx",
+    "src/components/dashboard/withdraw-funds/ConfirmFundsWithdrawal.tsx",
+    "src/components/dashboard/withdraw-funds/EnterAmount.tsx",
+    "src/components/dashboard/withdraw-funds/RecipientDetailForm.tsx",
+    "src/components/external-pages/aboutpage/AboutPage.tsx",
+    "src/components/external-pages/aboutpage/OurMission.tsx",
+    "src/components/external-pages/contact-us-page/ContactUsForm.tsx",
+    "src/components/external-pages/faq/Faqs.tsx",
+    "src/components/external-pages/homepage/Features.tsx",
+    "src/components/external-pages/homepage/MobileAppLinks.tsx",
+    "src/components/external-pages/homepage/WhyUse.tsx",
+    "src/components/footer/Footer.tsx",
+    "src/components/navbar/Logo.tsx",
+    "src/components/receipt/DesktopReceipt.tsx",
+    "src/components/receipt/Receipt.tsx",
+    "src/context/AuthContext.tsx",
+    "src/lib/api/authApi.ts",
+    "src/lib/api/axios.ts",
+    "src/lib/api/dashboard-apis/settingsApis.ts",
+    "src/lib/constants.ts",
+    "src/lib/utils.ts",
+    "src/lib/zodSchemas/auth.schema.ts",
+    "src/main.tsx",
+    "src/routes/auth-pages/LogIn.tsx",
+    "src/routes/auth-pages/SetTransactionPin.tsx",
+    "src/routes/auth-pages/SignUp.tsx",
+    "src/routes/auth-pages/TwoFAOtp.tsx",
+    "src/routes/auth-pages/VerifyEmail.tsx",
+    "src/routes/auth-pages/VerifyPhone.tsx",
+    "src/routes/dashboard/AffiliatePage.tsx",
+    "src/routes/dashboard/History.tsx",
+    "src/routes/dashboard/Status.tsx",
+    "src/routes/external-pages/Homepage.tsx",
+    "src/routes/layout/DashboardLayout.tsx"
+  ],
+  "files": [
+    {
+      "path": ".gitignore",
+      "sha256": "7ca7be22ce7a1177813fd4bd51fca84b97ab0eb75584661f960bd94b34200c94",
+      "sizeBytes": 294,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "ERHAPAY_BACKEND_AUDIT.txt",
+      "sha256": "ea2c4b99e5795f6753e4d46a68a8027b80ddd350f3c7d618b8da553e6880f047",
+      "sizeBytes": 34520,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "ERHAPAY_CORE_FRONTEND_CONTEXT.txt",
+      "sha256": "9771725d95560bb2a2593453c102c6ecac2e85d2137359362f559a0cc23e29cc",
+      "sizeBytes": 14617,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "README.md",
+      "sha256": "98bad4d5f40a9ddd98ce5fb271fe0f09c3c6aa671f83ff2723b7808d375ae10d",
+      "sizeBytes": 1974,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "components.json",
+      "sha256": "86ed7ec307378cbb9fd20fd7455696148fd7389c02014b3c5f2fa2cf9cb45ec7",
+      "sizeBytes": 463,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "eslint.config.js",
+      "sha256": "ad2cfc9d847db2794d835afc8479be4729a9920c8213d932144ff64b6127735a",
+      "sizeBytes": 762,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "index.html",
+      "sha256": "dd08d1563371fb2ae457609d10172b0a7f0d39ac8f1b860d00d31c2c98d415f2",
+      "sizeBytes": 461,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "73a23a1aa316616579c34c46b849c3f97ebae2919e86cc455d755515cdb7bc8f",
+      "sizeBytes": 317935,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "package.json",
+      "sha256": "50664ab8427b6b4cead897b872efaeb8b624839fcb4cbba23238dfd92294b27f",
+      "sizeBytes": 2094,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "public/SwiftBills_logo.jpg",
+      "sha256": "370d37f4ae56a18f90b701c87e7a2d8e4fd8ada377cde50ee00351a94862dd61",
+      "sizeBytes": 220144,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "public/vite.svg",
+      "sha256": "4a748afd443918bb16591c834c401dae33e87861ab5dbad0811c3a3b4a9214fb",
+      "sizeBytes": 1497,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/App.tsx",
+      "sha256": "53ae77b36a8d6a744e38dc27e4aaf6b58630aaaeef1faaf8ce2bfb548407423a",
+      "sizeBytes": 10927,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/assets/auth/AuthLogomark.png",
+      "sha256": "84cc87edad79bed65c2aeddf3ba17405627a60d3ab3ee2f4a9f80a3e524f70d2",
+      "sizeBytes": 28801,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/auth/AuthLogomark1.png",
+      "sha256": "07c13266d73ac28dc5dc9b8d858bdcd934fad205fd304b533a6307d8b03e817d",
+      "sizeBytes": 2853,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/auth/Dashboard_Mockup.png",
+      "sha256": "7cf47df39e68359cac817c237521153e0cb73d02586ef3cdf0ea8efc9e0eab15",
+      "sizeBytes": 941490,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/auth/apple-icon.png",
+      "sha256": "603ad2318e56b5ae283c4271549b5ca46497f68197b584aacf7c251a5d574cbd",
+      "sizeBytes": 851,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/auth/checkmark-done.png",
+      "sha256": "3e5ae19cffc40c81021c6be39c75cc60a2b31f025e58eb3dcc30ab0962f36ef5",
+      "sizeBytes": 30360,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/auth/dashboard.png",
+      "sha256": "9592b310ceffcc1ed37232d8bab1e2baef6c3967fe6e9628409d33021c5ec5d7",
+      "sizeBytes": 973837,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/auth/google-icon.png",
+      "sha256": "a8c4da0d9e42f5a31dc638ce667404f6643d30def4f6cdf1ec7fe8b5ae8ed53f",
+      "sizeBytes": 350,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/auth/log-out-icon.svg",
+      "sha256": "8147b954a33c92e695b0649e01b8c23eb044d09e570db166148efc36788fd303",
+      "sizeBytes": 1382,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/auth/radio-icon.png",
+      "sha256": "07e067c473e0afa6f0e1f45f97799100f527302990c07585e1b56cc82c2a9fe6",
+      "sizeBytes": 512,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/404.png",
+      "sha256": "9c1996d766636d421b87af7da9406dc96ca4f68a3bbdf6ce0d9364061355601e",
+      "sizeBytes": 18905,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/5ive.png",
+      "sha256": "a8ee162f64b2ec1ee85c424c88c4cc33bacf1ae10d08f64cf45d077e68144e08",
+      "sizeBytes": 716994,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/9mobile-dropdown.png",
+      "sha256": "0a39d2bc2b86cd70f1ce9e9a5056e9a0448a8cecdf6fa2e251c888408c191a8c",
+      "sizeBytes": 3680,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/9mobile.svg",
+      "sha256": "53298b04fc9f6c5c4936cc868d1d5e5142745eb0968cf450ee84ec478a5536cb",
+      "sizeBytes": 16366,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/Avatar Groups.png",
+      "sha256": "c0253672a8e474dc9ed74ff58122a45e8674e103363573eb7bc1bef16000fa75",
+      "sizeBytes": 67830,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/Card.svg",
+      "sha256": "0496f6061ebcdfb8c573603171ec62822117ca5da873338646162d885bf4b60d",
+      "sizeBytes": 41075,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/EventCardBg.png",
+      "sha256": "08b08e9121d4f43f615238405cf146a3c56e3f32aa4a6e7039bcc40b5b6e7c5c",
+      "sizeBytes": 162187,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/Logomark.svg",
+      "sha256": "9b40cefba82a53ec4cdcb65ed045d498cd8496c7ec93ea4b99950b2435723829",
+      "sizeBytes": 5650,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/Mastercard.png",
+      "sha256": "0398c99fb2fa819c40b130e1ad620fff6f270423c91cd898dc7a60a7eeb6becc",
+      "sizeBytes": 442,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/PayPass icon.png",
+      "sha256": "118432b9d6b26940bffbb92205ff295a5ded136e6ad9a0a1b44de332dcf07b32",
+      "sizeBytes": 392,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/WhatsappLogo.svg",
+      "sha256": "1e1df43363640c75fae63ce7dfc158e63c9251cb46ce3683ffddbb3dfec97c20",
+      "sizeBytes": 3048,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/airline.svg",
+      "sha256": "24a25d9a0df33c94426c2c17d21998dbadaeecc28494366ade9589b275e15839",
+      "sizeBytes": 31330,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/airtel-dropdown.png",
+      "sha256": "ae1830fa325a64838f50d861d2c6c62ca647089b487e0f14276624e331ded7bb",
+      "sizeBytes": 7975,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/airtel.svg",
+      "sha256": "53b87f51ec642c44b88676e3ce2d56f48c15b792915d4d5c9fc10fb2142fdce9",
+      "sizeBytes": 31630,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/arrow-right.svg",
+      "sha256": "ce85e776aa128426b4faea0cbeeac84637631640d86ae0a9167731bc49d2322b",
+      "sizeBytes": 231,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/arrow_left.svg",
+      "sha256": "d9e77bb496b6da061899fca020b16efcd35baaeddeb17b9db4a30497587cef64",
+      "sizeBytes": 228,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/baloon.svg",
+      "sha256": "68df96313d1b539c7667f8ef108f6066c3b5b86070c21a928feb7e67857552e9",
+      "sizeBytes": 881,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/benin.png",
+      "sha256": "f91af1f5b4bedc328ea68ae61bee95e0cd27e6dd10f819e968095a2ab216e622",
+      "sizeBytes": 5548,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/briefcase-mobile.svg",
+      "sha256": "4a8b4d4a51b95158859dfc1d3d24ebe72dac15c706276ccc8f54f88f22d8eaac",
+      "sizeBytes": 481,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/briefcase.svg",
+      "sha256": "4c2b40ad34222a3cab5012df576672d0dbcc1bb290c1daa6ed3847b397af3403",
+      "sizeBytes": 553,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/calendar.svg",
+      "sha256": "00e0ca9854e8cb6eaeb45d61c229853c68b5d3a7fce875500dc58c244cc825d0",
+      "sizeBytes": 1583,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/campain-image.jpg",
+      "sha256": "40766c0f23cdff826fabb3fbfcdf23d079d3729f8a59532a2e38c6c7c4fc88bc",
+      "sizeBytes": 93146,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/clock-icon.svg",
+      "sha256": "1974100c8f528c2d4ffa733080b251199b3b5b93e768ad6f38d6057fb82b4018",
+      "sizeBytes": 860,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/credit-card-mobile.svg",
+      "sha256": "8bb9f61dcb9620600f89ab711d499b85856b064908bdc14dea89a5c6e441afa6",
+      "sizeBytes": 395,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/credit-card.svg",
+      "sha256": "bd21057e576ebf56acc0b389b19952133c05b10d544d881dd2a3e1f07f5a24c9",
+      "sizeBytes": 378,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/divide-circle.svg",
+      "sha256": "bf3a13788fb9e150d0c8ea68ff7c979fbe3d504ff45eb6f85c4a199c2f20d570",
+      "sizeBytes": 428,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/division.svg",
+      "sha256": "912ad718245e26b4f692937e15adc6edbd136f64b1bc9a1169b65d485fca0ad6",
+      "sizeBytes": 2840,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/double-arrow.svg",
+      "sha256": "34429b0f8ec336d49b3ee219e90ee6b9128d1fc8b8ac5b39b758dec0c573fcad",
+      "sizeBytes": 355,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/downlineAvatar.png",
+      "sha256": "46c14dc6bf124d014babfe941b2ab464a2df19468f4f467e1282bf8fde4fb9e7",
+      "sizeBytes": 26793,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/dstv.png",
+      "sha256": "673e6de0e05d874f7336bb99684c8c44b0591d7ee28c7ed4f45171ac4b1b772b",
+      "sizeBytes": 3536,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/eko.png",
+      "sha256": "696044f1697cfa1bdc0d4e6e86b6d16103cbd240ac0d9efbf2a90003b0f401ba",
+      "sizeBytes": 4562,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/empty-state.png",
+      "sha256": "6f0dcdc55226caea3a887aac6088901de905e965110ad151ae935b757adcf1e3",
+      "sizeBytes": 29987,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/event_image.png",
+      "sha256": "7a046a011399fff8064fa2414cf11f8841f2f78d8e3803e5de83eb1bda313948",
+      "sizeBytes": 45160,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/fail_icon.svg",
+      "sha256": "d842b99a66bb4cb495a73389ab599ee2eecf0cfe87f534e75f7b2651036a7fea",
+      "sizeBytes": 61273,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/flutter.svg",
+      "sha256": "0923fa4234c2938054b6b58ac443d6fd41791910f2fc1d14a99a5f9e76de964e",
+      "sizeBytes": 330393,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/glo-dropdown.png",
+      "sha256": "bb8dafeaa67fb36d6619e2a2074ea4988672ca406b4675612fd770450fec906f",
+      "sizeBytes": 8648,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/globacom.svg",
+      "sha256": "db997a4a2b310d27c1bd55105703da813c70d29457ae4078842060445094a456",
+      "sizeBytes": 10446,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/globe.svg",
+      "sha256": "150ee482c94ba2eb25480c9bd230e337da5681922bfadf23b4fba86e8f7f520a",
+      "sizeBytes": 706,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/hard-drive.svg",
+      "sha256": "1dd20c7db1addbc36bc831086df8336395b68ebf350077a9801998faafd04a94",
+      "sizeBytes": 750,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/home-mobile.svg",
+      "sha256": "5b4a62eb705267cab1aba509908115161ba90a2c72361c9825ee20bcf59f28e0",
+      "sizeBytes": 433,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/home.svg",
+      "sha256": "f77f8b646732aa7d9bd1aea52276985418604bf10c48bcefd7ce0ab5bfad4d23",
+      "sizeBytes": 418,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/hotel_image_1.png",
+      "sha256": "193bffd59622d7abb7bec6aac954d0eaf195d076907af91592c54e4d67fad9ce",
+      "sizeBytes": 511986,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/hotel_image_2.png",
+      "sha256": "13e55a887377d318abbe7ea54bea2c142ec13e421084ae16d16df764f69d4ce6",
+      "sizeBytes": 730107,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/hotel_image_3.png",
+      "sha256": "00ac1526832edfabfb3e00a903b6d7cdb0cd6d110f9638eed7541d267673df0c",
+      "sizeBytes": 455085,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/ikeja.png",
+      "sha256": "0f22a01ae420aa168d3dc23243a360299e4cb660449da6be7f67819e54b15542",
+      "sizeBytes": 8350,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/image-add.png",
+      "sha256": "dff8e2fc7c6cf750be51cd18d47b0beae10e8dc86882a67cbb59656ac02816cb",
+      "sizeBytes": 663,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/info.svg",
+      "sha256": "712715580e419ca6b3fd0b634a349aeaa0e3b8df0a4cdb787ef2adf566829917",
+      "sizeBytes": 456,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/jamb.png",
+      "sha256": "cca08e46db368388925ea3c44cc796233a82e965c94a0d658f9a046e8ca393aa",
+      "sizeBytes": 15814,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/kaduna.png",
+      "sha256": "bd49b8ac55ee1854cc98a332a02ed9450853455e90b2c2e48af54bf3aa9c8ad9",
+      "sizeBytes": 8584,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/key.svg",
+      "sha256": "96de5c308505f7debed30c92a58ef0e31cbc72aac6ef4b1fa694a184046464a5",
+      "sizeBytes": 992,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/link.svg",
+      "sha256": "7a9485acb87cffeb15525f09fc7a4bcc8255b26b3c8e5d4bb1fe4e41bf7ae6d4",
+      "sizeBytes": 1350,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/location-icon.svg",
+      "sha256": "7d00cd6782318c18a475f0cc76b462ade9dbc6a16b2709dcc1a12c1be81c0d05",
+      "sizeBytes": 1819,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/msport.png",
+      "sha256": "7d9df3e639bb33e43d7f86dc1d34d2a6a2d6d4fb86b745e45ae51d2f9aeae41b",
+      "sizeBytes": 6365,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/mtn-dropdown.png",
+      "sha256": "d3f32433993f1882f1a64d7a61cec48aedb1df3e5bcdcee184d59e2301a3ee1c",
+      "sizeBytes": 9025,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/mtn.svg",
+      "sha256": "7bd293c35c61acb4d154713b6f693c829adeaee8e217bd55dbc3246dc3d05125",
+      "sizeBytes": 12954,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/neco.png",
+      "sha256": "f2e273f077359f4afc43d4d978be8251bc3f7ebd4aaa45d790aed7679cd764df",
+      "sizeBytes": 9778,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/opay.svg",
+      "sha256": "741d0e86217962cc065889094f288052c01309b50140031eb62372fcd4456995",
+      "sizeBytes": 11565,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/plus-circle.svg",
+      "sha256": "af6fdfd87e974b1f9a825b010a8770ea3419f7e164677cac7d47dee181ba3834",
+      "sizeBytes": 461,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/radio-mobile.svg",
+      "sha256": "a40bb1661bcb2eb68abc74009f95ea4fd940ec75d6e222ef803eab56e5d4f59f",
+      "sizeBytes": 996,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/radio.svg",
+      "sha256": "28621c006a515486f9e211b840753b6be3ee9ca8cecf114103129442dcc891cd",
+      "sizeBytes": 986,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/receipt.svg",
+      "sha256": "6b6baa62c7c01421d8cab2b07b69483751d696583f554d297df0eb3ebf758429",
+      "sizeBytes": 1928,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/rocket-mobile.svg",
+      "sha256": "07ec2c1c0f978640672015fa0a6f35bae811d97de667b92da7d3d60ef7668da1",
+      "sizeBytes": 1060,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/rocket-white.svg",
+      "sha256": "80d3e6e02e7d3114030abba2853d676a230d48f62969ccf008bda0418f846ab9",
+      "sizeBytes": 1058,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/rocket.svg",
+      "sha256": "f754efa2d9bef25c8c36355017c4457d8ee39af9ccf9d93aadcc59393ae24454",
+      "sizeBytes": 1055,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/rss.svg",
+      "sha256": "29bb588c68087766eff8840da19f404f2892b714f84c5bfe126898e63d33754f",
+      "sizeBytes": 568,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/sign_out.png",
+      "sha256": "67a6594957fae49de67349ffb84333e9c7eaecf4b589b58a0bbe12ae99e4636d",
+      "sizeBytes": 421,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/site-icon.svg",
+      "sha256": "678918cc36a91e7ef816b07d40497bce78da25c81c59be8afdcdd80a99fc7955",
+      "sizeBytes": 1768,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/smartphone.svg",
+      "sha256": "d2e6192ceecd08d091ed1500b3f67bf31474c6cce16b4f4aac55eff360b27d9f",
+      "sizeBytes": 434,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/sporty.png",
+      "sha256": "5b4f49abdabe9d98a65a5815b95578421d3eab3d5ca09f477ba71d06dbe4ccef",
+      "sizeBytes": 4094,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/success_icon.svg",
+      "sha256": "2017d8284995b1d04d7b65566b008347d990f803f60c4f9a9a7e2c938e0bfd5d",
+      "sizeBytes": 575571,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/tag-icon.svg",
+      "sha256": "c13a9cab38fb93b6e61bdf64c010df6bcd00a2ded2fe0072c3ef9c049c9f5720",
+      "sizeBytes": 1469,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/transfer.png",
+      "sha256": "0eeae62340359aec304fbfc91bba1ce6dfbff57aee7e087193d8d6478372dc81",
+      "sizeBytes": 217,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/tv.svg",
+      "sha256": "a207521001176544cad54a4adc330814f4610894bc2b3d2d8287521f5b90a1e0",
+      "sizeBytes": 491,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/userImage.png",
+      "sha256": "5232c10a100fdf11db9a39b860fedb0f21c68e80b994ece92abeff69fc4a9f4a",
+      "sizeBytes": 3652,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/userImage2.png",
+      "sha256": "6e4cf66068aaeac05f8d865cc6c160804470d09593ddaa5a3e3774a8ac32a323",
+      "sizeBytes": 22132,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/user_image.png",
+      "sha256": "33f006a71c09cdad1dd8e464687fe9ee3977cf1e41a22db2aee351dc3ddb5167",
+      "sizeBytes": 3466,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/verified_tick.png",
+      "sha256": "b780082b86b2cacade632063ed0a4968c58c4c16b408346dc4193e35e74dce17",
+      "sizeBytes": 469,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/virtual.svg",
+      "sha256": "a8655e3e06c74481beffb7ad183571cbf70928cddae89974aa7f23a163ae3239",
+      "sizeBytes": 1955,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/waec.png",
+      "sha256": "3ef0e43081c5b91d6af32417ad058f7c4c93426b753161a50201f8c9c8150acf",
+      "sizeBytes": 11341,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/x-octagon.svg",
+      "sha256": "23723d53c24b828ae3f4ec605d5f162bc43dcfa2f495a4edcdf219ee451768b9",
+      "sizeBytes": 375,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/dashboard/zap.svg",
+      "sha256": "d37be78164d47b89c0b1adf08c8474048f5368a339af4985a53cfec5bd8c2073",
+      "sizeBytes": 278,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/fonts/Aeonik-Air.ttf",
+      "sha256": "841af4994295f1b35c7675f011b48bfe5b1211d0ac8b0cb294efaed9d4afc593",
+      "sizeBytes": 93112,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/fonts/Aeonik-AirItalic.ttf",
+      "sha256": "5ae930632c134a96178ff5e3e54647652734f47356043aaca6db41e60f29bde0",
+      "sizeBytes": 97416,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/fonts/Aeonik-Black.ttf",
+      "sha256": "285e22485991026b0d41b1d67eb4c1be6b6cd12a6082f39e95033c19c1c4db26",
+      "sizeBytes": 101328,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/fonts/Aeonik-BlackItalic.ttf",
+      "sha256": "0e75c1abe5144dcb24a5e7a33ee00f0d25a0dc084620481150f9a583314128f9",
+      "sizeBytes": 106160,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/fonts/Aeonik-Bold.ttf",
+      "sha256": "017180ef3dccb7e01f8e1e617a736f94bd38c50f7a748b03f1d487e09e3d9f11",
+      "sizeBytes": 100740,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/fonts/Aeonik-BoldItalic.ttf",
+      "sha256": "300f103cc8d8e9e922d0a1fafff8c5ffdc1f6efef1af797d3085ea242b3c8cca",
+      "sizeBytes": 105472,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/fonts/Aeonik-Light.ttf",
+      "sha256": "de236033655ea75c0a668ab2a2ac51e37f0be468c4bd542a6eb64d78698bd5e7",
+      "sizeBytes": 98484,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/fonts/Aeonik-LightItalic.ttf",
+      "sha256": "fd6eb1fee8361fee19ee88dcd591169162b9d84bc360a9a8bc2f399bc40d1f9d",
+      "sizeBytes": 103240,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/fonts/Aeonik-Medium.ttf",
+      "sha256": "2a096b78226ea48ec8d105080561fd35dbe15075ada7f17c7315f6640a03afbf",
+      "sizeBytes": 99628,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/fonts/Aeonik-MediumItalic.ttf",
+      "sha256": "3a67d5f6d5b0926d96df917ce9b99a92edd57bc0c44513d9aa7d6991da72519d",
+      "sizeBytes": 104852,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/fonts/Aeonik-Regular.ttf",
+      "sha256": "84e288849c72ba174551d2f43dfbdf8f58fbeadd4ea6cecb052f12c162dbc644",
+      "sizeBytes": 98720,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/fonts/Aeonik-RegularItalic.ttf",
+      "sha256": "8b20050131ff5e7bfa34f1e663245ed4c4394fafab106dafcc576e0b6b505c23",
+      "sizeBytes": 103896,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/fonts/Aeonik-Thin.ttf",
+      "sha256": "a1cab97def2a510c324c0cb51b4aee28ba114cdddb97848d34fd9b519a20aab9",
+      "sizeBytes": 97436,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/fonts/Aeonik-ThinItalic.ttf",
+      "sha256": "c6fdc2492338a8c1107ecaae7ae75bc8509f2a2d85fb31a739f6feb9ee8a5ba0",
+      "sizeBytes": 102380,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/fonts/Aeonik_OVERVIEW-Medium.ttf",
+      "sha256": "60be89b6dc4a42de43e7b239abd1bea5f305a60dd2ea5ec7bc22030b1f3b61f6",
+      "sizeBytes": 101100,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/fonts/Aeonik_OVERVIEW-Regular.ttf",
+      "sha256": "7e2d94e305d9d533d396ca9cbb18d2793e0d5932bf79a33d72e51e3d25918170",
+      "sizeBytes": 100176,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/fonts/fonnts.com-Aeonik-Bold.ttf",
+      "sha256": "c5258e32a25d1bbfa386b0ab74f9b17a0d6f7205e8246f117822f62938a8186a",
+      "sizeBytes": 100200,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/fonts/fonnts.com-Aeonik-Regular.ttf",
+      "sha256": "23c5a18ce60b095ce4616307147128a3a1bb044d38ca12e63d9094a70b6858be",
+      "sizeBytes": 98228,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/main-pages/AccordionCloseIcon.png",
+      "sha256": "7a1af88c33615eea9670e54624e275699578ccaa578c68eecfeff54806e7eb35",
+      "sizeBytes": 618,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/main-pages/AccordionOpenIcon.png",
+      "sha256": "6bdce440b69d506700c8715448156ac8fe2fd715ee54e01bd59f18b4d68e75d3",
+      "sizeBytes": 636,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/main-pages/Avatar group.png",
+      "sha256": "31bac9d39b3b95bd0734a813a0a6b3902ad6e05859dab4b15d5f390338966bfc",
+      "sizeBytes": 134809,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/main-pages/Avatar.png",
+      "sha256": "3ec5452900d9d3e04d86c6cf2313a5584812f3f813d21aba42783fbd97f48b97",
+      "sizeBytes": 64308,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/main-pages/Facebook.png",
+      "sha256": "1cdef84a87c1e08477757877d6f77ed771c1dd16105742864f8421473bd9966b",
+      "sizeBytes": 662,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/main-pages/Layers.png",
+      "sha256": "9442df7948b2d9d7c35cae8eb070813416d47fd130357eefabba355698edfa2b",
+      "sizeBytes": 9858,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/main-pages/LinkedIn.png",
+      "sha256": "6cf0e4c714b3e2363c99effc10e7090a0ece2f52b87128d82b7b7d8b5696d64c",
+      "sizeBytes": 478,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/main-pages/Mobile app store badge Apple.png",
+      "sha256": "cee4ab5be6464b7ea4cee8efb7ab2194fef5289293af25021905934823522dcb",
+      "sizeBytes": 14152,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/main-pages/Mobile app store badge Google.png",
+      "sha256": "46fd218a031cb140a7c58c13482922605f7bd3af77b2d490f750e7e863db1a7f",
+      "sizeBytes": 4630,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/main-pages/Twitter.png",
+      "sha256": "a265b09cdcfad015af04c2b984a2eb7a8a1cdf674afcea4634e8d429c80e34fb",
+      "sizeBytes": 742,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/main-pages/bills.png",
+      "sha256": "1f023fde7005a919b3155db23516cbc4dc84938d583797a4e0a6deb5f86cadb4",
+      "sizeBytes": 59883,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/main-pages/catalog.png",
+      "sha256": "dc6010ada68175e0a4c47aa7cbb5845142fd95fd861d9e7af0e86f63b7466841",
+      "sizeBytes": 12533,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/main-pages/chart.svg",
+      "sha256": "bae46136e5c32a5ce40b72031c1e6240e6cf5278980596031af8da5d6a74f588",
+      "sizeBytes": 325,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/main-pages/circooles.png",
+      "sha256": "de7a081c530ad985af3f4362d0630c928dd7d612391aa25d909e7b6de8b93f85",
+      "sizeBytes": 11955,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/main-pages/contact_us.png",
+      "sha256": "28fdf207264db601c61d9e1d21ee9461dde675b9bf00aab4df3e72e1994b0d4a",
+      "sizeBytes": 955648,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/main-pages/fast.svg",
+      "sha256": "e7af353ecda0756fb40e39a270e5722318080d559c67e7f51f3bc11f20ee4338",
+      "sizeBytes": 312,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/main-pages/flag.svg",
+      "sha256": "8265ed0099c938de61a10d5dba2b3820e4359591521355354e3a8ef04c974c38",
+      "sizeBytes": 405,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/main-pages/heart.svg",
+      "sha256": "92d91fbc1871d2e3fae241d5d1e3f3ec56c639f8de9dc219e87b2b1649567273",
+      "sizeBytes": 935,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/main-pages/hero_image.png",
+      "sha256": "2c98ad8070d0a99e1bb09bcc2b3030a4a168d25435ba1b4a82745f562ca94221",
+      "sizeBytes": 2536389,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/main-pages/hero_image_mobile.png",
+      "sha256": "2dca202f53b259e5bb12d57f75aff6cc6f47f52fdb1cc153b0d38cbb4ce6c991",
+      "sizeBytes": 1461966,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/main-pages/logo.png",
+      "sha256": "ceadf226a32b6d3dad9afe7343628a1179d17471dff3ddaf3a969ec5c83ed6d0",
+      "sizeBytes": 13299,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/main-pages/mail_icon.png",
+      "sha256": "f2b7a0ee042011466f1c19ba7c2e5622ef3afe6a4325f41c002c9610de58b605",
+      "sizeBytes": 1238,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/main-pages/our_mission.png",
+      "sha256": "8a28fb2462b096ea805a1c9cb3c39f7ca72242e2bbdfa065caceea176109c0c1",
+      "sizeBytes": 138210,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/main-pages/quotient.png",
+      "sha256": "d7340e82d4b1efa6ba489cc41911128712bc0813a23bd056fe0dfa7856ea5bf8",
+      "sizeBytes": 12931,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/main-pages/referrals.png",
+      "sha256": "9cde57a2e8f577745133a8f346165a448614dd972bc7659ebeb0706a289add42",
+      "sizeBytes": 99576,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/main-pages/sisyphus.png",
+      "sha256": "22328ddcd03bd840596c9cd781543163502c771ad33c08b3c9c106da1b7ffbf9",
+      "sizeBytes": 9060,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/main-pages/smiley.svg",
+      "sha256": "6467e691710759ea4f5c1bd545ffccf4e8e7d0156e2db775a8d9d7b38ad54b4f",
+      "sizeBytes": 464,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/main-pages/static_account.png",
+      "sha256": "8453808855aca870b4f02794413d347820f2bb5a705a6c717e756dea6abe80c1",
+      "sizeBytes": 86801,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/main-pages/users.svg",
+      "sha256": "0dd60a402b640ed04dcc4abdb0b604b8951fe341017f0f59c93b097f2b77f3ab",
+      "sizeBytes": 850,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/main-pages/virtual_cards.png",
+      "sha256": "043be6729ce5c54d4239ee963ed6f7c1b2034a44a69da94f3f38ac7f73282d9a",
+      "sizeBytes": 177671,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/assets/react.svg",
+      "sha256": "35ef61ed53b323ae94a16a8ec659b3d0af3880698791133f23b084085ab1c2e5",
+      "sizeBytes": 4126,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/Authentication/AuthButtons.tsx",
+      "sha256": "c7c1781590bcc2bd4f264dfabcbfd8f1a60f606fb2bcc4212b2bc2b1edf288b8",
+      "sizeBytes": 1707,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/Authentication/BackButton.tsx",
+      "sha256": "96bb5854de5fb7b73e7d49a4c6917b0df240b481e2df6fe5f0682e8fa40615e9",
+      "sizeBytes": 1464,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/Authentication/CreateNewPasswordForm.tsx",
+      "sha256": "5f37fced84946bf2cad456fc089dcb414f7cbfe1d86bf1ab171c25b61984ea72",
+      "sizeBytes": 6341,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/Authentication/GoogleLoginButton.tsx",
+      "sha256": "d07fb11ab5368dacb9eb6b7c9a244739969bfae65febb2b512f87402806c7861",
+      "sizeBytes": 2682,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/Authentication/LogInForm.tsx",
+      "sha256": "f6d9e4b4842da366920690f845e79f118c104cdea32e15b3e44bc61a679a6dec",
+      "sizeBytes": 6025,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/Authentication/SignUpForm.tsx",
+      "sha256": "5b39ad107c0baa0ef35be3018a8b8922b0ff4c90ef06e39d443e92183f760eea",
+      "sizeBytes": 6049,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/Authentication/VerifyEmailForm.tsx",
+      "sha256": "51816c82da1ecc470df37f4397941867a33d7104f1f85ddb5b744783014b0d11",
+      "sizeBytes": 4514,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/CustomButton.tsx",
+      "sha256": "c8a2fd6e320d11a8612769705753bc9eb6d0798a87ee6e76d82b479ac94800e3",
+      "sizeBytes": 1956,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/Loader.tsx",
+      "sha256": "6fbf977e14670ca10662df5b20d6891ea91e5a984cf9b2678d3c91bfc26b0179",
+      "sizeBytes": 383,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/NotFoundPage.tsx",
+      "sha256": "2bbf8ce46b649abda6dd05135536cf2651100bfde5226149e08e91c83f25fa19",
+      "sizeBytes": 640,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/ScrollToTop.tsx",
+      "sha256": "54b60b457c4df675bf013f911f85d3a575b851a8e304b1b0963148fb150dabe0",
+      "sizeBytes": 537,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/SuccessMessage.tsx",
+      "sha256": "0ee5f583a3e95dd3d963173ed6ab56b9b3b478fd4ac02e7efb112e2ac8b0657f",
+      "sizeBytes": 935,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/DashboardHeader.tsx",
+      "sha256": "08300b86233a853ad990038d57591609b9d848d0eb66421fd69a45f6e0cca279",
+      "sizeBytes": 3262,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/EmptyState.tsx",
+      "sha256": "9add6109c8a5b1481131f4118cd373888b55eff10a1eb82127bb1e95c42493d1",
+      "sizeBytes": 777,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/EnterPin.tsx",
+      "sha256": "1bf4317c4e1d97064ba8a913cb5cb4ce8b48dfcbdbfdef56e3c2f0347b0e27d2",
+      "sizeBytes": 1798,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/MobileNavigation.tsx",
+      "sha256": "93bccb5dba706f876bf9644457b8950a303f977f111825deac6aaaf3ff5e3103",
+      "sizeBytes": 1067,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/ServiceStatusMsg.tsx",
+      "sha256": "30cbd3d0eccb69e1b2136cfc8ff34eaa49fc737365c267e1f48b986989251275",
+      "sizeBytes": 936,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/add-funds/EnterAmount.tsx",
+      "sha256": "7ac19c5bbb12ed151d5db7f13adec8d718bb4342dc3dda175203c77368e2a00a",
+      "sizeBytes": 2592,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/add-funds/MakePayment.tsx",
+      "sha256": "158b8bfca23a6c180eaa68bda6f7d7ed5ee73bef3698a0ac067f3c6bbea8313e",
+      "sizeBytes": 5226,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/add-funds/SelectPaymentMethod.tsx",
+      "sha256": "be4c27e0c8dca36073c89bfe66798793a02f7759dcf098b97d39898af8cc14aa",
+      "sizeBytes": 5137,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/add-funds/add-funds-steps.ts",
+      "sha256": "806d650ef039b8a2b39aa0cc8d6293561ac07e532b8383079985112b2ad94a25",
+      "sizeBytes": 380,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/affiliate/Referral.tsx",
+      "sha256": "ef311927a9a2bf279e03aa8df80c195d15bda7b7070a87e2d945817e2278fcd0",
+      "sizeBytes": 4993,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/affiliate/downlines-table/DownlinesTable.tsx",
+      "sha256": "ee3bc48afb476333fc48f8c79a4fe1061672c6ad46d69b01ef4b5641c6424dd9",
+      "sizeBytes": 388,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/affiliate/downlines-table/Pagination.tsx",
+      "sha256": "1ee47006a5f1d1f1f991a31b64ddd642057ca6c8762362288c57abdea38fceb7",
+      "sizeBytes": 104,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/affiliate/downlines-table/columns.tsx",
+      "sha256": "4ea0ac4f7a356a9bd6a198938f2c1e61c800787bdae334c47087734094818778",
+      "sizeBytes": 3606,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/affiliate/downlines-table/downlines-data-table.tsx",
+      "sha256": "164d79a7c9fd22c8f087f96b282ef92485b607e6edbe035226261218daff1295",
+      "sizeBytes": 4245,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/affiliate/uplines-table/UplineTable.tsx",
+      "sha256": "a418a70e02dc376ba488746f040ac45ab7fc320d5ed0cfce88ace7b8d42a4bf9",
+      "sizeBytes": 332,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/affiliate/uplines-table/columns.tsx",
+      "sha256": "e3e95f9927cfd17f5afc5935e7a07a1e0ce637c1477951e7541403a29b4fc161",
+      "sizeBytes": 3336,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/affiliate/uplines-table/uplines-data-table.tsx",
+      "sha256": "8f1a95830beda57b12ac18412722e2bbcd47f3184652d54b155d7b20e278af44",
+      "sizeBytes": 2623,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/custom-star-rating.tsx",
+      "sha256": "6e9dead20ca61c70e33f48746fbb5477461d9624c92d9ee60d0d4ba3c1e1823a",
+      "sizeBytes": 2070,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/events/ConfirmEventsBooking.tsx",
+      "sha256": "356387abe71eff9701b486e74adb1a25535f96d3d46c45fef373e9e91305010f",
+      "sizeBytes": 2227,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/events/EventDetails.tsx",
+      "sha256": "ac72e5852fe706cb51b4a3cc293345ffbb6fe144068077b8007b0f9fb20d8375",
+      "sizeBytes": 3280,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/events/Events.tsx",
+      "sha256": "9aa689c2f9ecf6a7054c6272748615fe23834acd558d829a9ad31a5b916cf661",
+      "sizeBytes": 550,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/events/EventsList.tsx",
+      "sha256": "a11f60563be24e84a680c130b12f696eb05f9f3bbe07e645b665fc43c5cf8c4c",
+      "sizeBytes": 5124,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/events/PurchaseDetails.tsx",
+      "sha256": "b40a86236766a1ea9f5d5ea60e22040717c71b3794a6380e4a32be637486323f",
+      "sizeBytes": 5220,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/events/SelectEvent.tsx",
+      "sha256": "2e2260ff0241b4948fa0b60e5ecae4852654e519228279852353f3aa5bfdf735",
+      "sizeBytes": 965,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/events/Status.tsx",
+      "sha256": "3365ed7a1d034ca9e98dc1829b0848f77fc2a9b3dbbfdb0c8c110b0e5f106e14",
+      "sizeBytes": 2288,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/events/constants.ts",
+      "sha256": "30ba4f84fb08f66a9b04e80ae9b7161a4688c4c1b4d9377bd316c15e29cfe7ee",
+      "sizeBytes": 1897,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/flights/AirlineDetails.tsx",
+      "sha256": "248614d2cdd92d3091ca3de71b94d8ecebc7e2beb86379f9f53a59f6140a5e97",
+      "sizeBytes": 4635,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/flights/Airlines.tsx",
+      "sha256": "113654b2e2ea2af7924b94374ce6fe9afca4ff117231292841af406c9aaee1d2",
+      "sizeBytes": 6795,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/flights/BookFlightForm.tsx",
+      "sha256": "30ea8ff2d7911bbc42552c0bbd11672cc48c8e6e001187aebed8d1a3c5eafeff",
+      "sizeBytes": 23851,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/flights/ConfirmFlightPayment.tsx",
+      "sha256": "c92d468a58f70b1c8cb063cd83c77819e35c638465abad2e805c6d7281a9bbdc",
+      "sizeBytes": 3827,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/flights/DocumentInfo.tsx",
+      "sha256": "46e9c9422707b157fcb5eac5869617134b99b47d38c996f4b3edb61b635c0f72",
+      "sizeBytes": 32603,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/flights/PassengerDetails.tsx",
+      "sha256": "9c851d81583bc715974dc317c4bf7bac1c704b9256db9926898be8a43f8486c6",
+      "sizeBytes": 1505,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/flights/PassengerInfo.tsx",
+      "sha256": "a5be82d157520956e277f4feab80aaf6dfc4f1b993d6198f1e9b8e820f08c716",
+      "sizeBytes": 986,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/flights/PassengerInfoForm.tsx",
+      "sha256": "b35d83d9959c6a467389d3e40f1e300048e7798b38517092e604d98e118e308b",
+      "sizeBytes": 15306,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/flights/Status.tsx",
+      "sha256": "5ad4ffadeb5b8cb60a99dd46182aa5306500b815359e15606d7304c338ebdd74",
+      "sizeBytes": 2630,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/flights/constants.ts",
+      "sha256": "98784006c5e2bbbdbbb07f9db81c34200b0466a58c2619375efb8793dcd7d3a5",
+      "sizeBytes": 2743,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/history/ApplyFilters.tsx",
+      "sha256": "21f25a6b94eaf3e93090111b1cf8febbfd0c99d011f6fae399bc6ef5f95238a5",
+      "sizeBytes": 12012,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/history/Filterbutton.tsx",
+      "sha256": "1d17ff453712ef34faafe638ef5c2f87714e46940350129d79b23c00b0e0d081",
+      "sizeBytes": 1298,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/history/TxnDetailDesktop.tsx",
+      "sha256": "a5931aef3fa518d23f9f0f7d1c442f95fc4627506188cf68f43e86ee4f24d31f",
+      "sizeBytes": 11786,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/history/columns.tsx",
+      "sha256": "630cb8bf68d0316b3ed209d3deee8850fe2536275ce05b208b104acf87d0bbce",
+      "sizeBytes": 7018,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/history/data-table.tsx",
+      "sha256": "0ff03dd3c197ebe585ea49a3370482f4e2b8830172c543b6c15f719d7a88e4c3",
+      "sizeBytes": 7306,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/history/history-mobile/TxnDetailMobile.tsx",
+      "sha256": "ea9ed6017af808a9defc1576d9dad9376317026489abbdea852cc17b295776d5",
+      "sizeBytes": 10069,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/history/history-mobile/TxnHistoryMobile.tsx",
+      "sha256": "33f5377ab41b3783d47289a6a22056ea1842d9ac8a8bb11661d27c4c1d82afd2",
+      "sizeBytes": 5322,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/hotels/ConfirmHotelPayment.tsx",
+      "sha256": "134ba7b36dc764f2f3871608808cdf596089d89bfa4ccf457d79be0d1621d8a7",
+      "sizeBytes": 3054,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/hotels/CustomerInfo.tsx",
+      "sha256": "8c8e1c69344785736b22d815868dcc057c5d9c8a48e7263345338f79d693c386",
+      "sizeBytes": 1871,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/hotels/CustomerInfoForm.tsx",
+      "sha256": "cfb6be29f337b14f3a5a6835ce16790a4c5e4deb1afbf0d334489a31c3ef0c16",
+      "sizeBytes": 2999,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/hotels/HotelCard.tsx",
+      "sha256": "0fc0ec2aae03b42dfb0cbc07338897a9be4baf72c326338edfebeba055cf81f6",
+      "sizeBytes": 1488,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/hotels/HotelDetails.tsx",
+      "sha256": "0191a398aae1d0c1ead10770bc3c7cf890356f10013edeed358a33734206b55e",
+      "sizeBytes": 4974,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/hotels/HotelImages.tsx",
+      "sha256": "f13ae9e361a3cfbbdc08909721412803163e061e16bf066641d3ccdaaeb3a5d5",
+      "sizeBytes": 1191,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/hotels/HotelsList.tsx",
+      "sha256": "3d3d28514b7bfea2afb082ee7b1f25a138fc464d116d6877ef7786659883f8e2",
+      "sizeBytes": 307,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/hotels/InfoFormStepOne.tsx",
+      "sha256": "2dab0003d88081719337f8b611893a69e3e1844e7ba3a10255629b856db6e9ca",
+      "sizeBytes": 7497,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/hotels/InfoFormStepTwo.tsx",
+      "sha256": "b4f0e1cdccca3d64e2dee8a13acefbcce14a94aa8441aca0897eb935ee39afdc",
+      "sizeBytes": 5852,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/hotels/Pagination.tsx",
+      "sha256": "ffbb2481c27a0d640b41e2201f10025736f8314065b0fb5b454d4b376f111661",
+      "sizeBytes": 1485,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/hotels/SearchBox.tsx",
+      "sha256": "e75e6638e5a3634e428ed1440168fdea276f5f348063fcdd462b02543b60bd55",
+      "sizeBytes": 546,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/hotels/SelectHotel.tsx",
+      "sha256": "19edea40df0a9bd838d691b852e05f394f1ac76aa0a31fcd976a8ba5a9dc9469",
+      "sizeBytes": 1098,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/hotels/Status.tsx",
+      "sha256": "e3b585797a649de74d22c6af14f1185b1a32e8ca27fa7f17f3532fe6f049635d",
+      "sizeBytes": 2150,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/main-page/BalanceCard.tsx",
+      "sha256": "86b6f6baf9dc930473aef47c6b3bcf4940aa54145551033bbcefaa85e356c921",
+      "sizeBytes": 2479,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/main-page/Campaign.tsx",
+      "sha256": "91657cb4f6f7d474fd17eaa28155b0bca9bc7621f9509e22d79d918ab0382db2",
+      "sizeBytes": 2412,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/main-page/CreditCard.tsx",
+      "sha256": "30b340780f54c946200e735a773dabc93f498c44a08575c738230cb2e812fad2",
+      "sizeBytes": 1592,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/main-page/Dashboard.tsx",
+      "sha256": "18b96b5d09585d37ad9ce6b28bc86c7929d5159dfff343050170b6c502245c8d",
+      "sizeBytes": 1805,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/main-page/History.tsx",
+      "sha256": "01f3e0dc4bfba66d53864f7499771d1cf77d42cfe3c406558926646992a49a73",
+      "sizeBytes": 2441,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/main-page/MobileOtherServicesDrawer.tsx",
+      "sha256": "bd86a770ac96683c2b95b10f704d12f72004e51ad8f80d4623f0e7f0c2c3fd36",
+      "sizeBytes": 2813,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/main-page/OtherServices.tsx",
+      "sha256": "91915ec846e0e09a815cf9a019fda1eb263d2007754159f74ea7b9001ec31569",
+      "sizeBytes": 2944,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/main-page/QuickActions.tsx",
+      "sha256": "3f003d2ec3833382a225c01ef3634cedf2bcb098df1aa63c7344a162d6488d8a",
+      "sizeBytes": 1566,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/main-page/ServicesList.tsx",
+      "sha256": "1ff01d7123e65b1175593f08c2a200103b017b57d36562b05475d5438dca05e9",
+      "sizeBytes": 1422,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/main-page/TransactionHistoryCard.tsx",
+      "sha256": "a691c8cc7e96e5585e4ce3d69d6480022b90e488ae8822e4dab88962017df702",
+      "sizeBytes": 3466,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/notifications/NotificationDetails.tsx",
+      "sha256": "721693b3369290cf2ac581d687b2095a469146ffaa2c21d58659749850e35872",
+      "sizeBytes": 2603,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/notifications/NotificationList.tsx",
+      "sha256": "7c8e9da3c7193ad32ff677d02b513bdd0fcb2260c6a59e88669f95b2bd988a54",
+      "sizeBytes": 6733,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/services/ServicesSection.tsx",
+      "sha256": "1a6a31451954fc2ef47f41b749243df68cfe93f7a0a5a8f0929fae8570a4dd9b",
+      "sizeBytes": 1799,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/services/airtime/Airtime.tsx",
+      "sha256": "2aab86bb2d25e9450f20a3bf4f4433c43f914ad1c09d95f621dce522b817b544",
+      "sizeBytes": 2063,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/services/airtime/ConfirmAirtimePayment.tsx",
+      "sha256": "ae35217dedceefd9eaf12816fe63eb3524db75bd6df8d33b7955efb2dbbcee05",
+      "sizeBytes": 3247,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/services/airtime/RecipientDetails.tsx",
+      "sha256": "03617a83554b39cc18887dab55efc13387d9acd01cfc1fc6ea219d97430a2882",
+      "sizeBytes": 13653,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/services/airtime/SelectProvider.tsx",
+      "sha256": "074f242deeb8ef4c0783e1b1aa421701429bcc8ea573f3c3142add9580021aa6",
+      "sizeBytes": 3050,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/services/airtime/Status.tsx",
+      "sha256": "b47cff3e4d50bf55037dd1c3c3619fe9f276259562cb20c681098718d50f3670",
+      "sizeBytes": 2369,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/services/betting/Betting.tsx",
+      "sha256": "4bbbd7bee0bef8cb0d44ecb9fb6a3aadc9ca6fd7dd619efd6a889b0e11ffc7c8",
+      "sizeBytes": 2146,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/services/betting/ConfirmBettingPayment.tsx",
+      "sha256": "20906bf9ef2fb16c4585c2c30dde6926a6ae690020e3839201385c6a5211e594",
+      "sizeBytes": 3538,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/services/betting/RecipientDetails.tsx",
+      "sha256": "e62c67b90c40fe405b65364794bc36d479f6d20648a3d640c0ec7739777d9209",
+      "sizeBytes": 10654,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/services/betting/SelectProvider.tsx",
+      "sha256": "fa9356c63fd5638dd6bd76c38a45eca60cf17466d23b07e8ba0a16a734a1629b",
+      "sizeBytes": 5439,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/services/betting/Status.tsx",
+      "sha256": "d8c187101e35366f84dbbcf4c8e986b7261bc524fb8d3078570dc8ef271f112e",
+      "sizeBytes": 2347,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/services/data/ConfirmDataPayment.tsx",
+      "sha256": "2324bb1167845c61f109df5f3c3f3c0ebe9ea3a73c838d98d6dc767e03197eef",
+      "sizeBytes": 3366,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/services/data/Data.tsx",
+      "sha256": "30b8e68d7d91e87f6c9495348bf48fd01cfdfe37e03a7a68b09df04e1dd5b29a",
+      "sizeBytes": 2016,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/services/data/RecipientDetails.tsx",
+      "sha256": "37a5f58fbe906a5a950f7a8ca42812c645d6ceeb9f2a9e372fa9ef8bdc74e833",
+      "sizeBytes": 18303,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/services/data/SelectProvider.tsx",
+      "sha256": "0e63a143de862d372efeb7406198f2b8164fd6d5225eb0fe5b71a7486a9725d9",
+      "sizeBytes": 3658,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/services/data/Status.tsx",
+      "sha256": "7abc29eac80f7d23c6813dbfa5bb0964c009b8c890e4bdf960c51a2fbc0cdc2a",
+      "sizeBytes": 2481,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/services/electricity/ConfirmElectricityPayment.tsx",
+      "sha256": "31412568f2be583de0764c29370b8f770eb9334b88ddbf0e3e8f51f08b7bfee2",
+      "sizeBytes": 3265,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/services/electricity/Electricity.tsx",
+      "sha256": "08f318807b0c8e5712aec01d7ebec6c473531d0d81d4de5afc533df0dc36131d",
+      "sizeBytes": 2203,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/services/electricity/RecipientDetails.tsx",
+      "sha256": "b4a9de3b380365315d0ae8089127bbb9e2275da5ac4c57b8132dd99632bb9953",
+      "sizeBytes": 11546,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/services/electricity/SelectProvider.tsx",
+      "sha256": "fa60207a3dfada1bffa4b10ff71fd7324cae5295440e4211aaaadeea8e0eb7cb",
+      "sizeBytes": 5800,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/services/electricity/Status.tsx",
+      "sha256": "ccd7868e9f848a2deb1d6d797e069ef33219de89575f8df9a70879f924227f91",
+      "sizeBytes": 2357,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/services/epin/ConfirmEPinPayment.tsx",
+      "sha256": "a70db949d3156e2b7956b7fbb41792d7d2494b197fdb2fdd8f7f0e83e590348a",
+      "sizeBytes": 3335,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/services/epin/Epin.tsx",
+      "sha256": "92c55c2a83315ac765a6005e54e285bd04b5da154a3a5f08c597c010f04399a5",
+      "sizeBytes": 1752,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/services/epin/RecipientDetails.tsx",
+      "sha256": "cae4dc9022227af7d63aaeb2b987e6ec24fa21a0f681a4a3a1fe8764477ea6a1",
+      "sizeBytes": 12295,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/services/epin/SelectProvider.tsx",
+      "sha256": "32bc04dd01120559ada6e0038833dd8e415d7e4d2faf6dd261258f3a4ba80ad9",
+      "sizeBytes": 14827,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/services/epin/Status.tsx",
+      "sha256": "0b050f7f3ac583eb51a5d6d7d2bf342f345a2007c5fdb15d477cf205944210b1",
+      "sizeBytes": 2342,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/services/esim/ConfirmESimPayment.tsx",
+      "sha256": "a4316fc487bb59a46848c35ce4c36405c42b12eeb1f1fab6f4e6aef5dcca2a40",
+      "sizeBytes": 2377,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/services/esim/CountriesDropdown.tsx",
+      "sha256": "16722262e45a67a7b6748da8e67fac6042a5c91f218263a3a7dfec59d84b9b18",
+      "sizeBytes": 3310,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/services/esim/ESim.tsx",
+      "sha256": "343556ddcec2101dec1962b64a5d25a943552940c80a06c9124d0ca8dded916c",
+      "sizeBytes": 1445,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/services/esim/ProvidersDropdown.tsx",
+      "sha256": "4fe39c42df36b3616ef4ed6e4e075b5ce786718df546a8132362ed98ce0b54cd",
+      "sizeBytes": 3321,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/services/esim/PurchaseDetails.tsx",
+      "sha256": "2b8000110cf4c975b7dc5ec142eb0056e534c0b8918b87a78176e28b2d4df2e2",
+      "sizeBytes": 7119,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/services/esim/SelectProvider.tsx",
+      "sha256": "63b3cd6b9ddd4623722b14ae759b4c94b855ab7096e141287370bbb4f4e2349f",
+      "sizeBytes": 4541,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/services/esim/Status.tsx",
+      "sha256": "001cfc3812fb3099a74658459d4442647df312e1e828c92bd45ad9548f66fdd8",
+      "sizeBytes": 2267,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/services/international-airtime/ConfirmAirtimePayment.tsx",
+      "sha256": "0328eec67a661d7b69f0a519b00bafe3dd65371943e371945e5dc527a289de86",
+      "sizeBytes": 3284,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/services/international-airtime/InternationalAirtime.tsx",
+      "sha256": "b5645de2c7256269770b53436f62758324e51ea9f58005d331dc6f978e661d31",
+      "sizeBytes": 1751,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/services/international-airtime/RecipientDetails.tsx",
+      "sha256": "92d723919bc95a7748b458f4632b68b2b3607e80f538a9e0f435ac1217fb7f19",
+      "sizeBytes": 18112,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/services/international-airtime/Status.tsx",
+      "sha256": "90bac022635fef3e053eac306fed225ff3170dcb3dda7262504bdbfbd00f3592",
+      "sizeBytes": 2359,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/services/international-data/ConfirmDataPayment.tsx",
+      "sha256": "bafb5688bca00307ecf8ab29dceba6f7cbdcb6f20d88510642c81aebf141616f",
+      "sizeBytes": 3343,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/services/international-data/InternationalData.tsx",
+      "sha256": "87d3603f15061fe994a34bace0196191100f5bd80d1d2dcd599aa5701376fc59",
+      "sizeBytes": 1715,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/services/international-data/RecipientDetails.tsx",
+      "sha256": "963dff58b9b354977905af4838d7a0ea306cc0b45d3d55582aa07b29e48e4200",
+      "sizeBytes": 22691,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/services/international-data/Status.tsx",
+      "sha256": "7266865c0032cff69b1a385e3c48634fb637482c2a9dea3985b9281b2adcca9f",
+      "sizeBytes": 2389,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/services/mobile-money/ConfirmMobileMoneyPayment.tsx",
+      "sha256": "e035250645e67aac2bacb2b183318ff3513e4bb000e4f74ab90e83acd3236d72",
+      "sizeBytes": 2391,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/services/mobile-money/MobileMoney.tsx",
+      "sha256": "265af36f7bcc996b50602332454cccbdfc53517462d958731a99d9dd935af0f3",
+      "sizeBytes": 535,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/services/mobile-money/RecipientDetails.tsx",
+      "sha256": "3172c1946257c2075cb9313de605b4c85e45fcd99c43180a04f4fa65d857cf89",
+      "sizeBytes": 5772,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/services/mobile-money/Status.tsx",
+      "sha256": "4c7f4d0e237d014202a76379a3576710d5057b3726b3d8585576d7ba5bd47d79",
+      "sizeBytes": 2296,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/services/mobile-money/constants.ts",
+      "sha256": "11084816f6bfaea43d28f16a48b0e250c44aae001b9977d9ba1bd68e054ba270",
+      "sizeBytes": 394,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/services/tv-cable/CategoryDropdown.tsx",
+      "sha256": "438f3154995d46e352152f35189522c1a545831db64af09a6b5a1ddcef484a50",
+      "sizeBytes": 4191,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/services/tv-cable/ConfirmTvCablePayment.tsx",
+      "sha256": "2fb34fb55e7ebbbf83659724e5de51aae14f14ceb2b4fe3a07ec6928924f5dc1",
+      "sizeBytes": 3203,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/services/tv-cable/PackagesDropdown.tsx",
+      "sha256": "9443c5324e650b6c407874e04cc72d45cccd01c61671deaf2a445e9e5f0f7500",
+      "sizeBytes": 4439,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/services/tv-cable/RecipientDetails.tsx",
+      "sha256": "4a6ccf6da026bf325e62d9e817dc55f6459fde738e4f4563438af440fab8e5f4",
+      "sizeBytes": 7176,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/services/tv-cable/Status.tsx",
+      "sha256": "c645df44d66d862f8c0fc05434f0a4e9a174b0f656dbeef998f08d5b6e31b7ad",
+      "sizeBytes": 2230,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/services/tv-cable/TVCable.tsx",
+      "sha256": "fcd51295b510f9c7908f0f6d81b3d540c49a00ea7e451f0f81d81c14e86120df",
+      "sizeBytes": 1185,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/services/tv-cable/constants.ts",
+      "sha256": "8daaaf669699c36a8dc2253091e0f8391c09701690dc498d4e03809c8ed13b66",
+      "sizeBytes": 386,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/settings/AccountSettingForm.tsx",
+      "sha256": "9c3f64a6a49f2f7819fb67dcf3c05f7bd1c9bda58f437947586831fa7cce3fc4",
+      "sizeBytes": 12431,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/settings/AccountSettings.tsx",
+      "sha256": "51168a460a63828ef5b545baf67f44f695f33ae06af55d6de23310f8f81fcb23",
+      "sizeBytes": 4875,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/settings/AddNewBank.tsx",
+      "sha256": "dde26c4b396c986770db7dae659bda5b929e1c319c61d5ae79d91be713e91cae",
+      "sizeBytes": 9374,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/settings/BankInfo.tsx",
+      "sha256": "3b2d7466fa0ea0d8d279601a6cc42e9eff7c4b020cf6138dfe22596c56a48f7c",
+      "sizeBytes": 4324,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/settings/BankInfoSettings.tsx",
+      "sha256": "5783cf24fe68c9915d59f2912b986de1e3efdc1f5b47097c6d75063a50a49025",
+      "sizeBytes": 601,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/settings/ChangePasswordForm.tsx",
+      "sha256": "d16486e9551f23c339aa4a34dd043247180f8d30e066fb31ffdf5b18f7e1dc91",
+      "sizeBytes": 2538,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/settings/ChangePasswordModal.tsx",
+      "sha256": "d3f3fb544f8afce5630655664cf1bc84356f808626f0c8dc2c4e2c27a50ef053",
+      "sizeBytes": 3038,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/settings/ChangeTxnPinForm.tsx",
+      "sha256": "ed47c9657a675b6f98d5baa5d29e70b2880ae8a1582194fe33a14cae7240f421",
+      "sizeBytes": 3577,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/settings/ChangeTxnPinModal.tsx",
+      "sha256": "a20674529b122684f50eaeb34f9e7369379fcc8ff55056c323039b91c373b4cd",
+      "sizeBytes": 3451,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/settings/DeactivateAccount.tsx",
+      "sha256": "02fd42cc8140b30df159abc6d56e9a03c5d8886c00824f223da3151d90add6b4",
+      "sizeBytes": 4196,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/settings/EnterPasswordInput.tsx",
+      "sha256": "5342d905b66e48276b234426061d448e9992db082f5435933a7dcc15111bc2ef",
+      "sizeBytes": 1643,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/settings/Faqs.tsx",
+      "sha256": "d74cd875eb91c1a2a9d8496345230de18b1483c26c99ba6f327d26fcf856f1e1",
+      "sizeBytes": 3763,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/settings/LogOutAccount.tsx",
+      "sha256": "dbf2b9adac16d4da2f414cca1fd5ea705e7a3aa2d4cfb08609654e4c6512ec65",
+      "sizeBytes": 4086,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/settings/SecuritySettings.tsx",
+      "sha256": "adf17bd55a1dbec757d86ec1104db8cc8771c2a3ec32f41fa6ac51de85b0c9ab",
+      "sizeBytes": 1610,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/settings/Set2FAForm.tsx",
+      "sha256": "b5332f580764090d2fb17434402e28a965399709172797de553b1bb7628720f4",
+      "sizeBytes": 4224,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/settings/SetTxnPinForm.tsx",
+      "sha256": "f9cf2d9320a1c972e2c3cceee99cbf90ca37f4962e9f8902174ff27e3c8c5ea4",
+      "sizeBytes": 2935,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/settings/Settings.tsx",
+      "sha256": "5b987c9f09cadc550a3f368668f7cd029b12522d1876350e84d193a8aa1915d4",
+      "sizeBytes": 2102,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/settings/Support.tsx",
+      "sha256": "df4928a5da9f95238f200c25cbacaa1773e102a9e50006a7dd1f4e1db5682636",
+      "sizeBytes": 4389,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/settings/UpdatePhoneModal.tsx",
+      "sha256": "b98b30e342d2d0f72230a9bdef421cd932e9ad836ae6fe0d16c3814683348df2",
+      "sizeBytes": 3369,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/settings/VerifyNewPhoneNoForm.tsx",
+      "sha256": "d8be7b4cc5c7895c44b99ad4d7bc4420d54a747740ef818bcdbab7aa557cd688",
+      "sizeBytes": 7723,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/settings/set2FAModal.tsx",
+      "sha256": "35fa895cf4dc23f28e7ea38c9802c5cb551df7d361d2e750623972e559ec939a",
+      "sizeBytes": 4391,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/sidebar/DashboardLinks.tsx",
+      "sha256": "5d3584d362aed1740f13ca04b9ea05b794545263cab7a8c8d4c7cba480b74d8f",
+      "sizeBytes": 1607,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/sidebar/Sidebar.tsx",
+      "sha256": "bf9edbce250ed05823085b2b66fd10c89e5fca8399c48466cadebf5d38084c1b",
+      "sizeBytes": 762,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/sidebar/SidebarFooter.tsx",
+      "sha256": "1ce171ee40287caba854d0e73292f1ccfd2a53457914ab5a650ffdaa89892ee7",
+      "sizeBytes": 2368,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/sidebar/SidebarLinkWithSubCat.tsx",
+      "sha256": "b625526aae9b31cae7e8b75bffce9ea0d675b373607094440cf2ab44d95a1dff",
+      "sizeBytes": 2527,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/static-account/AccountCardItem.tsx",
+      "sha256": "f2837911800f1565d21c900f72243380fab1ae2b6e17039533b1e9a6c9efb751",
+      "sizeBytes": 1185,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/static-account/CreateStaticAccount.tsx",
+      "sha256": "e76bfd0ec53cdb27fde3b2f154cf91c042c2890ab090039db954991bd642315b",
+      "sizeBytes": 7765,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/static-account/StaticAccountDetails.tsx",
+      "sha256": "207636f4928de9d527bb97b192a6f46d014bf3e5e8d88ba841993ca859b7450b",
+      "sizeBytes": 3082,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/static-account/VerifyValidationOtp.tsx",
+      "sha256": "cee8cfc8c28731d5721adabfd8d35f5e208e08f355308c725692b8684ebc83a5",
+      "sizeBytes": 3721,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/transfer-funds/ConfirmFundsTransfer.tsx",
+      "sha256": "9cbf8f116ddc200580caf98063295af55e18b22ee1e4e7cb410ee62745077c08",
+      "sizeBytes": 3326,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/transfer-funds/EnterRecipientDetails.tsx",
+      "sha256": "b3ff604ec2a35d490e17586320eaf3fa7192a48c199c1b23d0ba38f2dab66593",
+      "sizeBytes": 942,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/transfer-funds/Status.tsx",
+      "sha256": "8b9ddbe5059965d73e13b47e249fc3d4847db332f55d53e4c0537f46fedfab26",
+      "sizeBytes": 2326,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/transfer-funds/TransferFundsForm.tsx",
+      "sha256": "7339d00468d396439d2798f697faf234bfc5d32baf49099ebd96643fdbe8e692",
+      "sizeBytes": 4071,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/transfer-funds/transfer-funds-steps.ts",
+      "sha256": "e3cd50e0771b9b7385e973f997c19f591dc8226237c4ce94610f0197ec8f72a1",
+      "sizeBytes": 403,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/virtual-card/ActionButtons.tsx",
+      "sha256": "ebf647b987002749e3745666ba506e78daad203de35d0929dd14089633945fc2",
+      "sizeBytes": 1805,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/virtual-card/BlockCard.tsx",
+      "sha256": "20f3aad7b81d80755c1ef8adc4ecb95117f3d0a3c0ade8b22c536565fad0aa2e",
+      "sizeBytes": 2815,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/virtual-card/Card.tsx",
+      "sha256": "2f1aab838a20aa9af6da6a7e8b7c2fc9f786cd93daad09e93e18922b6bb14076",
+      "sizeBytes": 1524,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/virtual-card/CardDetail.tsx",
+      "sha256": "af827fb5b0406dc96488fb9fa0d1d4fc232bff2bf934d481abb59a68cccb665b",
+      "sizeBytes": 1168,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/virtual-card/EnterFundingPin.tsx",
+      "sha256": "78a6236fb1d61887bfcd6beafb7d80f0e1657b78f3059e7813ad00be3ef9bd84",
+      "sizeBytes": 1523,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/virtual-card/EnterWithdrawalPin.tsx",
+      "sha256": "dbaa53ecd9985b47b2fd356679177f3be6eb602be89236797ce3f4df6927daff",
+      "sizeBytes": 1501,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/virtual-card/FundCardForm.tsx",
+      "sha256": "8d2c36c24a68ed4edc8db9a6036e5ec82b45089c14e258dd770677917d4cbbc8",
+      "sizeBytes": 4906,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/virtual-card/FundingStatus.tsx",
+      "sha256": "7a3a7e243bd8d4580116e8d050c57ffec506d4ab2ebb34c03f1d1bbf924f1d43",
+      "sizeBytes": 2094,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/virtual-card/TransactionHistory.tsx",
+      "sha256": "8b1f806218d603d48d87d816476635fabf1709fbfd7f0c05e4cb7848c6506b0f",
+      "sizeBytes": 2502,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/virtual-card/VirtualCardDetails.tsx",
+      "sha256": "8646f6fbb269374c76f4a8e721b660900538990addd0b9879b164fdfd90a28f1",
+      "sizeBytes": 1598,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/virtual-card/VirtualCardWithdrawFundsForm.tsx",
+      "sha256": "b9dea87b4aea1e120126df00be26575f897a3c39131594ba19440284890bb561",
+      "sizeBytes": 9368,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/virtual-card/WithdrawalStatus.tsx",
+      "sha256": "c26d0dae153b9456ab290afb98f5df8208310d78617b2af2d6b4801662a08b9d",
+      "sizeBytes": 2360,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/withdraw-funds/ConfirmFundsWithdrawal.tsx",
+      "sha256": "70ad336dc7eba9edb6b158e128ff6c692b3feb0653dcb4ca7abc4cbe5f9221a0",
+      "sizeBytes": 4217,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/withdraw-funds/EnterAmount.tsx",
+      "sha256": "53dec13457d8a944845cd233230b987b27156181e1ea18ff59e34c1bfba3e5a9",
+      "sizeBytes": 4098,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/withdraw-funds/RecipientDetailForm.tsx",
+      "sha256": "df340518ca2805e6363bdcd38379cd04cba8b88a856da0f86e67bd0cad21c11f",
+      "sizeBytes": 13783,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/dashboard/withdraw-funds/RecipientDetails.tsx",
+      "sha256": "db2441108a5d3127baf43549e314f167791cf2012dc3da5513ab0d447815737f",
+      "sizeBytes": 1076,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/withdraw-funds/Status.tsx",
+      "sha256": "4cc189eafc44f172bb7a67d310590638c596b2dde46a660afd6e7e11d1c91ba1",
+      "sizeBytes": 2405,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/dashboard/withdraw-funds/withdraw-funds-steps.ts",
+      "sha256": "78c91c5ae491fd4913959506bbd64c12f425956ce1b79c4b9e36c5ed19cf4d63",
+      "sizeBytes": 501,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/external-pages/ContactPage.tsx",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/external-pages/aboutpage/AboutPage.tsx",
+      "sha256": "44b31f802958c308aafec6ab93d75d4146788ba398a7176ea4417a7312df9c1b",
+      "sizeBytes": 698,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/external-pages/aboutpage/OurMission.tsx",
+      "sha256": "60cb728e15856394e195bd12606a7492f0d6341ac55dcae51838db44948290b0",
+      "sizeBytes": 1291,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/external-pages/contact-us-page/ContactUsForm.tsx",
+      "sha256": "d1b1dca7cda19cd9df8db2d31ed0de2d966a31e3a981b34f0872cad833b8aecd",
+      "sizeBytes": 7006,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/external-pages/faq/FaqCards.tsx",
+      "sha256": "9da15b3a1146f9c5066e56c2c3204cbbb42b5c1c62e62a5cd6ebed524df0bb10",
+      "sizeBytes": 1508,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/external-pages/faq/Faqs.tsx",
+      "sha256": "ca985b3bf0c099171007128637bcdaaf0935cd63d2b73c6c779084f018fde2c3",
+      "sizeBytes": 1948,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/external-pages/homepage/Features.tsx",
+      "sha256": "f4e33ba08d5174244451cb85b3110c5f797ca9bcc0bf8f55e3b56700059fa745",
+      "sizeBytes": 1764,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/external-pages/homepage/Hero.tsx",
+      "sha256": "56865d442cb9a8abd3199229b6bf5238bb686cb68dae8aec274de160a333b562",
+      "sizeBytes": 2630,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/external-pages/homepage/MobileAppLinks.tsx",
+      "sha256": "79435bb49d4ac519d03e6a6a213d1350679c3f44da9eabcc3c9703043c04c68a",
+      "sizeBytes": 1392,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/external-pages/homepage/Partnerships.tsx",
+      "sha256": "3539c5ae54c4ce76f979c9961eb8d80b2361164e176041605b063ce6053497b6",
+      "sizeBytes": 732,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/external-pages/homepage/Testimonial.tsx",
+      "sha256": "1ae89c672dd1aad455e46387ebe552fbc3719caccdfde1d2300c4f53b3ff4a5f",
+      "sizeBytes": 1054,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/external-pages/homepage/WhyUse.tsx",
+      "sha256": "3202c4bc54cf16dcff1a9d8787c55a819f461600d62f3f14254b7b486ce9c108",
+      "sizeBytes": 1275,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/footer/Footer.tsx",
+      "sha256": "b2a2b7b8fe3e79ca77954907ae2d0b10da91e63498e15eb830bc21b8cc47b86b",
+      "sizeBytes": 3196,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/navbar/DesktopNav.tsx",
+      "sha256": "e30b9889fd742c0bbe6062df83d5f75f1bb4d0414b98a07a435812c41fccc1da",
+      "sizeBytes": 464,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/navbar/Logo.tsx",
+      "sha256": "3f6f340363ed992624bc4318c9954ae137354ed6a564199b146aea44b013f9b6",
+      "sizeBytes": 435,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/navbar/MobileNav.tsx",
+      "sha256": "d811aa2846bc86af4b3839f5525723a167fe075a1507d18dca4b85fd82949d07",
+      "sizeBytes": 3389,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/navbar/NavLinks.tsx",
+      "sha256": "c6e8409e3daf830d1db0459b30acbf4a9bab04f6ce1c0970e8557a1b5fa2d740",
+      "sizeBytes": 738,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/navbar/Navbar.tsx",
+      "sha256": "51947f55dfd2e954a873d4f5e56bbf6bf2ca6b2e4738b6380fc091d510e9a6e1",
+      "sizeBytes": 332,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/receipt/DesktopReceipt.tsx",
+      "sha256": "3993db7d062a81ae6fc7918700793f3f08a819a930e31d32237b8fe807cc336e",
+      "sizeBytes": 9823,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/receipt/MobileReceipt.tsx",
+      "sha256": "f0b00f01b387c3d3510e500721f2be607501f91238bc3e148bc338751a870e5f",
+      "sizeBytes": 9307,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/receipt/Receipt.tsx",
+      "sha256": "e577198dadc1db8b4f28512c5a730f52bba7ede7324b39e9311005fbdd8dafc5",
+      "sizeBytes": 1000,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/components/ui/accordion.tsx",
+      "sha256": "89488e29ad80b8fa6298f89b92b4a72f01183535d3dcc8a12a6e3354f0f1f952",
+      "sizeBytes": 2708,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/ui/alert-dialog.tsx",
+      "sha256": "7322ef89363390ffd197aa6da98d6a08e0c5a4825a63943729f8900ee7fe62c3",
+      "sizeBytes": 4514,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/ui/button.tsx",
+      "sha256": "563988dcb65733c4e7c953e86265ae869e1372d8703d4db0bd70f7429a7e536d",
+      "sizeBytes": 2182,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/ui/calendar.tsx",
+      "sha256": "a747a4e69c10669dcc820fa9109bfa97d3fc280fd39b8e45f75349a2b0c043e0",
+      "sizeBytes": 2979,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/ui/carousel.tsx",
+      "sha256": "2f3bd501dc0d27a9bed40ee8f05d26d57cccb864d94c214958c994a2f1875ebc",
+      "sizeBytes": 5804,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/ui/checkbox.tsx",
+      "sha256": "a272373d6c27aca23f9b85f91d94ccaa0960ae2b1d26fd8d28ab46444eba2f4b",
+      "sizeBytes": 1242,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/ui/command.tsx",
+      "sha256": "5168ab5e2b4ca2326ab54a87315fd084601f164690322a85de24a55771d865dd",
+      "sizeBytes": 4933,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/ui/dialog.tsx",
+      "sha256": "77a8f0ba78b69ed85195351536e7d035bd8857e2937d7df1032855109c8ed886",
+      "sizeBytes": 3948,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/ui/dropdown-menu.tsx",
+      "sha256": "68b4a336d699854dc6c96cb068102dc79a4efd5023f21d0eaf63a7c14452b571",
+      "sizeBytes": 8525,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/ui/input-otp.tsx",
+      "sha256": "e672cce9aa78a8f80bc2249e9e19b92c02cb75ccd616d5c4b9705580ee8c70f8",
+      "sizeBytes": 2315,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/ui/pagination.tsx",
+      "sha256": "8774773186b48313b881f1c3c8a27bf86985911f91f9849e4407aa5b3956baf3",
+      "sizeBytes": 2893,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/ui/popover.tsx",
+      "sha256": "6ac8b42245648e119bc6285c06736a79adf68c7a3a147590f8403519329e9098",
+      "sizeBytes": 1651,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/ui/select.tsx",
+      "sha256": "0561a92c6dde8481f3894b7712f264c51699d279eaa0e9f00d0c9761d1a8c644",
+      "sizeBytes": 6415,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/ui/sheet.tsx",
+      "sha256": "fb0f0e821669194933eb13afc3512da58939c94a6901d54e018142d599c21645",
+      "sizeBytes": 4230,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/components/ui/table.tsx",
+      "sha256": "96ae7b35f59ccbf5a7d2d257ddbdda91d0f781fc6680b13b5eeff8f807e8d594",
+      "sizeBytes": 2548,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/context/AuthContext.tsx",
+      "sha256": "a0ff4edc878970655295555a20df8e6c20ed9cc0c51c6472ab88ded1e67893e5",
+      "sizeBytes": 3834,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/hooks/useCountdown.ts",
+      "sha256": "0d79a4c59fc4fadf1e4c58d079ff2ad032c3823ae73ed7b540c2f5894e6360e4",
+      "sizeBytes": 1655,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/hooks/useIsMobile.ts",
+      "sha256": "02267125c2ea5918a3328529a32e1a09b74822e24e9f75d773ac4557777dd7f6",
+      "sizeBytes": 454,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/index.css",
+      "sha256": "b2ead9449d1542999df883ce4387f04a830a74fda62ac70563a825b74847f37a",
+      "sizeBytes": 1879,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/lib/api/authApi.ts",
+      "sha256": "bbce522b38b2be50790c5ea210821cdd8257c4d2e11447137a759cf7c63fc89e",
+      "sizeBytes": 3877,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/lib/api/axios.ts",
+      "sha256": "76fdfbfd635971b41cf8aea3b05bd5c7849538414eea1609ce2b7d2718979609",
+      "sizeBytes": 1114,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/lib/api/dashboard-apis/banners.ts",
+      "sha256": "990824135802c7feaab9517b3f043a916b0e54ded4d30c923d174916d7f8f994",
+      "sizeBytes": 388,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/lib/api/dashboard-apis/faqApis.ts",
+      "sha256": "71fe2b2ad0f6e921ce82bd7efcf14952fef0b1bb1bea54acb683029fd7ec8030",
+      "sizeBytes": 330,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/lib/api/dashboard-apis/flightApis.ts",
+      "sha256": "3008b40326e0976061724f4ea128a29b468fe172eac72ad2985cd605ca60f94b",
+      "sizeBytes": 3658,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/lib/api/dashboard-apis/generics.ts",
+      "sha256": "8b787c4b81cb3933677e7db59ade1d51237e2b92d5b5068cd71dee0ec164ddcb",
+      "sizeBytes": 717,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/lib/api/dashboard-apis/notificationsApi.ts",
+      "sha256": "8d35325f2fd6d08f0a38599121a5b67be8a5d0c9669c0a604d3b8711c5524102",
+      "sizeBytes": 1204,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/lib/api/dashboard-apis/referralsApis.ts",
+      "sha256": "faed6381581bac8c99c707b699d96c4784c884ae8651517a8ea1d0109a5c8349",
+      "sizeBytes": 1742,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/lib/api/dashboard-apis/servicesApis.ts",
+      "sha256": "f666ac63c59e129e1c47bf933e9dd17c6829d31efb9c8ef00c6c63972d1b937f",
+      "sizeBytes": 6406,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/lib/api/dashboard-apis/settingsApis.ts",
+      "sha256": "852b59da0a797608eefebaa409155ab88eac2546039bcc5e471e6896c8caa557",
+      "sizeBytes": 2819,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/lib/api/dashboard-apis/staticAccountApis.ts",
+      "sha256": "e45e4ae4c6492b04eb50399f996cea0edbf994107ca22079a49fb9faf5565bad",
+      "sizeBytes": 3119,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/lib/api/dashboard-apis/txnHistoryApis.ts",
+      "sha256": "d3691df39419cee70ff902b5e0d0c78d9fa0884a3cee5656378ae6de43581c11",
+      "sizeBytes": 5629,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/lib/api/dashboard-apis/walletApis.ts",
+      "sha256": "c5347153d0444ea8d9907213cfb21e1d95ccac6e33919e77c217f7046f25701a",
+      "sizeBytes": 1599,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/lib/constants.ts",
+      "sha256": "c6d9edae9026dfab540baac5e1e102279d2fb656cf244c7825d58c048b844a67",
+      "sizeBytes": 17423,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/lib/dummy-data.ts",
+      "sha256": "ad7cb4bf8ae0d4907ccf0ea8b1bdfe4d00d3939e1a9b5cea4c96eef2f34e1d47",
+      "sizeBytes": 3595,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/lib/firebase.ts",
+      "sha256": "538dd9972f10f1da67966146125bba46797d8ac8a235d12f55ef9772b7bd8e71",
+      "sizeBytes": 690,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/lib/passwordStrengthChecker.ts",
+      "sha256": "f8213f92c6b9bff4bf473b7451b9c9d746da3eef9dc006d8940d9dd6f80fe163",
+      "sizeBytes": 597,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/lib/utils.ts",
+      "sha256": "e4a25857fc3abc734969fd571d64550ccc0a551bd482094466a39dff3642f958",
+      "sizeBytes": 4131,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/lib/zodSchemas/auth.schema.ts",
+      "sha256": "eef79284cb772f40f3dc0c00e994a31eaa788c2d17c61a70f53a2d111aafa630",
+      "sizeBytes": 1519,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/lib/zodSchemas/contact-us-form.schema.ts",
+      "sha256": "32bedee1f8cdc9fe7ae930e78b6bfa2a040847da5b2bb25a27349aa72157fc8d",
+      "sizeBytes": 538,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/lib/zodSchemas/dashboard.schema.ts",
+      "sha256": "e6bcc71b4a79f2211d95eb0af18917b432018636531ea536c0aa5c133e4826eb",
+      "sizeBytes": 6306,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/main.tsx",
+      "sha256": "50241a6f6bc5f044b73a7916c1db3e578e13dd5d8a1ac31c89a6ff846d1054ee",
+      "sizeBytes": 654,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/routes/auth-pages/LogIn.tsx",
+      "sha256": "f2a567a034edcdb2f4eab39d6c9e046fe6984b198703102f2d65743e5a0d53fe",
+      "sizeBytes": 996,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/routes/auth-pages/ResetPassword.tsx",
+      "sha256": "828d90645d65d03ac75539d0716a3ce7d421f5d7045bc05e80f3e8858e888a30",
+      "sizeBytes": 2671,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/routes/auth-pages/SetTransactionPin.tsx",
+      "sha256": "e8222d22c15e45a4f2df61d7d95a1516a0e745aa264ae3e56d7f8c7010e2a6dc",
+      "sizeBytes": 4396,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/routes/auth-pages/SignUp.tsx",
+      "sha256": "d6a01d2f3483ab09107b42e7442b02e93b6e7b043d860a4782ea987139c4cfc1",
+      "sizeBytes": 1012,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/routes/auth-pages/TwoFAOtp.tsx",
+      "sha256": "035066849b21ab836f38a9194e36a5ff0836f113321ca10104c53b154c6f0f08",
+      "sizeBytes": 5658,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/routes/auth-pages/UserDetails.tsx",
+      "sha256": "427c1c0aa175b4c2e33f54b346c63af57fbddb8a538afa433747169041e45c21",
+      "sizeBytes": 14349,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/routes/auth-pages/VerifyEmail.tsx",
+      "sha256": "def8ce80113b29f36ca4ee95b474d8ed1b83f13dc3dddc79eaa24aecc38ad0c7",
+      "sizeBytes": 6156,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/routes/auth-pages/VerifyPhone.tsx",
+      "sha256": "b452e2a1d7bbf2f11f934e014ba42335d38ba45c68094193e88561135cbe97e1",
+      "sizeBytes": 8672,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/routes/dashboard/AddFunds.tsx",
+      "sha256": "c334fc00a4aff7c548120bbea3dfda9a5a350fc1ca9663ff53ed9415f41411d9",
+      "sizeBytes": 544,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/routes/dashboard/AffiliatePage.tsx",
+      "sha256": "4d8f231549cc9a7ca9a7ec94270c2abba16d46539ea854c67820244b75e60b42",
+      "sizeBytes": 3304,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/routes/dashboard/FlightBookingPage.tsx",
+      "sha256": "78e888f88bc90e56f5ea488c4935a517109ab9ccd5eae5950e9f4bdc109f5063",
+      "sizeBytes": 925,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/routes/dashboard/FundVirtualCard.tsx",
+      "sha256": "2502ed16caaf18508d4480614fdaaa9f68a35f3d3d50d525e56c2721bbcaa948",
+      "sizeBytes": 744,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/routes/dashboard/History.tsx",
+      "sha256": "9871d798f784a963cd4e301452a499a89bf301daf1ae85bd6fab1330544a7065",
+      "sizeBytes": 2860,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/routes/dashboard/Hotels.tsx",
+      "sha256": "7bc15547a3205f18d9f6efc364adf6d40183f6b7e2839a79d5a15f9565bde711",
+      "sizeBytes": 1198,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/routes/dashboard/NotificationsPage.tsx",
+      "sha256": "28c7b3f97f391346942a4856ced6788ff396b0bf65b0412f69a1630c91416409",
+      "sizeBytes": 1022,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/routes/dashboard/ReferralPage.tsx",
+      "sha256": "fd64e98c56de9ac894b0822355798b6a2457b43803203edf9098bbfccbac0253",
+      "sizeBytes": 228,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/routes/dashboard/Services.tsx",
+      "sha256": "382d66127dfc1780c8ca5f05e61934560c096f73917ecd3e31bd83f98f708eb7",
+      "sizeBytes": 264,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/routes/dashboard/SettingsPage.tsx",
+      "sha256": "2e9aa13241819a98396ff8329c0e595462031f80ad35785782d6cf9ef69e443c",
+      "sizeBytes": 647,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/routes/dashboard/StaticAccount.tsx",
+      "sha256": "1420868531d8aa718663bbdf7abe33fb2911412139e088868015167615ccfabc",
+      "sizeBytes": 917,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/routes/dashboard/Status.tsx",
+      "sha256": "1bad0c46a8a0394e4431c97858dd102713166856eebb93dd25f96c34e505ebf8",
+      "sizeBytes": 2407,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/routes/dashboard/TransferFunds.tsx",
+      "sha256": "ab513bb114edb213b9a1d4c44f2722bf5353c2d14cf801aac354d890585e734e",
+      "sizeBytes": 588,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/routes/dashboard/TxnHistoryDetail.tsx",
+      "sha256": "3951bdde5418a4d4d9ffee4bfc8bb9b34aace09011fe7e873dd8c19b32c0b722",
+      "sizeBytes": 1149,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/routes/dashboard/TxnHistoryTablePagination.tsx",
+      "sha256": "2c351d7c4395cb5407e56aca389ba5bb1b770aa2dc012629f42626519cfffae2",
+      "sizeBytes": 3950,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/routes/dashboard/VirtualCard.tsx",
+      "sha256": "e573006146fe9b115ac33f73947804ae26dc08bdd9fe014a5b624af7af0968a0",
+      "sizeBytes": 1285,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/routes/dashboard/VirtualCardWithdraw.tsx",
+      "sha256": "993d8a6c66235210e788007cc8f8852af07db454233d4a61b958f73bc1f5cc29",
+      "sizeBytes": 673,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/routes/dashboard/WithdrawFunds.tsx",
+      "sha256": "418d79fa20122e4de6cb7604c9f99f9c66c5f55c0ec674ec34c24a61320f4c3a",
+      "sizeBytes": 588,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/routes/external-pages/About.tsx",
+      "sha256": "1f34bb942987211630d9d8284f59797dcd6c469f51dc3c6785fa2583e15e2d1d",
+      "sizeBytes": 594,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/routes/external-pages/ContactPage.tsx",
+      "sha256": "150e3b2b63638292f806d2bb9653532553d7cbf91ba9e544ff3988a272c2ece2",
+      "sizeBytes": 320,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/routes/external-pages/Faq.tsx",
+      "sha256": "827d341c81e1ff018f0b3b14d5e62db124228cf7795bf47e07892d3b53bc6959",
+      "sizeBytes": 352,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/routes/external-pages/Homepage.tsx",
+      "sha256": "54c46804cb08b75aa2cbd96cee366208fa5eee2e47194a9a3d8c132a04ca827b",
+      "sizeBytes": 571,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/routes/external-pages/PrivacyPolicy.tsx",
+      "sha256": "6cb7593a2d78cdb8e5e2d40ed51b07795afa09883244418a174f5e684d2141aa",
+      "sizeBytes": 6588,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/routes/external-pages/TermsPage.tsx",
+      "sha256": "01ab437ba3147357ae840c7517e28a0f6c68020a7d9fd76a5d845932f2a011cd",
+      "sizeBytes": 6161,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/routes/layout/AuthLayout.tsx",
+      "sha256": "d3a4e29ec5baf649314722962336455183b3b7240949ad4d2d75615ca7cff675",
+      "sizeBytes": 308,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/routes/layout/DashboardLayout.tsx",
+      "sha256": "0bd094a4bc9cf3efe876651d39d12eb8a76d15d24e3a9770d6bcaa468460d334",
+      "sizeBytes": 1455,
+      "preservedByteForByte": false
+    },
+    {
+      "path": "src/routes/layout/MainLayout.tsx",
+      "sha256": "12b3aa59b631a168b7477997993287d207dbecf0f0c02d6315fe7085d92975c0",
+      "sizeBytes": 532,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/routes/layout/ReceiptLayout.tsx",
+      "sha256": "a6113f8226c1a53090e0d5b60a0d836b34ce6102ae180b4acf83a46251d28a7a",
+      "sizeBytes": 439,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/stores/useAddFundsStore.ts",
+      "sha256": "32e8a019ef5ba7f394f6bed1ba84e3ad65214e02db1e3783fd05194f3e469fb4",
+      "sizeBytes": 750,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/stores/useBackButtonStore.ts",
+      "sha256": "869b64647344683e33adcb6171bdffaffa98295e7552a758156a8dc9ef6ca009",
+      "sizeBytes": 541,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/stores/useBettingStore.ts",
+      "sha256": "9d3ace4e1c89fbdfc8bbfce931778763c980a221c1d68ca5482909dd0a32c22e",
+      "sizeBytes": 1301,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/stores/useEPinStore.ts",
+      "sha256": "42d1db042aed18deeaca764f2bd5dfe70bcc0287a4ae0967792292f38decdb9a",
+      "sizeBytes": 1389,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/stores/useESimStore.ts",
+      "sha256": "6a8d6bf9aa3a940f08aba592a34d53a5d90eca6010cde5dee787c4495de36612",
+      "sizeBytes": 604,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/stores/useElectricityBillsStore.ts",
+      "sha256": "94bb428e446a2b1d78fd75bffcbe167bf74d09ea4b88233284ba23a7e52d403d",
+      "sizeBytes": 1757,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/stores/useEventsStore.ts",
+      "sha256": "4aff4d0155dfd4a06e252323d267469ce3c2d115d5abf212024cfffe0000fb52",
+      "sizeBytes": 706,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/stores/useFlightStore.ts",
+      "sha256": "dd4aebdb15b161a8fe86ca004895fd9788654bb762ff69de93c4739b0923f17b",
+      "sizeBytes": 2961,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/stores/useHotelsStore.ts",
+      "sha256": "b6607343296279cdd3612152f518857c962d251320820c84bcb008e33d8f2885",
+      "sizeBytes": 794,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/stores/useMobileMoneyStore.ts",
+      "sha256": "59a44817d1d53f149a390527b393c6a88a7a5b1aab895c22e8d66a741eb22d67",
+      "sizeBytes": 645,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/stores/usePurchaseAirtimeStore.ts",
+      "sha256": "d1593c6d97d0b58483e20f1b816811206bc1a6a6eb1e3c973b263750a6e35238",
+      "sizeBytes": 1318,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/stores/usePurchaseDataStore.ts",
+      "sha256": "ed351ad651fab681b18da5071d7d9bb173cceb77e6d88ff91ce4fb533d286131",
+      "sizeBytes": 1625,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/stores/usePurchaseIntAirtimeStore.ts",
+      "sha256": "75e23b15c56f085349ce72c08a072260e3ef03671c8378df2bfabfac1bd89426",
+      "sizeBytes": 1412,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/stores/usePurchaseIntDataStore.ts",
+      "sha256": "27f2062a4ea607d0bf04a3a79e7d89731ac67a265849f7973d23ecc16536e1e8",
+      "sizeBytes": 1541,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/stores/useTVCableStore.ts",
+      "sha256": "ce52228011878106f093d9ae18a3f51ea40b213bf8c5424ba57a8a1aa04d712e",
+      "sizeBytes": 1783,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/stores/useTransferFundsStore.ts",
+      "sha256": "1e8d681e054e86eaf773a06ef718f45389b04fad2cbe954e42cbba2d34db5fcb",
+      "sizeBytes": 932,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/stores/useVirtualCardWithdraw.tsx",
+      "sha256": "df02886359456ccc626ac97e73690b576be895cf8e0f0b9e12cd580e5b85dbd5",
+      "sizeBytes": 672,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/stores/useWithdrawFunds.ts",
+      "sha256": "330375b15709f40064787ed332b2cdc6b8c467294f7014e57f8820bc251f6ca9",
+      "sizeBytes": 998,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/types/html2pdf.d.ts",
+      "sha256": "547d85ac10f40c1115fd8fd4c5fb46171a87e98cf6dd2f1487f8330545185a0e",
+      "sizeBytes": 29,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "src/vite-env.d.ts",
+      "sha256": "424faf9241dd699dda995b367ed36665732da1e6ec1f33b2fd40394488ecac92",
+      "sizeBytes": 39,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "tailwind.config.js",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "tsconfig.app.json",
+      "sha256": "16b6eb02132c57795a822d59ee6bdf9f122b3a9404b64cbf57c04b6559dffd95",
+      "sizeBytes": 762,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "tsconfig.json",
+      "sha256": "fced469eb32f4ce1c7fca439ff027fe81ba41604c60d0e3a9398b75402487a59",
+      "sizeBytes": 226,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "tsconfig.node.json",
+      "sha256": "9bf16b3df7247f6a466517b622ecee891ccecf01cb6167637ce62e29ea38a3e9",
+      "sizeBytes": 617,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "vercel.json",
+      "sha256": "3b73c5211b24180dc333d90894ffdb144dfbe639344921b4f00c9bf984019dd7",
+      "sizeBytes": 65,
+      "preservedByteForByte": true
+    },
+    {
+      "path": "vite.config.ts",
+      "sha256": "424f2457428fd17f8c03bca753c3f0c37de523bc6e37b1cacc8a6a994227813f",
+      "sizeBytes": 356,
+      "preservedByteForByte": true
+    }
+  ],
+  "integratedAuthenticationEndpoints": [
+    "POST /v1/auth/register",
+    "POST /v1/auth/login",
+    "GET /v1/auth/me",
+    "POST /v1/auth/logout",
+    "GET /v1/auth/csrf",
+    "GET /v1/auth/mfa/status",
+    "POST /v1/auth/mfa/challenge"
+  ],
+  "inactiveFutureCapabilities": [
+    "e-PIN",
+    "international airtime",
+    "international data",
+    "eSIM",
+    "mobile money",
+    "virtual cards",
+    "flight booking",
+    "hotel reservations",
+    "referrals",
+    "affiliate operations"
+  ],
+  "excludedPermanently": [
+    "betting"
+  ]
+}

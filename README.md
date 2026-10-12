@@ -4,7 +4,8 @@ TwiPay is an Octalve-owned financial, utility-payment and event-ticketing platfo
 
 ## Architecture at a glance
 
-- `apps/web` — customer Next.js application
+- `apps/customer-ui` — **authoritative** original ErhaPay-derived React/Vite TwiPay customer interface
+- `apps/web` — older simplified customer Next.js implementation; reference only, not release target
 - `apps/admin` — isolated operations/compliance/finance Next.js application
 - `apps/api` — NestJS/Fastify core API
 - `apps/worker` — BullMQ/background reconciliation and notification worker
@@ -17,7 +18,7 @@ TwiPay is an Octalve-owned financial, utility-payment and event-ticketing platfo
 
 TwiPay uses integer minor-unit accounting and a sealed double-entry ledger. Wallet availability is derived from ledger state plus holds; no mutable wallet balance is the accounting source of truth. Ambiguous provider submission remains `UNKNOWN` until same-provider requery/reconciliation; TwiPay never blindly switches providers after an uncertain submission.
 
-The previous ErhaPay/BillPadi/Data Arena material is reference-only. Do not copy its runtime architecture or reintroduce legacy mock branding/data.
+The original **ErhaPay customer visual/components baseline is mandatory** and preserved in `apps/customer-ui`, including its temporary original logo. The authentication-page promo mockup is not the real dashboard. Do not copy legacy ErhaPay financial/authentication runtime behavior, reintroduce fake customer balances or rebuild the older simplified `apps/web` in place of the customer UI.
 
 ## Release toolchain
 
@@ -59,7 +60,22 @@ PostgreSQL 18 migrations/integration/concurrency, Redis/BullMQ, browser E2E, pro
 
 High-risk flags `events.refunds` and `operations.organizer_payouts` are fail-closed and must remain disabled until the complete MFA/RBAC/maker-checker/accounting/provider/integration/E2E/staging activation gates pass.
 
-Start with `TWIPAY_NEW_CHAT_CONTINUATION_BRIEF.md` when present in a handoff, then `BATCH_04_VERIFICATION.md`, `docs/README.md`, `SECURITY.md`, architecture/security ADRs, migrations, task audit trails in `docs/tasks/index.md`, and the latest Batch 5 verification/release records before changing authentication, financial or provider behavior.
+For current Batch 3.2 implementation and deferred runtime gates, read `docs/phase3/BATCH_3_2_PASSWORD_SECURITY_2026-10-09.md`.
+For Phase 3.3 Google OIDC authorization-code/PKCE implementation, protected account linking, default-off provider activation and outstanding runtime gates, read `docs/phase3/BATCH_3_3_GOOGLE_OIDC_2026-10-09.md`. The Google UI is available only when configured; no real Google/Prisma runtime or browser qualification has run.
+
+For continuation, read the **latest Git HEAD and worktree** plus the Coov Technologies Library `TWIPAY_NEXT_CHAT_AUTHORITATIVE_HANDOFF_2026-10-09.md` (with the Phase 3.1 addendum), `docs/phase3/BATCH_3_1_IMPLEMENTATION_2026-10-09.md`, `docs/phase3/BATCH_3_1_VERIFICATION_2026-10-09.md`, `docs/ADR-0020-VERIFIED-CONTACT-ACCESS.md`, `docs/README.md`, `SECURITY.md`, migrations, and the earlier Phase 1–2 contracts before making changes.
+
+## Master integration checkpoint
+
+See [`docs/integration/PHASE1_BATCH11_12_IMPLEMENTATION.md`](docs/integration/PHASE1_BATCH11_12_IMPLEMENTATION.md) and [`docs/integration/PHASE1_SOURCE_RECONCILIATION.json`](docs/integration/PHASE1_SOURCE_RECONCILIATION.json) for the audited developer-code merge, preserved ErhaPay design authority, mandatory Google authorization-code OIDC and transaction PIN requirements, and blocked real-runtime gates. This is not a production release.
+
+## Phase 3 / Batch 3.1 checkpoint (2026-10-09)
+
+The existing Git-backed master now implements a **short four-field signup** and **verified email before customer dashboard access**. A restricted opaque session is issued on registration, with durable hashed, expiring one-time challenges and encrypted email notification outbox. Confirm/resend are rate-limited and session/CSRF protected; ordinary authenticated API routes enforce authoritative verified contact and existing enabled MFA. Original ErhaPay authentication controls and customer dashboard are retained. Identity verification and PIN management are *not* compulsory signup steps; they remain independent financial eligibility controls. Transaction-PIN setup and additional account recovery are follow-on Phase 3 work. Google OIDC code was added in Batch 3.3 but remains default-off/unqualified for deployment. Existing financial and event purchase controls remain default-off.
+
+See `docs/phase3/BATCH_3_1_IMPLEMENTATION_2026-10-09.md` for exact scope and `docs/phase3/BATCH_3_1_VERIFICATION_2026-10-09.md` for **214 isolated tests passing**, static scanners passing, original assets preserved and hard runtime/build/provider/browser qualification blockers. No production approval.
+
+The subsequent **Phase 3.1 real-runtime qualification attempt** is documented in `docs/phase3/BATCH_3_1_REAL_RUNTIME_EXECUTION_2026-10-09.md`. It reran **235 isolated tests (passing)** and added opt-in PostgreSQL/real-Fastify verification tests to the existing disposable runner (`scripts/qualification/phase1-3-run-local.sh --phase3-1`). Those new real-runtime tests **have not executed** because Node 24, pnpm/lockfile, PostgreSQL/Redis and sandbox email credentials are unavailable in this environment. Do not confuse the new test source with passing integration results.
 
 ## Task tracking & milestone audit trail
 

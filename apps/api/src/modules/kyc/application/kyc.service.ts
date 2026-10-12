@@ -6,6 +6,13 @@ import { IdentityProviderRegistry } from '../../providers/identity-provider.regi
 import { IdempotencyService } from '../../finance/application/idempotency.service.js';
 import { createFinancialReference } from '../../finance/application/reference.js';
 
+// Persist only whitelisted provider method names, never OTPs, phone details or raw provider payloads.
+function publicVerificationMethods(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return [...new Set(value.filter((item): item is string =>
+    typeof item === 'string' && item.trim().length >= 2 && item.trim().length <= 40))].slice(0, 10);
+}
+
 @Injectable()
 export class KycService {
   constructor(
@@ -60,6 +67,7 @@ export class KycService {
         identifierFingerprint: fingerprint,
         status: { in: ['AWAITING_CONSENT', 'PENDING'] },
         createdAt: { gte: new Date(Date.now() - 10 * 60 * 1000) },
+        OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -102,18 +110,17 @@ export class KycService {
         identifier: input.identifier,
         ...(input.scope ? { scope: input.scope } : {}),
       });
+      const methods = result.status === 'AWAITING_CONSENT'
+        ? publicVerificationMethods(result.attributes?.['methods']) : [];
       await this.prisma.identityVerification.update({
         where: { id: verification.id },
         data: {
           status: result.status,
           providerReference: result.providerReference,
-          result: { providerStatus: result.rawStatus ?? null, verified: result.status === 'VERIFIED' },
+          result: { providerStatus: result.rawStatus ?? null, verified: result.status === 'VERIFIED', verificationMethods: methods, otpRequested: false },
           ...(result.status === 'AWAITING_CONSENT' ? { expiresAt: new Date(Date.now() + 10 * 60 * 1000) } : {}),
         },
       });
-      const methods = result.status === 'AWAITING_CONSENT' && Array.isArray(result.attributes?.['methods'])
-        ? result.attributes['methods']
-        : [];
       const body: JsonObject = {
         verificationId: verification.id,
         type: input.type,
@@ -167,6 +174,16 @@ export class KycService {
     if (input.action === 'SUBMIT_OTP' && !['AWAITING_CONSENT', 'PENDING'].includes(verification.status)) {
       throw new HttpException({ code: 'KYC_OTP_SUBMISSION_NOT_ALLOWED', status: verification.status }, 409);
     }
+    const recorded: Record<string, unknown> = verification.result && typeof verification.result === 'object' && !Array.isArray(verification.result) ? verification.result as Record<string, unknown> : {};
+    if (input.action === 'REQUEST_OTP') {
+      const available = publicVerificationMethods(recorded['verificationMethods']);
+      if (!input.verificationMethod || !available.includes(input.verificationMethod)) {
+        throw new HttpException({ code: 'KYC_VERIFICATION_METHOD_UNAVAILABLE' }, 409);
+      }
+    }
+    if (input.action === 'SUBMIT_OTP' && recorded['otpRequested'] !== true) {
+      throw new HttpException({ code: 'KYC_OTP_NOT_REQUESTED' }, 409);
+    }
     if (!verification.providerReference) throw new HttpException({ code: 'KYC_PROVIDER_REFERENCE_MISSING' }, 409);
     const idem = await this.idempotency.begin({
       scope: `kyc:${verification.id}:${input.action.toLowerCase()}`,
@@ -190,7 +207,9 @@ export class KycService {
         where: { id: verification.id },
         data: {
           status: result.status,
-          result: { providerStatus: result.rawStatus ?? null, verified: result.status === 'VERIFIED' },
+          result: { providerStatus: result.rawStatus ?? null, verified: result.status === 'VERIFIED',
+            verificationMethods: publicVerificationMethods(recorded['verificationMethods']),
+            otpRequested: input.action === 'REQUEST_OTP' && result.status === 'PENDING' },
           ...(result.status === 'VERIFIED' ? { expiresAt: null } : {}),
         },
       });
@@ -200,7 +219,7 @@ export class KycService {
     } catch (error) {
       await this.prisma.identityVerification.update({
         where: { id: verification.id },
-        data: { status: 'PENDING', result: { providerStatus: 'UNKNOWN' } },
+        data: { status: 'PENDING', result: { providerStatus: 'UNKNOWN', verificationMethods: publicVerificationMethods(recorded['verificationMethods']), otpRequested: false } },
       });
       const body: JsonObject = { verificationId: verification.id, status: 'PENDING', code: 'KYC_PROVIDER_OUTCOME_UNKNOWN' };
       await this.idempotency.complete(recordId, 202, body);
@@ -212,8 +231,17 @@ export class KycService {
     const rows = await this.prisma.identityVerification.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' },
-      select: { id: true, type: true, status: true, identifierLast4: true, providerCode: true, createdAt: true, updatedAt: true },
+      select: { id: true, type: true, status: true, identifierLast4: true, providerCode: true,
+        expiresAt: true, result: true, createdAt: true, updatedAt: true },
     });
-    return rows;
+    return rows.map(row => {
+      const detail: Record<string, unknown> = row.result && typeof row.result === 'object' && !Array.isArray(row.result) ? row.result as Record<string, unknown> : {};
+      const status = row.expiresAt && row.expiresAt.getTime() <= Date.now() && row.status === 'AWAITING_CONSENT'
+        ? 'EXPIRED' : row.status;
+      return { id: row.id, type: row.type, status, identifierLast4: row.identifierLast4,
+        providerCode: row.providerCode, expiresAt: row.expiresAt, createdAt: row.createdAt, updatedAt: row.updatedAt,
+        verificationMethods: status === 'AWAITING_CONSENT' ? publicVerificationMethods(detail['verificationMethods']) : [],
+        otpRequested: status === 'PENDING' && detail['otpRequested'] === true };
+    });
   }
 }

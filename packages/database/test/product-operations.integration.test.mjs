@@ -3,7 +3,9 @@ import assert from 'node:assert/strict';
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 
-const connectionString = process.env.DATABASE_URL || 'postgresql://twipay:development_password@127.0.0.1:5435/twipay?schema=public';
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) throw new Error('DATABASE_URL must be set to run TwiPay database integration tests');
+if (process.env.NODE_ENV === 'production') throw new Error('Database integration tests must not run in production');
 const adapter = new PrismaPg({ connectionString });
 const prisma = new PrismaClient({ adapter });
 const suffix = `${Date.now()}-${Math.random().toString(16).slice(2)}`;

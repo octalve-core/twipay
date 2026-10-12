@@ -25,10 +25,10 @@ for (const file of textFiles) {
   if (/-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----/.test(text)) findings.push(`${rel}: private key material`);
   if (rel === '.env') {
     try {
-      execFileSync('git', ['ls-files', '--error-unmatch', '.env'], { stdio: 'pipe' });
+      execFileSync('git', ['ls-files', '--error-unmatch', '.env'], { cwd: root, stdio: 'pipe' });
       findings.push(`${rel}: .env must not be committed`);
     } catch {
-      // .env is local-only and not tracked/committed
+      // A local ignored .env is not a committed secret; Git history is checked separately.
     }
   }
 }

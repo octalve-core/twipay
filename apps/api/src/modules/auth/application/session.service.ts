@@ -5,6 +5,7 @@ import {
   SESSION_TTL_SECONDS,
 } from '@twipay/security';
 import { PrismaService } from '../../../platform/database/prisma.service.js';
+import { deriveSessionCsrfToken } from './session-csrf.js';
 
 function hash(value: string, pepper: string): string {
   return createHmac('sha256', pepper).update(value).digest('hex');
@@ -55,7 +56,7 @@ export class SessionService {
 
   private createMaterial() {
     const token = randomBytes(32).toString('base64url');
-    const csrfToken = randomBytes(32).toString('base64url');
+    const csrfToken = deriveSessionCsrfToken(token, this.pepper());
     return { token, csrfToken, tokenHash: hash(token, this.pepper()), csrfTokenHash: hash(csrfToken, this.pepper()) };
   }
 
@@ -82,7 +83,7 @@ export class SessionService {
     const now = new Date();
     const session = await this.prisma.session.findUnique({
       where: { tokenHash: hash(token, this.pepper()) },
-      include: { user: { include: { roleAssignments: { include: { role: { include: { permissions: { include: { permission: true } } } } } } } } },
+      include: { user: { include: { roleAssignments: { include: { role: { include: { permissions: { include: { permission: true } } } } } }, mfaCredentials: { where: { status: 'ACTIVE' }, select: { id: true } } } } },
     });
     if (!session || session.status !== 'ACTIVE') throw new UnauthorizedException({ code: 'AUTHENTICATION_REQUIRED' });
 
@@ -122,15 +123,39 @@ export class SessionService {
     }
   }
 
-  async rotateCsrf(token: string): Promise<string> {
+  /**
+   * Issue the same session-bound CSRF token on every read. Per-request CSRF
+   * rotation caused concurrent valid mutations to invalidate one another.
+   *
+   * Older sessions stored a random CSRF hash: migrate them once using an
+   * atomic compare-and-set without granting a revoked/idle session new life.
+   * Two simultaneous migrations derive the same value; only one writes.
+   */
+  async issueCsrf(token: string): Promise<string> {
     const session = await this.resolve(token);
-    const csrfToken = randomBytes(32).toString('base64url');
+    const csrfToken = deriveSessionCsrfToken(token, this.pepper());
+    const expectedHash = hash(csrfToken, this.pepper());
+    if (safeEqualHex(expectedHash, session.csrfTokenHash)) return csrfToken;
+
     const now = new Date();
-    const updated = await this.prisma.session.updateMany({
-      where: { id: session.id, status: 'ACTIVE', expiresAt: { gt: now }, lastSeenAt: { gt: new Date(now.getTime() - this.idleTtlSeconds() * 1000) } },
-      data: { csrfTokenHash: hash(csrfToken, this.pepper()), lastSeenAt: now },
+    const migrated = await this.prisma.session.updateMany({
+      where: {
+        id: session.id,
+        status: 'ACTIVE',
+        csrfTokenHash: session.csrfTokenHash,
+        expiresAt: { gt: now },
+        lastSeenAt: { gt: new Date(now.getTime() - this.idleTtlSeconds() * 1000) },
+      },
+      data: { csrfTokenHash: expectedHash },
     });
-    if (updated.count !== 1) throw new UnauthorizedException({ code: 'AUTHENTICATION_REQUIRED' });
+    if (migrated.count !== 1) {
+      // Another request may have completed the same migration. A revoked,
+      // expired, or differently rotated session must still be rejected.
+      const latest = await this.resolve(token);
+      if (!safeEqualHex(latest.csrfTokenHash, expectedHash)) {
+        throw new UnauthorizedException({ code: 'CSRF_INVALID' });
+      }
+    }
     return csrfToken;
   }
 

@@ -1,9 +1,10 @@
 name: CI
 
 on:
+  workflow_dispatch:
   pull_request:
   push:
-    branches: [main, develop]
+    branches: [main, develop, "phase3/**", "phase4/**", "phase5/**", "phase6/**"]
 
 permissions:
   contents: read
@@ -64,14 +65,29 @@ jobs:
         with:
           node-version: 24.21.0
       - run: corepack enable
+      - name: Verify ErhaPay-based customer CI, visual assets and inactive financial flags
+        run: node scripts/qualification/phase1-4-6-gates.mjs
+      - name: Original ErhaPay source design and visual asset integrity
+        run: |
+          node scripts/design/erhapay-ui-inventory.mjs --check
+          node --test docs/design/test/*.test.mjs
       - name: Require genuine lockfile
         run: test -f pnpm-lock.yaml || (echo 'pnpm-lock.yaml is required; run a genuine pnpm install and commit its generated lockfile' && exit 1)
+      - run: node scripts/qualification/phase1-3-preflight.mjs --check-lock
       - run: pnpm install --frozen-lockfile
       - run: pnpm db:generate
       - run: pnpm --filter @twipay/database prisma:validate
       - run: pnpm --filter @twipay/database prisma:deploy
       - run: pnpm test:repo
+      - name: Full Phase 1–5 offline source and behavioral regression
+        run: pnpm test:offline-regression
       - run: node scripts/git-history-secret-check.mjs
+      - name: Isolated ErhaPay and integration-contract regression tests
+        run: |
+          pnpm test:isolated-regression
+          pnpm test:phase1
+          pnpm test:phase1-3
+          pnpm test:phase1-4-6
       - run: pnpm format:check
       - run: pnpm lint
       - run: pnpm typecheck
@@ -81,3 +97,13 @@ jobs:
       - name: Redis/BullMQ worker integration
         run: pnpm --filter @twipay/worker test:integration
       - run: pnpm build
+      - name: Check production customer bundle excludes prohibited betting implementation
+        run: pnpm test:betting-bundle
+      - name: Verify all customer-browser specifications load on the current code
+        run: pnpm exec playwright test --config playwright.customer-ui.config.ts --list
+      - name: Upload qualification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase1-source-policy-evidence
+          path: out/phase1-4-6-gates.json

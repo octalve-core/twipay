@@ -25,7 +25,10 @@ async function bootstrap(): Promise<void> {
   await app.register(cors, {
     origin(origin, cb) {
       if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
-      return cb(new Error('Origin is not allowed'), false);
+      // Absence of a CORS allowance is not a server fault. Unsafe browser
+      // requests still reach the request-security guard, which rejects their
+      // untrusted Origin with 403 (not a misleading 500 from this callback).
+      return cb(null, false);
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
@@ -78,7 +81,9 @@ async function bootstrap(): Promise<void> {
   }
 
   const port = Number(process.env['API_PORT'] ?? 4000);
-  await app.listen(port, '0.0.0.0');
+  // Explicitly bind qualification servers to loopback; production retains
+  // container-compatible binding unless deployment supplies an alternate host.
+  await app.listen(port, process.env['API_BIND_HOST'] ?? '0.0.0.0');
 }
 
 void bootstrap();

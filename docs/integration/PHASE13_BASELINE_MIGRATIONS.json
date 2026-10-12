@@ -1,0 +1,26 @@
+{
+  "description": "Immutable original five TwiPay migration content hashes from verified Phase 1.2 source e45a5dc; new migrations may be appended, but these cannot silently change.",
+  "starting_git_head": "e45a5dcc68b9d8ae45a8bd80fafcd2bbca5c4e02",
+  "migrations": [
+    {
+      "name": "0001_identity_foundation",
+      "sha256": "0bb6e056c377c9684ea88807b884f7a107baa2c1a4e4dd796ce04ca1dbe0705d"
+    },
+    {
+      "name": "0002_financial_core",
+      "sha256": "0850810b6e8601536bbb7fc385832ebfcf62f01c0234b28b39bfe394790c6a7a"
+    },
+    {
+      "name": "0003_services_events",
+      "sha256": "d604a4d2d558514ef2a04e04719594f6c25ecd5615529df36cd7f1ca10274fd0"
+    },
+    {
+      "name": "0004_product_operations",
+      "sha256": "9e0463dd10dcd9b2c1d8d0730618cf23a33ac6f92a1f7b9a655eef55cfea4505"
+    },
+    {
+      "name": "0005_production_hardening_mfa",
+      "sha256": "1dd4268acc80eda0d96d10c0b61941d126067f2422bfbe80ee3f8a58128d8848"
+    }
+  ]
+}

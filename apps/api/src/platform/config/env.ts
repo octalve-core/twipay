@@ -19,6 +19,7 @@ const EnvSchema = z.object({
   DATABASE_URL: z.string().min(1),
   REDIS_URL: z.string().min(1),
   SESSION_HASH_PEPPER: z.string().min(32),
+  TRANSACTION_PIN_PEPPER: z.string().min(32).optional(),
   SESSION_ABSOLUTE_TTL_SECONDS: z.coerce.number().int().min(300).max(2_592_000).default(604800),
   SESSION_IDLE_TTL_SECONDS: z.coerce.number().int().min(60).max(604800).default(86400),
   SESSION_TOUCH_INTERVAL_SECONDS: z.coerce.number().int().min(30).max(3600).default(300),
@@ -28,6 +29,16 @@ const EnvSchema = z.object({
   MFA_ENROLLMENT_TTL_SECONDS: z.coerce.number().int().min(120).max(3600).default(600),
   MFA_MAX_FAILED_ATTEMPTS: z.coerce.number().int().min(3).max(20).default(5),
   MFA_LOCK_SECONDS: z.coerce.number().int().min(60).max(3600).default(300),
+  WALLET_COLLECTIONS_SANDBOX_ENABLED: z.enum(['true', 'false']).default('false'),
+  BANK_TRANSFERS_SANDBOX_ENABLED: z.enum(['true', 'false']).default('false'),
+  TRANSFER_FEE_SANDBOX_APPROVED: z.enum(['true', 'false']).default('false'),
+  TRANSFER_FEE_PAYSTACK_MINOR: z.string().regex(/^(0|[1-9]\d{0,15})$/).optional(),
+  TRANSFER_FEE_MONNIFY_MINOR: z.string().regex(/^(0|[1-9]\d{0,15})$/).optional(),
+  TRANSFER_QUOTE_HMAC_KEY: z.string().regex(/^[0-9a-fA-F]{64,}$/).refine(value=>value.length%2===0).optional(),
+  VIRTUAL_ACCOUNTS_SANDBOX_ENABLED: z.enum(['true', 'false']).default('false'),
+  BILL_PURCHASES_SANDBOX_ENABLED: z.enum(['true', 'false']).default('false'),
+  EVENT_CHECKOUT_SANDBOX_ENABLED: z.enum(['true', 'false']).default('false'),
+  EVENT_TICKET_QR_SANDBOX_ENABLED: z.enum(['true', 'false']).default('false'),
   HIGH_RISK_FEATURES_RELEASE_QUALIFIED: z.enum(['true', 'false']).default('false'),
   DATA_ENCRYPTION_KEY: aes256Key,
   PII_FINGERPRINT_KEY: z.string().min(32),
@@ -49,6 +60,11 @@ const EnvSchema = z.object({
   TERMII_SENDER_ID: z.string().min(1).max(32).optional(),
   TERMII_CHANNEL: z.string().min(1).max(32).optional(),
   TERMII_BASE_URL: z.url().optional(),
+  GOOGLE_OIDC_ENABLED: z.enum(['true', 'false']).default('false'),
+  GOOGLE_CLIENT_ID: optionalSecret,
+  GOOGLE_CLIENT_SECRET: optionalSecret,
+  GOOGLE_REDIRECT_URI: z.url().optional(),
+  GOOGLE_OIDC_TRANSACTION_KEY: z.string().optional(),
   RESEND_API_KEY: optionalSecret,
   RESEND_FROM: z.string().min(3).max(320).optional(),
   RESEND_BASE_URL: z.url().optional(),
@@ -69,6 +85,29 @@ const EnvSchema = z.object({
 
 export function validateEnvironment(env: NodeJS.ProcessEnv): void {
   const result = EnvSchema.safeParse(env);
+  if (env['TRANSFER_FEE_SANDBOX_APPROVED'] === 'true') {
+    const secret=env['TRANSFER_QUOTE_HMAC_KEY'] ?? '';
+    if (env['NODE_ENV'] === 'production' || env['BANK_TRANSFERS_SANDBOX_ENABLED'] !== 'true' ||
+        !/^[0-9a-fA-F]{64,}$/.test(secret) || secret.length % 2 !== 0 || /^([0-9a-f])\1+$/i.test(secret) ||
+        [env['PII_FINGERPRINT_KEY'],env['SESSION_HASH_PEPPER'],env['TRANSACTION_PIN_PEPPER'],env['DATA_ENCRYPTION_KEY']].some(value=>!!value&&value===secret) ||
+        !/^(0|[1-9]\d{0,15})$/.test(env['TRANSFER_FEE_PAYSTACK_MINOR'] ?? '') ||
+        !/^(0|[1-9]\d{0,15})$/.test(env['TRANSFER_FEE_MONNIFY_MINOR'] ?? '') ||
+        BigInt(env['TRANSFER_FEE_PAYSTACK_MINOR'] ?? '0') > BigInt(Number.MAX_SAFE_INTEGER) ||
+        BigInt(env['TRANSFER_FEE_MONNIFY_MINOR'] ?? '0') > BigInt(Number.MAX_SAFE_INTEGER)) {
+      throw new Error('Approved sandbox transfer fees require explicitly reviewed provider amounts, distinct HMAC key and bank-transfer sandbox; production release is prohibited');
+    }
+  }
+  if (env['GOOGLE_OIDC_ENABLED'] === 'true') {
+    const parsed = Buffer.from(env['GOOGLE_OIDC_TRANSACTION_KEY'] ?? '', 'base64');
+    if (parsed.length !== 32 || !env['GOOGLE_CLIENT_ID'] || !env['GOOGLE_CLIENT_SECRET'] || !env['GOOGLE_REDIRECT_URI']) {
+      throw new Error('Google OIDC requires client ID, client secret, approved redirect and an independent 32-byte base64 transaction key');
+    }
+    const callback = new URL(env['GOOGLE_REDIRECT_URI']);
+    if (callback.pathname !== '/v1/auth/google/callback' || callback.search || callback.hash ||
+        (callback.protocol !== 'https:' && !(callback.protocol === 'http:' && ['localhost', '127.0.0.1'].includes(callback.hostname)))) {
+      throw new Error('Invalid GOOGLE_REDIRECT_URI');
+    }
+  }
   if (!result.success) {
     const fields = result.error.issues.map((issue) => issue.path.join('.')).join(', ');
     throw new Error(`Invalid TwiPay server environment: ${fields}`);

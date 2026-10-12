@@ -1,0 +1,2 @@
+# Archive original ErhaPay source byte-for-byte, including original CRLF/whitespace.
+*.source -text -diff

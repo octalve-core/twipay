@@ -1,0 +1,494 @@
+[
+  {
+    "file": "apps/customer-ui/public/SwiftBills_logo.jpg",
+    "sha256": "370d37f4ae56a18f90b701c87e7a2d8e4fd8ada377cde50ee00351a94862dd61"
+  },
+  {
+    "file": "apps/customer-ui/public/vite.svg",
+    "sha256": "4a748afd443918bb16591c834c401dae33e87861ab5dbad0811c3a3b4a9214fb"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/auth/AuthLogomark.png",
+    "sha256": "84cc87edad79bed65c2aeddf3ba17405627a60d3ab3ee2f4a9f80a3e524f70d2"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/auth/AuthLogomark1.png",
+    "sha256": "07c13266d73ac28dc5dc9b8d858bdcd934fad205fd304b533a6307d8b03e817d"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/auth/Dashboard_Mockup.png",
+    "sha256": "7cf47df39e68359cac817c237521153e0cb73d02586ef3cdf0ea8efc9e0eab15"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/auth/apple-icon.png",
+    "sha256": "603ad2318e56b5ae283c4271549b5ca46497f68197b584aacf7c251a5d574cbd"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/auth/checkmark-done.png",
+    "sha256": "3e5ae19cffc40c81021c6be39c75cc60a2b31f025e58eb3dcc30ab0962f36ef5"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/auth/dashboard.png",
+    "sha256": "9592b310ceffcc1ed37232d8bab1e2baef6c3967fe6e9628409d33021c5ec5d7"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/auth/google-icon.png",
+    "sha256": "a8c4da0d9e42f5a31dc638ce667404f6643d30def4f6cdf1ec7fe8b5ae8ed53f"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/auth/log-out-icon.svg",
+    "sha256": "8147b954a33c92e695b0649e01b8c23eb044d09e570db166148efc36788fd303"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/auth/radio-icon.png",
+    "sha256": "07e067c473e0afa6f0e1f45f97799100f527302990c07585e1b56cc82c2a9fe6"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/404.png",
+    "sha256": "9c1996d766636d421b87af7da9406dc96ca4f68a3bbdf6ce0d9364061355601e"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/5ive.png",
+    "sha256": "a8ee162f64b2ec1ee85c424c88c4cc33bacf1ae10d08f64cf45d077e68144e08"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/9mobile-dropdown.png",
+    "sha256": "0a39d2bc2b86cd70f1ce9e9a5056e9a0448a8cecdf6fa2e251c888408c191a8c"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/9mobile.svg",
+    "sha256": "53298b04fc9f6c5c4936cc868d1d5e5142745eb0968cf450ee84ec478a5536cb"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/Avatar Groups.png",
+    "sha256": "c0253672a8e474dc9ed74ff58122a45e8674e103363573eb7bc1bef16000fa75"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/Card.svg",
+    "sha256": "0496f6061ebcdfb8c573603171ec62822117ca5da873338646162d885bf4b60d"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/EventCardBg.png",
+    "sha256": "08b08e9121d4f43f615238405cf146a3c56e3f32aa4a6e7039bcc40b5b6e7c5c"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/Logomark.svg",
+    "sha256": "9b40cefba82a53ec4cdcb65ed045d498cd8496c7ec93ea4b99950b2435723829"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/Mastercard.png",
+    "sha256": "0398c99fb2fa819c40b130e1ad620fff6f270423c91cd898dc7a60a7eeb6becc"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/PayPass icon.png",
+    "sha256": "118432b9d6b26940bffbb92205ff295a5ded136e6ad9a0a1b44de332dcf07b32"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/WhatsappLogo.svg",
+    "sha256": "1e1df43363640c75fae63ce7dfc158e63c9251cb46ce3683ffddbb3dfec97c20"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/airline.svg",
+    "sha256": "24a25d9a0df33c94426c2c17d21998dbadaeecc28494366ade9589b275e15839"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/airtel-dropdown.png",
+    "sha256": "ae1830fa325a64838f50d861d2c6c62ca647089b487e0f14276624e331ded7bb"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/airtel.svg",
+    "sha256": "53b87f51ec642c44b88676e3ce2d56f48c15b792915d4d5c9fc10fb2142fdce9"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/arrow-right.svg",
+    "sha256": "ce85e776aa128426b4faea0cbeeac84637631640d86ae0a9167731bc49d2322b"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/arrow_left.svg",
+    "sha256": "d9e77bb496b6da061899fca020b16efcd35baaeddeb17b9db4a30497587cef64"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/baloon.svg",
+    "sha256": "68df96313d1b539c7667f8ef108f6066c3b5b86070c21a928feb7e67857552e9"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/benin.png",
+    "sha256": "f91af1f5b4bedc328ea68ae61bee95e0cd27e6dd10f819e968095a2ab216e622"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/briefcase-mobile.svg",
+    "sha256": "4a8b4d4a51b95158859dfc1d3d24ebe72dac15c706276ccc8f54f88f22d8eaac"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/briefcase.svg",
+    "sha256": "4c2b40ad34222a3cab5012df576672d0dbcc1bb290c1daa6ed3847b397af3403"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/calendar.svg",
+    "sha256": "00e0ca9854e8cb6eaeb45d61c229853c68b5d3a7fce875500dc58c244cc825d0"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/campain-image.jpg",
+    "sha256": "40766c0f23cdff826fabb3fbfcdf23d079d3729f8a59532a2e38c6c7c4fc88bc"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/clock-icon.svg",
+    "sha256": "1974100c8f528c2d4ffa733080b251199b3b5b93e768ad6f38d6057fb82b4018"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/credit-card-mobile.svg",
+    "sha256": "8bb9f61dcb9620600f89ab711d499b85856b064908bdc14dea89a5c6e441afa6"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/credit-card.svg",
+    "sha256": "bd21057e576ebf56acc0b389b19952133c05b10d544d881dd2a3e1f07f5a24c9"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/divide-circle.svg",
+    "sha256": "bf3a13788fb9e150d0c8ea68ff7c979fbe3d504ff45eb6f85c4a199c2f20d570"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/division.svg",
+    "sha256": "912ad718245e26b4f692937e15adc6edbd136f64b1bc9a1169b65d485fca0ad6"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/double-arrow.svg",
+    "sha256": "34429b0f8ec336d49b3ee219e90ee6b9128d1fc8b8ac5b39b758dec0c573fcad"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/downlineAvatar.png",
+    "sha256": "46c14dc6bf124d014babfe941b2ab464a2df19468f4f467e1282bf8fde4fb9e7"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/dstv.png",
+    "sha256": "673e6de0e05d874f7336bb99684c8c44b0591d7ee28c7ed4f45171ac4b1b772b"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/eko.png",
+    "sha256": "696044f1697cfa1bdc0d4e6e86b6d16103cbd240ac0d9efbf2a90003b0f401ba"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/empty-state.png",
+    "sha256": "6f0dcdc55226caea3a887aac6088901de905e965110ad151ae935b757adcf1e3"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/event_image.png",
+    "sha256": "7a046a011399fff8064fa2414cf11f8841f2f78d8e3803e5de83eb1bda313948"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/fail_icon.svg",
+    "sha256": "d842b99a66bb4cb495a73389ab599ee2eecf0cfe87f534e75f7b2651036a7fea"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/flutter.svg",
+    "sha256": "0923fa4234c2938054b6b58ac443d6fd41791910f2fc1d14a99a5f9e76de964e"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/glo-dropdown.png",
+    "sha256": "bb8dafeaa67fb36d6619e2a2074ea4988672ca406b4675612fd770450fec906f"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/globacom.svg",
+    "sha256": "db997a4a2b310d27c1bd55105703da813c70d29457ae4078842060445094a456"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/globe.svg",
+    "sha256": "150ee482c94ba2eb25480c9bd230e337da5681922bfadf23b4fba86e8f7f520a"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/hard-drive.svg",
+    "sha256": "1dd20c7db1addbc36bc831086df8336395b68ebf350077a9801998faafd04a94"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/home-mobile.svg",
+    "sha256": "5b4a62eb705267cab1aba509908115161ba90a2c72361c9825ee20bcf59f28e0"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/home.svg",
+    "sha256": "f77f8b646732aa7d9bd1aea52276985418604bf10c48bcefd7ce0ab5bfad4d23"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/hotel_image_1.png",
+    "sha256": "193bffd59622d7abb7bec6aac954d0eaf195d076907af91592c54e4d67fad9ce"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/hotel_image_2.png",
+    "sha256": "13e55a887377d318abbe7ea54bea2c142ec13e421084ae16d16df764f69d4ce6"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/hotel_image_3.png",
+    "sha256": "00ac1526832edfabfb3e00a903b6d7cdb0cd6d110f9638eed7541d267673df0c"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/ikeja.png",
+    "sha256": "0f22a01ae420aa168d3dc23243a360299e4cb660449da6be7f67819e54b15542"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/image-add.png",
+    "sha256": "dff8e2fc7c6cf750be51cd18d47b0beae10e8dc86882a67cbb59656ac02816cb"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/info.svg",
+    "sha256": "712715580e419ca6b3fd0b634a349aeaa0e3b8df0a4cdb787ef2adf566829917"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/jamb.png",
+    "sha256": "cca08e46db368388925ea3c44cc796233a82e965c94a0d658f9a046e8ca393aa"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/kaduna.png",
+    "sha256": "bd49b8ac55ee1854cc98a332a02ed9450853455e90b2c2e48af54bf3aa9c8ad9"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/key.svg",
+    "sha256": "96de5c308505f7debed30c92a58ef0e31cbc72aac6ef4b1fa694a184046464a5"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/link.svg",
+    "sha256": "7a9485acb87cffeb15525f09fc7a4bcc8255b26b3c8e5d4bb1fe4e41bf7ae6d4"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/location-icon.svg",
+    "sha256": "7d00cd6782318c18a475f0cc76b462ade9dbc6a16b2709dcc1a12c1be81c0d05"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/msport.png",
+    "sha256": "7d9df3e639bb33e43d7f86dc1d34d2a6a2d6d4fb86b745e45ae51d2f9aeae41b"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/mtn-dropdown.png",
+    "sha256": "d3f32433993f1882f1a64d7a61cec48aedb1df3e5bcdcee184d59e2301a3ee1c"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/mtn.svg",
+    "sha256": "7bd293c35c61acb4d154713b6f693c829adeaee8e217bd55dbc3246dc3d05125"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/neco.png",
+    "sha256": "f2e273f077359f4afc43d4d978be8251bc3f7ebd4aaa45d790aed7679cd764df"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/opay.svg",
+    "sha256": "741d0e86217962cc065889094f288052c01309b50140031eb62372fcd4456995"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/plus-circle.svg",
+    "sha256": "af6fdfd87e974b1f9a825b010a8770ea3419f7e164677cac7d47dee181ba3834"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/radio-mobile.svg",
+    "sha256": "a40bb1661bcb2eb68abc74009f95ea4fd940ec75d6e222ef803eab56e5d4f59f"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/radio.svg",
+    "sha256": "28621c006a515486f9e211b840753b6be3ee9ca8cecf114103129442dcc891cd"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/receipt.svg",
+    "sha256": "6b6baa62c7c01421d8cab2b07b69483751d696583f554d297df0eb3ebf758429"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/rocket-mobile.svg",
+    "sha256": "07ec2c1c0f978640672015fa0a6f35bae811d97de667b92da7d3d60ef7668da1"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/rocket-white.svg",
+    "sha256": "80d3e6e02e7d3114030abba2853d676a230d48f62969ccf008bda0418f846ab9"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/rocket.svg",
+    "sha256": "f754efa2d9bef25c8c36355017c4457d8ee39af9ccf9d93aadcc59393ae24454"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/rss.svg",
+    "sha256": "29bb588c68087766eff8840da19f404f2892b714f84c5bfe126898e63d33754f"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/sign_out.png",
+    "sha256": "67a6594957fae49de67349ffb84333e9c7eaecf4b589b58a0bbe12ae99e4636d"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/site-icon.svg",
+    "sha256": "678918cc36a91e7ef816b07d40497bce78da25c81c59be8afdcdd80a99fc7955"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/smartphone.svg",
+    "sha256": "d2e6192ceecd08d091ed1500b3f67bf31474c6cce16b4f4aac55eff360b27d9f"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/sporty.png",
+    "sha256": "5b4f49abdabe9d98a65a5815b95578421d3eab3d5ca09f477ba71d06dbe4ccef"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/success_icon.svg",
+    "sha256": "2017d8284995b1d04d7b65566b008347d990f803f60c4f9a9a7e2c938e0bfd5d"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/tag-icon.svg",
+    "sha256": "c13a9cab38fb93b6e61bdf64c010df6bcd00a2ded2fe0072c3ef9c049c9f5720"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/transfer.png",
+    "sha256": "0eeae62340359aec304fbfc91bba1ce6dfbff57aee7e087193d8d6478372dc81"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/tv.svg",
+    "sha256": "a207521001176544cad54a4adc330814f4610894bc2b3d2d8287521f5b90a1e0"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/userImage.png",
+    "sha256": "5232c10a100fdf11db9a39b860fedb0f21c68e80b994ece92abeff69fc4a9f4a"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/userImage2.png",
+    "sha256": "6e4cf66068aaeac05f8d865cc6c160804470d09593ddaa5a3e3774a8ac32a323"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/user_image.png",
+    "sha256": "33f006a71c09cdad1dd8e464687fe9ee3977cf1e41a22db2aee351dc3ddb5167"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/verified_tick.png",
+    "sha256": "b780082b86b2cacade632063ed0a4968c58c4c16b408346dc4193e35e74dce17"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/virtual.svg",
+    "sha256": "a8655e3e06c74481beffb7ad183571cbf70928cddae89974aa7f23a163ae3239"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/waec.png",
+    "sha256": "3ef0e43081c5b91d6af32417ad058f7c4c93426b753161a50201f8c9c8150acf"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/x-octagon.svg",
+    "sha256": "23723d53c24b828ae3f4ec605d5f162bc43dcfa2f495a4edcdf219ee451768b9"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/dashboard/zap.svg",
+    "sha256": "d37be78164d47b89c0b1adf08c8474048f5368a339af4985a53cfec5bd8c2073"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/main-pages/AccordionCloseIcon.png",
+    "sha256": "7a1af88c33615eea9670e54624e275699578ccaa578c68eecfeff54806e7eb35"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/main-pages/AccordionOpenIcon.png",
+    "sha256": "6bdce440b69d506700c8715448156ac8fe2fd715ee54e01bd59f18b4d68e75d3"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/main-pages/Avatar group.png",
+    "sha256": "31bac9d39b3b95bd0734a813a0a6b3902ad6e05859dab4b15d5f390338966bfc"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/main-pages/Avatar.png",
+    "sha256": "3ec5452900d9d3e04d86c6cf2313a5584812f3f813d21aba42783fbd97f48b97"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/main-pages/Facebook.png",
+    "sha256": "1cdef84a87c1e08477757877d6f77ed771c1dd16105742864f8421473bd9966b"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/main-pages/Layers.png",
+    "sha256": "9442df7948b2d9d7c35cae8eb070813416d47fd130357eefabba355698edfa2b"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/main-pages/LinkedIn.png",
+    "sha256": "6cf0e4c714b3e2363c99effc10e7090a0ece2f52b87128d82b7b7d8b5696d64c"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/main-pages/Mobile app store badge Apple.png",
+    "sha256": "cee4ab5be6464b7ea4cee8efb7ab2194fef5289293af25021905934823522dcb"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/main-pages/Mobile app store badge Google.png",
+    "sha256": "46fd218a031cb140a7c58c13482922605f7bd3af77b2d490f750e7e863db1a7f"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/main-pages/Twitter.png",
+    "sha256": "a265b09cdcfad015af04c2b984a2eb7a8a1cdf674afcea4634e8d429c80e34fb"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/main-pages/bills.png",
+    "sha256": "1f023fde7005a919b3155db23516cbc4dc84938d583797a4e0a6deb5f86cadb4"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/main-pages/catalog.png",
+    "sha256": "dc6010ada68175e0a4c47aa7cbb5845142fd95fd861d9e7af0e86f63b7466841"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/main-pages/chart.svg",
+    "sha256": "bae46136e5c32a5ce40b72031c1e6240e6cf5278980596031af8da5d6a74f588"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/main-pages/circooles.png",
+    "sha256": "de7a081c530ad985af3f4362d0630c928dd7d612391aa25d909e7b6de8b93f85"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/main-pages/contact_us.png",
+    "sha256": "28fdf207264db601c61d9e1d21ee9461dde675b9bf00aab4df3e72e1994b0d4a"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/main-pages/fast.svg",
+    "sha256": "e7af353ecda0756fb40e39a270e5722318080d559c67e7f51f3bc11f20ee4338"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/main-pages/flag.svg",
+    "sha256": "8265ed0099c938de61a10d5dba2b3820e4359591521355354e3a8ef04c974c38"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/main-pages/heart.svg",
+    "sha256": "92d91fbc1871d2e3fae241d5d1e3f3ec56c639f8de9dc219e87b2b1649567273"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/main-pages/hero_image.png",
+    "sha256": "2c98ad8070d0a99e1bb09bcc2b3030a4a168d25435ba1b4a82745f562ca94221"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/main-pages/hero_image_mobile.png",
+    "sha256": "2dca202f53b259e5bb12d57f75aff6cc6f47f52fdb1cc153b0d38cbb4ce6c991"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/main-pages/logo.png",
+    "sha256": "ceadf226a32b6d3dad9afe7343628a1179d17471dff3ddaf3a969ec5c83ed6d0"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/main-pages/mail_icon.png",
+    "sha256": "f2b7a0ee042011466f1c19ba7c2e5622ef3afe6a4325f41c002c9610de58b605"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/main-pages/our_mission.png",
+    "sha256": "8a28fb2462b096ea805a1c9cb3c39f7ca72242e2bbdfa065caceea176109c0c1"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/main-pages/quotient.png",
+    "sha256": "d7340e82d4b1efa6ba489cc41911128712bc0813a23bd056fe0dfa7856ea5bf8"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/main-pages/referrals.png",
+    "sha256": "9cde57a2e8f577745133a8f346165a448614dd972bc7659ebeb0706a289add42"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/main-pages/sisyphus.png",
+    "sha256": "22328ddcd03bd840596c9cd781543163502c771ad33c08b3c9c106da1b7ffbf9"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/main-pages/smiley.svg",
+    "sha256": "6467e691710759ea4f5c1bd545ffccf4e8e7d0156e2db775a8d9d7b38ad54b4f"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/main-pages/static_account.png",
+    "sha256": "8453808855aca870b4f02794413d347820f2bb5a705a6c717e756dea6abe80c1"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/main-pages/users.svg",
+    "sha256": "0dd60a402b640ed04dcc4abdb0b604b8951fe341017f0f59c93b097f2b77f3ab"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/main-pages/virtual_cards.png",
+    "sha256": "043be6729ce5c54d4239ee963ed6f7c1b2034a44a69da94f3f38ac7f73282d9a"
+  },
+  {
+    "file": "apps/customer-ui/src/assets/react.svg",
+    "sha256": "35ef61ed53b323ae94a16a8ec659b3d0af3880698791133f23b084085ab1c2e5"
+  }
+]

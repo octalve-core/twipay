@@ -1,0 +1,8 @@
+Node v22.16.0
+NPM 10.9.2
+pnpm UNAVAILABLE
+docker UNAVAILABLE
+psql UNAVAILABLE
+redis-server UNAVAILABLE
+REGISTRY RESOLUTION:
+UNAVAILABLE: registry.npmjs.org DNS lookup failed

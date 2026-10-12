@@ -1,5 +1,6 @@
 import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
 import type {
+  BankDirectoryEntry,
   CollectionResult,
   CreateCollectionInput,
   CreatePayoutInput,
@@ -158,6 +159,23 @@ export class MonnifyAdapter implements PaymentProviderPort {
       currency: input.currency,
       status: 'ACTIVE',
     };
+  }
+
+  async listBanks(): Promise<BankDirectoryEntry[]> {
+    // Monnify's documented OAuth2 GET /api/v1/banks (supported disbursement banks).
+    const body=await this.authorized('GET','/api/v1/banks');
+    if (body['requestSuccessful'] !== true || !Array.isArray(body['responseBody'])) {
+      throw new Error('MONNIFY_BANK_DIRECTORY_INVALID');
+    }
+    const entries=new Map<string,string>();
+    for (const item of body['responseBody']) {
+      if (!item || typeof item !== 'object' || Array.isArray(item)) continue;
+      const bank=item as UnknownRecord;
+      const code=text(bank['code']),name=text(bank['name']);
+      if(code && name && /^[A-Za-z0-9_-]{2,20}$/.test(code) && name.length<=100 && name.trim().length>=2)
+        entries.set(code,name.trim());
+    }
+    return [...entries].map(([bankCode,name])=>({bankCode,name})).sort((a,b)=>a.name.localeCompare(b.name));
   }
 
   async resolveBankAccount(input: ResolveBankAccountInput): Promise<ResolvedBankAccount> {

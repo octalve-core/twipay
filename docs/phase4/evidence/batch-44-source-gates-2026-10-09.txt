@@ -1,0 +1,13 @@
+Fri Oct  9 18:20:59 UTC 2026
+v22.16.0
+bash: line 1: pnpm: command not found
+TypeScript syntax check PASS (476 source files)
+Repository security check PASS (945 text files inspected)
+Architecture check PASS
+Financial invariant check PASS
+Services/events invariant check PASS
+Product/operations invariant check PASS
+Production hardening invariant check PASS
+PASS: design inventory matches 332 source files
+PASS: 123 original visual assets present; 69 byte-identical, 54 CRLF-only normalized, 0 material changes
+PASS: 66 declared route paths; 15 UI primitives catalogued

@@ -1,0 +1,1 @@
+Product/operations invariant check PASS

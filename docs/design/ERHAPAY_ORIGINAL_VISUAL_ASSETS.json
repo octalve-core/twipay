@@ -1,0 +1,745 @@
+{
+  "schemaVersion": 1,
+  "basis": "erhapay-source(2).zip original visual image/icon asset paths; SHA-256 of bytes and CRLF-normalized bytes (source archival provenance)",
+  "sourceFiles": 123,
+  "assets": [
+    {
+      "path": "public/SwiftBills_logo.jpg",
+      "originalSha256": "370d37f4ae56a18f90b701c87e7a2d8e4fd8ada377cde50ee00351a94862dd61",
+      "normalizedSha256": "370d37f4ae56a18f90b701c87e7a2d8e4fd8ada377cde50ee00351a94862dd61",
+      "kind": "jpg"
+    },
+    {
+      "path": "public/vite.svg",
+      "originalSha256": "4a748afd443918bb16591c834c401dae33e87861ab5dbad0811c3a3b4a9214fb",
+      "normalizedSha256": "4a748afd443918bb16591c834c401dae33e87861ab5dbad0811c3a3b4a9214fb",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/auth/AuthLogomark.png",
+      "originalSha256": "84cc87edad79bed65c2aeddf3ba17405627a60d3ab3ee2f4a9f80a3e524f70d2",
+      "normalizedSha256": "1f3912953ee624a20824a025e3f3fb05e822e979f91d80b9f37bef86d2a474d0",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/auth/AuthLogomark1.png",
+      "originalSha256": "07c13266d73ac28dc5dc9b8d858bdcd934fad205fd304b533a6307d8b03e817d",
+      "normalizedSha256": "8a1473fd695b9e884feb13335e4b8436ce42af09c25b3899e78284b78b872c63",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/auth/Dashboard_Mockup.png",
+      "originalSha256": "7cf47df39e68359cac817c237521153e0cb73d02586ef3cdf0ea8efc9e0eab15",
+      "normalizedSha256": "53d5efcfe0636434c05d36320ef1312ef2b61062642cf39d6c56a5bf39191649",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/auth/apple-icon.png",
+      "originalSha256": "603ad2318e56b5ae283c4271549b5ca46497f68197b584aacf7c251a5d574cbd",
+      "normalizedSha256": "461968b00efb666ca5db36b11864c32cce26ecf11f2777c523f5174c31b39d46",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/auth/checkmark-done.png",
+      "originalSha256": "3e5ae19cffc40c81021c6be39c75cc60a2b31f025e58eb3dcc30ab0962f36ef5",
+      "normalizedSha256": "362bc3dd9e7cfcf4aeb1ad924e263ac6c852ea0846b69fa4ef82dbe0aa4cc1aa",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/auth/dashboard.png",
+      "originalSha256": "9592b310ceffcc1ed37232d8bab1e2baef6c3967fe6e9628409d33021c5ec5d7",
+      "normalizedSha256": "2ca35f1bec162206017468fcec450465df17b5ff2a75bc4a8a987555e2c8157c",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/auth/google-icon.png",
+      "originalSha256": "a8c4da0d9e42f5a31dc638ce667404f6643d30def4f6cdf1ec7fe8b5ae8ed53f",
+      "normalizedSha256": "113d2ccff3b6646eb609444b6380b5796c8ac3fb954cb52d102321a3e4e0712e",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/auth/log-out-icon.svg",
+      "originalSha256": "8147b954a33c92e695b0649e01b8c23eb044d09e570db166148efc36788fd303",
+      "normalizedSha256": "2345e25ff19c4925c7bca444facfb95571ecbd24eb7a67503e6557a5b59c0f6d",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/auth/radio-icon.png",
+      "originalSha256": "07e067c473e0afa6f0e1f45f97799100f527302990c07585e1b56cc82c2a9fe6",
+      "normalizedSha256": "0c13a64ab54ccba8c7b5765d660f4af6cfba48c950ff17d01ee3b758a3d22ffb",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/dashboard/404.png",
+      "originalSha256": "9c1996d766636d421b87af7da9406dc96ca4f68a3bbdf6ce0d9364061355601e",
+      "normalizedSha256": "0e00234b5e93a9bd2f6f535310ae74ae4a14ab59436d933c6836fd7de24347bc",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/dashboard/5ive.png",
+      "originalSha256": "a8ee162f64b2ec1ee85c424c88c4cc33bacf1ae10d08f64cf45d077e68144e08",
+      "normalizedSha256": "5c0f776d286011eb5b038b29aabafbb3fd073378541acb04a94470bb736d0d30",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/dashboard/9mobile-dropdown.png",
+      "originalSha256": "0a39d2bc2b86cd70f1ce9e9a5056e9a0448a8cecdf6fa2e251c888408c191a8c",
+      "normalizedSha256": "d1687b1d8c5510d8d71ef78860491ddf46ea1965b23f505dcb701987b72b3f48",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/dashboard/9mobile.svg",
+      "originalSha256": "53298b04fc9f6c5c4936cc868d1d5e5142745eb0968cf450ee84ec478a5536cb",
+      "normalizedSha256": "8c691688a19d2cd757d8e6131293df7a2fad1aa6c7a44fa573adebf3709150b5",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/Avatar Groups.png",
+      "originalSha256": "c0253672a8e474dc9ed74ff58122a45e8674e103363573eb7bc1bef16000fa75",
+      "normalizedSha256": "6e64a3567ee56363b3680a5ed06b16bc63ec31ba83891c3ca1b9999c46d9a818",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/dashboard/Card.svg",
+      "originalSha256": "0496f6061ebcdfb8c573603171ec62822117ca5da873338646162d885bf4b60d",
+      "normalizedSha256": "843b13c08a322686dcbe98004239ab821f98fcd7055ba602ddc26d691514f19e",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/EventCardBg.png",
+      "originalSha256": "08b08e9121d4f43f615238405cf146a3c56e3f32aa4a6e7039bcc40b5b6e7c5c",
+      "normalizedSha256": "51045b110e27a139652cd80b3a83c82685b9376f39e7a80d47cc1284dd4582ca",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/dashboard/Logomark.svg",
+      "originalSha256": "9b40cefba82a53ec4cdcb65ed045d498cd8496c7ec93ea4b99950b2435723829",
+      "normalizedSha256": "9e494eadcd69baac341f8766c30f7daaf105af280d4c3ecdfa0c0e351bc33cad",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/Mastercard.png",
+      "originalSha256": "0398c99fb2fa819c40b130e1ad620fff6f270423c91cd898dc7a60a7eeb6becc",
+      "normalizedSha256": "5b5112e5ad4bdde8c54c23bab75a3bff422b4a038ec65a8b1d09eb5490950c83",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/dashboard/PayPass icon.png",
+      "originalSha256": "118432b9d6b26940bffbb92205ff295a5ded136e6ad9a0a1b44de332dcf07b32",
+      "normalizedSha256": "f49ed44a7f1b0b6405824d256229cbdf1088e2a1e1c972a47964cb1ce555998c",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/dashboard/WhatsappLogo.svg",
+      "originalSha256": "1e1df43363640c75fae63ce7dfc158e63c9251cb46ce3683ffddbb3dfec97c20",
+      "normalizedSha256": "ca7340cc7ae5ff9837c0ecf2250c96bf60f2473ed0fbe5c09d465942c8aefb1e",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/airline.svg",
+      "originalSha256": "24a25d9a0df33c94426c2c17d21998dbadaeecc28494366ade9589b275e15839",
+      "normalizedSha256": "ac98f3b8f515685b1a474363f1a660453037a6c29473b168957218f8714c3a36",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/airtel-dropdown.png",
+      "originalSha256": "ae1830fa325a64838f50d861d2c6c62ca647089b487e0f14276624e331ded7bb",
+      "normalizedSha256": "68aed2be94cb2af08c99d89061cbc2667874d2654640f0d18dcd3df699528742",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/dashboard/airtel.svg",
+      "originalSha256": "53b87f51ec642c44b88676e3ce2d56f48c15b792915d4d5c9fc10fb2142fdce9",
+      "normalizedSha256": "34e9b3f99932c3399614e6dc40888fd5df74e7dd1d22681ba4d2b7692b3b7ab6",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/arrow-right.svg",
+      "originalSha256": "ce85e776aa128426b4faea0cbeeac84637631640d86ae0a9167731bc49d2322b",
+      "normalizedSha256": "d0d9b544910df18105b86180fc332be2433f21ca15707da525a8308d33115999",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/arrow_left.svg",
+      "originalSha256": "d9e77bb496b6da061899fca020b16efcd35baaeddeb17b9db4a30497587cef64",
+      "normalizedSha256": "fa62c2e87c13a15945a601ddd9c83e15f47add33fa55fb5752fc9d4b1ce07ad2",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/baloon.svg",
+      "originalSha256": "68df96313d1b539c7667f8ef108f6066c3b5b86070c21a928feb7e67857552e9",
+      "normalizedSha256": "7305ed63e92b6eba5b15846a7ddf5d235c1a0753c3b8a2904e7768c399522480",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/benin.png",
+      "originalSha256": "f91af1f5b4bedc328ea68ae61bee95e0cd27e6dd10f819e968095a2ab216e622",
+      "normalizedSha256": "bd67d96f5f1fb27b325d4aded595922714d6e17cc0fe87cc96ffcf585e8ee8af",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/dashboard/briefcase-mobile.svg",
+      "originalSha256": "4a8b4d4a51b95158859dfc1d3d24ebe72dac15c706276ccc8f54f88f22d8eaac",
+      "normalizedSha256": "f27d87c4a5a3ff949a139dbce29e95621b84f904604607bcf6f4283be4821365",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/briefcase.svg",
+      "originalSha256": "4c2b40ad34222a3cab5012df576672d0dbcc1bb290c1daa6ed3847b397af3403",
+      "normalizedSha256": "a757747e423966f0afa86da662913411037104284ca20b906faa07c8bf8deed1",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/calendar.svg",
+      "originalSha256": "00e0ca9854e8cb6eaeb45d61c229853c68b5d3a7fce875500dc58c244cc825d0",
+      "normalizedSha256": "28b03fb2d6295e08114d61d2733364bdb7a9bd56fa2a09a87497cd9837145f6d",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/campain-image.jpg",
+      "originalSha256": "40766c0f23cdff826fabb3fbfcdf23d079d3729f8a59532a2e38c6c7c4fc88bc",
+      "normalizedSha256": "64c4add59dcf2607c079615376af58059b111b6f412703bc05bb4b87c4f88161",
+      "kind": "jpg"
+    },
+    {
+      "path": "src/assets/dashboard/clock-icon.svg",
+      "originalSha256": "1974100c8f528c2d4ffa733080b251199b3b5b93e768ad6f38d6057fb82b4018",
+      "normalizedSha256": "a5c5364978aadffdd0499ebb0850f1ec9c4df83349090f46267640fa3e640096",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/credit-card-mobile.svg",
+      "originalSha256": "8bb9f61dcb9620600f89ab711d499b85856b064908bdc14dea89a5c6e441afa6",
+      "normalizedSha256": "2ca555e6567efcec304f0ec073b45448aec95cb62865a709691909e1ac6aa199",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/credit-card.svg",
+      "originalSha256": "bd21057e576ebf56acc0b389b19952133c05b10d544d881dd2a3e1f07f5a24c9",
+      "normalizedSha256": "36c10ef34add7f9d584b5caffef46979fa240a2c61f6a4af055f298741b29a63",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/divide-circle.svg",
+      "originalSha256": "bf3a13788fb9e150d0c8ea68ff7c979fbe3d504ff45eb6f85c4a199c2f20d570",
+      "normalizedSha256": "1e9597def61f980b3c04089863de8ac88572d823840d5efb25767bef8f4c942a",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/division.svg",
+      "originalSha256": "912ad718245e26b4f692937e15adc6edbd136f64b1bc9a1169b65d485fca0ad6",
+      "normalizedSha256": "29ff7fdd5ade604f793a06f459a548a1dc02b88cf322623b41d0e16c70e7b28f",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/double-arrow.svg",
+      "originalSha256": "34429b0f8ec336d49b3ee219e90ee6b9128d1fc8b8ac5b39b758dec0c573fcad",
+      "normalizedSha256": "e4d768dc80c58a17e808c8c2d5132d46ec3447ff00d37dba88c54cfa927662c4",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/downlineAvatar.png",
+      "originalSha256": "46c14dc6bf124d014babfe941b2ab464a2df19468f4f467e1282bf8fde4fb9e7",
+      "normalizedSha256": "8ea9103132458a18cad9916eb6671e481c2bb8e2a677e546ab5492071152eac1",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/dashboard/dstv.png",
+      "originalSha256": "673e6de0e05d874f7336bb99684c8c44b0591d7ee28c7ed4f45171ac4b1b772b",
+      "normalizedSha256": "a6af358d89a44f32f7acd577ce11e00fe91f069d6f796fa19f4926adb7e5243d",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/dashboard/eko.png",
+      "originalSha256": "696044f1697cfa1bdc0d4e6e86b6d16103cbd240ac0d9efbf2a90003b0f401ba",
+      "normalizedSha256": "bb84d1480a7fd4cb7f24e9267c9a22a046ea6bd5935c5ff92a1d791695a838d3",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/dashboard/empty-state.png",
+      "originalSha256": "6f0dcdc55226caea3a887aac6088901de905e965110ad151ae935b757adcf1e3",
+      "normalizedSha256": "71c0b7df68e5d6800d9a056d991506ab30f37019d64f38d55c372b4846acd5bc",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/dashboard/event_image.png",
+      "originalSha256": "7a046a011399fff8064fa2414cf11f8841f2f78d8e3803e5de83eb1bda313948",
+      "normalizedSha256": "823cda6075d53c4f580d19b485e3d03cf41c8756905058482a6ad8725b9162c0",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/dashboard/fail_icon.svg",
+      "originalSha256": "d842b99a66bb4cb495a73389ab599ee2eecf0cfe87f534e75f7b2651036a7fea",
+      "normalizedSha256": "16c0a1e7651e16c06a0dad280b581cc7fedcfaa35875f1386226a749acd62905",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/flutter.svg",
+      "originalSha256": "0923fa4234c2938054b6b58ac443d6fd41791910f2fc1d14a99a5f9e76de964e",
+      "normalizedSha256": "18d4340baf4073e0000c61233d15e15991bbb714ce2a789b4348dbd5d3aed609",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/glo-dropdown.png",
+      "originalSha256": "bb8dafeaa67fb36d6619e2a2074ea4988672ca406b4675612fd770450fec906f",
+      "normalizedSha256": "25cd9e8c20fbf4392a28b255f4ab1425f3fcf0577755aba1c874e5b3715774cc",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/dashboard/globacom.svg",
+      "originalSha256": "db997a4a2b310d27c1bd55105703da813c70d29457ae4078842060445094a456",
+      "normalizedSha256": "88f4dfc14c81dcbd6c2dac2f487cd297da8728a9c4f5c0f4799d4ac70d569e6b",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/globe.svg",
+      "originalSha256": "150ee482c94ba2eb25480c9bd230e337da5681922bfadf23b4fba86e8f7f520a",
+      "normalizedSha256": "4413d23e3abb8fa30272eec2b96b9189fe4b5996bf187407a518cff281e12d92",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/hard-drive.svg",
+      "originalSha256": "1dd20c7db1addbc36bc831086df8336395b68ebf350077a9801998faafd04a94",
+      "normalizedSha256": "b2e845efb69ad65bfbbb6d50133008056de3a645a7c3527b711bf62a28c0c10f",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/home-mobile.svg",
+      "originalSha256": "5b4a62eb705267cab1aba509908115161ba90a2c72361c9825ee20bcf59f28e0",
+      "normalizedSha256": "b7c814b26327fa7d36456de921edc5dd50505ff2ace9a05661049a60a30e5ff5",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/home.svg",
+      "originalSha256": "f77f8b646732aa7d9bd1aea52276985418604bf10c48bcefd7ce0ab5bfad4d23",
+      "normalizedSha256": "9126c08a2153311e87a1fa76f532d33b84e0db6074e3918ac2c22ce8a4d290f8",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/hotel_image_1.png",
+      "originalSha256": "193bffd59622d7abb7bec6aac954d0eaf195d076907af91592c54e4d67fad9ce",
+      "normalizedSha256": "6c671fe7c6296aa43662a563c57867278301650ae15b3763c3c02386f18ee00b",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/dashboard/hotel_image_2.png",
+      "originalSha256": "13e55a887377d318abbe7ea54bea2c142ec13e421084ae16d16df764f69d4ce6",
+      "normalizedSha256": "dc53f14b488616d14b1dc3b452e42eba3d8f9481d7c62a44d82fea922cf09e2d",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/dashboard/hotel_image_3.png",
+      "originalSha256": "00ac1526832edfabfb3e00a903b6d7cdb0cd6d110f9638eed7541d267673df0c",
+      "normalizedSha256": "86fb19d137162ec001d2de54647b1f4dd1cff9b1eb3f202ffd08a5a6b52b3602",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/dashboard/ikeja.png",
+      "originalSha256": "0f22a01ae420aa168d3dc23243a360299e4cb660449da6be7f67819e54b15542",
+      "normalizedSha256": "91f00ef0747c0606d7ecd45a16785728dc30e5b77fffadcbc23d94422919f83f",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/dashboard/image-add.png",
+      "originalSha256": "dff8e2fc7c6cf750be51cd18d47b0beae10e8dc86882a67cbb59656ac02816cb",
+      "normalizedSha256": "50223327b0b9d63238d1cbcfc8b2f02e7f13438011cab79c47d69b5734274ad7",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/dashboard/info.svg",
+      "originalSha256": "712715580e419ca6b3fd0b634a349aeaa0e3b8df0a4cdb787ef2adf566829917",
+      "normalizedSha256": "65f68ab35c2d5feaf227e2f587f90e1ec77f75bdf89dd345315c1e5377762821",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/jamb.png",
+      "originalSha256": "cca08e46db368388925ea3c44cc796233a82e965c94a0d658f9a046e8ca393aa",
+      "normalizedSha256": "2312bd136384926dada257d497c0d32e27ab1885eb9bfaaf9fa4eeac5bf4566f",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/dashboard/kaduna.png",
+      "originalSha256": "bd49b8ac55ee1854cc98a332a02ed9450853455e90b2c2e48af54bf3aa9c8ad9",
+      "normalizedSha256": "3752b0d76c55d642796561cf1c313ccd0c4298c919f94f182eff704eae8ec1b9",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/dashboard/key.svg",
+      "originalSha256": "96de5c308505f7debed30c92a58ef0e31cbc72aac6ef4b1fa694a184046464a5",
+      "normalizedSha256": "e06da9605952bb4d7fee5f28e4f8c92de064a9ddf08aeacfb3ed93e8616ccc3f",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/link.svg",
+      "originalSha256": "7a9485acb87cffeb15525f09fc7a4bcc8255b26b3c8e5d4bb1fe4e41bf7ae6d4",
+      "normalizedSha256": "b65908a77600c708dd7097ec252f7660aa21ed7d43adc43e3e04841441bbfe94",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/location-icon.svg",
+      "originalSha256": "7d00cd6782318c18a475f0cc76b462ade9dbc6a16b2709dcc1a12c1be81c0d05",
+      "normalizedSha256": "7f1c4a2342e5f653368c7395b83f23126a7c9007630bc08c27e3e4662c83f147",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/msport.png",
+      "originalSha256": "7d9df3e639bb33e43d7f86dc1d34d2a6a2d6d4fb86b745e45ae51d2f9aeae41b",
+      "normalizedSha256": "0aee4f9c2bab2dd5ad37f097f42a6c7463b5b415a687eb87109b412562f861e4",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/dashboard/mtn-dropdown.png",
+      "originalSha256": "d3f32433993f1882f1a64d7a61cec48aedb1df3e5bcdcee184d59e2301a3ee1c",
+      "normalizedSha256": "d6c83fd8edf518623101b02f2426ad76272f4ae85a631034600da9ead66687fd",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/dashboard/mtn.svg",
+      "originalSha256": "7bd293c35c61acb4d154713b6f693c829adeaee8e217bd55dbc3246dc3d05125",
+      "normalizedSha256": "9affe0c380e896b98e6a9fd9be28452b515174147fc0da0131a4a4c3843ba434",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/neco.png",
+      "originalSha256": "f2e273f077359f4afc43d4d978be8251bc3f7ebd4aaa45d790aed7679cd764df",
+      "normalizedSha256": "14eeca2fba2bf6070e486f3a4a58b839b331f8e5ba75235788256124f01b4855",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/dashboard/opay.svg",
+      "originalSha256": "741d0e86217962cc065889094f288052c01309b50140031eb62372fcd4456995",
+      "normalizedSha256": "93d441af55f2d5fa07005f5d8e13ca7e8eaf1a45dc01bec3e1232de36c002fb0",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/plus-circle.svg",
+      "originalSha256": "af6fdfd87e974b1f9a825b010a8770ea3419f7e164677cac7d47dee181ba3834",
+      "normalizedSha256": "2e28b12a68cdad87fabd04987c794782045fe487bed18f002d1c23c7d20959fc",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/radio-mobile.svg",
+      "originalSha256": "a40bb1661bcb2eb68abc74009f95ea4fd940ec75d6e222ef803eab56e5d4f59f",
+      "normalizedSha256": "ec0bd596207d518afe7196c3609c189df5afec050f15df01b6a19367dd458064",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/radio.svg",
+      "originalSha256": "28621c006a515486f9e211b840753b6be3ee9ca8cecf114103129442dcc891cd",
+      "normalizedSha256": "48e52c872a443d4a37b290a1b86ef48e32e94e00f79ddd106cf97bfa019c8e30",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/receipt.svg",
+      "originalSha256": "6b6baa62c7c01421d8cab2b07b69483751d696583f554d297df0eb3ebf758429",
+      "normalizedSha256": "75b3649058cdf34cf762ac03317218864b573ea5ec8226fe6279f286733675e7",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/rocket-mobile.svg",
+      "originalSha256": "07ec2c1c0f978640672015fa0a6f35bae811d97de667b92da7d3d60ef7668da1",
+      "normalizedSha256": "1c73a4d2f7572f8ab8daa5b01a5cd524f96807363c8397a96cf1b5b4d622354d",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/rocket-white.svg",
+      "originalSha256": "80d3e6e02e7d3114030abba2853d676a230d48f62969ccf008bda0418f846ab9",
+      "normalizedSha256": "cf20d1c236d075abc21393182bf4bf7b2fc370608d0e1a37665aaf13a09aad07",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/rocket.svg",
+      "originalSha256": "f754efa2d9bef25c8c36355017c4457d8ee39af9ccf9d93aadcc59393ae24454",
+      "normalizedSha256": "edce6ad943ebc7b8514279f965459ae7882caa4456356309e4162980200cf4e9",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/rss.svg",
+      "originalSha256": "29bb588c68087766eff8840da19f404f2892b714f84c5bfe126898e63d33754f",
+      "normalizedSha256": "0e634f280d5538ef3a89ba05e343fa4c78451366903a1fa8ec905b4bb3db71be",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/sign_out.png",
+      "originalSha256": "67a6594957fae49de67349ffb84333e9c7eaecf4b589b58a0bbe12ae99e4636d",
+      "normalizedSha256": "e71e7dd163d21a8f7bce0554eddff6cce4fbf5d9840a020ace1a013d9fd7c3d0",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/dashboard/site-icon.svg",
+      "originalSha256": "678918cc36a91e7ef816b07d40497bce78da25c81c59be8afdcdd80a99fc7955",
+      "normalizedSha256": "03de0fac4c12e058c04b74a0feb84732dbf59bbd55cdbd1b03e97f89c9031da5",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/smartphone.svg",
+      "originalSha256": "d2e6192ceecd08d091ed1500b3f67bf31474c6cce16b4f4aac55eff360b27d9f",
+      "normalizedSha256": "673f8394b2fa8025da688c8d054f20056020c69397b5d6abdae76444f26ab93b",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/sporty.png",
+      "originalSha256": "5b4f49abdabe9d98a65a5815b95578421d3eab3d5ca09f477ba71d06dbe4ccef",
+      "normalizedSha256": "acaa87b69a88eaf80962febc3be85dfef2885aa2625028486502c470a87fdaa6",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/dashboard/success_icon.svg",
+      "originalSha256": "2017d8284995b1d04d7b65566b008347d990f803f60c4f9a9a7e2c938e0bfd5d",
+      "normalizedSha256": "1008d301249591e39037194931bf4e99abee4416fb692fe528726c020ecfbc07",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/tag-icon.svg",
+      "originalSha256": "c13a9cab38fb93b6e61bdf64c010df6bcd00a2ded2fe0072c3ef9c049c9f5720",
+      "normalizedSha256": "427038f9c1a8eb6f3c8970075d3b4a593fd6653a62e8c9d1fdabb31aac05aa70",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/transfer.png",
+      "originalSha256": "0eeae62340359aec304fbfc91bba1ce6dfbff57aee7e087193d8d6478372dc81",
+      "normalizedSha256": "e36fdafb11741e3ad2180373b04892b91ff68fb98de29e5145ababdaa5f5013f",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/dashboard/tv.svg",
+      "originalSha256": "a207521001176544cad54a4adc330814f4610894bc2b3d2d8287521f5b90a1e0",
+      "normalizedSha256": "d57ae66ae7a5dbe0c7a6d7640fb91d99a233350e77ccf1ab91ff491f2823ab65",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/userImage.png",
+      "originalSha256": "5232c10a100fdf11db9a39b860fedb0f21c68e80b994ece92abeff69fc4a9f4a",
+      "normalizedSha256": "8b7994d82087a615bcaf33e1278ac803a5ffb26dd54190b5ea24e98516179dec",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/dashboard/userImage2.png",
+      "originalSha256": "6e4cf66068aaeac05f8d865cc6c160804470d09593ddaa5a3e3774a8ac32a323",
+      "normalizedSha256": "1ab880d9f2d63a983f9b23ebff412f1ae22d9519bea6cba2c2c37d2a514cdd78",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/dashboard/user_image.png",
+      "originalSha256": "33f006a71c09cdad1dd8e464687fe9ee3977cf1e41a22db2aee351dc3ddb5167",
+      "normalizedSha256": "19e2478ae5d17212c50eac10a63173c19e33dc08bdfbe9b6548a5467688cb1d1",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/dashboard/verified_tick.png",
+      "originalSha256": "b780082b86b2cacade632063ed0a4968c58c4c16b408346dc4193e35e74dce17",
+      "normalizedSha256": "ee6c612d98546b61d88a3c40d4d6a8c4d604b2cadbcddba442cd15f719570e0c",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/dashboard/virtual.svg",
+      "originalSha256": "a8655e3e06c74481beffb7ad183571cbf70928cddae89974aa7f23a163ae3239",
+      "normalizedSha256": "baf8e4ecb015f5805bdb47d55dfe39d2700c61a6ba74891e46d51e5f11a61219",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/waec.png",
+      "originalSha256": "3ef0e43081c5b91d6af32417ad058f7c4c93426b753161a50201f8c9c8150acf",
+      "normalizedSha256": "c626ed774b7bdc232ed7e602d2888175a4415a2dd080bc503725ade14e70a5d6",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/dashboard/x-octagon.svg",
+      "originalSha256": "23723d53c24b828ae3f4ec605d5f162bc43dcfa2f495a4edcdf219ee451768b9",
+      "normalizedSha256": "219eee2ebbd638c54e1b6db3049e9f66e23fd65fdcf7ab375f4961c561c1d02e",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/dashboard/zap.svg",
+      "originalSha256": "d37be78164d47b89c0b1adf08c8474048f5368a339af4985a53cfec5bd8c2073",
+      "normalizedSha256": "f883c71142493348f00dfb3bad7452e7993f6a01df862634b1a2e0b52e28c33c",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/main-pages/AccordionCloseIcon.png",
+      "originalSha256": "7a1af88c33615eea9670e54624e275699578ccaa578c68eecfeff54806e7eb35",
+      "normalizedSha256": "66e4609391dba2dfbbe3d22a3f8722233502d963ab72032d0b566de213188927",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/main-pages/AccordionOpenIcon.png",
+      "originalSha256": "6bdce440b69d506700c8715448156ac8fe2fd715ee54e01bd59f18b4d68e75d3",
+      "normalizedSha256": "97463a520d5e27340dd0e93e5928a2325196f9867193f9810dd944007ef22991",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/main-pages/Avatar group.png",
+      "originalSha256": "31bac9d39b3b95bd0734a813a0a6b3902ad6e05859dab4b15d5f390338966bfc",
+      "normalizedSha256": "7049589447c6d0ad3b6bc4cb262f4e709c2e8fb3f9e753b9772957d507d68d7e",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/main-pages/Avatar.png",
+      "originalSha256": "3ec5452900d9d3e04d86c6cf2313a5584812f3f813d21aba42783fbd97f48b97",
+      "normalizedSha256": "80eb9fdff49889c32a5ef6128c23783ffb4d39235b95d747122a7a5063a39867",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/main-pages/Facebook.png",
+      "originalSha256": "1cdef84a87c1e08477757877d6f77ed771c1dd16105742864f8421473bd9966b",
+      "normalizedSha256": "e655b92c22b5cc39bc839d3f5c221bcad0e39e7bfd6133e12344ccdd2597929e",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/main-pages/Layers.png",
+      "originalSha256": "9442df7948b2d9d7c35cae8eb070813416d47fd130357eefabba355698edfa2b",
+      "normalizedSha256": "90c32718fc2fecaeb66a0cc831924a305e2aa10372525cfa4490096b257d65ec",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/main-pages/LinkedIn.png",
+      "originalSha256": "6cf0e4c714b3e2363c99effc10e7090a0ece2f52b87128d82b7b7d8b5696d64c",
+      "normalizedSha256": "e167931fb15bb0efc923f81c413020bddf1fd301eb2fa2332b83f3f8e4bc8b45",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/main-pages/Mobile app store badge Apple.png",
+      "originalSha256": "cee4ab5be6464b7ea4cee8efb7ab2194fef5289293af25021905934823522dcb",
+      "normalizedSha256": "8700035b9b56b1a6914f67cb29581158d0ce03332fe004025f634e6ec7bf9440",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/main-pages/Mobile app store badge Google.png",
+      "originalSha256": "46fd218a031cb140a7c58c13482922605f7bd3af77b2d490f750e7e863db1a7f",
+      "normalizedSha256": "3ee055af6f2b5eca29bbafd7313353633040a8edc4aba96d034497e141f9e189",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/main-pages/Twitter.png",
+      "originalSha256": "a265b09cdcfad015af04c2b984a2eb7a8a1cdf674afcea4634e8d429c80e34fb",
+      "normalizedSha256": "dcb77d75f7eec49be9069735f49f7bf80f7aa91dd42785edcf98d9920bfcff4e",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/main-pages/bills.png",
+      "originalSha256": "1f023fde7005a919b3155db23516cbc4dc84938d583797a4e0a6deb5f86cadb4",
+      "normalizedSha256": "b1e17319fefe16fc78826520c9b8768ffd5e98b84c714cac94a9c69446b88323",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/main-pages/catalog.png",
+      "originalSha256": "dc6010ada68175e0a4c47aa7cbb5845142fd95fd861d9e7af0e86f63b7466841",
+      "normalizedSha256": "87a7bae7fde700e238b8713d7a478b62fcf71e402382b1cb2ebe6b9e98c50fcd",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/main-pages/chart.svg",
+      "originalSha256": "bae46136e5c32a5ce40b72031c1e6240e6cf5278980596031af8da5d6a74f588",
+      "normalizedSha256": "678aac26a9890b886cbdb00c56e4549d5ae7a875e58b192b997d39c611d3298b",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/main-pages/circooles.png",
+      "originalSha256": "de7a081c530ad985af3f4362d0630c928dd7d612391aa25d909e7b6de8b93f85",
+      "normalizedSha256": "b2871496314ccbdb3bbac5c06089f06dd6a6825cb6e49e70a49774d780c7e2d8",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/main-pages/contact_us.png",
+      "originalSha256": "28fdf207264db601c61d9e1d21ee9461dde675b9bf00aab4df3e72e1994b0d4a",
+      "normalizedSha256": "27fced954da827aaf8b81d7b891a1f209456d5fefd444f0083a19c9968015f5a",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/main-pages/fast.svg",
+      "originalSha256": "e7af353ecda0756fb40e39a270e5722318080d559c67e7f51f3bc11f20ee4338",
+      "normalizedSha256": "c995f65d6ea6b8041f8dddfdb10108393273f5bf04924ae002afed0f4bd02afd",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/main-pages/flag.svg",
+      "originalSha256": "8265ed0099c938de61a10d5dba2b3820e4359591521355354e3a8ef04c974c38",
+      "normalizedSha256": "b806c9720438ea2b6c2fb29948140dd397219f1fc583fca36ccb3a213690c6ac",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/main-pages/heart.svg",
+      "originalSha256": "92d91fbc1871d2e3fae241d5d1e3f3ec56c639f8de9dc219e87b2b1649567273",
+      "normalizedSha256": "10aed8aa881b974d4da7d8bf5b56eadcd69357b7896555de4ab6d09c667ddd2e",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/main-pages/hero_image.png",
+      "originalSha256": "2c98ad8070d0a99e1bb09bcc2b3030a4a168d25435ba1b4a82745f562ca94221",
+      "normalizedSha256": "6db8c01a846214e3ec8dedc7f97e8c788c701dd41d9d95247916e28cd11c5872",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/main-pages/hero_image_mobile.png",
+      "originalSha256": "2dca202f53b259e5bb12d57f75aff6cc6f47f52fdb1cc153b0d38cbb4ce6c991",
+      "normalizedSha256": "8f9b137b53bb2be2e9a3896e73d43e20cd6f1a3567e9ef45bb26528cdcdaceb3",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/main-pages/logo.png",
+      "originalSha256": "ceadf226a32b6d3dad9afe7343628a1179d17471dff3ddaf3a969ec5c83ed6d0",
+      "normalizedSha256": "7710ea14f99f827525268582c4f3d283b20cfee7163c387e75447125fc47e0d2",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/main-pages/mail_icon.png",
+      "originalSha256": "f2b7a0ee042011466f1c19ba7c2e5622ef3afe6a4325f41c002c9610de58b605",
+      "normalizedSha256": "9a68e55146fa7c2fdaf39699754344173958c89f88f0b8e95da2126def166d5b",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/main-pages/our_mission.png",
+      "originalSha256": "8a28fb2462b096ea805a1c9cb3c39f7ca72242e2bbdfa065caceea176109c0c1",
+      "normalizedSha256": "16c9163e43cfab4785b1f6e56e5820374d28378e331145374e28f4f258e2b51c",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/main-pages/quotient.png",
+      "originalSha256": "d7340e82d4b1efa6ba489cc41911128712bc0813a23bd056fe0dfa7856ea5bf8",
+      "normalizedSha256": "571546edac2ed8ba33298ae97baae24fa71766d4aae80bdf767e05a7197298c8",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/main-pages/referrals.png",
+      "originalSha256": "9cde57a2e8f577745133a8f346165a448614dd972bc7659ebeb0706a289add42",
+      "normalizedSha256": "2bc1d6a1bef04b3ea06213fdef13fada28d13a49d2f0f517a9f27c27ef095f87",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/main-pages/sisyphus.png",
+      "originalSha256": "22328ddcd03bd840596c9cd781543163502c771ad33c08b3c9c106da1b7ffbf9",
+      "normalizedSha256": "a0d0647f6636f88fa1716286aba175ff781d784c6ad603f779da44bc4de51385",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/main-pages/smiley.svg",
+      "originalSha256": "6467e691710759ea4f5c1bd545ffccf4e8e7d0156e2db775a8d9d7b38ad54b4f",
+      "normalizedSha256": "9f341a07cd628c7125ea8c703f4804a3cc96e5f7bc0852692d81494226800a66",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/main-pages/static_account.png",
+      "originalSha256": "8453808855aca870b4f02794413d347820f2bb5a705a6c717e756dea6abe80c1",
+      "normalizedSha256": "d742694bbf4cc05c4c2d8c2efc90017fb6a784f097c85afec06a53038ab33148",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/main-pages/users.svg",
+      "originalSha256": "0dd60a402b640ed04dcc4abdb0b604b8951fe341017f0f59c93b097f2b77f3ab",
+      "normalizedSha256": "03c3dc939519da1bbec4dae9453210d0c2553f4d5e36e1d977d301da854c8561",
+      "kind": "svg"
+    },
+    {
+      "path": "src/assets/main-pages/virtual_cards.png",
+      "originalSha256": "043be6729ce5c54d4239ee963ed6f7c1b2034a44a69da94f3f38ac7f73282d9a",
+      "normalizedSha256": "835f92f61efd312ed4c6fc80cc32bcb875e40c9a0de33bca3321c06182ca4d0e",
+      "kind": "png"
+    },
+    {
+      "path": "src/assets/react.svg",
+      "originalSha256": "35ef61ed53b323ae94a16a8ec659b3d0af3880698791133f23b084085ab1c2e5",
+      "normalizedSha256": "35ef61ed53b323ae94a16a8ec659b3d0af3880698791133f23b084085ab1c2e5",
+      "kind": "svg"
+    }
+  ]
+}
