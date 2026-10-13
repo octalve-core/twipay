@@ -37,6 +37,7 @@ otherwise rebuild with default localhost origins.
   keep nested checkouts out of the repo; run `pnpm test:repo` before committing.
 - ErhaPay UI inventory (`docs/design/ERHAPAY_COMPONENT_INVENTORY.json`) must be regenerated after customer-ui source changes
   (review the diff, then the repo's `--write` option).
+- Prettier: config is `.prettierrc.json` (single quotes for api/worker/packages, double for the front ends). `pnpm format` / `pnpm format:check` cover only new code (review harness, guide page). Do NOT reformat existing source: about 59 regression tests and the invariant scanners match exact source text, and a full format broke them (tried and reverted on 2026-10-13). To format everything, first make those checks formatting-independent.
 - Registry is slow here; long installs/builds are normal.
 
 ## Surface map
@@ -50,7 +51,7 @@ Reviewed with evidence: customer sign-up, verify, login, logout, reset, rate lim
 and a render-only sweep of every customer route ([ROUTES.md](../screenshots/2026-10-13-customer-routes/ROUTES.md)).
 **Not reviewed:** `/auth/user-details`, set-pin, verify-phone, 2FA UI, Google flow; every dashboard feature behind its buttons
 and popups; the whole admin app past login; customer-vs-admin cross-flows (e.g. customer action -> appears in admin queue);
-mobile widths; accessibility. Many routes redirect to `/dashboard/services` (ISS-013) — find out why first.
+mobile widths; accessibility. Many routes redirect to `/dashboard/services` on purpose (ISS-013: `futureProductRoutes` in `apps/customer-ui/src/lib/constants.ts`); `/dashboard/status` -> history is unverified.
 
 ## Decisions waiting on the owner
 Merge `dev` -> `master`; registration enumeration (ISS-002); password policy; lockout strategy; whether to keep Funnel on;

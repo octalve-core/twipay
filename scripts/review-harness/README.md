@@ -5,13 +5,14 @@ Playwright scripts for reviewing the running stack in a real browser. Not part o
 
 Prerequisite: the stack from [docs/development/docker-stack.md](../../docs/development/docker-stack.md) is up.
 
-| Script | Purpose |
-| :--- | :--- |
-| `journey-customer-auth.mjs` | sign-up validation, register, wrong then correct code, dashboard, reload |
-| `capture-routes.mjs` | every customer route (and admin pages with `INCLUDE_ADMIN=1`): screenshot + console/API problems table; `PROBE_BUTTONS=1` clicks only safe-labelled buttons, never submits forms |
-| `api-probes.mjs B\|C\|D` | register/login variants, origin/CSRF guards, brute-force. Restart the API before `D` (in-memory limiter) |
+| Script                      | Purpose                                                                                                                                                                          |
+| :-------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `journey-customer-auth.mjs` | sign-up validation, register, wrong then correct code, dashboard, reload                                                                                                         |
+| `capture-routes.mjs`        | every customer route (and admin pages with `INCLUDE_ADMIN=1`): screenshot + console/API problems table; `PROBE_BUTTONS=1` clicks only safe-labelled buttons, never submits forms |
+| `api-probes.mjs B\|C\|D`    | register/login variants, origin/CSRF guards, brute-force. Restart the API before `D` (in-memory limiter)                                                                         |
 
 ## Configuration (environment)
+
 - Local ports (default): `REVIEW_UI=http://localhost:3002 REVIEW_ADMIN=http://localhost:3001 REVIEW_API=http://localhost:4000`.
 - Stack built with public origins baked in (Funnel): set `REVIEW_PUBLIC_HOST=<host>`. The browser then sees
   `https://<host>`, `:8443`, `:10000` while Playwright serves them from localhost; no sockets are opened.

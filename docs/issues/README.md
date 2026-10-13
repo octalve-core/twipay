@@ -21,7 +21,7 @@ Status: `OPEN`, `IN PROGRESS`, `FIXED`, `WONTFIX (reason)`, `DECISION NEEDED` (p
 | ISS-010 | S3 | api | Login rejects email with surrounding spaces (400); register normalizes | OPEN | auth review #10 |
 | ISS-011 | S3 | customer-ui | Marketing mock-up on auth pages shows a fabricated balance and name | OPEN | auth review #11 |
 | ISS-012 | S3 | customer-ui | Signed-out public pages call `/auth/me` and `/auth/mfa/status` and log two 401s on every page | OPEN | [ROUTES.md](../screenshots/2026-10-13-customer-routes/ROUTES.md) |
-| ISS-013 | S2 | customer-ui | These routes silently land on `/dashboard/services` (or history): transfer-funds, services/international-airtime, international-data, epin, esim, mobile-money, book-flight, hotels, affiliate, referral, virtual-card*, status. Verify whether they are feature-flagged/unfinished or broken links, and whether navigation still offers them | OPEN, needs triage | ROUTES.md |
+| ISS-013 | S3 | customer-ui | Deferred routes (transfer-funds, international airtime/data, epin, esim, mobile-money, book-flight, hotels, affiliate, referral, virtual-card*) redirect to `/dashboard/services`; `/dashboard/status` redirects to history | WONTFIX (deferred by design: `futureProductRoutes` in `apps/customer-ui/src/lib/constants.ts`) | ROUTES.md |
 | ISS-014 | S2 | customer-ui | `@twipay/customer-ui` has 30 type errors (26 unused, 4 real); image builds with `vite build` | OPEN | `pnpm --filter @twipay/customer-ui exec tsc -b` |
 | ISS-015 | S3 | process | Demo accounts `demo@`/`admin@twipay.com` passwords are in git history; rotate | OPEN | `docs/tasks/current_tasks.md` |
 

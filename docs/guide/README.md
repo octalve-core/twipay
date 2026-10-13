@@ -2,8 +2,8 @@
 
 A walkthrough of what the running app does today, with screenshots. Keep it in step with the app: when a screen changes,
 recapture it ([scripts/review-harness](../../scripts/review-harness/README.md)) and update the text. Screenshots live in
-[docs/screenshots](../screenshots/README.md); to serve the guide inside the app, copy the images used here to
-`apps/customer-ui/public/guide/` and link them as `/guide/<file>.png`.
+[docs/screenshots](../screenshots/README.md); the same screenshots are shown as a web page at **`/guide`** in the customer UI (images in
+`apps/customer-ui/public/guide/`, captions in `apps/customer-ui/src/routes/external-pages/guideData.ts`). Update both.
 
 All emails in the development build arrive in the floating inbox button (bottom-right of both apps).
 

@@ -27,7 +27,7 @@ and a task plan, all kept current in the repo, plus fixes for clear bugs.
    (payouts, refunds, support, compliance, exceptions, notifications). Write this as `docs/guide/flow-map.md` before testing.
 3. **Customer journey** in a real browser: sign-up (valid and invalid), email verification via the dev inbox, user-details/
    set-pin/phone steps, dashboard, every page under `/dashboard`, every popup, form, button and empty/error state, logout,
-   login, password reset, 2FA. Resolve ISS-013 (silent redirects) first. Also check 375 px mobile width.
+   login, password reset, 2FA. Deferred routes redirect by design (ISS-013). Also check 375 px mobile width.
 4. **Admin journey**: create two users, verify their emails, grant `SUPER_ADMIN` in the database, enrol TOTP MFA for both, then
    walk every admin page, including maker/checker approvals with the two distinct owners. Verify that customer actions show up
    in the admin views and that admin actions are reflected back to the customer. Record each place the two sides disagree or the
@@ -37,8 +37,8 @@ and a task plan, all kept current in the repo, plus fixes for clear bugs.
    base; extend it, never make it submit real-looking financial forms against anything but this local stack.
 6. **Document as you go** (update after every batch, not at the end):
    - screenshots -> `docs/screenshots/<YYYY-MM-DD>-<topic>/NN-name.png`, described in `docs/screenshots/README.md`
-   - `docs/guide/README.md` (plain-language guide with every screenshot and a description; optionally copy the images used to
-     `apps/customer-ui/public/guide/`)
+   - `docs/guide/README.md` and the in-app page `/guide` (`apps/customer-ui/src/routes/external-pages/Guide.tsx`, `guideData.ts`, images in
+     `apps/customer-ui/public/guide/`): plain-language guide with every screenshot and a description
    - `docs/issues/README.md` (+ one file per non-trivial issue from `_template.md`): ID, severity, steps, evidence, cause
    - `docs/tasks/current_tasks.md`: plan before you start, tick items as you finish; archive a finished milestone as the next
      `prev_tasks_NN.md` and add it to `docs/tasks/index.md`
@@ -53,6 +53,7 @@ and a task plan, all kept current in the repo, plus fixes for clear bugs.
 - Do not read, print or commit secrets, cookies or tokens; use only `@example.test` throwaway accounts, never the old demo
   accounts' passwords. Do not expose the stack publicly (no new tunnels) and mention if Funnel is still on.
 - Do not kill the unrelated app on port 3000. Do not use `pkill -f` patterns that match your own command line.
+- Prettier: config is `.prettierrc.json` (single quotes for api/worker/packages, double for the front ends). `pnpm format` / `pnpm format:check` cover only new code (review harness, guide page). Do NOT reformat existing source: about 59 regression tests and the invariant scanners match exact source text, and a full format broke them (tried and reverted on 2026-10-13). To format everything, first make those checks formatting-independent.
 - Production is not approved; do not claim anything is release-ready.
 - Report faithfully: if a check fails or was skipped, say so with the output.
 

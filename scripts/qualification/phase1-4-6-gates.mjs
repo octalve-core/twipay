@@ -15,7 +15,8 @@ export function assetFiles(base = root) {
     if (!existsSync(dir)) return;
     for (const entry of readdirSync(dir, {withFileTypes:true})) {
       const path=join(dir,entry.name);
-      if (entry.isDirectory()) walk(path);
+      // public/guide holds documentation screenshots (the /guide page), not brand assets.
+      if (entry.isDirectory()) { if (relative(base,path).replaceAll('\\','/') !== 'apps/customer-ui/public/guide') walk(path); }
       else if (entry.isFile() && /\.(?:png|jpe?g|webp|gif|svg|ico)$/i.test(entry.name)) files.push(relative(base,path).replaceAll('\\','/'));
     }
   };

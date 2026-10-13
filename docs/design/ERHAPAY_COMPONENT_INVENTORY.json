@@ -66,6 +66,7 @@
     "#027A48": 2,
     "#1018281A": 2,
     "#1D2739": 2,
+    "#4B5563": 2,
     "#BBBBBB": 2,
     "#BBBBBB4D": 2,
     "#C4C3C3": 2,
@@ -81,6 +82,7 @@
     "#04326B": 1,
     "#046B21": 1,
     "#101101": 1,
+    "#111827": 1,
     "#11292905": 1,
     "#11292966": 1,
     "#1877F2": 1,
@@ -96,6 +98,7 @@
     "#CDD5FF4D": 1,
     "#D8D9D4": 1,
     "#E3EFFC": 1,
+    "#E5E7EB": 1,
     "#E8D5A0": 1,
     "#ECEAFF": 1,
     "#ECFFED": 1,
@@ -129,6 +132,7 @@
       "/faqs",
       "/privacy-policy",
       "/terms",
+      "/guide",
       "/auth",
       "login",
       "google-complete",
@@ -205,6 +209,7 @@
       "src/routes/external-pages/About.tsx",
       "src/routes/external-pages/ContactPage.tsx",
       "src/routes/external-pages/Faq.tsx",
+      "src/routes/external-pages/Guide.tsx",
       "src/routes/external-pages/Homepage.tsx",
       "src/routes/external-pages/PrivacyPolicy.tsx",
       "src/routes/external-pages/TermsPage.tsx"
@@ -519,9 +524,9 @@
     "baseline": "docs/design/ERHAPAY_ORIGINAL_VISUAL_ASSETS.json"
   },
   "counts": {
-    "reactFiles": 268,
-    "sourceFiles": 334,
-    "totalSrcFiles": 474
+    "reactFiles": 269,
+    "sourceFiles": 336,
+    "totalSrcFiles": 476
   },
   "keyFiles": {
     "dashboardLayout": "src/routes/layout/DashboardLayout.tsx",

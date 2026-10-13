@@ -1,0 +1,9 @@
+{
+  "printWidth": 100,
+  "trailingComma": "all",
+  "endOfLine": "lf",
+  "singleQuote": true,
+  "overrides": [
+    { "files": ["apps/customer-ui/**", "apps/admin/**", "apps/web/**"], "options": { "singleQuote": false } }
+  ]
+}

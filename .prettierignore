@@ -1,0 +1,12 @@
+node_modules
+.next
+dist
+build
+coverage
+.turbo
+pnpm-lock.yaml
+*.png
+*.jpg
+apps/customer-ui/public/guide
+docs/design/ERHAPAY_COMPONENT_INVENTORY.json
+docs/screenshots

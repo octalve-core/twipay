@@ -18,6 +18,7 @@ import ContactPage from "./routes/external-pages/ContactPage";
 import Faq from "./routes/external-pages/Faq";
 import PrivacyPolicy from "./routes/external-pages/PrivacyPolicy";
 import TermsPage from "./routes/external-pages/TermsPage";
+import Guide from "./routes/external-pages/Guide";
 
 import AuthLayout from "./routes/layout/AuthLayout";
 import VerifyPhone from "./routes/auth-pages/VerifyPhone";
@@ -127,6 +128,10 @@ function App() {
           element: <TermsPage />,
         },
       ]
+    },
+    {
+      path: "/guide",
+      element: <Guide />,
     },
     {
       path: "/auth",
