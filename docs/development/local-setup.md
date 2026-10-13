@@ -8,3 +8,6 @@
 6. Run `pnpm dev`.
 
 If a package-manager operation fails, do not hand-edit a lockfile. Resolve network/registry access, regenerate it with the pinned package manager, then commit the generated lockfile.
+
+## Whole stack in Docker
+To run PostgreSQL, Redis, migrations, API, worker, admin and customer UI together (with a local email inbox), see [docker-stack.md](docker-stack.md).

@@ -1,80 +1,50 @@
 # Current Operational & Deployment Tasks
 
 - **Workstream Code:** `TASK-CURRENT`
-- **Start Date & Time:** `2026-10-08T15:20:00Z` (04:20:00 PM WAT)
+- **Start Date:** `2026-10-13`
 - **Status:** `IN_PROGRESS`
 - **Lead / Execution:** TwiPay Platform Engineering
+- **Previous milestone:** [prev_tasks_04.md](prev_tasks_04.md) (phase 3 merge, Docker stack, dev inbox, auth review)
 
 ---
 
-## 1. Active Service Deployments & Runtime Health
+## 1. Runtime (local Docker stack)
+How to run it: [../development/docker-stack.md](../development/docker-stack.md).
 
-### Backing Infrastructure (Docker)
-- [x] **PostgreSQL 18 Alpine**:
-  - Container: `twipay-postgres-1`
-  - Internal port: `5432` | Host port: `127.0.0.1:5435`
-  - Health check: `pg_isready -U twipay -d twipay` (Passing)
-- [x] **Redis 8 Alpine**:
-  - Container: `twipay-redis-1`
-  - Internal port: `6379` | Host port: `127.0.0.1:6382`
-  - Health check: `redis-cli ping` (Passing)
+- [x] `compose.stack.yaml`: postgres 18, redis 8, migrate, api, worker, admin, customer-ui, devmail — all healthy.
+- [x] Remote access through Tailscale Funnel verified over the public relay (customer UI 443, admin 8443, API 10000).
+- [!] While Funnel is on, anyone with the link can read the dev inbox (codes included). Turn it off after a demo:
+      `sudo tailscale funnel reset`.
 
-### Application Services
-- [x] **Core API Service (`apps/api`)**:
-  - Port: `http://localhost:4000`
-  - Runtime: Compiled production bundle (`dist/main.js`) with Fastify
-  - OpenAPI Docs: `http://localhost:4000/docs`
-  - Status: Active, listening, serving requests
-- [x] **Customer Web Portal (`apps/web`)**:
-  - Port: `http://localhost:3000`
-  - Runtime: Next.js 16 standalone server
-  - Status: Active, serving UI routes
-- [x] **Operations & Admin Console (`apps/admin`)**:
-  - Port: `http://localhost:3001`
-  - Runtime: Next.js 16 standalone server
-  - Status: Active, serving operations console
+### Demo accounts
+`demo@twipay.com` (customer) and `admin@twipay.com` (`SUPER_ADMIN`). Both are email-unverified, have no MFA, and the
+owner area stays blocked for the admin until its contact is verified. Their passwords were recorded in earlier versions of
+this file (see git history): **rotate them before any shared or public use**, and give outside testers a throwaway account.
 
 ---
 
-## 2. Authentication & Access Verification
+## 2. Authentication follow-ups
+Details and impact: [../security/auth-review-2026-10-13.md](../security/auth-review-2026-10-13.md).
 
-### Customer Portal Authentication
-- [x] Portal URL: `http://localhost:3000/login`
-- [x] Test Credentials:
-  - **Email:** `demo@twipay.com`
-  - **Password:** `Password12345!`
-- [x] Verified Behaviors:
-  - Session cookie (`twipay_session`) and CSRF token (`twipay_csrf`) generated.
-  - Automatic on-demand ledger wallet provisioning on first dashboard access (`/v1/wallets`).
-  - Overview metrics, recent ledger activity, and event marketplace rendering cleanly.
-
-### Operations / Admin Portal Authentication
-- [x] Console URL: `http://localhost:3001/login`
-- [x] Admin Credentials:
-  - **Email:** `admin@twipay.com`
-  - **Password:** `AdminPassword123!`
-- [x] Role & Permission Provisioning:
-  - Role: `SUPER_ADMIN` assigned in PostgreSQL `user_roles`.
-  - Permissions: Full administrative suite (`ops.dashboard.read`, `ops.disputes.review`, `ops.compliance.read`, `ops.refunds.prepare`, `ops.refunds.approve`, `ops.payouts.prepare`, `ops.payouts.approve`, `ops.providers.manage`, `ops.catalog.map`, `ops.feature_flags.manage`, `ops.branding.manage`, `ops.reports.read`, `ops.audit.read`).
-- [x] Verified Behaviors:
-  - Operations dashboard loaded at `/` with financial metrics, transaction count breakdown, and open queue counters.
+- [ ] Password policy: deny-list of common passwords; make the reset screen's rules match the server.
+- [ ] Decide registration enumeration behaviour (`409 ACCOUNT_ALREADY_EXISTS` vs neutral response).
+- [ ] Per-account lockout / shared rate-limit store.
+- [ ] Verify `Secure` cookies in production builds.
+- [ ] Admin email-verification path and readable `CONTACT_VERIFICATION_REQUIRED` message.
+- [ ] Use `authErrorMessage` in every form (logout and others still read `errData.message`).
+- [/] `/auth/user-details` profile step: exercise it and fix the two reported type mismatches.
 
 ---
 
-## 3. Remote Ingress & Tunnel Management
-- [x] **Pinggy SSH Tunnel Verification**:
-  - Demonstrated remote HTTPS ingress for port 3000, 3001, and 4000.
-  - Identified 60-minute duration cap on unauthenticated Pinggy sessions.
-- [/] **Remote Access Hardening**:
-  - Plan persistent ingress via Cloudflare Tunnel, ngrok, or untun for longer remote sessions.
-  - Align `APP_URL` and `ADMIN_URL` CORS origins for remote ingress domains.
+## 3. Build & repository hygiene
+- [ ] `@twipay/customer-ui`: 30 type errors (26 unused declarations, 4 mismatches) block `tsc -b` in the image build.
+- [ ] Move the untracked `new/` checkout out of the working tree (it makes `repository-security-check` report 17 findings).
+- [ ] Push `dev` (about 110 commits ahead of `origin/master`; nothing pushed yet) and open the review.
+- [ ] CI: run the repository's own workflows against the merged branch.
 
 ---
 
-## 4. Pending / In-Flight Backlog
-- [ ] **MFA Step-Up UI Flow**:
-  - Verify TOTP QR enrollment and recovery code generation in customer `/profile` and ops console.
-- [ ] **Asynchronous Worker Integration**:
-  - Start `apps/worker` daemon for BullMQ background transaction sweeps and webhook retries.
-- [ ] **Provider Sandbox Verification**:
-  - Execute end-to-end sandbox funding with Paystack and Monnify mock webhooks.
+## 4. Pending / In-Flight Backlog (unchanged)
+- [ ] **MFA Step-Up UI Flow**: TOTP QR enrollment and recovery code generation in the customer profile and ops console.
+- [ ] **Provider Sandbox Verification**: sandbox funding with Paystack and Monnify, utility and ticket flows.
+- [ ] Qualification gates listed in `docs/release/security-gates.md` (production remains NOT approved).

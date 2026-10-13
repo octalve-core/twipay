@@ -13,7 +13,8 @@ docs/tasks/
 ├── prev_tasks_00.md     # Milestone 00: Architecture Audit, Workspace Topology & Native Tooling Setup
 ├── prev_tasks_01.md     # Milestone 01: TypeScript Strict Harmonization & Monorepo Build Correction
 ├── prev_tasks_02.md     # Milestone 02: Docker Backing Services, PostgreSQL 18/Redis 8 & Prisma 7 Migration
-└── prev_tasks_03.md     # Milestone 03: Test Suite Qualification, Invariant Hardening & ADR Documentation
+├── prev_tasks_03.md     # Milestone 03: Test Suite Qualification, Invariant Hardening & ADR Documentation
+└── prev_tasks_04.md     # Milestone 04: Phase 3 Merge, Full Docker Stack, Dev Inbox & Authentication Review
 ```
 
 ---
@@ -26,7 +27,8 @@ docs/tasks/
 | [prev_tasks_01.md](file:///home/rojitech/Desktop/CODEC/OCTALVE/twipay/docs/tasks/prev_tasks_01.md) | **Milestone 01**: TypeScript Harmonization | 2026-10-08T11:30:00Z | 2026-10-08T12:45:00Z | `COMPLETED` | Strict mode typing, Pino Fastify logger fix, clean `pnpm build` across 18 pkgs |
 | [prev_tasks_02.md](file:///home/rojitech/Desktop/CODEC/OCTALVE/twipay/docs/tasks/prev_tasks_02.md) | **Milestone 02**: Docker Backing Services & DB | 2026-10-08T12:45:00Z | 2026-10-08T14:15:00Z | `COMPLETED` | Postgres 18 (5435) & Redis 8 (6382) in Docker, Prisma 7 migrations 1–5, advisory locks |
 | [prev_tasks_03.md](file:///home/rojitech/Desktop/CODEC/OCTALVE/twipay/docs/tasks/prev_tasks_03.md) | **Milestone 03**: Qualification & ADRs | 2026-10-08T14:15:00Z | 2026-10-08T15:20:00Z | `COMPLETED` | 32/32 tests passed (100%), repository security invariant clean, ADRs 016–018 |
-| [current_tasks.md](file:///home/rojitech/Desktop/CODEC/OCTALVE/twipay/docs/tasks/current_tasks.md) | **Current Stream**: Deployment & Runtime Auth | 2026-10-08T15:20:00Z | *Active* | `IN_PROGRESS` | Port routing, Customer & Admin auth verification, role provisioning, remote tunnels |
+| [prev_tasks_04.md](prev_tasks_04.md) | **Milestone 04**: Phase 3 Merge, Docker Stack & Auth Review | 2026-10-12 | 2026-10-13 | `COMPLETED` | 15-conflict merge, 42 API type errors, dashboard crash (ASI) fix, 429 handling, full Docker stack, dev email inbox, Funnel access, 489/489 offline tests |
+| [current_tasks.md](current_tasks.md) | **Current Stream**: Auth follow-ups & repository hygiene | 2026-10-13 | *Active* | `IN_PROGRESS` | Password policy, lockout, admin verification, customer-ui type errors, push & review |
 
 ---
 
