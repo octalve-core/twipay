@@ -10,6 +10,7 @@ import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5"
 import { useState } from "react"
 import { useMutation } from "@tanstack/react-query"
 import { toast } from "sonner"
+import { authErrorMessage } from "@/lib/authErrors"
 import { useAuth } from "@/context/AuthContext"
 import { GetMfaStatus, LogInUser, getCurrentSession } from "@/lib/api/authApi"
 import { AxiosError } from "axios"
@@ -47,11 +48,7 @@ const LogInForm = () => {
 
 
 
-            const errData = error.response?.data as { message?: string };
-            if(errData.message){
-                return toast.error(errData.message)
-            }
-            toast.error("Something went wrong, please try again")
+            toast.error(authErrorMessage(error))
         }
     })
 

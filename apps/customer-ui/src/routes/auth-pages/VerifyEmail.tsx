@@ -43,6 +43,8 @@ export default function VerifyEmail() {
       toast.success("You're all set. Welcome to TwiPay!");
       navigate('/dashboard', {replace:true});
     } catch {
+      // Clear the rejected code: a full InputOTP only overwrites its last slot, so a pasted new code would be mangled.
+      setCode('');
       toast.error('That code is invalid or expired. Please check it or request another.');
     }
   }

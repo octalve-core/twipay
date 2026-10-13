@@ -27,6 +27,7 @@ export default function TwoFAOtp() {
       setOtp("");
       navigate(session.user.contactVerified ? "/dashboard" : "/auth/verify-email", {replace: true});
     } catch {
+      if (!useRecovery) setOtp(""); // a full InputOTP only overwrites its last slot, so clear the rejected code
       toast.error("Invalid or expired authenticator/recovery code");
     }
   }
