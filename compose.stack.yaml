@@ -35,6 +35,9 @@ x-api-env: &api-env
   ADMIN_URL: ${ADMIN_ORIGIN:-http://localhost:${ADMIN_PORT:-3001}}
   API_URL: ${API_ORIGIN:-http://localhost:${API_PORT:-4000}}
   API_PORT: "4000"
+  # Set STACK_TRUST_PROXY=true when the apps are reached through a proxy such as Tailscale Funnel; otherwise every
+  # visitor shares the proxy's IP and therefore one rate-limit bucket. Never enable it when the API is directly exposed.
+  TRUST_PROXY: ${STACK_TRUST_PROXY:-false}
   RESEND_BASE_URL: http://devmail:8025
   RESEND_API_KEY: dev-inbox-not-a-real-key
   RESEND_FROM: TwiPay Dev <noreply@twipay.local>

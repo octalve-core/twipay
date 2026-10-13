@@ -121,7 +121,7 @@
       const card = make('div', m.receivedAt > lastSeen ? 'msg new' : 'msg');
       card.append(make('div', 'meta', `${new Date(m.receivedAt).toLocaleString()} · to ${m.to.join(', ')}`));
       card.append(make('div', 'subject', m.subject));
-      const code = (m.text.match(/\b\d{6}\b/) || [])[0];
+      const code = (m.text.match(/\b\d{6,8}\b/) || [])[0];
       if (code) {
         const chip = make('div', 'code', code);
         const copy = make('button', '', 'Copy');

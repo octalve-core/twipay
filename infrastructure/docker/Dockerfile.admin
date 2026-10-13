@@ -8,7 +8,7 @@ ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 ARG NEXT_PUBLIC_DEV_MAIL=false
 ENV NEXT_PUBLIC_DEV_MAIL=$NEXT_PUBLIC_DEV_MAIL
-RUN pnpm install --frozen-lockfile
+RUN --mount=type=cache,target=/pnpm-store pnpm install --frozen-lockfile --store-dir /pnpm-store
 RUN pnpm --filter @twipay/admin build
 
 FROM node:24.21.0-bookworm-slim AS runtime

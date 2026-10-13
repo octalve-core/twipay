@@ -4,7 +4,7 @@ RUN corepack enable
 COPY package.json pnpm-workspace.yaml turbo.json tsconfig.base.json pnpm-lock.yaml .npmrc ./
 COPY apps ./apps
 COPY packages ./packages
-RUN pnpm install --frozen-lockfile
+RUN --mount=type=cache,target=/pnpm-store pnpm install --frozen-lockfile --store-dir /pnpm-store
 RUN pnpm db:generate && pnpm --filter "@twipay/worker..." build
 
 FROM node:24.21.0-bookworm-slim AS runtime

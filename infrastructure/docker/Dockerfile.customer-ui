@@ -7,7 +7,7 @@ RUN corepack enable
 COPY package.json pnpm-workspace.yaml turbo.json tsconfig.base.json pnpm-lock.yaml .npmrc ./
 COPY apps/customer-ui ./apps/customer-ui
 COPY packages ./packages
-RUN pnpm install --frozen-lockfile --filter @twipay/customer-ui...
+RUN --mount=type=cache,target=/pnpm-store pnpm install --frozen-lockfile --store-dir /pnpm-store --filter @twipay/customer-ui...
 ARG VITE_TWIPAY_API_URL
 ARG VITE_TWIPAY_FUNDING_SANDBOX_ENABLED=false
 ARG VITE_TWIPAY_TRANSFER_SANDBOX_ENABLED=false

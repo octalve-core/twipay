@@ -70,7 +70,7 @@ async function refresh() {
     const card = el('article');
     card.append(el('div', 'meta', new Date(m.receivedAt).toLocaleString() + '  ·  to ' + m.to.join(', ') + '  ·  from ' + m.from));
     card.append(el('div', 'subject', m.subject));
-    const code = (m.text.match(/\\b\\d{6}\\b/) || [])[0];
+    const code = (m.text.match(/\\b\\d{6,8}\\b/) || [])[0];
     if (code) card.append(el('div', 'code', code));
     card.append(el('pre', '', m.text));
     if (m.html) { const f = el('iframe'); f.setAttribute('sandbox', ''); f.src = '/messages/' + encodeURIComponent(m.id) + '/html'; card.append(f); }
