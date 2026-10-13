@@ -8,6 +8,9 @@
 
 ---
 
+> **Taking over?** Read [../handoff/2026-10-13-session-handover.md](../handoff/2026-10-13-session-handover.md) and the prompt in
+> [../handoff/NEXT_AGENT_PROMPT.md](../handoff/NEXT_AGENT_PROMPT.md). Issues: [../issues/README.md](../issues/README.md).
+
 ## 1. Runtime (local Docker stack)
 How to run it: [../development/docker-stack.md](../development/docker-stack.md).
 
@@ -42,6 +45,15 @@ Details and impact: [../security/auth-review-2026-10-13.md](../security/auth-rev
 - [x] `dev` pushed to `origin/dev` (112 commits ahead of `origin/master`).
 - [ ] Open the pull request `dev` -> `master` and get it reviewed (https://github.com/octalve-core/twipay/pull/new/dev).
 - [ ] CI: run the repository's own workflows against the merged branch.
+
+---
+
+## 3b. Full UI/UX review (hand-off)
+- [x] Review tooling: `scripts/review-harness/`; customer route sweep captured (`docs/screenshots/2026-10-13-customer-routes/`).
+- [ ] Triage ISS-013 (routes that redirect to `/dashboard/services`).
+- [ ] Customer pages, popups, buttons, mobile width; `/auth/user-details`, set-pin, phone, 2FA.
+- [ ] Admin journey with two `SUPER_ADMIN`+MFA owners, maker/checker, customer<->admin cross-flows.
+- [ ] Complete `docs/guide/` (flow map + one section per area).
 
 ---
 
