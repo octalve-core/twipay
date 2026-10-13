@@ -75,10 +75,10 @@ const RecipientDetails = () => {
     const {mutate, isPending: isVerifying, data: verifiedCard, error: verifyError} = useMutation<SmartCardNoVerificationResponse, AxiosError, VerifySmartCardPayload>({
         mutationFn: verifySmartcardNumber,
         onSuccess: (data) => {
-            (void 0)
+            void 0;
         },
         onError: (error: AxiosError) => {
-            (void 0)
+            void 0;
         }
     })
 

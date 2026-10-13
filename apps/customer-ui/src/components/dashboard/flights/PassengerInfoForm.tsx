@@ -50,7 +50,7 @@ const PassengerInfoForm = ({setShowDocumentForm, onNext, index, passenger}: TPas
     const inputRef = useRef<HTMLInputElement>(null);
 
     const {selectedAirline, updatePassenger, currentStep, setCurrentStep} = useFlightStore();
-    (void 0)
+    void 0;
     const isFirstAdult = ( passenger.type === "adult" && passenger.id === "1");
 
     const handleOpenPicker = () => {
@@ -75,7 +75,7 @@ const PassengerInfoForm = ({setShowDocumentForm, onNext, index, passenger}: TPas
             currentDate.getDate()
         );
 
-        (void 0)
+        void 0;
 
         const isAdult = value  < minAdultDob;
         const isChild = value < minInfantDob && value > maxChildDob;

@@ -27,12 +27,12 @@ const ConfirmHotelPayment = () => {
   const isMobile = useIsMobile();
 
   const {id} = useParams()
-  (void 0)
+  void 0;
 
     const handleSubmit = (e: FormEvent) => {
       e.preventDefault();
     //  Make API call to make withdrawal
-      (void 0)
+      void 0;
 
       update({ isSuccessful: true})
     }

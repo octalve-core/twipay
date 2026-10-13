@@ -62,7 +62,7 @@ export async function uploadToImageKit(file: File): Promise<UploadImageResponse>
 
   const { signature, token, expire, publicKey } = data;
 
-  (void 0)
+  void 0;
 
   // 2. Prepare FormData for ImageKit upload endpoint
   const formData = new FormData();

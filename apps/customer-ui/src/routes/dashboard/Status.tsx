@@ -10,7 +10,7 @@ const Status = () => {
 
     const [searchParams] = useSearchParams();
     const txnId = searchParams.get("txnId");
-    (void 0)
+    void 0;
 
     const isSuccessful = true;
 

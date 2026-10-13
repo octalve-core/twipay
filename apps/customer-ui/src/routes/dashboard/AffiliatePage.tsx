@@ -25,7 +25,7 @@ const AffiliatePage = () => {
         queryFn: getUpline,
     })
 
-    (void 0)
+    void 0;
 
     // downlines data
     const {

@@ -79,10 +79,10 @@ const RecipientDetails = () => {
     const {mutate, isPending: isVerifying, data: verifiedMeter, error: verifyError} = useMutation<ElectricityVerificationResponse, AxiosError, VerifyMeterPayload>({
         mutationFn: verifyMeterNumber,
         onSuccess: (data) => {
-            (void 0)
+            void 0;
         },
         onError: (error: AxiosError) => {
-            (void 0)
+            void 0;
         }
     })
 

@@ -45,7 +45,7 @@ const CustomerInfoForm = ({formStep, setFormStep, hotelId}: TCustomerInfoForm) =
 
         // route to confirm page
         navigate(`/dashboard/hotel/${hotelId}/confirm`);
-        (void 0)
+        void 0;
     }
 
     const isMobile = useIsMobile();

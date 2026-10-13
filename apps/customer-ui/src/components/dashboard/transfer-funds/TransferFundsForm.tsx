@@ -32,7 +32,7 @@ const TransferFundsForm = () => {
     })
 
     const onSubmit = (data: TFormData) => {
-        (void 0)
+        void 0;
         update({ step: 2, user: data.user, note: data.note, amount: data.amount})
     }
 

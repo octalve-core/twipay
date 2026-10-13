@@ -17,7 +17,7 @@ const ConfirmESimPayment = () => {
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
     //  Make API call to make book event
-        (void 0)
+        void 0;
 
     // if successful
         update({step: step+1, isSuccessful: false});

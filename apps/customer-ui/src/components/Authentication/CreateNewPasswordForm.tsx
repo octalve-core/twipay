@@ -54,7 +54,7 @@ const CreateNewPasswordForm = ({showPasswordResetSuccessMessage, formData}: TCre
         })
      
          const onSubmit = (data: TFormData) => {
-            (void 0)
+            void 0;
             mutate({email: formData.email, token: formData.code, password: data.password})
          }
 

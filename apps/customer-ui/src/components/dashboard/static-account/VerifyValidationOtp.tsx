@@ -21,13 +21,13 @@ const VerifyValidationOtp = ({setShowVerifyForm, identityId, setIdentityId}: {se
   const {mutate: verifyBvnOtp, isPending: isVerifying} = useMutation({
     mutationFn: validateIdentityOtp,
     onSuccess: async (response) => {
-        (void 0)
+        void 0;
         try {
             const updatedUser = await getUser();
-            (void 0);
+            void 0;
             setAuthData(updatedUser, accessToken as string, refreshToken as string);
         } catch (err) {
-            (void 0);
+            void 0;
         }
         setOtp("")
         toast.success("BVN verified successfully!")
@@ -35,7 +35,7 @@ const VerifyValidationOtp = ({setShowVerifyForm, identityId, setIdentityId}: {se
         setIdentityId(null)
     },
     onError: (error: AxiosError) => {
-        (void 0)
+        void 0;
         const errData = error.response?.data as { message?: string };
             if(errData.message){
                 return toast.error(errData.message)

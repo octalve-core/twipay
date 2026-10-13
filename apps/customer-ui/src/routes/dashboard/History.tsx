@@ -43,7 +43,7 @@ const History = () => {
 
     const totalPages = txnHistory?.pagination.totalPages ?? 0;
 
-    (void 0)
+    void 0;
 
   return (
     <div>    

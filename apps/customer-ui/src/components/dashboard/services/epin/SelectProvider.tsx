@@ -57,10 +57,10 @@ const Selectcategory = () => {
     const {mutate, isPending: isVerifying, data: verifiedJambNumber, error: verifyError} = useMutation<JambNoNoVerificationResponse, AxiosError, VerifyJambNoPayload>({
         mutationFn: verifyJambNumber,
         onSuccess: (data) => {
-            (void 0)
+            void 0;
         },
         onError: (error: AxiosError) => {
-            (void 0)
+            void 0;
         }
     })
 

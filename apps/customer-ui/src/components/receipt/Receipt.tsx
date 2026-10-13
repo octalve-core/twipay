@@ -20,7 +20,7 @@ const txnId = searchParams.get("txnId");
         enabled: !!txnId,
     });
 
-    (void 0)
+    void 0;
 
   if (!txnId) return <p role="alert" className="text-red-600">Transaction reference is required to view a transaction record.</p>;
   if (isError) return <p role="alert" className="text-red-600">{error?.message || "Transaction unavailable"}</p>;

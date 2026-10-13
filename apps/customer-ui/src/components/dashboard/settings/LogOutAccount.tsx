@@ -29,7 +29,7 @@ const LogOutAccount = () => {
             clearAuthData();
         },
         onError: (error: AxiosError) => {
-            (void 0)
+            void 0;
             const errData = error.response?.data as { message?: string };
             if(errData.message){
                 return toast.error(errData.message)

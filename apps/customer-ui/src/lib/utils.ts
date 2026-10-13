@@ -13,7 +13,7 @@ export const copyToClipboard = async (text: string): Promise<void> => {
     await navigator.clipboard.writeText(text);
     toast.success("Text copied to clipboard");
   } catch (err) {
-    (void 0);
+    void 0;
     toast.error("Failed to copy text")
   }
 };

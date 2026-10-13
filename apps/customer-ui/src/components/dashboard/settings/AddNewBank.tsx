@@ -59,10 +59,10 @@ const AddNewBank = ({showBankInfo}: {showBankInfo: () => void}) => {
     const {mutate, isPending: isVerifying, data: verifiedAccount, error: verAccError} = useMutation<TAccountVerResponse, AxiosError, verifyBankAccountPayload>({
         mutationFn: verifyBankAccount,
         onSuccess: (data) => {
-            (void 0)
+            void 0;
         },
         onError: (error: AxiosError) => {
-            (void 0)
+            void 0;
         }
     })
 
@@ -73,7 +73,7 @@ const AddNewBank = ({showBankInfo}: {showBankInfo: () => void}) => {
         showBankInfo()
       },
       onError: (error: AxiosError) => {
-        (void 0)
+        void 0;
         const errData = error.response?.data as { message?: string };
         if(errData.message){
             return toast.error(errData.message)

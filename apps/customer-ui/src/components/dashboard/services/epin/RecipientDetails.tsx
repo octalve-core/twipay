@@ -68,7 +68,7 @@ const RecipientDetails = () => {
         e.preventDefault();
     }
 
-    (void 0)
+    void 0;
     
   return (
     <section className="w-full max-w-[360px] mx-auto">

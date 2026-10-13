@@ -98,7 +98,7 @@ const VerifyPhone = () => {
             return
         }
 
-        (void 0)
+        void 0;
 
         sendVerCode({phoneCode: dialCode, phone: localPhone})
     }

@@ -44,7 +44,7 @@ const TxnDetailMobile = ({txnDetails, fetchingDetails}:{txnDetails: Transaction 
             },
         });
 
-        (void 0);
+        void 0;
 
         const imgData = canvas.toDataURL("image/jpeg", 1.0); // High quality JPEG
         const pdf = new jsPDF({

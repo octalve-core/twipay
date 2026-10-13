@@ -30,7 +30,7 @@ const ConfirmFundsTransfer = () => {
         update({step: 3, txnResult: data});
       },
       onError: (error: AxiosError) => {
-        (void 0)
+        void 0;
           update({step: 3, txnResult: null});
           const errData = error.response?.data as { message?: string };
           if(errData.message){

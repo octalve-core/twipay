@@ -81,10 +81,10 @@ const RecipientDetails = () => {
     const {mutate, isPending: isVerifying, data: verifiedPhone, error: verifyError} = useMutation<phoneNoVerificationResponse, AxiosError, VerifyPhoneNoPayload>({
         mutationFn: verifyPhoneNumber,
         onSuccess: (data) => {
-            (void 0)
+            void 0;
         },
         onError: (error: AxiosError) => {
-            (void 0)
+            void 0;
         }
     })
 
@@ -114,7 +114,7 @@ const RecipientDetails = () => {
         queryFn: fetchDataPlans,
         enabled: !!providerId && !!type
     });
-    (void 0)
+    void 0;
 
     const selectedPlan = useMemo(() => {
         return dataPlans?.find((dataPlan) => dataPlan.id === plan) ?? null;

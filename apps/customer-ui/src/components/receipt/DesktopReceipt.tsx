@@ -27,7 +27,7 @@ const DesktopReceipt = ({txnDetails, fetchingDetails}:{txnDetails: Transaction |
 
     if(fetchingDetails) return <Loader className="w-full h-full max-md:hidden" />;
 
-    (void 0)
+    void 0;
 
   return (
     <div className="hidden md:grid place-items-center min-h-full w-full">

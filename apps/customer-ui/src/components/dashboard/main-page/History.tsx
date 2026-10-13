@@ -17,7 +17,7 @@ const TransactionHistory = () => {
         queryFn: () => getTxnHistory({per_page: 6}),
     })
 
-    (void 0)
+    void 0;
 
   return (
     <section className="mt-7 w-full">

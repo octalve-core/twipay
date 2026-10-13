@@ -36,7 +36,7 @@ const Epin = () => {
 
     const {step, reset, selectedProduct} = useEpinStore();
 
-    (void 0)
+    void 0;
   
     useEffect(() => {
         reset();

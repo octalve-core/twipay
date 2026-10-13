@@ -27,7 +27,7 @@ const ConfirmDataPayment = () => {
         update({step: step+1, txnResult: data});
       },
       onError: (error: AxiosError) => {
-        (void 0)
+        void 0;
           update({step: step+1, txnResult: null});
           const errData = error.response?.data as { message?: string };
           if(errData.message){

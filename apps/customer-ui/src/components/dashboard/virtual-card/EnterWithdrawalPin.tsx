@@ -19,7 +19,7 @@ const EnterWithdrawalPin = () => {
         e.preventDefault();
    
        //  Make API call to fund card
-        (void 0)
+        void 0;
    
         setStatus({
           show: true,

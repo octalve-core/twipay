@@ -54,7 +54,7 @@ export function DataTable<TData, TValue>({
 
 const exportToCsv = (rows: TData[], fileName: string) => {
   if (!rows || !rows.length) {
-    (void 0);
+    void 0;
     return;
   }
 

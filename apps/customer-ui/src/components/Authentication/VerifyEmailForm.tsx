@@ -72,7 +72,7 @@ const VerifyEmailForm = ({showNewPasswordForm, setFormData}: TVerifyEmailForm ) 
      }
  
      const onSubmit = (data: TFormData) => {
-         (void 0)
+         void 0;
          setFormData(data)
         
          showNewPasswordForm();

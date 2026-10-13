@@ -21,20 +21,20 @@ const ConfirmFlightPayment = () => {
   const {selectedAirline, passengerForms, fromLocation,toLocation, update} = useFlightStore();
 
   const {id} = useParams()
-  (void 0)
+  void 0;
 
   const isMobile = useIsMobile();
 
   const {mutate, isPending} = useMutation({
     mutationFn: bookFlight,
     onSuccess: (data) => {
-      (void 0)
+      void 0;
       toast.success("Flight booked successfully")
       update({bookedFlightId: data.data.id})
       setShowStatus(true)
     },
     onError: (error: AxiosError) => {
-      (void 0)
+      void 0;
       update({bookedFlightId: null})
       setShowStatus(true)
         const errData = error.response?.data as { message?: string };

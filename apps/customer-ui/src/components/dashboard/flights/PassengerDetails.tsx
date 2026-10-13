@@ -12,7 +12,7 @@ const PassengerDetails = () => {
     const {selectedAirline, currentStep, updatePassenger, setCurrentStep} = useFlightStore();
     const passengers = selectedAirline?.passengers || [];
 
-    (void 0)
+    void 0;
 
     const handleNext = (passengerFormData: PassengerFormData) => {
       updatePassenger(currentStep, passengerFormData);
