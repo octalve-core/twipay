@@ -3,6 +3,7 @@ import cookie from '@fastify/cookie';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import rateLimit from '@fastify/rate-limit';
+import { HttpException, HttpStatus } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -41,6 +42,12 @@ async function bootstrap(): Promise<void> {
     keyGenerator: (request) => `${riskRatePolicy(request).bucket}:${request.ip}`,
     ban: 2,
     skipOnError: false,
+    // The plugin throws a plain Error carrying statusCode; Nest only maps HttpException, so without this the
+    // client receives "500 Internal server error" instead of 429 (and a banned client would get 403 as a 500).
+    errorResponseBuilder: (_request, context) => new HttpException(
+      { code: 'RATE_LIMITED', retryAfterSeconds: Math.max(1, Math.ceil(context.ttl / 1000)) },
+      HttpStatus.TOO_MANY_REQUESTS,
+    ),
   });
   await app.register(helmet, {
     global: true,
