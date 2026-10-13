@@ -51,7 +51,7 @@ Details and impact: [../security/auth-review-2026-10-13.md](../security/auth-rev
 ## 3b. Full UI/UX review (hand-off)
 - [x] Review tooling: `scripts/review-harness/`; customer route sweep captured (`docs/screenshots/2026-10-13-customer-routes/`).
 - [x] ISS-013 triaged: redirects are deliberate (`futureProductRoutes`).
-- [x] In-app guide page `/guide` (customer UI, images in `apps/customer-ui/public/guide/`, data in `guideData.ts`); keep it in step with `docs/guide/`.
+- [x] In-app guide page `/guide` (dev-only, `VITE_TWIPAY_DEV_GUIDE=true`; data in `guideData.ts`, images generated from `docs/screenshots/` into the git-ignored `public/guide/`); keep it in step with `docs/guide/`.
 - [ ] Customer pages, popups, buttons, mobile width; `/auth/user-details`, set-pin, phone, 2FA.
 - [ ] Admin journey with two `SUPER_ADMIN`+MFA owners, maker/checker, customer<->admin cross-flows.
 - [ ] Complete `docs/guide/` (flow map + one section per area).

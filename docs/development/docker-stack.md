@@ -61,6 +61,9 @@ the dev inbox and use the demo accounts: use a throwaway account and turn Funnel
 - Quick iteration without a rebuild: build on the host and `docker cp` the output into the running container; it is lost on
   recreate, so finish with a real `--build`.
 
+## Dev-only guide page
+`compose.stack.yaml` builds the customer UI with `VITE_TWIPAY_DEV_GUIDE=true`, which adds the `/guide` screenshot page and copies its images from `docs/screenshots/`. Without the flag (default) the route and images are absent from the image. For `pnpm --filter @twipay/customer-ui dev`, export the same variable.
+
 ## Gotchas
 - **`pnpm dev` for the API does not work**: `tsx` (esbuild) emits no decorator metadata, so Nest dependency injection yields
   `undefined` services and requests fail with 500. Build with `tsc` and run `node apps/api/dist/main.js` (the images do).

@@ -37,8 +37,7 @@ and a task plan, all kept current in the repo, plus fixes for clear bugs.
    base; extend it, never make it submit real-looking financial forms against anything but this local stack.
 6. **Document as you go** (update after every batch, not at the end):
    - screenshots -> `docs/screenshots/<YYYY-MM-DD>-<topic>/NN-name.png`, described in `docs/screenshots/README.md`
-   - `docs/guide/README.md` and the in-app page `/guide` (`apps/customer-ui/src/routes/external-pages/Guide.tsx`, `guideData.ts`, images in
-     `apps/customer-ui/public/guide/`): plain-language guide with every screenshot and a description
+   - `docs/guide/README.md` and the in-app page `/guide` (`apps/customer-ui/src/routes/external-pages/Guide.tsx`, `guideData.ts`; images are copied from `docs/screenshots/` by `scripts/sync-guide-images.mjs` into the git-ignored `public/guide/`, and the page exists only when `VITE_TWIPAY_DEV_GUIDE=true`): plain-language guide with every screenshot and a description
    - `docs/issues/README.md` (+ one file per non-trivial issue from `_template.md`): ID, severity, steps, evidence, cause
    - `docs/tasks/current_tasks.md`: plan before you start, tick items as you finish; archive a finished milestone as the next
      `prev_tasks_NN.md` and add it to `docs/tasks/index.md`

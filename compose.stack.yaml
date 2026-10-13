@@ -119,6 +119,7 @@ services:
       args:
         VITE_TWIPAY_API_URL: ${API_ORIGIN:-http://localhost:${API_PORT:-4000}}
         VITE_TWIPAY_DEV_MAIL: "true"
+        VITE_TWIPAY_DEV_GUIDE: "true"
     ports: ["127.0.0.1:${CUSTOMER_UI_PORT:-3000}:8080"]
     depends_on:
       api: { condition: service_healthy }

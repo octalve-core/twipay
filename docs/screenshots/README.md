@@ -11,3 +11,6 @@ One dated folder per review run: `docs/screenshots/<YYYY-MM-DD>-<topic>/`. Refer
 
 Conventions: PNG, 1280x900 viewport, name `NN-what-is-shown.png`. Use throwaway `@example.test` accounts only; never
 capture real credentials, cookies or tokens.
+
+`/guide` page: screenshots listed in `apps/customer-ui/src/routes/external-pages/guideData.ts` are copied into the git-ignored
+`apps/customer-ui/public/guide/` at dev start / build when `VITE_TWIPAY_DEV_GUIDE=true`. `docs/screenshots/` is the only committed copy.

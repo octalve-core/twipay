@@ -7,6 +7,7 @@ RUN corepack enable
 COPY package.json pnpm-workspace.yaml turbo.json tsconfig.base.json pnpm-lock.yaml .npmrc ./
 COPY apps/customer-ui ./apps/customer-ui
 COPY packages ./packages
+COPY docs/screenshots ./docs/screenshots
 RUN --mount=type=cache,target=/pnpm-store pnpm install --frozen-lockfile --store-dir /pnpm-store --filter @twipay/customer-ui...
 ARG VITE_TWIPAY_API_URL
 ARG VITE_TWIPAY_FUNDING_SANDBOX_ENABLED=false
@@ -17,6 +18,7 @@ ARG VITE_TWIPAY_EVENT_ORGANIZER_SANDBOX_ENABLED=false
 ARG VITE_TWIPAY_EVENT_CHECKOUT_SANDBOX_ENABLED=false
 ARG VITE_TWIPAY_EVENT_QR_SANDBOX_ENABLED=false
 ARG VITE_TWIPAY_DEV_MAIL=false
+ARG VITE_TWIPAY_DEV_GUIDE=false
 ENV VITE_TWIPAY_API_URL=$VITE_TWIPAY_API_URL \
     VITE_TWIPAY_FUNDING_SANDBOX_ENABLED=$VITE_TWIPAY_FUNDING_SANDBOX_ENABLED \
     VITE_TWIPAY_TRANSFER_SANDBOX_ENABLED=$VITE_TWIPAY_TRANSFER_SANDBOX_ENABLED \
@@ -25,7 +27,10 @@ ENV VITE_TWIPAY_API_URL=$VITE_TWIPAY_API_URL \
     VITE_TWIPAY_EVENT_ORGANIZER_SANDBOX_ENABLED=$VITE_TWIPAY_EVENT_ORGANIZER_SANDBOX_ENABLED \
     VITE_TWIPAY_EVENT_CHECKOUT_SANDBOX_ENABLED=$VITE_TWIPAY_EVENT_CHECKOUT_SANDBOX_ENABLED \
     VITE_TWIPAY_EVENT_QR_SANDBOX_ENABLED=$VITE_TWIPAY_EVENT_QR_SANDBOX_ENABLED \
-    VITE_TWIPAY_DEV_MAIL=$VITE_TWIPAY_DEV_MAIL
+    VITE_TWIPAY_DEV_MAIL=$VITE_TWIPAY_DEV_MAIL \
+    VITE_TWIPAY_DEV_GUIDE=$VITE_TWIPAY_DEV_GUIDE
+# Copies the /guide screenshots in only when the flag is true; otherwise removes public/guide.
+RUN node apps/customer-ui/scripts/sync-guide-images.mjs
 # `vite build` only: the package's `tsc -b` step currently fails on pre-existing baseline type errors.
 RUN pnpm --filter @twipay/customer-ui exec vite build
 

@@ -4,8 +4,8 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
+    "dev": "node scripts/sync-guide-images.mjs && vite",
+    "build": "node scripts/sync-guide-images.mjs && tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview --host 127.0.0.1 --port 3000 --strictPort",
     "typecheck": "tsc -b --pretty false"

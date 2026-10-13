@@ -129,10 +129,9 @@ function App() {
         },
       ]
     },
-    {
-      path: "/guide",
-      element: <Guide />,
-    },
+    ...(import.meta.env.VITE_TWIPAY_DEV_GUIDE === "true"
+      ? [{ path: "/guide", element: <Guide /> }]
+      : []),
     {
       path: "/auth",
       element: <InactiveAuthGuard><AuthLayout /></InactiveAuthGuard>,

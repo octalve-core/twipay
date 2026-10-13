@@ -2,8 +2,10 @@
 
 A walkthrough of what the running app does today, with screenshots. Keep it in step with the app: when a screen changes,
 recapture it ([scripts/review-harness](../../scripts/review-harness/README.md)) and update the text. Screenshots live in
-[docs/screenshots](../screenshots/README.md); the same screenshots are shown as a web page at **`/guide`** in the customer UI (images in
-`apps/customer-ui/public/guide/`, captions in `apps/customer-ui/src/routes/external-pages/guideData.ts`). Update both.
+[docs/screenshots](../screenshots/README.md); the same screenshots are shown as a web page at **`/guide`** in the customer UI. That page exists only in dev builds
+(`VITE_TWIPAY_DEV_GUIDE=true`, set by `compose.stack.yaml`): `apps/customer-ui/scripts/sync-guide-images.mjs` copies the files listed in
+`apps/customer-ui/src/routes/external-pages/guideData.ts` from `docs/screenshots/` into the git-ignored `public/guide/`, and removes it
+when the flag is off. Edit captions in `guideData.ts`; never edit `public/guide/`.
 
 All emails in the development build arrive in the floating inbox button (bottom-right of both apps).
 
