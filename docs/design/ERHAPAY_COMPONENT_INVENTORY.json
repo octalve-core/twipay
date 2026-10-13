@@ -520,8 +520,8 @@
   },
   "counts": {
     "reactFiles": 268,
-    "sourceFiles": 333,
-    "totalSrcFiles": 473
+    "sourceFiles": 334,
+    "totalSrcFiles": 474
   },
   "keyFiles": {
     "dashboardLayout": "src/routes/layout/DashboardLayout.tsx",
