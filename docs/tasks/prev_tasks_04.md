@@ -3,7 +3,7 @@
 - **Workstream Code:** `TASK-04`
 - **Window:** 2026-10-12 → 2026-10-13 (local time WAT, UTC+1; exact timestamps are in the commit history)
 - **Status:** `COMPLETED` (open findings are carried into [current_tasks.md](current_tasks.md))
-- **Branch:** `dev` — head `bb2bcec`; nothing pushed.
+- **Branch:** `dev`, pushed to `origin/dev` on 2026-10-13 (112 commits ahead of `origin/master`; `master` untouched; no pull request opened yet).
 
 ---
 
@@ -22,7 +22,7 @@ logout and password reset in a real browser and fix what was broken.
 - [x] Local dev fallbacks of a hard-coded `development_password@127.0.0.1:5435` database URL were dropped:
       `DATABASE_URL` is required again.
 - [x] `README.md` keeps the local `docs/tasks` section; duplicate `package.json` keys left by the auto-merge removed.
-- [x] `new/` is excluded through `.git/info/exclude` and must never be committed.
+- [x] The source checkout `new/` (remote `upstream-new`) was never committed. Every commit from it is in `dev`'s history, so it was deleted afterwards (2026-10-13) and the dangling `upstream-new` remote and the `.git/info/exclude` entry were removed.
 
 ### Task 04.2: Strict TypeScript errors in the incoming API — `13d6d47`
 - [x] 42 errors in four files (index-signature access, readonly Swagger schemas, a `never` narrowing, an unsupported
@@ -82,7 +82,7 @@ revocation, route guards, wrong/unknown-credential login, duplicate registration
 | `@twipay/api` `tsc --noEmit` | 0 errors |
 | `@twipay/customer-ui` `tsc -b` | 30 errors remain (26 unused declarations, 4 type mismatches) — images build with `vite build` |
 | Scanners (syntax, architecture, financial, services/events, product, production-hardening) | PASS |
-| `repository-security-check` | 17 findings, all under `new/` (the scanner walks the whole tree) |
+| `pnpm test:repo` (all eight repo gates, incl. `repository-security-check`) | PASS after `new/` was removed (it had caused 17 false findings because the scanner walks the whole tree) |
 | Browser journeys | Pass after the fixes above |
 
 ## 4. Open findings

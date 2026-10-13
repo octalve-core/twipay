@@ -38,8 +38,9 @@ Details and impact: [../security/auth-review-2026-10-13.md](../security/auth-rev
 
 ## 3. Build & repository hygiene
 - [ ] `@twipay/customer-ui`: 30 type errors (26 unused declarations, 4 mismatches) block `tsc -b` in the image build.
-- [ ] Move the untracked `new/` checkout out of the working tree (it makes `repository-security-check` report 17 findings).
-- [ ] Push `dev` (about 110 commits ahead of `origin/master`; nothing pushed yet) and open the review.
+- [x] `new/` checkout deleted (its history is in `dev`); `pnpm test:repo` passes with no scanner findings.
+- [x] `dev` pushed to `origin/dev` (112 commits ahead of `origin/master`).
+- [ ] Open the pull request `dev` -> `master` and get it reviewed (https://github.com/octalve-core/twipay/pull/new/dev).
 - [ ] CI: run the repository's own workflows against the merged branch.
 
 ---
