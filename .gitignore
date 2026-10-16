@@ -19,6 +19,7 @@ secrets/
 .prisma/
 
 .test-dist/
+*.tsbuildinfo
 
 # Read-only local visual comparison evidence (review before accepting)
 docs/tests/screenshots/phase2-reference/
