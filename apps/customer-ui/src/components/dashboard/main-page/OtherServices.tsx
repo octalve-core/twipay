@@ -11,7 +11,7 @@ const OtherServices = () => {
       <h2 className="text-[#667085] md:text-[#101928] max-md:text-sm mb-4 font-medium">
         Other services
       </h2>
-      <div className="max-md:hidden flex items-center h-[88px] md:h-[170px] w-full gap-2 md:gap-4">
+      <div className="max-md:hidden flex items-center h-22 md:h-42.5 w-full gap-2 md:gap-4">
         {activeOtherServices.map(({ id, label, href, icon, bgColor }, i) => (
           <Link className="h-full w-full" key={id} to={href}>
             <motion.div
@@ -41,7 +41,7 @@ const OtherServices = () => {
       </div>
 
       {/* Mobile screens */}
-      <div className="grid grid-cols-4 gap-[30px] mt-4 md:hidden">
+      <div className="grid grid-cols-4 gap-7.5 mt-4 md:hidden">
         {activeAppServices.slice(0, 7).map(({ id, label, icon, href }, i) => (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -53,9 +53,9 @@ const OtherServices = () => {
           >
             <Link
               to={href}
-              className="grid place-items-center border-1 border-[#AAAAAA]/20 group-hover:border-[#112929] bg-white size-[59px] md:size-16 rounded-md cursor-pointer transition"
+              className="grid place-items-center border border-[#AAAAAA]/20 group-hover:border-[#112929] bg-white size-14.75 md:size-16 rounded-md cursor-pointer transition"
             >
-              <img alt={label} src={icon} className="size-7 md:size-[30px] object-cover" />
+              <img alt={label} src={icon} className="size-7 md:size-7.5 object-cover" />
             </Link>
             <p className="text-[#464E60] text-xs md:text-base">{label}</p>
           </motion.div>
