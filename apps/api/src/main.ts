@@ -87,7 +87,7 @@ async function bootstrap(): Promise<void> {
     SwaggerModule.setup('docs', app, document, { swaggerOptions: { persistAuthorization: false } });
   }
 
-  const port = Number(process.env['API_PORT'] ?? 4000);
+  const port = Number(process.env['PORT'] ?? process.env['API_PORT'] ?? 4000);
   // Explicitly bind qualification servers to loopback; production retains
   // container-compatible binding unless deployment supplies an alternate host.
   await app.listen(port, process.env['API_BIND_HOST'] ?? '0.0.0.0');
