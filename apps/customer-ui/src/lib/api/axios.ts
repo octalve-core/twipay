@@ -108,13 +108,8 @@ api.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
   }
   if (
     !["GET", "HEAD", "OPTIONS"].includes((config.method ?? "GET").toUpperCase()) &&
-    ![
-      "/auth/register",
-      "/auth/login",
-      "/auth/google/start",
-      "/auth/password/reset/request",
-      "/auth/password/reset/complete",
-    ].includes(config.url ?? "")
+    // prettier-ignore
+    !["/auth/register", "/auth/login", "/auth/google/start", "/auth/password/reset/request", "/auth/password/reset/complete"].includes(config.url ?? "")
   ) {
     // Each active session has one stable, server-verified CSRF token.
     // Concurrent mutations must not invalidate one another. Never mint tokens client-side.
