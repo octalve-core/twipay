@@ -6,9 +6,9 @@ const input='w-full outline-0 bg-white py-2.5 px-3.5 border border-[#D0D5DD] tex
 const readable=(status:string)=>status==='WAITING_SUPPORT'?'Awaiting our reply':status==='WAITING_CUSTOMER'?'Reply available':'Closed';
 /** Keeps the existing ErhaPay layout and never persists private message text in browser storage. */
 export default function SupportCentre(){
- const qc=useQueryClient();const cases=useQuery({queryKey:['twipay','support-cases'],queryFn:listSupportCases,retry:false});
+ const qc=useQueryClient();const cases=useQuery({queryKey:['twipay','support-cases'],queryFn:listSupportCases,retry:false,refetchInterval:15000});
  const [chosen,setChosen]=useState<SupportCaseSummary|null>(null);
- const caseView=useQuery({queryKey:['twipay','support-case',chosen?.reference],queryFn:()=>getSupportCase(chosen!.reference),enabled:!!chosen,retry:false});
+ const caseView=useQuery({queryKey:['twipay','support-case',chosen?.reference],queryFn:()=>getSupportCase(chosen!.reference),enabled:!!chosen,retry:false,refetchInterval:15000});
  const [category,setCategory]=useState<'GENERAL'|'ACCOUNT'|'EVENTS'|'TECHNICAL'>('GENERAL');
  const [subject,setSubject]=useState('');const [message,setMessage]=useState('');const [reply,setReply]=useState('');
  const [busy,setBusy]=useState(false);const [feedback,setFeedback]=useState('');const submitLock=useRef(false);

@@ -37,7 +37,26 @@ export default function SupportOperationsPage() {
     void opsGet<{ disputes: DisputeSummary[] }>("/operations/disputes")
       .then((v) => setDisputes(v.disputes))
       .catch(() => setDisputesUnavailable(true));
+
+    const timer = setInterval(() => {
+      void load();
+      void opsGet<{ disputes: DisputeSummary[] }>("/operations/disputes")
+        .then((v) => setDisputes(v.disputes))
+        .catch(() => setDisputesUnavailable(true));
+    }, 15000);
+    return () => clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    if (!selected) return;
+    const ref = selected.reference;
+    const timer = setInterval(() => {
+      void opsGet<{ case: Detail }>(`/operations/support/cases/${ref}`)
+        .then((res) => setSelected(res.case))
+        .catch(() => {});
+    }, 15000);
+    return () => clearInterval(timer);
+  }, [selected?.reference]);
 
   async function select(reference: string) {
     setSelected(null);
