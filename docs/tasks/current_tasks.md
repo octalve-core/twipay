@@ -58,6 +58,17 @@ Details and impact: [../security/auth-review-2026-10-13.md](../security/auth-rev
 
 ---
 
+## 3c. Product walkthrough (video + PDF + audit)
+Prompt and filled-in parameters: [../handoff/WALKTHROUGH_PROMPT.md](../handoff/WALKTHROUGH_PROMPT.md). Phases stop for a report each.
+- [ ] P0 Plan: pick free ports, `wip_twipay_walkthrough` database, guardrails (separate Playwright config, `goto` wrapper, guard test with tamper test), `coverage-matrix.md` generated from routes, controllers and docs.
+- [ ] P1 Recon: soft-mode runs, findings logged in `docs/issues/` (continue from ISS-016), evidence in `out/walkthrough/<slug>/_evidence/`.
+- [ ] P2 Fix: one commit per fix, each with a regression test that fails on the old code.
+- [ ] P3 Final: one strict run from an empty database; `walkthrough.webm/.mp4/.pdf`, `findings.md`, `timeline.json`.
+- [ ] P4 Ship: harness PR, fix commits, promote curated screenshots to `docs/screenshots/` and `/guide`, update docs and this file; owner merges.
+- [ ] Owner decisions needed first: how the first `SUPER_ADMIN` is created for the walkthrough (the prompt allows one stage-step `user_roles` insert), and the open policy items ISS-001/002/003.
+
+---
+
 ## 4. Pending / In-Flight Backlog (unchanged)
 - [ ] **MFA Step-Up UI Flow**: TOTP QR enrollment and recovery code generation in the customer profile and ops console.
 - [ ] **Provider Sandbox Verification**: sandbox funding with Paystack and Monnify, utility and ticket flows.
