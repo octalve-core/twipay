@@ -1,0 +1,1133 @@
+[
+ {
+  "id": "C01",
+  "app": "customer",
+  "feature": "Home page",
+  "route": "/",
+  "roles": [
+   "visitor"
+  ],
+  "proof": "First load shows the landing page; nav links are visible",
+  "api": [],
+  "demonstrable": "yes"
+ },
+ {
+  "id": "C02",
+  "app": "customer",
+  "feature": "About",
+  "route": "/about",
+  "roles": [
+   "visitor"
+  ],
+  "proof": "Click About in the header",
+  "api": [],
+  "demonstrable": "yes"
+ },
+ {
+  "id": "C03",
+  "app": "customer",
+  "feature": "Contact (must not pretend to deliver a message)",
+  "route": "/contact",
+  "roles": [
+   "visitor"
+  ],
+  "proof": "Click Contact; submit the form and read the honest outcome",
+  "api": [],
+  "demonstrable": "yes"
+ },
+ {
+  "id": "C04",
+  "app": "customer",
+  "feature": "FAQs",
+  "route": "/faqs",
+  "roles": [
+   "visitor"
+  ],
+  "proof": "Click FAQs; open and close an accordion item",
+  "api": [],
+  "demonstrable": "yes"
+ },
+ {
+  "id": "C05",
+  "app": "customer",
+  "feature": "Privacy policy",
+  "route": "/privacy-policy",
+  "roles": [
+   "visitor"
+  ],
+  "proof": "Click the footer link",
+  "api": [],
+  "demonstrable": "yes"
+ },
+ {
+  "id": "C06",
+  "app": "customer",
+  "feature": "Terms",
+  "route": "/terms",
+  "roles": [
+   "visitor"
+  ],
+  "proof": "Click the footer link",
+  "api": [],
+  "demonstrable": "yes"
+ },
+ {
+  "id": "C10",
+  "app": "customer",
+  "feature": "Sign up: validation errors, then success",
+  "route": "/auth/signup",
+  "roles": [
+   "visitor"
+  ],
+  "proof": "Submit empty and short-password forms, then register",
+  "api": [
+   "POST /auth/register"
+  ],
+  "demonstrable": "yes"
+ },
+ {
+  "id": "C11",
+  "app": "customer",
+  "feature": "Verify email: wrong code, then right code (dev inbox)",
+  "route": "/auth/verify-email",
+  "roles": [
+   "visitor"
+  ],
+  "proof": "Open the inbox tab, read the code, type a wrong one then the right one",
+  "api": [
+   "POST /auth/contact/*",
+   "GET /auth/csrf"
+  ],
+  "demonstrable": "yes"
+ },
+ {
+  "id": "C12",
+  "app": "customer",
+  "feature": "Sign in",
+  "route": "/auth/login",
+  "roles": [
+   "visitor"
+  ],
+  "proof": "Type credentials and submit",
+  "api": [
+   "POST /auth/login"
+  ],
+  "demonstrable": "yes"
+ },
+ {
+  "id": "C13",
+  "app": "customer",
+  "feature": "Sign in: wrong password message",
+  "route": "/auth/login",
+  "roles": [
+   "visitor"
+  ],
+  "proof": "Submit a wrong password and read the sentence shown",
+  "api": [],
+  "demonstrable": "yes"
+ },
+ {
+  "id": "C14",
+  "app": "customer",
+  "feature": "Reset a forgotten password (code by email)",
+  "route": "/auth/reset-password",
+  "roles": [
+   "visitor"
+  ],
+  "proof": "Request code, read it in the inbox, set a new password, sign in with it",
+  "api": [
+   "POST /auth/password/*"
+  ],
+  "demonstrable": "yes"
+ },
+ {
+  "id": "C15",
+  "app": "customer",
+  "feature": "Sign out",
+  "route": "/dashboard",
+  "roles": [
+   "customer"
+  ],
+  "proof": "Open the profile menu and sign out",
+  "api": [
+   "POST /auth/logout"
+  ],
+  "demonstrable": "yes"
+ },
+ {
+  "id": "C16",
+  "app": "customer",
+  "feature": "Signed-out guard",
+  "route": "/dashboard",
+  "roles": [
+   "customer"
+  ],
+  "proof": "After signing out press Back: the app sends you to sign-in, not the dashboard",
+  "api": [],
+  "demonstrable": "yes"
+ },
+ {
+  "id": "C17",
+  "app": "customer",
+  "feature": "Two-factor challenge at sign-in",
+  "route": "/auth/two-factor-authentication",
+  "roles": [
+   "customer"
+  ],
+  "proof": "Enable 2FA in Settings > Security, sign out, sign in and type the authenticator code",
+  "api": [
+   "GET /auth/mfa/*",
+   "POST /auth/mfa/*"
+  ],
+  "demonstrable": "yes"
+ },
+ {
+  "id": "C18",
+  "app": "customer",
+  "feature": "Google sign-in completion",
+  "route": "/auth/google-complete",
+  "roles": [
+   "visitor"
+  ],
+  "proof": "-",
+  "api": [
+   "GET /auth/google/*",
+   "POST /auth/google/*"
+  ],
+  "demonstrable": "no",
+  "note": "Not demonstrable here: needs a real Google OIDC round trip"
+ },
+ {
+  "id": "C19",
+  "app": "customer",
+  "feature": "Inactive auth screens (verify-phone, user-details, set-pin) redirect to sign-in",
+  "route": "/auth/verify-phone",
+  "roles": [
+   "visitor"
+  ],
+  "proof": "-",
+  "api": [],
+  "demonstrable": "no",
+  "note": "Not demonstrable here: no link leads to them; reaching them needs a typed URL",
+  "alsoRoutes": [
+   "/auth/user-details",
+   "/auth/set-pin"
+  ]
+ },
+ {
+  "id": "C20",
+  "app": "customer",
+  "feature": "Dashboard: wallet and recent transactions",
+  "route": "/dashboard",
+  "roles": [
+   "customer"
+  ],
+  "proof": "Click through from the dashboard navigation",
+  "api": [
+   "GET /wallets*",
+   "GET /transactions*"
+  ],
+  "demonstrable": "yes"
+ },
+ {
+  "id": "C21",
+  "app": "customer",
+  "feature": "Transaction history",
+  "route": "/dashboard/history",
+  "roles": [
+   "customer"
+  ],
+  "proof": "Click through from the dashboard navigation",
+  "api": [
+   "GET /transactions*"
+  ],
+  "demonstrable": "yes"
+ },
+ {
+  "id": "C22",
+  "app": "customer",
+  "feature": "Transaction detail and receipt",
+  "route": "/dashboard/history/:id",
+  "roles": [
+   "customer"
+  ],
+  "proof": "Click through from the dashboard navigation",
+  "api": [
+   "GET /transactions/:reference"
+  ],
+  "demonstrable": "yes"
+ },
+ {
+  "id": "C23",
+  "app": "customer",
+  "feature": "Add funds",
+  "route": "/dashboard/add-funds",
+  "roles": [
+   "customer"
+  ],
+  "proof": "Click through from the dashboard navigation",
+  "api": [
+   "POST /payments/collections"
+  ],
+  "demonstrable": "yes",
+  "gatedBy": "WALLET_COLLECTIONS_SANDBOX_ENABLED + provider keys"
+ },
+ {
+  "id": "C24",
+  "app": "customer",
+  "feature": "Static (virtual) account",
+  "route": "/dashboard/static-account",
+  "roles": [
+   "customer"
+  ],
+  "proof": "Click through from the dashboard navigation",
+  "api": [
+   "*/virtual-accounts*"
+  ],
+  "demonstrable": "yes",
+  "gatedBy": "VIRTUAL_ACCOUNTS_SANDBOX_ENABLED + provider keys"
+ },
+ {
+  "id": "C25",
+  "app": "customer",
+  "feature": "Withdraw to bank",
+  "route": "/dashboard/withdraw-funds",
+  "roles": [
+   "customer"
+  ],
+  "proof": "Click through from the dashboard navigation",
+  "api": [
+   "*/transfers*"
+  ],
+  "demonstrable": "yes",
+  "gatedBy": "BANK_TRANSFERS_SANDBOX_ENABLED + provider keys"
+ },
+ {
+  "id": "C26",
+  "app": "customer",
+  "feature": "Services index",
+  "route": "/dashboard/services",
+  "roles": [
+   "customer"
+  ],
+  "proof": "Click through from the dashboard navigation",
+  "api": [
+   "GET /services/catalog"
+  ],
+  "demonstrable": "yes"
+ },
+ {
+  "id": "C27",
+  "app": "customer",
+  "feature": "Airtime",
+  "route": "/dashboard/services/airtime",
+  "roles": [
+   "customer"
+  ],
+  "proof": "Click through from the dashboard navigation",
+  "api": [
+   "*/services/*"
+  ],
+  "demonstrable": "yes",
+  "gatedBy": "BILL_PURCHASES_SANDBOX_ENABLED + VTpass"
+ },
+ {
+  "id": "C28",
+  "app": "customer",
+  "feature": "Data bundles",
+  "route": "/dashboard/services/data",
+  "roles": [
+   "customer"
+  ],
+  "proof": "Click through from the dashboard navigation",
+  "api": [
+   "*/services/*"
+  ],
+  "demonstrable": "yes",
+  "gatedBy": "BILL_PURCHASES_SANDBOX_ENABLED + VTpass"
+ },
+ {
+  "id": "C29",
+  "app": "customer",
+  "feature": "Electricity",
+  "route": "/dashboard/services/electricity",
+  "roles": [
+   "customer"
+  ],
+  "proof": "Click through from the dashboard navigation",
+  "api": [
+   "*/services/*"
+  ],
+  "demonstrable": "yes",
+  "gatedBy": "BILL_PURCHASES_SANDBOX_ENABLED + VTpass"
+ },
+ {
+  "id": "C30",
+  "app": "customer",
+  "feature": "TV / cable",
+  "route": "/dashboard/services/cable",
+  "roles": [
+   "customer"
+  ],
+  "proof": "Click through from the dashboard navigation",
+  "api": [
+   "*/services/*"
+  ],
+  "demonstrable": "yes",
+  "gatedBy": "BILL_PURCHASES_SANDBOX_ENABLED + VTpass"
+ },
+ {
+  "id": "C31",
+  "app": "customer",
+  "feature": "Events",
+  "route": "/dashboard/events",
+  "roles": [
+   "customer"
+  ],
+  "proof": "Click through from the dashboard navigation",
+  "api": [
+   "GET /events*"
+  ],
+  "demonstrable": "yes",
+  "gatedBy": "EVENT_PUBLISH_SANDBOX_ENABLED"
+ },
+ {
+  "id": "C32",
+  "app": "customer",
+  "feature": "Notifications",
+  "route": "/dashboard/notifications",
+  "roles": [
+   "customer"
+  ],
+  "proof": "Click through from the dashboard navigation",
+  "api": [
+   "*/notifications*"
+  ],
+  "demonstrable": "yes"
+ },
+ {
+  "id": "C33",
+  "app": "customer",
+  "feature": "Settings hub",
+  "route": "/dashboard/settings",
+  "roles": [
+   "customer"
+  ],
+  "proof": "Click through from the dashboard navigation",
+  "api": [],
+  "demonstrable": "yes"
+ },
+ {
+  "id": "C34",
+  "app": "customer",
+  "feature": "Account details",
+  "route": "/dashboard/settings/account",
+  "roles": [
+   "customer"
+  ],
+  "proof": "Click through from the dashboard navigation",
+  "api": [
+   "PATCH /auth/me",
+   "GET /auth/me"
+  ],
+  "demonstrable": "yes"
+ },
+ {
+  "id": "C35",
+  "app": "customer",
+  "feature": "Identity verification (KYC)",
+  "route": "/dashboard/settings/identity-verification",
+  "roles": [
+   "customer"
+  ],
+  "proof": "Click through from the dashboard navigation",
+  "api": [
+   "*/kyc/*"
+  ],
+  "demonstrable": "yes",
+  "gatedBy": "Mono (provider)"
+ },
+ {
+  "id": "C36",
+  "app": "customer",
+  "feature": "Security: password, sessions, 2FA, transaction PIN",
+  "route": "/dashboard/settings/security",
+  "roles": [
+   "customer"
+  ],
+  "proof": "Click through from the dashboard navigation",
+  "api": [
+   "*/auth/password/*",
+   "*/auth/sessions*",
+   "*/auth/mfa/*",
+   "*/auth/transaction-pin/*"
+  ],
+  "demonstrable": "yes"
+ },
+ {
+  "id": "C37",
+  "app": "customer",
+  "feature": "Bank info",
+  "route": "/dashboard/settings/bank-info",
+  "roles": [
+   "customer"
+  ],
+  "proof": "Click through from the dashboard navigation",
+  "api": [],
+  "demonstrable": "yes"
+ },
+ {
+  "id": "C38",
+  "app": "customer",
+  "feature": "Support",
+  "route": "/dashboard/settings/support",
+  "roles": [
+   "customer"
+  ],
+  "proof": "Click through from the dashboard navigation",
+  "api": [],
+  "demonstrable": "yes"
+ },
+ {
+  "id": "C39",
+  "app": "customer",
+  "feature": "Settings FAQs",
+  "route": "/dashboard/settings/faqs",
+  "roles": [
+   "customer"
+  ],
+  "proof": "Click through from the dashboard navigation",
+  "api": [],
+  "demonstrable": "yes"
+ },
+ {
+  "id": "C40",
+  "app": "customer",
+  "feature": "Security overview",
+  "route": "/dashboard/settings/security-overview",
+  "roles": [
+   "customer"
+  ],
+  "proof": "Click through from the dashboard navigation",
+  "api": [
+   "*/auth/sessions*"
+  ],
+  "demonstrable": "yes"
+ },
+ {
+  "id": "C41",
+  "app": "customer",
+  "feature": "Saved beneficiaries",
+  "route": "/dashboard/settings/beneficiaries",
+  "roles": [
+   "customer"
+  ],
+  "proof": "Click through from the dashboard navigation",
+  "api": [
+   "*/transfers/beneficiaries*"
+  ],
+  "demonstrable": "yes",
+  "gatedBy": "BANK_TRANSFERS_SANDBOX_ENABLED"
+ },
+ {
+  "id": "C42",
+  "app": "customer",
+  "feature": "Notification preferences",
+  "route": "/dashboard/settings/notification-preferences",
+  "roles": [
+   "customer"
+  ],
+  "proof": "Click through from the dashboard navigation",
+  "api": [
+   "*/notifications/preferences*"
+  ],
+  "demonstrable": "yes"
+ },
+ {
+  "id": "C43",
+  "app": "customer",
+  "feature": "Support centre (cases)",
+  "route": "/dashboard/settings/support-centre",
+  "roles": [
+   "customer"
+  ],
+  "proof": "Click through from the dashboard navigation",
+  "api": [
+   "*/support/cases*"
+  ],
+  "demonstrable": "yes"
+ },
+ {
+  "id": "C44",
+  "app": "customer",
+  "feature": "My tickets",
+  "route": "/dashboard/my-tickets",
+  "roles": [
+   "customer"
+  ],
+  "proof": "Click through from the dashboard navigation",
+  "api": [
+   "*/events/tickets*",
+   "*/events/orders*"
+  ],
+  "demonstrable": "yes",
+  "gatedBy": "EVENT_CHECKOUT_SANDBOX_ENABLED"
+ },
+ {
+  "id": "C45",
+  "app": "customer",
+  "feature": "Event organizer",
+  "route": "/dashboard/organizer",
+  "roles": [
+   "customer"
+  ],
+  "proof": "Click through from the dashboard navigation",
+  "api": [
+   "*/events/organizers*",
+   "*/events/:eventId*",
+   "POST /events"
+  ],
+  "demonstrable": "yes",
+  "gatedBy": "EVENT_PUBLISH_SANDBOX_ENABLED"
+ },
+ {
+  "id": "C46",
+  "app": "customer",
+  "feature": "Event check-in (staff)",
+  "route": "/dashboard/event-check-in",
+  "roles": [
+   "customer"
+  ],
+  "proof": "Click through from the dashboard navigation",
+  "api": [
+   "*/events/*"
+  ],
+  "demonstrable": "yes",
+  "gatedBy": "EVENT_TICKET_QR_SANDBOX_ENABLED"
+ },
+ {
+  "id": "C47",
+  "app": "customer",
+  "feature": "Standalone receipt",
+  "route": "/receipt",
+  "roles": [
+   "customer"
+  ],
+  "proof": "Click through from the dashboard navigation",
+  "api": [],
+  "demonstrable": "yes"
+ },
+ {
+  "id": "C48",
+  "app": "customer",
+  "feature": "Funding return page",
+  "route": "/wallet/fund/complete",
+  "roles": [
+   "customer"
+  ],
+  "proof": "Reached from a provider redirect",
+  "api": [],
+  "demonstrable": "yes",
+  "gatedBy": "WALLET_COLLECTIONS_SANDBOX_ENABLED + provider keys"
+ },
+ {
+  "id": "C49",
+  "app": "customer",
+  "feature": "Deferred features are not offered (transfer-funds, e-pins, eSIM, international top-ups, mobile money, flights, hotels, virtual card, referral, affiliate)",
+  "route": "/dashboard/services",
+  "roles": [
+   "customer"
+  ],
+  "proof": "Read the services page: none of these appear; deferred by design (futureProductRoutes)",
+  "api": [],
+  "demonstrable": "yes"
+ },
+ {
+  "id": "C50",
+  "app": "customer",
+  "feature": "Unknown address shows the 404 page",
+  "route": "*",
+  "roles": [
+   "visitor"
+  ],
+  "proof": "-",
+  "api": [],
+  "demonstrable": "no",
+  "note": "Not demonstrable here: no link leads to a missing page; it needs a typed URL"
+ },
+ {
+  "id": "A01",
+  "app": "admin",
+  "feature": "Admin sign-in",
+  "route": "/login",
+  "roles": [
+   "staff"
+  ],
+  "proof": "Click the nav item",
+  "api": [
+   "POST /auth/login"
+  ],
+  "demonstrable": "yes",
+  "permission": ""
+ },
+ {
+  "id": "A02",
+  "app": "admin",
+  "feature": "Overview",
+  "route": "/",
+  "roles": [
+   "by-permission"
+  ],
+  "proof": "Click the nav item",
+  "api": [
+   "*/operations/dashboard*"
+  ],
+  "demonstrable": "yes",
+  "permission": "ops.dashboard.read"
+ },
+ {
+  "id": "A03",
+  "app": "admin",
+  "feature": "Payout batches",
+  "route": "/payouts",
+  "roles": [
+   "by-permission"
+  ],
+  "proof": "Click the nav item",
+  "api": [
+   "*/operations/payouts*"
+  ],
+  "demonstrable": "yes",
+  "permission": "ops.dashboard.read"
+ },
+ {
+  "id": "A04",
+  "app": "admin",
+  "feature": "Batch calculator",
+  "route": "/payouts/create",
+  "roles": [
+   "by-permission"
+  ],
+  "proof": "Click the nav item",
+  "api": [
+   "*/operations/payouts*"
+  ],
+  "demonstrable": "yes",
+  "permission": "ops.dashboard.read"
+ },
+ {
+  "id": "A05",
+  "app": "admin",
+  "feature": "Refunds and disputes",
+  "route": "/refunds",
+  "roles": [
+   "by-permission"
+  ],
+  "proof": "Click the nav item",
+  "api": [
+   "*/operations/refunds*",
+   "*/operations/disputes*",
+   "*/disputes*"
+  ],
+  "demonstrable": "yes",
+  "permission": "ops.disputes.review"
+ },
+ {
+  "id": "A06",
+  "app": "admin",
+  "feature": "Exceptions and holds",
+  "route": "/exceptions",
+  "roles": [
+   "by-permission"
+  ],
+  "proof": "Click the nav item",
+  "api": [
+   "*/operations/financial-exceptions*"
+  ],
+  "demonstrable": "yes",
+  "permission": "ops.reconciliation.read"
+ },
+ {
+  "id": "A07",
+  "app": "admin",
+  "feature": "Financial tiers",
+  "route": "/financial-tiers",
+  "roles": [
+   "by-permission"
+  ],
+  "proof": "Click the nav item",
+  "api": [
+   "*/operations/financial-eligibility*"
+  ],
+  "demonstrable": "yes",
+  "permission": "ops.tiers.read"
+ },
+ {
+  "id": "A08",
+  "app": "admin",
+  "feature": "Provider circuits",
+  "route": "/providers",
+  "roles": [
+   "by-permission"
+  ],
+  "proof": "Click the nav item",
+  "api": [
+   "*/operations/providers*"
+  ],
+  "demonstrable": "yes",
+  "permission": "ops.dashboard.read"
+ },
+ {
+  "id": "A09",
+  "app": "admin",
+  "feature": "Delivery health",
+  "route": "/notifications",
+  "roles": [
+   "by-permission"
+  ],
+  "proof": "Click the nav item",
+  "api": [
+   "*/operations/notifications*"
+  ],
+  "demonstrable": "yes",
+  "permission": "ops.notifications.read"
+ },
+ {
+  "id": "A10",
+  "app": "admin",
+  "feature": "Identity review",
+  "route": "/compliance",
+  "roles": [
+   "by-permission"
+  ],
+  "proof": "Click the nav item",
+  "api": [
+   "*/operations/compliance*"
+  ],
+  "demonstrable": "yes",
+  "permission": "ops.compliance.read"
+ },
+ {
+  "id": "A11",
+  "app": "admin",
+  "feature": "Audit journal",
+  "route": "/audit",
+  "roles": [
+   "by-permission"
+  ],
+  "proof": "Click the nav item",
+  "api": [
+   "*/operations/audit*"
+  ],
+  "demonstrable": "yes",
+  "permission": "ops.audit.read"
+ },
+ {
+  "id": "A12",
+  "app": "admin",
+  "feature": "Financial reports",
+  "route": "/reports",
+  "roles": [
+   "by-permission"
+  ],
+  "proof": "Click the nav item",
+  "api": [
+   "*/operations/reports*"
+  ],
+  "demonstrable": "yes",
+  "permission": "ops.reports.read"
+ },
+ {
+  "id": "A13",
+  "app": "admin",
+  "feature": "Owner control",
+  "route": "/owner",
+  "roles": [
+   "by-permission"
+  ],
+  "proof": "Click the nav item",
+  "api": [
+   "*/operations/owner*"
+  ],
+  "demonstrable": "yes",
+  "permission": "SUPER_ADMIN"
+ },
+ {
+  "id": "A14",
+  "app": "admin",
+  "feature": "Configuration (feature flags, catalog mapping)",
+  "route": "/config",
+  "roles": [
+   "by-permission"
+  ],
+  "proof": "Click the nav item",
+  "api": [
+   "*/product/*",
+   "*/operations/catalog*"
+  ],
+  "demonstrable": "yes",
+  "permission": "ops.owner.read"
+ },
+ {
+  "id": "A15",
+  "app": "admin",
+  "feature": "Staff governance (maker/checker)",
+  "route": "/owner/staff",
+  "roles": [
+   "by-permission"
+  ],
+  "proof": "Click the nav item",
+  "api": [
+   "*/operations/staff*",
+   "*/operations/owner/staff*"
+  ],
+  "demonstrable": "yes",
+  "permission": "SUPER_ADMIN"
+ },
+ {
+  "id": "A16",
+  "app": "admin",
+  "feature": "Customer master",
+  "route": "/owner/customers",
+  "roles": [
+   "by-permission"
+  ],
+  "proof": "Click the nav item",
+  "api": [
+   "*/operations/owner/customers*"
+  ],
+  "demonstrable": "yes",
+  "permission": "SUPER_ADMIN"
+ },
+ {
+  "id": "A17",
+  "app": "admin",
+  "feature": "Support cases",
+  "route": "/support",
+  "roles": [
+   "by-permission"
+  ],
+  "proof": "Click the nav item",
+  "api": [
+   "*/operations/support*",
+   "*/support/cases*"
+  ],
+  "demonstrable": "yes",
+  "permission": "ops.support.read"
+ },
+ {
+  "id": "A18",
+  "app": "admin",
+  "feature": "Security and MFA (enrol, challenge)",
+  "route": "/security",
+  "roles": [
+   "staff"
+  ],
+  "proof": "Click the nav item",
+  "api": [
+   "*/auth/mfa/*"
+  ],
+  "demonstrable": "yes",
+  "permission": ""
+ },
+ {
+  "id": "A19",
+  "app": "admin",
+  "feature": "Admin sign-out",
+  "route": "(admin shell)",
+  "roles": [
+   "staff"
+  ],
+  "proof": "Click sign out in the shell",
+  "api": [
+   "POST /auth/logout"
+  ],
+  "demonstrable": "yes",
+  "permission": ""
+ },
+ {
+  "id": "X01",
+  "app": "cross",
+  "feature": "Customer opens a support case, staff replies, customer sees the reply",
+  "route": "/dashboard/settings/support-centre",
+  "roles": [
+   "customer",
+   "staff"
+  ],
+  "proof": "Create case as customer; sign in as support agent; reply; sign back in as customer and read it",
+  "api": [
+   "*/support/cases*",
+   "*/operations/support*"
+  ],
+  "demonstrable": "yes"
+ },
+ {
+  "id": "X02",
+  "app": "cross",
+  "feature": "Owner proposes a staff member, a different owner approves, the staff member signs in and sees only their pages",
+  "route": "/owner/staff",
+  "roles": [
+   "owner",
+   "staff"
+  ],
+  "proof": "Maker proposes, checker approves, new staff signs in",
+  "api": [
+   "*/operations/owner/staff*"
+  ],
+  "demonstrable": "yes"
+ },
+ {
+  "id": "X03",
+  "app": "cross",
+  "feature": "Owner changes a feature flag or config and the customer app reflects it",
+  "route": "/config",
+  "roles": [
+   "owner",
+   "customer"
+  ],
+  "proof": "Change a flag; reload customer app by click; observe the change",
+  "api": [
+   "*/product/*"
+  ],
+  "demonstrable": "yes"
+ },
+ {
+  "id": "X04",
+  "app": "cross",
+  "feature": "Owner suspends a customer; the customer is signed out and cannot sign in",
+  "route": "/owner/customers",
+  "roles": [
+   "owner",
+   "customer"
+  ],
+  "proof": "Suspend; customer action fails with a readable sentence",
+  "api": [
+   "*/operations/owner/*"
+  ],
+  "demonstrable": "yes"
+ },
+ {
+  "id": "X05",
+  "app": "cross",
+  "feature": "Customer identity submission reaches the compliance queue",
+  "route": "/dashboard/settings/identity-verification",
+  "roles": [
+   "customer",
+   "staff"
+  ],
+  "proof": "-",
+  "api": [
+   "*/kyc/*",
+   "*/operations/compliance*"
+  ],
+  "demonstrable": "no",
+  "note": "Not demonstrable here: needs the Mono identity provider"
+ },
+ {
+  "id": "X06",
+  "app": "cross",
+  "feature": "Customer dispute reaches the refunds queue and an approver acts",
+  "route": "/refunds",
+  "roles": [
+   "customer",
+   "staff"
+  ],
+  "proof": "-",
+  "api": [
+   "*/disputes*",
+   "*/operations/refunds*"
+  ],
+  "demonstrable": "no",
+  "note": "Not demonstrable here: needs a completed financial transaction, which needs funding sandbox providers (see C23)"
+ },
+ {
+  "id": "N01",
+  "app": "negative",
+  "feature": "A customer account cannot enter the admin console",
+  "route": "/login",
+  "roles": [
+   "customer"
+  ],
+  "proof": "Sign in to admin with customer credentials and read the refusal",
+  "api": [],
+  "demonstrable": "yes"
+ },
+ {
+  "id": "N02",
+  "app": "negative",
+  "feature": "Each staff role sees only the pages its permissions allow",
+  "route": "/",
+  "roles": [
+   "staff"
+  ],
+  "proof": "Per role: nav shows only allowed items; others are absent or refused with a sentence",
+  "api": [],
+  "demonstrable": "yes"
+ },
+ {
+  "id": "N03",
+  "app": "negative",
+  "feature": "The proposer cannot approve their own staff proposal",
+  "route": "/owner/staff",
+  "roles": [
+   "owner"
+  ],
+  "proof": "Maker tries to approve; the refusal is a sentence, not a status code",
+  "api": [],
+  "demonstrable": "yes"
+ },
+ {
+  "id": "N04",
+  "app": "negative",
+  "feature": "Owner area before MFA enrolment shows a readable step, not a raw error code",
+  "route": "/owner",
+  "roles": [
+   "owner"
+  ],
+  "proof": "Sign in as an owner without MFA; read the message (known finding ISS-007 if it shows CONTACT_VERIFICATION_REQUIRED)",
+  "api": [],
+  "demonstrable": "yes"
+ },
+ {
+  "id": "N05",
+  "app": "negative",
+  "feature": "A customer cannot reach the owner area",
+  "route": "/owner",
+  "roles": [
+   "customer"
+  ],
+  "proof": "Not linked for customers; confirm the admin refuses them",
+  "api": [],
+  "demonstrable": "yes"
+ },
+ {
+  "id": "R01",
+  "app": "api",
+  "feature": "Provider webhooks (Paystack, Monnify): server to server, no screen by design",
+  "route": "/webhooks/*",
+  "roles": [
+   "provider"
+  ],
+  "proof": "-",
+  "api": [
+   "POST /webhooks/*"
+  ],
+  "demonstrable": "no",
+  "note": "Not demonstrable here: called by payment providers, not by a person"
+ },
+ {
+  "id": "R02",
+  "app": "api",
+  "feature": "Liveness probe",
+  "route": "/health/live",
+  "roles": [
+   "infrastructure"
+  ],
+  "proof": "-",
+  "api": [
+   "GET /health/*"
+  ],
+  "demonstrable": "no",
+  "note": "Not demonstrable here: probe for the hosting platform, no screen"
+ }
+]

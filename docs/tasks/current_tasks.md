@@ -60,7 +60,7 @@ Details and impact: [../security/auth-review-2026-10-13.md](../security/auth-rev
 
 ## 3c. Product walkthrough (video + PDF + audit)
 Prompt and filled-in parameters: [../handoff/WALKTHROUGH_PROMPT.md](../handoff/WALKTHROUGH_PROMPT.md). Phases stop for a report each.
-- [ ] P0 Plan: pick free ports, `wip_twipay_walkthrough` database, guardrails (separate Playwright config, `goto` wrapper, guard test with tamper test), `coverage-matrix.md` generated from routes, controllers and docs.
+- [x] P0 Plan (2026-11-04, branch `walkthrough/p0-harness`, see [tests/walkthrough/README.md](../../tests/walkthrough/README.md)): isolated stack definition and ports, guardrails (separate Playwright config, `goto` wrapper, guard test with tamper tests), coverage matrix (77 rows) computed against the code. Stack not built yet; decisions pending in the P0 report.
 - [ ] P1 Recon: soft-mode runs, findings logged in `docs/issues/` (continue from ISS-016), evidence in `out/walkthrough/<slug>/_evidence/`.
 - [ ] P2 Fix: one commit per fix, each with a regression test that fails on the old code.
 - [ ] P3 Final: one strict run from an empty database; `walkthrough.webm/.mp4/.pdf`, `findings.md`, `timeline.json`.
