@@ -57,3 +57,31 @@ Recorded in `tests/walkthrough/matrix/rows.json` as `not-demonstrable`, with the
 ## Operator bootstrap (the one allowed direct database write)
 
 The first two owners and the staff roles needing a pre-existing owner are written by `lib/stage.ts` (`bootstrapOwners`, `bootstrapRoles`). Both refuse any address that is not `@twipay.example` and any database other than `wip_twipay_walkthrough`. Everything else in the journey is done through the UI.
+
+## P2 status (2026-11-05)
+
+Fixes are on two branches off `master`, each with regression tests that fail on the old code. Nothing is merged. Strict re-confirmation
+happens in P3.
+
+| ID | Status | Where |
+| :-- | :-- | :-- |
+| WT-01 | Fixed | `fix/wt-admin-quality` (4 UUID fields, incl. owner/staff, which the run did not reach) |
+| WT-02 | Fixed (fonts now served from the admin's own origin through `next/font`, fetched at build time) | `fix/wt-admin-quality` |
+| WT-03 | Partly fixed: the spinner `<style>` moved to the stylesheet. The rest is the CSP blocking inline `style=""` attributes, which visibly breaks parts of the sign-in page. Needs an owner decision, see below. | `fix/wt-admin-quality` |
+| WT-04 | Fixed: the fixed "ACTIVE" pill, "2 Owners Enrolled" and the nav badges (3, 4, 2, 99.8%, 6) are removed. Found in P2: the badges were also invented. | `fix/wt-admin-quality` |
+| WT-05 | Fixed | `fix/wt-customer-ui` |
+| WT-06 | Fixed: initials, hidden empty handle. The sidebar's always-on "verified" tick is removed with it. | `fix/wt-customer-ui` |
+| WT-07 | Open: brand decision | |
+| WT-08 | Fixed: `explainCode` / `statusLabel` at all call sites, and the failure card no longer says "Error Code:" | `fix/wt-admin-quality` |
+| WT-09 | Not a defect: the endpoint is gated by `FINANCIAL_TIER_REVIEW_SANDBOX_ENABLED` and answers 503 `FINANCIAL_TIER_REVIEW_NOT_QUALIFIED` by design. The page now says so in words. Recorded as "not demonstrable here". | |
+| WT-10 | Open: gate requests on role / step-up (S3, not started) | |
+| WT-11, WT-12 | Open: product decision | |
+| WT-13 | Fixed (93 images) | `fix/wt-customer-ui` |
+| WT-14 | Partly fixed: the log-out button. Other unnamed buttons will show up in the next run's axe output. | `fix/wt-customer-ui` |
+| WT-15 | Fixed (contact form) | `fix/wt-customer-ui` |
+| WT-16 | Open: design task | |
+| WT-17, WT-18, WT-21 | Open | |
+| WT-19 | Fixed | `fix/wt-customer-ui` |
+| WT-20 | Partly fixed: h1 on the auth screens; the 404 page and admin pages not yet. | `fix/wt-customer-ui` |
+
+New in P2, not in the table above: the admin sign-in page footer described the console's security internals ("SHA-256 Nonce CSP", "HttpOnly"); replaced with plain wording.
