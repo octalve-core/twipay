@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { OpsShell } from "../_components/ops-shell";
 import { Fail, Wait } from "../_components/state";
-import { money, opsGet, opsMutation } from "../_lib/api";
+import { money, opsGet, opsMutation, explainCode } from "../_lib/api";
 import { ApproveModal, RejectModal } from "../_components/modals";
 
 export default function PayoutsPage() {
@@ -21,7 +21,7 @@ export default function PayoutsPage() {
       setData(await opsGet<any>("/operations/payouts"));
       setError("");
     } catch (cause: any) {
-      setError(cause.code ?? "REQUEST_FAILED");
+      setError(explainCode(cause.code, "REQUEST_FAILED"));
     }
   }
 
@@ -35,7 +35,7 @@ export default function PayoutsPage() {
       setMessage(`${reference}: ${action} submitted successfully`);
       await load();
     } catch (cause: any) {
-      setMessage(cause.code ?? "ACTION_BLOCKED");
+      setMessage(explainCode(cause.code, "ACTION_BLOCKED"));
     }
   }
 
@@ -46,7 +46,7 @@ export default function PayoutsPage() {
       setMessage(`${approveTarget.reference}: Checker approved & funds released to bank switch`);
       await load();
     } catch (cause: any) {
-      setMessage(cause.code ?? "APPROVAL_BLOCKED");
+      setMessage(explainCode(cause.code, "APPROVAL_BLOCKED"));
     }
   }
 
@@ -57,7 +57,7 @@ export default function PayoutsPage() {
       setMessage(`${rejectTarget.reference}: Payout rejected and reason logged to audit trail`);
       await load();
     } catch (cause: any) {
-      setMessage(cause.code ?? "REJECTION_BLOCKED");
+      setMessage(explainCode(cause.code, "REJECTION_BLOCKED"));
     }
   }
 

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { OpsShell } from "../_components/ops-shell";
 import { Fail, Wait } from "../_components/state";
-import { money, opsGet, opsMutation } from "../_lib/api";
+import { money, opsGet, opsMutation, explainCode } from "../_lib/api";
 import { ApproveModal, RejectModal } from "../_components/modals";
 
 export default function RefundsPage() {
@@ -21,7 +21,7 @@ export default function RefundsPage() {
       setData(await opsGet<any>("/operations/refunds"));
       setError("");
     } catch (cause: any) {
-      setError(cause.code ?? "REQUEST_FAILED");
+      setError(explainCode(cause.code, "REQUEST_FAILED"));
     }
   }
 
@@ -38,7 +38,7 @@ export default function RefundsPage() {
       setPrepareNote("");
       await load();
     } catch (cause: any) {
-      setMessage(cause.code ?? "PREPARE_BLOCKED");
+      setMessage(explainCode(cause.code, "PREPARE_BLOCKED"));
     }
   }
 
@@ -49,7 +49,7 @@ export default function RefundsPage() {
       setMessage(`${rejectTarget.reference}: Refund rejected and reversal logged`);
       await load();
     } catch (cause: any) {
-      setMessage(cause.code ?? "REJECTION_BLOCKED");
+      setMessage(explainCode(cause.code, "REJECTION_BLOCKED"));
     }
   }
 
@@ -60,7 +60,7 @@ export default function RefundsPage() {
       setMessage(`${approveTarget.reference}: Compensating journal posted and refund dispatched`);
       await load();
     } catch (cause: any) {
-      setMessage(cause.code ?? "APPROVAL_BLOCKED");
+      setMessage(explainCode(cause.code, "APPROVAL_BLOCKED"));
     }
   }
 

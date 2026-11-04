@@ -206,11 +206,10 @@ export function OpsShell({
           {/* Dual-Control Quorum Widget */}
           <div className="sidebar-widget">
             <div className="sidebar-widget-header">
-              <span>Dual-Control Quorum</span>
-              <span className="sidebar-status-pill">● ACTIVE</span>
+              <span>Dual-Control</span>
             </div>
             <Link href="/owner" className="sidebar-widget-link">
-              <span>2 Owners Enrolled</span>
+              <span>Owner Control</span>
               <span>&rarr;</span>
             </Link>
           </div>

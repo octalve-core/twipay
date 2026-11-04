@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { OpsShell } from "../../_components/ops-shell";
-import { opsGet, opsMutation } from "../../_lib/api";
+import { opsGet, opsMutation, explainCode } from "../../_lib/api";
 import { InviteStaffModal, ApproveModal, RejectModal } from "../../_components/modals";
 
 interface Review {
@@ -58,7 +58,7 @@ export default function StaffGovernance() {
       setInvitations(i.invitations);
       setError("");
     } catch (e: any) {
-      setError(e.code || "REQUEST_FAILED");
+      setError(explainCode(e.code, "REQUEST_FAILED"));
     } finally {
       setLoading(false);
     }
@@ -83,7 +83,7 @@ export default function StaffGovernance() {
       (e.target as HTMLFormElement).reset();
       await load();
     } catch (e: any) {
-      setMsg(e.code || "ACTION_DENIED");
+      setMsg(explainCode(e.code, "ACTION_DENIED"));
     }
   }
 
@@ -94,7 +94,7 @@ export default function StaffGovernance() {
       setMsg("Invitation staged. An independent owner must approve before the recipient can accept.");
       await load();
     } catch (e: any) {
-      setMsg(e.code || "INVITATION_DENIED");
+      setMsg(explainCode(e.code, "INVITATION_DENIED"));
     }
   }
 
@@ -111,7 +111,7 @@ export default function StaffGovernance() {
       setApproveAction(null);
       await load();
     } catch (e: any) {
-      setMsg(e.code || "ACTION_DENIED");
+      setMsg(explainCode(e.code, "ACTION_DENIED"));
     }
   }
 
@@ -128,7 +128,7 @@ export default function StaffGovernance() {
       setRejectAction(null);
       await load();
     } catch (e: any) {
-      setMsg(e.code || "ACTION_DENIED");
+      setMsg(explainCode(e.code, "ACTION_DENIED"));
     }
   }
 
@@ -182,7 +182,7 @@ export default function StaffGovernance() {
                 name="targetUserId"
                 required
                 maxLength={36}
-                pattern="[0-9a-fA-F-]{36}"
+                pattern="[0-9a-fA-F\-]{36}"
                 className="pill-input"
                 placeholder="e4fd536b-22e5-4f2d-9a61-7c48113994c5"
               />

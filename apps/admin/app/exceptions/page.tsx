@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { OpsShell } from "../_components/ops-shell";
 import { Fail, Wait } from "../_components/state";
-import { money, opsGet, opsMutation } from "../_lib/api";
+import { money, opsGet, opsMutation, explainCode } from "../_lib/api";
 import { ModalDialog } from "../_components/modals";
 
 type Case = {
@@ -53,7 +53,7 @@ export default function FinancialExceptionsPage() {
       setData(await opsGet<Queue>("/operations/financial-exceptions"));
       setError("");
     } catch (cause: any) {
-      setError(cause.code ?? "REQUEST_FAILED");
+      setError(explainCode(cause.code, "REQUEST_FAILED"));
     }
   }
 
@@ -70,7 +70,7 @@ export default function FinancialExceptionsPage() {
       setPrepareEvidenceNote("");
       await load();
     } catch (cause: any) {
-      setMessage(cause.code ?? "PREPARE_BLOCKED");
+      setMessage(explainCode(cause.code, "PREPARE_BLOCKED"));
     }
   }
 
@@ -82,7 +82,7 @@ export default function FinancialExceptionsPage() {
       setCloseCaseId(null);
       await load();
     } catch (cause: any) {
-      setMessage(cause.code ?? "CLOSURE_BLOCKED");
+      setMessage(explainCode(cause.code, "CLOSURE_BLOCKED"));
     }
   }
 

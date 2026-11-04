@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { OpsShell } from "./_components/ops-shell";
 import { Fail, Wait } from "./_components/state";
-import { opsGet, money } from "./_lib/api";
+import { opsGet, money, explainCode } from "./_lib/api";
 
 export default function Home() {
   const [d, setD] = useState<any>();
@@ -13,7 +13,7 @@ export default function Home() {
   useEffect(() => {
     opsGet<any>("/operations/dashboard")
       .then(setD)
-      .catch((x) => setE(x.code || "REQUEST_FAILED"));
+      .catch((x) => setE(explainCode(x.code, "REQUEST_FAILED")));
   }, []);
 
   return (

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { OpsShell } from "../_components/ops-shell";
-import { opsGet } from "../_lib/api";
+import { opsGet, explainCode } from "../_lib/api";
 
 type Summary = { counts: { status: string; suppressed: boolean; count: number }[] };
 
@@ -17,7 +17,7 @@ export default function NotificationOperationsPage() {
       setSummary(result);
       setError("");
     } catch (cause: any) {
-      setError(cause.code ?? "ACCESS_DENIED");
+      setError(explainCode(cause.code, "ACCESS_DENIED"));
       setSummary(null);
     }
   }
