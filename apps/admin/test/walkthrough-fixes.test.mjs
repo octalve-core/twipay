@@ -80,3 +80,15 @@ test('WT-08: the support case status pills are not the raw enum', () => {
   const support = read('support/page.tsx');
   assert.doesNotMatch(support, /\{item\.status\}|\{selected\.status\}/);
 });
+
+// WT-02: the CSP only allows this origin's fonts, so a Google Fonts @import was blocked on every page (about 60 failed requests).
+test('WT-02: fonts are self-hosted through next/font and styles.css makes no external request', () => {
+  const css = read('styles.css');
+  assert.doesNotMatch(css, /@import\s+url\(['"]?https?:/);
+  assert.doesNotMatch(css, /fonts\.googleapis\.com/);
+  const layout = read('layout.tsx');
+  assert.match(layout, /from "next\/font\/google"/);
+  assert.match(layout, /variable: "--font-sans"/);
+  assert.match(css, /var\(--font-sans\)/);
+  assert.match(css, /var\(--font-mono\)/);
+});
