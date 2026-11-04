@@ -6,7 +6,7 @@ suite and outside `pnpm test:repo`. Deliverables go to the gitignored `out/walkt
 | Piece | File | Notes |
 | :-- | :-- | :-- |
 | Config | `playwright.walkthrough.config.ts` | 1280x720, video on, no retries, no timeout (one uninterrupted run) |
-| Isolated stack | `compose.walkthrough.yaml`, `stage.mjs` | own project `twipay-wt`, own Postgres (`wip_twipay_walkthrough`, tmpfs so it always starts empty), Redis, worker, mail sink; ports 3102 UI, 3101 admin, 4100 API, 8125 mail, 5436 PG, 6383 Redis. Never touches the dev stack or its `twipay` database |
+| Isolated stack | `compose.walkthrough.yaml`, `stage.mjs` | own project `twipay-wt`, own Postgres (`wip_twipay_walkthrough`, tmpfs so it always starts empty), Redis, worker, mail sink (read through the floating inbox button inside the apps, so the journey stays in one tab and one video); ports 3102 UI, 3101 admin, 4100 API, 8125 mail, 5436 PG, 6383 Redis. Never touches the dev stack or its `twipay` database |
 | Rules | `lib/nav.ts` (goto once per tab), `lib/human.ts` (50-120 ms key presses), `guard-rules.mjs` + `walkthrough.guard.test.mjs` (forbidden code, tamper-tested) | |
 | Observers | `lib/overlay.ts` (cursor, ripple, caption bar), `lib/observers.ts` (console, pageerror, requestfailed, 4xx/5xx) | not actors |
 | Timeline | `lib/timeline.ts` | `step()` records `timeline.json`, screenshots and which coverage rows a step proves |

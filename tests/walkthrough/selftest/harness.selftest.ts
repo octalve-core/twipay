@@ -10,7 +10,7 @@ test('harness smoke', async ({ page, context }) => {
   await installOverlay(context);
   const started = Date.now();
   const seen = observe(page, started);
-  const timeline = createTimeline(page, process.env['WT_OUTPUT_ROOT'] ?? 'out/walkthrough/smoke');
+  const timeline = createTimeline({ customer: page, admin: undefined }, process.env['WT_OUTPUT_ROOT'] ?? 'out/walkthrough/smoke');
   await firstLoad(page, 'data:text/html,<input id=a placeholder=name><button onclick="document.title=\'clicked\'">Go</button>');
   await timeline.step({ chapter: 'smoke', role: 'visitor', name: 'type and click', covers: ['C01'] }, async () => {
     await typeLikeAPerson(page.locator('#a'), 'hello');

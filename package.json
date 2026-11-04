@@ -41,12 +41,13 @@
     "walkthrough:selftest": "WT_SELFTEST=1 playwright test -c playwright.walkthrough.config.ts"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
+    "@playwright/test": "1.63.0",
     "@types/node": "24.19.1",
     "eslint": "10.10.0",
     "prettier": "3.9.9",
     "turbo": "2.11.2",
     "typescript": "~5.8.3",
-    "typescript-eslint": "8.71.0",
-    "@playwright/test": "1.63.0"
+    "typescript-eslint": "8.71.0"
   }
 }

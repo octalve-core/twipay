@@ -13,6 +13,11 @@ x-api-env: &api-env
   API_PORT: "4000"
   TRUST_PROXY: "false"
   OPENAPI_DOCS_ENABLED: "false"
+  # Sandbox qualification switches for the owner area only (all refuse to work when NODE_ENV=production). Provider, wallet,
+  # transfer, bill and event-checkout switches stay OFF: those features are listed as not demonstrable. Printed in the PDF.
+  OWNER_GOVERNANCE_SANDBOX_ENABLED: "true"
+  OWNER_CONFIGURATION_SANDBOX_ENABLED: "true"
+  PROVIDER_OPERATIONS_SANDBOX_ENABLED: "true"
   RESEND_BASE_URL: http://devmail:8025
   RESEND_API_KEY: dev-inbox-not-a-real-key
   RESEND_FROM: TwiPay Walkthrough <noreply@twipay.local>
@@ -92,7 +97,7 @@ services:
       dockerfile: infrastructure/docker/Dockerfile.admin
       args:
         NEXT_PUBLIC_API_URL: http://localhost:${WT_API_PORT:-4100}
-        NEXT_PUBLIC_DEV_MAIL: "false"
+        NEXT_PUBLIC_DEV_MAIL: "true"
     ports: ["127.0.0.1:${WT_ADMIN_PORT:-3101}:3001"]
     depends_on: { api: { condition: service_healthy } }
 
@@ -103,7 +108,7 @@ services:
       dockerfile: infrastructure/docker/Dockerfile.customer-ui
       args:
         VITE_TWIPAY_API_URL: http://localhost:${WT_API_PORT:-4100}
-        VITE_TWIPAY_DEV_MAIL: "false"
+        VITE_TWIPAY_DEV_MAIL: "true"
         VITE_TWIPAY_DEV_GUIDE: "false"
     ports: ["127.0.0.1:${WT_UI_PORT:-3102}:8080"]
     depends_on: { api: { condition: service_healthy } }

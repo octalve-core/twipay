@@ -21,7 +21,7 @@ export default defineConfig({
     video: { mode: 'on', size: { width: 1280, height: 720 } },
     screenshot: 'off',
     trace: 'off',
-    actionTimeout: 15_000,
+    actionTimeout: Number(process.env['WT_ACTION_TIMEOUT'] ?? 15_000),
     navigationTimeout: 30_000,
   },
   projects: [{ name: 'chromium', use: { browserName: 'chromium' } }],

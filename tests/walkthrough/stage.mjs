@@ -3,7 +3,7 @@
 //   node tests/walkthrough/stage.mjs up | down | status
 import { execFileSync, spawnSync } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -33,11 +33,13 @@ const env = { ...process.env, ...ports, WT_ENV_FILE: envFile };
 const base = ['compose', '-p', 'twipay-wt', '-f', compose];
 
 if (action === 'up') {
-  freePortsOrExit();
   mkdirSync(out, { recursive: true });
-  const pgPassword = hex(16);
+  // A fresh run writes new secrets; `up` again (e.g. after a compose change) reuses them so existing data still decrypts.
+  const reuse = existsSync(envFile) && !process.argv.includes('--fresh');
+  const pgPassword = reuse ? readFileSync(envFile, 'utf8').match(/^WT_PG_PASSWORD=(.*)$/m)[1] : hex(16);
   env.WT_PG_PASSWORD = pgPassword;
-  writeFileSync(envFile, [
+  if (!reuse) freePortsOrExit(); // a re-run of `up` finds its own containers on the ports
+  if (!reuse) writeFileSync(envFile, [
     `WT_PG_PASSWORD=${pgPassword}`,
     `SESSION_HASH_PEPPER=${hex()}`, `MFA_RECOVERY_HMAC_KEY=${hex()}`, `PII_FINGERPRINT_KEY=${hex()}`, `TRANSACTION_PIN_PEPPER=${hex()}`,
     `DATA_ENCRYPTION_KEY=${randomBytes(32).toString('base64')}`,
@@ -48,7 +50,7 @@ if (action === 'up') {
   run('docker', [...base, 'up', '-d', '--build'], { env });
   const name = execFileSync('docker', ['exec', 'twipay-wt-postgres-1', 'psql', '-U', 'wt', '-d', 'wip_twipay_walkthrough', '-tAc', 'select current_database()'], { encoding: 'utf8' }).trim();
   const users = execFileSync('docker', ['exec', 'twipay-wt-postgres-1', 'psql', '-U', 'wt', '-d', 'wip_twipay_walkthrough', '-tAc', 'select count(*) from users'], { encoding: 'utf8' }).trim();
-  if (name !== 'wip_twipay_walkthrough' || users !== '0') { process.stderr.write(`start state wrong: database ${name}, users ${users}\n`); process.exit(3); }
+  if (name !== 'wip_twipay_walkthrough' || (!reuse && users !== '0')) { process.stderr.write(`start state wrong: database ${name}, users ${users}\n`); process.exit(3); }
   process.stdout.write(`stage ok: ${name}, ${users} users, UI http://localhost:${ports.WT_UI_PORT}, admin :${ports.WT_ADMIN_PORT}, mail sink :${ports.WT_MAIL_PORT}\n`);
 } else if (action === 'down') {
   run('docker', [...base, 'down', '-v', '--remove-orphans'], { env: { ...env, WT_PG_PASSWORD: 'unused' } });

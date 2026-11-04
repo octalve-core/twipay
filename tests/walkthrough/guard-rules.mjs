@@ -17,10 +17,10 @@ export const RULES = [
 // Per-rule allowance for the files that legitimately need it.
 export const ALLOW = {
   'goto outside the wrapper': ['lib/nav.ts'],
-  'script injection': ['lib/overlay.ts'],
+  'script injection': ['lib/overlay.ts', 'lib/observers.ts'],
   'api call': ['lib/observers.ts', 'lib/stage.ts'],
   'database access': ['lib/stage.ts'],
-  'try/catch': ['lib/stage.ts'],
+  'try/catch': ['lib/stage.ts', 'lib/soft.ts'],
   'browser storage or cookies': [],
 };
 

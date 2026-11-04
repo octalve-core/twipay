@@ -67,9 +67,10 @@
   "roles": [
    "visitor"
   ],
-  "proof": "Click the footer link",
+  "proof": "-",
   "api": [],
-  "demonstrable": "yes"
+  "demonstrable": "no",
+  "note": "Not demonstrable here: no link anywhere in the app leads to /terms (the footer and nav links are commented out). A finding."
  },
  {
   "id": "C10",
@@ -251,11 +252,12 @@
   "roles": [
    "customer"
   ],
-  "proof": "Click through from the dashboard navigation",
+  "proof": "-",
   "api": [
    "GET /transactions/:reference"
   ],
-  "demonstrable": "yes"
+  "demonstrable": "no",
+  "note": "Not demonstrable here: needs a completed transaction, which needs the funding provider (see C23)"
  },
  {
   "id": "C23",
@@ -613,9 +615,10 @@
   "roles": [
    "customer"
   ],
-  "proof": "Click through from the dashboard navigation",
+  "proof": "-",
   "api": [],
-  "demonstrable": "yes"
+  "demonstrable": "no",
+  "note": "Not demonstrable here: the receipt needs a completed transaction (see C22)"
  },
  {
   "id": "C48",
@@ -625,10 +628,11 @@
   "roles": [
    "customer"
   ],
-  "proof": "Reached from a provider redirect",
+  "proof": "-",
   "api": [],
-  "demonstrable": "yes",
-  "gatedBy": "WALLET_COLLECTIONS_SANDBOX_ENABLED + provider keys"
+  "demonstrable": "no",
+  "gatedBy": "WALLET_COLLECTIONS_SANDBOX_ENABLED + provider keys",
+  "note": "Not demonstrable here: reached only by a redirect from a payment provider after a card payment"
  },
  {
   "id": "C49",
@@ -985,11 +989,12 @@
    "owner",
    "customer"
   ],
-  "proof": "Change a flag; reload customer app by click; observe the change",
+  "proof": "-",
   "api": [
    "*/product/*"
   ],
-  "demonstrable": "yes"
+  "demonstrable": "no",
+  "note": "Not demonstrable here: the customer app never reads /product/config, so a configuration change has nothing to show a customer (a finding). Owner configuration screens are still visited (A14)."
  },
  {
   "id": "X04",

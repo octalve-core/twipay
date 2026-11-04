@@ -24,3 +24,14 @@ export function totp(secretBase32: string, atMs = Date.now()): string {
   const value = ((hmac[offset]! & 0x7f) << 24) | (hmac[offset + 1]! << 16) | (hmac[offset + 2]! << 8) | hmac[offset + 3]!;
   return String(value % 1_000_000).padStart(6, '0');
 }
+
+// A one-time code may not be used twice, so wait (by the clock, never by what the app shows) for the next 30 s step if this
+// secret already used the current one.
+const lastStep = new Map<string, number>();
+
+export async function freshCode(page: { waitForTimeout(ms: number): Promise<void> }, secret: string): Promise<string> {
+  const step = () => Math.floor(Date.now() / 30_000);
+  if (lastStep.get(secret) === step()) await page.waitForTimeout(30_000 - (Date.now() % 30_000) + 1_500);
+  lastStep.set(secret, step());
+  return totp(secret);
+}
