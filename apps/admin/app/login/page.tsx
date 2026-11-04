@@ -99,7 +99,7 @@ export default function OpsLogin() {
         </form>
 
         <div style={{ marginTop: "24px", paddingTop: "16px", borderTop: "1px solid var(--border-light)", fontSize: "11px", color: "var(--text-muted)", textAlign: "center" }}>
-          <span>🔒 SHA-256 Nonce CSP &bull; Cookie-based HttpOnly Authentication</span>
+          <span>🔒 Authorized staff only. Sign-ins and actions are audited.</span>
         </div>
       </div>
     </main>

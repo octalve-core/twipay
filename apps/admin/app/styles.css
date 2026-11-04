@@ -1137,3 +1137,9 @@ button, input, select, textarea {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* Loading spinner (state.tsx). Declared here, not in an inline <style>, because the CSP only allows nonce'd or same-origin styles. */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

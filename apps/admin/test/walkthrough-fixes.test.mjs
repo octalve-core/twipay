@@ -92,3 +92,26 @@ test('WT-02: fonts are self-hosted through next/font and styles.css makes no ext
   assert.match(css, /var\(--font-sans\)/);
   assert.match(css, /var\(--font-mono\)/);
 });
+
+// WT-04: the navigation carried invented counts (3 payout batches, 4 disputes, 2 exceptions, "99.8%", 6 reviews) that were never read from data.
+test('WT-04: navigation items carry no hard-coded badge counts', () => {
+  assert.doesNotMatch(read('_components/ops-shell.tsx'), /badge: "/);
+});
+
+// WT-08: the failure card used to print "Error Code: <machine code>".
+test('WT-08: the failure card shows an explained message, not "Error Code:"', () => {
+  const state = read('_components/state.tsx');
+  assert.doesNotMatch(state, /Error Code:/);
+  assert.match(state, /explainCode\(code\)/);
+});
+
+// WT-03: an inline <style> element has no nonce, so the strict CSP blocks it; the spinner keyframes live in styles.css instead.
+test('WT-03: the loading spinner keyframes are in the stylesheet, not an inline <style> tag', () => {
+  assert.doesNotMatch(read('_components/state.tsx'), /<style>/);
+  assert.match(read('styles.css'), /@keyframes spin\b/);
+});
+
+// The sign-in page footer described the console's security internals ("SHA-256 Nonce CSP", cookie flags) to anyone who opened it.
+test('the staff sign-in page does not advertise its security implementation', () => {
+  assert.doesNotMatch(read('login/page.tsx'), /Nonce CSP|HttpOnly/);
+});
