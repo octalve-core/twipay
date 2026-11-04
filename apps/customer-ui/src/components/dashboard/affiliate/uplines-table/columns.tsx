@@ -23,7 +23,7 @@ export const columns: ColumnDef<UplineData>[] = [
         return <div className="flex items-center justify-start gap-3 px-4">
             <div className="grid place-items-center size-10 bg-[#F9F5FF] rounded-full">
                 {userImage ? (
-                    <img src={userImage} className="object-cover rounded-full" />
+                    <img alt="" src={userImage} className="object-cover rounded-full" />
                 ) : (
                     <span className="uppercase font-bold text-[#112929] text-sm">{name[0]}{name[1]}</span>
                 )}

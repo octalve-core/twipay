@@ -49,7 +49,7 @@ const PackagesDropdown = ({packagesArr,isLoading, disable, error}: TPackagesDrop
                 >
                     {selectedPackage
                         ? <div className="text-[#344054] flex items-center gap-2">
-                            <img src={selectedPackage?.logo} className="size-5 object-cover" />
+                            <img alt="" src={selectedPackage?.logo} className="size-5 object-cover" />
                             <span>{selectedPackage?.name} - {selectedPackage.validity}</span>
                         </div>
                         : `${isLoading ? "Loading packages..." : "Select package"}`}
@@ -75,7 +75,7 @@ const PackagesDropdown = ({packagesArr,isLoading, disable, error}: TPackagesDrop
                                 }}
                             >
                                 <div className="text-[#344054] flex items-center gap-2">
-                                    <img src={pckg.logo} className="size-5 object-cover" />
+                                    <img alt="" src={pckg.logo} className="size-5 object-cover" />
                                     <span>{pckg.name} - {pckg.validity}</span>
                                 </div>
                                 <Check

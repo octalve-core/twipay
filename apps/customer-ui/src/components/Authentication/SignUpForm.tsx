@@ -57,7 +57,7 @@ const SignUpForm = () => {
 
   return (
     <div className="mt-10 w-full">
-        <h2 className="text-4xl text-[#101828] font-medium">Get started with TwiPay</h2>
+        <h1 className="text-4xl text-[#101828] font-medium">Get started with TwiPay</h1>
         <p className="mt-3 text-[#475467]">A few details and you’re on your way.</p>
 
         <div className="flex items-center gap-1 mt-3">

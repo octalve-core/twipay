@@ -11,7 +11,7 @@ const Status = () => {
   return (
     <div className="grid place-items-center min-h-full w-full">
         <section className="w-full max-w-[325px] flex flex-col items-center">
-            <img className="w-[175px] h-[160] object-cover" src={bookedFlightId ? SuccessIcon : FailedIcon} />
+            <img alt="" className="w-[175px] h-[160] object-cover" src={bookedFlightId ? SuccessIcon : FailedIcon} />
             <h1 className="font-medium text-2xl text-[#112929]">Transaction {bookedFlightId ? "successful" : "failed"}</h1>
             <p className="md:text-xl font-medium text-center my-10">
                 Your one way flight ticket booking from {fromLocation?.name} to {toLocation?.name} for {formatAmount(parseInt(selectedAirline?.price as string))} {bookedFlightId ? "is successful" : "failed"}.

@@ -19,7 +19,7 @@ const WhyUse = ({ className }: { className?: string }) => {
               key={id}
               className="flex flex-col items-center text-center col-span-full md:col-span-1"
             >
-              <img className="object-cover size-12" src={icon} />
+              <img alt="" className="object-cover size-12" src={icon} />
               <h3 className="mt-5 mb-2 text-[#101828] text-xl font-medium">
                 {title}
               </h3>

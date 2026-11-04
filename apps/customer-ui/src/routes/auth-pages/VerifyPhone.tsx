@@ -125,9 +125,9 @@ const VerifyPhone = () => {
             <BackButton href="/" className="max-md:hidden" />
             <Logo imgClassName="w-[91.5px] h-10 md:hidden" />
         </div>
-        <img src={AuthLogomark} className="object-cover size-8 mb-1.5 mt-8 max-md:hidden" />
+        <img alt="" src={AuthLogomark} className="object-cover size-8 mb-1.5 mt-8 max-md:hidden" />
         <div className="md:text-center mt-10">
-            <h2 className="text-4xl text-[#101828] font-medium">Phone number verification <span className="text-[#112929]">(4/4)</span></h2>
+            <h1 className="text-4xl text-[#101828] font-medium">Phone number verification <span className="text-[#112929]">(4/4)</span></h1>
             <p className="mt-3 text-[#475467]">Please enter a valid phone number to sign up</p>
         </div>
         <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-[410px] mt-8">

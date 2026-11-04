@@ -68,7 +68,7 @@ const LogInForm = () => {
     
   return (
     <div className="mt-10 w-full">
-        <h2 className="text-4xl text-[#101828] font-medium">Welcome back</h2>
+        <h1 className="text-4xl text-[#101828] font-medium">Welcome back</h1>
         <p className="mt-3 text-[#475467]">Jump right back in and pick up where you left off.</p>
 
         <div className="flex items-center gap-1 mt-3">

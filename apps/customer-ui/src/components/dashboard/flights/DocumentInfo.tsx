@@ -186,7 +186,7 @@ const DocumentInfo = ({setShowDocumentForm}: TDocumentInfo) => {
                                 >
                                     {documentInfo.nationality
                                         ? <div className="text-[#344054] flex items-center gap-2">
-                                            <img src={documentInfo.nationality.flag} className="size-5 rounded-full object-cover" />
+                                            <img alt="" src={documentInfo.nationality.flag} className="size-5 rounded-full object-cover" />
                                             <span>{documentInfo.nationality?.name}</span>
                                         </div>
                                         : `${fetchingCountries ? "Loading countries..." : "Select nationality"}`}
@@ -213,7 +213,7 @@ const DocumentInfo = ({setShowDocumentForm}: TDocumentInfo) => {
                                                 }}
                                             >
                                                 <div className="text-[#344054] flex items-center gap-2">
-                                                    <img src={ctry.flag} className="size-5 rounded-full bg-gray-100 object-cover" />
+                                                    <img alt="" src={ctry.flag} className="size-5 rounded-full bg-gray-100 object-cover" />
                                                     <span>{ctry.name}</span>
                                                 </div>
                                                 <Check
@@ -354,7 +354,7 @@ const DocumentInfo = ({setShowDocumentForm}: TDocumentInfo) => {
                                 >
                                     {documentInfo.issuance_country
                                         ? <div className="text-[#344054] flex items-center gap-2">
-                                            <img src={documentInfo.issuance_country.flag} className="size-5 rounded-full object-cover" />
+                                            <img alt="" src={documentInfo.issuance_country.flag} className="size-5 rounded-full object-cover" />
                                             <span>{documentInfo.issuance_country?.name}</span>
                                         </div>
                                         : `${fetchingCountries ? "Loading countries..." : "Select issuance country"}`}
@@ -381,7 +381,7 @@ const DocumentInfo = ({setShowDocumentForm}: TDocumentInfo) => {
                                                 }}
                                             >
                                                 <div className="text-[#344054] flex items-center gap-2">
-                                                    <img src={ctry.flag} className="size-5 rounded-full bg-gray-100 object-cover" />
+                                                    <img alt="" src={ctry.flag} className="size-5 rounded-full bg-gray-100 object-cover" />
                                                     <span>{ctry.name}</span>
                                                 </div>
                                                 <Check
@@ -468,7 +468,7 @@ const DocumentInfo = ({setShowDocumentForm}: TDocumentInfo) => {
                                 >
                                     {documentInfo.validity_country
                                         ? <div className="text-[#344054] flex items-center gap-2">
-                                            <img src={documentInfo.validity_country.flag} className="size-5 rounded-full object-cover" />
+                                            <img alt="" src={documentInfo.validity_country.flag} className="size-5 rounded-full object-cover" />
                                             <span>{documentInfo.validity_country?.name}</span>
                                         </div>
                                         : `${fetchingCountries ? "Loading countries..." : "Select validity country"}`}
@@ -495,7 +495,7 @@ const DocumentInfo = ({setShowDocumentForm}: TDocumentInfo) => {
                                                 }}
                                             >
                                                 <div className="text-[#344054] flex items-center gap-2">
-                                                    <img src={ctry.flag} className="size-5 rounded-full bg-gray-100 object-cover" />
+                                                    <img alt="" src={ctry.flag} className="size-5 rounded-full bg-gray-100 object-cover" />
                                                     <span>{ctry.name}</span>
                                                 </div>
                                                 <Check

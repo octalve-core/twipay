@@ -25,7 +25,7 @@ const HotelImages = () => {
           {hotelImages.map((image, index) => (
             <CarouselItem key={index} className="">
               <div className="h-full">
-                <img className="object-cover w-full max-h-[185px] rounded-lg" src={image} />
+                <img alt="" className="object-cover w-full max-h-[185px] rounded-lg" src={image} />
               </div>
             </CarouselItem>
           ))}

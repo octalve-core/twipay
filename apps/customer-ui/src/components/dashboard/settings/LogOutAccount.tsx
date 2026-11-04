@@ -44,7 +44,7 @@ const LogOutAccount = () => {
                 <button className="flex items-center justify-between cursor-pointer w-full group bg-white md:bg-transparent rounded-lg md:rounded-none max-md:p-2">
                     <div className="flex items-center gap-4">
                         <span className="size-10 md:size-12 grid place-items-center rounded-md md:rounded-full bg-[#FF00000A] text-[#FF0000]">
-                            <img src={LogOutIcon} className="size-6 object-cover" />
+                            <img alt="" src={LogOutIcon} className="size-6 object-cover" />
                         </span>
                         <div className="">
                             <h2 className="text-[#101928] font-medium md:font-bold text-left">Log out</h2>
@@ -59,7 +59,7 @@ const LogOutAccount = () => {
             </AlertDialogTrigger>
             <AlertDialogContent className="bg-white border-0 rounded-[20px] w-[95vw] !max-w-[430px] h-full !max-h-[387px] md:!max-h-[456px] !p-0 flex flex-col items-center justify-center">
                 <span className="size-10 md:size-16 grid place-items-center rounded-md md:rounded-full bg-[#FF00000A] text-[#FF0000]">
-                    <img src={LogOutIcon} className="size-6 object-cover" />
+                    <img alt="" src={LogOutIcon} className="size-6 object-cover" />
                 </span>
                 <div className="w-[90%] md:w-full max-w-[337px] mx-auto">
                     <AlertDialogHeader>

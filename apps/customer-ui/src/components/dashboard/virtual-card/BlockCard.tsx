@@ -25,7 +25,7 @@ const BlockCard = () => {
             <AlertDialogTrigger asChild>
                 <button className="flex flex-col items-center cursor-pointer">
                     <div className="bg-white size-[64px] grid place-items-center rounded-md md:rounded-lg border border-transparent hover:border-[#464E60] transition">
-                        <img className="size-5 object-cover" src={Octagon} />
+                        <img alt="" className="size-5 object-cover" src={Octagon} />
                     </div>
                     <span className="text-[#464E60] text-center text-xs">Block<br /> Card</span>
                 </button>

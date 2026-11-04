@@ -95,7 +95,7 @@ const RecipientDetails = () => {
                         >
                             {selectedProvider
                                 ? <div className="text-[#344054] flex items-center gap-2">
-                                        <img src={selectedProvider.logo} className="size-5 object-cover" />
+                                        <img alt="" src={selectedProvider.logo} className="size-5 object-cover" />
                                         <span>{selectedProvider.name}</span>
                                     </div>
                                 : `${fetchingProviders ? "Loading categories..." : "Select category"}`}
@@ -120,7 +120,7 @@ const RecipientDetails = () => {
                                         }}
                                     >
                                     <div className="text-[#344054] flex items-center gap-2">
-                                        <img src={prov.logo} className="size-5 object-cover" />
+                                        <img alt="" src={prov.logo} className="size-5 object-cover" />
                                         <span>{prov.name}</span>
                                     </div>
                                     <Check
@@ -149,7 +149,7 @@ const RecipientDetails = () => {
                         >
                             {selectedProduct
                                 ? <div className="text-[#344054] flex items-center gap-2">
-                                    <img src={selectedProduct.logo} className="size-5 object-cover" />
+                                    <img alt="" src={selectedProduct.logo} className="size-5 object-cover" />
                                     <span className="text-left line-clamp-1">{selectedProduct.name}</span>
                                 </div>
                                 : `${fetchingProducts ? "Loading products..." : "Select product"}`}
@@ -175,7 +175,7 @@ const RecipientDetails = () => {
                                         }}
                                     >
                                         <div className="text-[#344054] flex items-center gap-2">
-                                            <img src={pckg.logo} className="size-5 object-cover" />
+                                            <img alt="" src={pckg.logo} className="size-5 object-cover" />
                                             <span>{pckg.name}</span>
                                         </div>
                                         <Check

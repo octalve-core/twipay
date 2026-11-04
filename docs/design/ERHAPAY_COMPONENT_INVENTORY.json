@@ -81,6 +81,7 @@
     "#00800008": 1,
     "#04326B": 1,
     "#046B21": 1,
+    "#0B4DA2": 1,
     "#101101": 1,
     "#111827": 1,
     "#11292905": 1,
@@ -263,7 +264,7 @@
       "src/components/ui/sheet.tsx",
       "src/components/ui/table.tsx"
     ],
-    "dashboardCount": 165,
+    "dashboardCount": 166,
     "domainGroups": [
       "add-funds",
       "affiliate",
@@ -524,9 +525,9 @@
     "baseline": "docs/design/ERHAPAY_ORIGINAL_VISUAL_ASSETS.json"
   },
   "counts": {
-    "reactFiles": 269,
-    "sourceFiles": 336,
-    "totalSrcFiles": 476
+    "reactFiles": 270,
+    "sourceFiles": 337,
+    "totalSrcFiles": 477
   },
   "keyFiles": {
     "dashboardLayout": "src/routes/layout/DashboardLayout.tsx",

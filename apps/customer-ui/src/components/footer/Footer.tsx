@@ -59,7 +59,7 @@ const Footer = () => {
             <div className="flex md:hidden items-center gap-6">
               {socialLinks.map(({ id, icon, href }) => (
                 <Link key={id} to={href}>
-                  <img className="size-4 object-cover" src={icon} />
+                  <img alt="" className="size-4 object-cover" src={icon} />
                 </Link>
               ))}
               <Link className="hover:scale-110 transition" to="/">
@@ -77,7 +77,7 @@ const Footer = () => {
           <div className="hidden md:flex items-center gap-4 md:gap-6">
             {socialLinks.map(({ id, icon, href }) => (
               <Link className="hover:scale-110 transition" key={id} to={href}>
-                <img className="size-4 object-cover" src={icon} />
+                <img alt="" className="size-4 object-cover" src={icon} />
               </Link>
             ))}
             <Link className="hover:scale-110 transition" to="/">

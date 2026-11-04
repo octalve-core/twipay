@@ -43,7 +43,7 @@ const TransactionHistoryCard = ({transaction}: TTransactionHistoryCard) => {
               ) : null
             }
           </>}
-          {txnLogo && <img className="object-cover rounded-full" src={txnLogo} />}
+          {txnLogo && <img alt="" className="object-cover rounded-full" src={txnLogo} />}
         </div>
 
         <div className="flex flex-col">

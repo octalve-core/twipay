@@ -44,7 +44,7 @@ const ResetPassword = () => {
             showNewPassForm ? (
                 <>
                     <div className="w-full md:text-center mt-10 md:mt-16">
-                        <h2 className="text-4xl text-[#101828] font-medium">Set new password</h2>
+                        <h1 className="text-4xl text-[#101828] font-medium">Set new password</h1>
                         <p className="mt-3 text-[#475467]">Enter a new password for your account</p>
                     </div>
                     <CreateNewPasswordForm formData={formData} showPasswordResetSuccessMessage={showPasswordResetSuccessMessage} />  
@@ -53,7 +53,7 @@ const ResetPassword = () => {
                 <>
                     <img alt="" src={AuthLogomark} className="object-cover size-8 mb-1.5 mt-16 max-md:hidden" />
                     <div className="w-full md:text-center max-md:mt-10">
-                        <h2 className="text-4xl text-[#101828] font-medium">Reset password</h2>
+                        <h1 className="text-4xl text-[#101828] font-medium">Reset password</h1>
                         <p className="mt-3 text-[#475467]">Enter a registered email address to reset your password</p>
                     </div>
                     <VerifyEmailForm setFormData={setFormData} showNewPasswordForm={showNewPasswordForm} />  

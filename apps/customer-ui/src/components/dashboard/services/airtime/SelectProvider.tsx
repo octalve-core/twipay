@@ -51,7 +51,7 @@ const SelectProvider = () => {
                             )}
                     >
                         <span className={cn("bg-[#F5F5F5] rounded-full grid place-items-center size-12")}>
-                            <img src={logo} className="size-6 object-cover" />
+                            <img alt="" src={logo} className="size-6 object-cover" />
                         </span>
                         <p className="text-xs text-[#101828] group-hover:text-[#112929] font-medium capitalize">{name.replace("Airtime", " ")}</p>
                     </button>

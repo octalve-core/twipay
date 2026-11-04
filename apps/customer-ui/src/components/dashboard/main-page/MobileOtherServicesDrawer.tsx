@@ -38,13 +38,13 @@ const MobileOtherServicesDrawer = () => {
                             <Fragment key={id}>
                                 <Link to={href} className="flex items-center gap-4">
                                     <div className="size-12 bg-[#F1F1F1] rounded-full grid place-items-center">
-                                        <img src={icon} className="object-cover size-6" />
+                                        <img alt="" src={icon} className="object-cover size-6" />
                                     </div>
                                     <div>
                                         <p className="text-black">{title}</p>
                                         <p className="text-[#717171] text-xs">{subTitle}</p>
                                     </div>
-                                    <img src={ArrowRight} className="size-6 object-cover ml-auto" />
+                                    <img alt="" src={ArrowRight} className="size-6 object-cover ml-auto" />
                                 </Link>
                                 <div className="mt-[15px] mb-[13px] h-[0.5px] w-full bg-[#E1E1E1] last-of-type:hidden" />
                             </Fragment>

@@ -152,7 +152,7 @@ const VirtualCardWithdrawFundsForm = () => {
                 <h2 className="text-center text-sm md:text-lg text-[#313744] mb-4 md:mb-5">or use a saved bank account</h2>
                 <div className="w-full flex items-center justify-between rounded-[13px] p-4 bg-white">
                     <div className="flex items-start gap-2.5">
-                        <img src={Card} className="w-[40px] h-[25px] object-cover" />
+                        <img alt="" src={Card} className="w-[40px] h-[25px] object-cover" />
                         <div className="flex flex-col">
                             <p className="font-medium text-[#344054] md:text-lg">Anna Keshinro</p>
                             <p className="text-sm md:text-base text-[#3C3C4399]">7060908022</p>

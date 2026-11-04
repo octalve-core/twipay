@@ -68,7 +68,7 @@ const Airlines = () => {
                                     </div>
                                     <div className="flex items-center w-full">
                                         <div className="w-full h-[1px] bg-[#D0D5DD]/30" />
-                                        <img src={airlineImage || ""} className="size-9 object-cover" />
+                                        <img alt="" src={airlineImage || ""} className="size-9 object-cover" />
                                         <div className="w-full h-[1px] bg-[#D0D5DD]/30" />
                                     </div>
                                     <div className="text-right">

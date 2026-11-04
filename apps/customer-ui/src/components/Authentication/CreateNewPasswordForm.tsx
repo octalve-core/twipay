@@ -97,7 +97,7 @@ const CreateNewPasswordForm = ({showPasswordResetSuccessMessage, formData}: TCre
             <ul className="flex flex-col gap-2">
                 <li className="flex items-center gap-3">
                     {conditions.minLength ? (
-                    <img src={RadioIcon} className="object-cover size-4" />
+                    <img alt="" src={RadioIcon} className="object-cover size-4" />
                     ) : (
                     <div className="size-4 border border-[#E1E1E1] rounded-full" />
                     )}
@@ -105,7 +105,7 @@ const CreateNewPasswordForm = ({showPasswordResetSuccessMessage, formData}: TCre
                 </li>
                 <li className="flex items-center gap-3">
                     {conditions.hasUppercase ? (
-                    <img src={RadioIcon} className="object-cover size-4" />
+                    <img alt="" src={RadioIcon} className="object-cover size-4" />
                     ) : (
                     <div className="size-4 border border-[#E1E1E1] rounded-full" />
                     )}

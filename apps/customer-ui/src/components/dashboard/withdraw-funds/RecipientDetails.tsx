@@ -15,7 +15,7 @@ const RecipientDetails = () => {
         <div className="max-md:hidden">
           <BackButton className="mb-8" action={() => update({step: 1})} />
           <h1 className="text-[#112929] font-medium text-2xl">Withdraw funds</h1>
-          <p className="text-[#717171] mt-2">Entire the details below to withdraw funds</p>
+          <p className="text-[#717171] mt-2">Enter the details below to withdraw funds</p>
         </div>
 
         <RecipientDetailForm />
