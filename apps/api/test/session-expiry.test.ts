@@ -155,8 +155,36 @@ describe('SessionService runtime expiry and rotation', () => {
   });
 
   it('rejects an idle-touch request if concurrent revocation wins', async () => {
-    const fixture = fakePrisma(activeSession({ lastSeenAt: new Date(NOW.getTime() - 40_000) }));
+    const stale = activeSession({ lastSeenAt: new Date(NOW.getTime() - 40_000) });
+    const fixture = fakePrisma(stale);
     fixture.prisma.session.updateMany.mockResolvedValueOnce({ count: 0 });
+    fixture.prisma.session.findUnique
+      .mockResolvedValueOnce(stale as never)
+      .mockResolvedValueOnce({ status: 'REVOKED', expiresAt: stale.expiresAt, lastSeenAt: stale.lastSeenAt } as never);
+    process.env['SESSION_TOUCH_INTERVAL_SECONDS'] = '10';
+    const service = new SessionService(fixture.prisma as never);
+    await expect(service.resolve('opaque-token')).rejects.toBeInstanceOf(UnauthorizedException);
+  });
+
+  it('accepts a request that lost the touch race to a parallel request of the same live session', async () => {
+    const stale = activeSession({ lastSeenAt: new Date(NOW.getTime() - 40_000) });
+    const fixture = fakePrisma(stale);
+    fixture.prisma.session.updateMany.mockResolvedValueOnce({ count: 0 });
+    fixture.prisma.session.findUnique
+      .mockResolvedValueOnce(stale as never)
+      .mockResolvedValueOnce({ status: 'ACTIVE', expiresAt: stale.expiresAt, lastSeenAt: NOW } as never);
+    process.env['SESSION_TOUCH_INTERVAL_SECONDS'] = '10';
+    const service = new SessionService(fixture.prisma as never);
+    await expect(service.resolve('opaque-token')).resolves.toMatchObject({ id: 'session-1' });
+  });
+
+  it('still rejects a touch-race loser whose session went idle in the meantime', async () => {
+    const stale = activeSession({ lastSeenAt: new Date(NOW.getTime() - 40_000) });
+    const fixture = fakePrisma(stale);
+    fixture.prisma.session.updateMany.mockResolvedValueOnce({ count: 0 });
+    fixture.prisma.session.findUnique
+      .mockResolvedValueOnce(stale as never)
+      .mockResolvedValueOnce({ status: 'ACTIVE', expiresAt: stale.expiresAt, lastSeenAt: new Date(NOW.getTime() - 61_000) } as never);
     process.env['SESSION_TOUCH_INTERVAL_SECONDS'] = '10';
     const service = new SessionService(fixture.prisma as never);
     await expect(service.resolve('opaque-token')).rejects.toBeInstanceOf(UnauthorizedException);
