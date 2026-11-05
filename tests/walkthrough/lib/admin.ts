@@ -53,6 +53,7 @@ export async function typeDialogCode(page: Page, secret: string): Promise<void> 
 export async function openAdminTab(w: World): Promise<Page> {
   if (w.pages.admin) return w.pages.admin;
   w.pages.admin = await w.context.newPage();
+  w.opened['admin'] = Date.now();
   observe(w.pages.admin, w.startedAt, w.observations as Observation[]);
   await firstLoad(w.pages.admin, `${w.admin}/login`);
   return w.pages.admin;

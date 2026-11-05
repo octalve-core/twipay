@@ -2,11 +2,20 @@
 // bootstrapOwners() once, after the two owner accounts exist through the UI; the PDF lists it under
 // "Operator bootstrap (not a user action)". Everything printed here is also written to stage.log.
 import { execFileSync } from 'node:child_process';
+import { appendFileSync, mkdirSync } from 'node:fs';
+import { join } from 'node:path';
 
 const project = 'twipay-wt';
 
 export function sql(statement: string): string {
   return execFileSync('docker', ['exec', `${project}-postgres-1`, 'psql', '-U', 'wt', '-d', 'wip_twipay_walkthrough', '-tAc', statement], { encoding: 'utf8' }).trim();
+}
+
+// Every statement the stage step runs is kept in bootstrap.sql next to the run's other files; the PDF prints it as "Operator bootstrap".
+function remember(label: string, statement: string): void {
+  const dir = process.env['WT_OUTPUT_ROOT'] ?? 'out/walkthrough/run';
+  mkdirSync(dir, { recursive: true });
+  appendFileSync(join(dir, 'bootstrap.sql'), `-- ${label}\n${statement};\n\n`);
 }
 
 export function assertWalkthroughDatabase(): void {
@@ -22,6 +31,7 @@ export function bootstrapOwners(emails: string[]): string[] {
     if (!/^[a-z0-9.+_-]+@[a-z0-9.-]+\.example$/.test(email)) throw new Error(`STAGE_REFUSED: ${email} is not a fictional .example address`);
     const statement = `insert into user_roles ("userId","roleId","assignedAt") select u.id, r.id, now() from users u, roles r where u.email='${email}' and r.code='SUPER_ADMIN' on conflict do nothing`;
     sql(statement);
+    remember('first SUPER_ADMIN owner (no screen creates it)', statement);
     statements.push(statement);
   }
   return statements;
@@ -36,6 +46,7 @@ export function bootstrapRoles(grants: Array<{ email: string; role: 'FINANCE_OPE
     if (!/^[a-z0-9.+_-]+@[a-z0-9.-]+\.example$/.test(email)) throw new Error(`STAGE_REFUSED: ${email} is not a fictional .example address`);
     const statement = `insert into user_roles ("userId","roleId","assignedAt") select u.id, r.id, now() from users u, roles r where u.email='${email}' and r.code='${role}' on conflict do nothing`;
     sql(statement);
+    remember(`${role} (no screen delegates it)`, statement);
     statements.push(statement);
   }
   return statements;

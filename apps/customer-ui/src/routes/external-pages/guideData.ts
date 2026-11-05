@@ -67,6 +67,79 @@ export const authSteps = [
   },
 ] as const;
 
+export const walkthroughSteps = [
+  {
+    file: "wt-01-landing.png",
+    title: "Landing page",
+    text: "The public home page.",
+  },
+  {
+    file: "wt-02-signup-empty.png",
+    title: "Sign-up: empty form",
+    text: "Submitting the sign-up form empty shows what each field needs.",
+  },
+  {
+    file: "wt-03-wrong-verification-code.png",
+    title: "Wrong verification code",
+    text: "A wrong six-digit code is refused with a message; the right code from the development inbox is accepted.",
+  },
+  {
+    file: "wt-04-dashboard.png",
+    title: "Dashboard",
+    text: "After verifying the email you land on the dashboard. The avatar shows initials because the account has no photo.",
+  },
+  {
+    file: "wt-05-history-empty.png",
+    title: "History",
+    text: "A new account has no transactions. Export CSV stays disabled until there are some.",
+  },
+  {
+    file: "wt-06-services.png",
+    title: "Services",
+    text: "Only airtime, data, electricity and TV/cable are offered. Deferred features are not shown.",
+  },
+  {
+    file: "wt-07-withdraw-paused.png",
+    title: "Withdraw while transfers are paused",
+    text: "With bank transfers switched off the page says so and Proceed stays disabled.",
+  },
+  {
+    file: "wt-08-data-paused.png",
+    title: "Buy data while bill payments are paused",
+    text: "Bill payments are switched off in this stack: the page explains it and Proceed is disabled.",
+  },
+  {
+    file: "wt-09-change-password-dialog.png",
+    title: "Security settings: change password",
+    text: "The change-password dialog opens from Security settings and closes with Escape.",
+  },
+  {
+    file: "wt-10-account-state-saved.png",
+    title: "Account details are saved",
+    text: "A changed state is still there after leaving the page and coming back.",
+  },
+  {
+    file: "wt-11-signed-out-guard.png",
+    title: "Signed-out guard",
+    text: "After logging out, pressing Back does not show the dashboard.",
+  },
+  {
+    file: "wt-12-two-factor-signed-in.png",
+    title: "Two-factor sign-in",
+    text: "With two-factor authentication on, signing in asks for the six-digit code from the authenticator app; after the code the dashboard opens.",
+  },
+  {
+    file: "wt-13-support-reply.png",
+    title: "Support reply in the help centre",
+    text: "The customer reads the support agent's reply to their request.",
+  },
+  {
+    file: "wt-14-suspended-refused.png",
+    title: "Suspended account",
+    text: "A suspended customer cannot sign in.",
+  },
+] as const;
+
 export const routeShots = [
   {
     route: "/",

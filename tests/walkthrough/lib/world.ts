@@ -14,6 +14,7 @@ export interface World {
   people: Record<string, Person>;
   observations: unknown[]; // shared sink for console/network observations of every tab
   startedAt: number;
+  opened: Record<string, number>; // epoch ms at which each tab was opened: its recording starts then, so the videos can be cut together by the timeline
   secrets: Record<string, string>; // authenticator secrets shown by the UI during MFA enrolment, kept in memory only
 }
 

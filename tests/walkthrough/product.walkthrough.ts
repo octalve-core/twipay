@@ -32,6 +32,7 @@ test.afterEach(() => {
   if (!saved) return;
   saved.timeline.write();
   saveState(statePath, { people: saved.world.people, secrets: saved.world.secrets });
+  writeFileSync(join(outputRoot, 'tabs.json'), `${JSON.stringify({ timelineStartedAt: saved.timeline.startedAt, opened: saved.world.opened })}\n`);
   writeFileSync(join(outputRoot, 'observations.json'), `${JSON.stringify({ failures, observations: saved.observations }, null, 2)}\n`);
 });
 
@@ -58,6 +59,7 @@ test('TwiPay product walkthrough', async ({ page, context }) => {
     secrets: {},
     observations,
     startedAt: started,
+    opened: { customer: started },
   };
   const remembered = chosen.length ? loadState(statePath) : undefined;
   if (remembered) {

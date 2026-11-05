@@ -61,11 +61,11 @@ Details and impact: [../security/auth-review-2026-10-13.md](../security/auth-rev
 ## 3c. Product walkthrough (video + PDF + audit)
 Prompt and filled-in parameters: [../handoff/WALKTHROUGH_PROMPT.md](../handoff/WALKTHROUGH_PROMPT.md). Phases stop for a report each.
 - [x] P0 Plan (2026-11-04, branch `walkthrough/p0-harness`, see [tests/walkthrough/README.md](../../tests/walkthrough/README.md)): isolated stack definition and ports, guardrails (separate Playwright config, `goto` wrapper, guard test with tamper tests), coverage matrix (77 rows) computed against the code. Stack not built yet; decisions pending in the P0 report.
-- [ ] P1 Recon: soft-mode runs, findings logged in `docs/issues/` (continue from ISS-016), evidence in `out/walkthrough/<slug>/_evidence/`.
-- [ ] P2 Fix: one commit per fix, each with a regression test that fails on the old code.
-- [ ] P3 Final: one strict run from an empty database; `walkthrough.webm/.mp4/.pdf`, `findings.md`, `timeline.json`.
-- [ ] P4 Ship: harness PR, fix commits, promote curated screenshots to `docs/screenshots/` and `/guide`, update docs and this file; owner merges.
-- [ ] Owner decisions needed first: how the first `SUPER_ADMIN` is created for the walkthrough (the prompt allows one stage-step `user_roles` insert), and the open policy items ISS-001/002/003.
+- [x] P1 Recon (2026-11-04): 19 soft runs; findings WT-01..WT-23 in [docs/issues/WALKTHROUGH_FINDINGS_2026-11-04.md](../issues/WALKTHROUGH_FINDINGS_2026-11-04.md).
+- [x] P2 Fix (2026-11-05): `fix/wt-admin-quality` and `fix/wt-customer-ui`, each fix with a regression test that fails on the old code. Not merged, no PR yet.
+- [x] P3 Final (2026-11-05): strict run, 153 steps, all 79 coverage rows accounted for (67 ticked, 12 not demonstrable), at commit `4f4e5cc`. Deliverables are in the git-ignored `out/walkthrough/final/`: `walkthrough.pdf`, `walkthrough.mp4`, `walkthrough.webm`, `findings.md`, `timeline.json`, `chapters.vtt`, `coverage-matrix.md`. Rebuild with `tests/walkthrough/build-artifacts.mjs` ([README](../../tests/walkthrough/README.md)).
+- [ ] P4 Ship: open the PRs (admin fixes, customer-UI fixes, harness, session-race fix #2, walkthrough prompt); the owner merges. Curated screenshots are in `docs/screenshots/2026-11-05-walkthrough/` and shown at `/guide`.
+- [ ] Owner decisions open after the walkthrough: WT-07 brand (TwiPay or ErhaPay), WT-11/12 FAQ and contact form (seed or hide), WT-22 mock Batch Calculator (remove until wired), WT-23 invented "Channel SLA 99.9%", WT-10 role-gated requests, WT-16 colour contrast (design task). Policy items ISS-001/002/003 are still open.
 
 ---
 

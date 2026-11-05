@@ -50,7 +50,7 @@ export async function staffGovernance(w: World): Promise<void> {
     await admin.getByRole('button', { name: 'Approve' }).first().click();
     await typeDialogCode(admin, w.secrets['owner1']!);
     await admin.getByRole('button', { name: /Authorize & Release/ }).click();
-    await expect(admin.getByText('INDEPENDENT_OWNER_CHECKER_REQUIRED')).toBeVisible(); // FINDING: a raw code, not a sentence
+    await expect(admin.getByText('A different owner must approve this')).toBeVisible();
   });
   await step({ chapter: 'Staff governance', role: 'owner 1', tab: 'admin', name: 'Sign out', covers: [] }, async () => {
     await adminSignOut(admin);

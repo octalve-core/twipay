@@ -1,4 +1,4 @@
-import { authSteps, routeShots } from "./guideData";
+import { authSteps, routeShots, walkthroughSteps } from "./guideData";
 
 const base = "/guide/";
 const groups = ["Public pages", "Dashboard"] as const;
@@ -64,6 +64,16 @@ export default function Guide() {
       <h2 style={{ marginTop: 32 }}>Accounts: sign up, verify, sign in, reset</h2>
       <div style={grid}>
         {authSteps.map((s) => (
+          <Figure key={s.file} file={s.file} title={s.title} text={s.text} />
+        ))}
+      </div>
+      <h2 style={{ marginTop: 40 }}>Product walkthrough (2026-11-05)</h2>
+      <p style={{ color: "#4b5563", maxWidth: 720 }}>
+        Captured by the end-to-end walkthrough (tests/walkthrough) at commit 4f4e5cc. The staff-console
+        screenshots from the same run are in docs/screenshots/2026-11-05-walkthrough.
+      </p>
+      <div style={grid}>
+        {walkthroughSteps.map((s) => (
           <Figure key={s.file} file={s.file} title={s.title} text={s.text} />
         ))}
       </div>

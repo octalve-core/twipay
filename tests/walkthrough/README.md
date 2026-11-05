@@ -19,8 +19,21 @@ pnpm test:walkthrough-guards       # guard + coverage tests (fast, no browser)
 pnpm walkthrough:selftest          # drives the harness against a data: page, checks overlay/timeline/typing/goto rule
 pnpm walkthrough:matrix            # writes out/walkthrough/run/coverage-matrix.md (ticks come from timeline.json)
 pnpm walkthrough:stage up|down     # build and start / destroy the isolated stack (slow first build)
-pnpm exec playwright test -c playwright.walkthrough.config.ts   # the journey (P1+: not written yet)
+pnpm walkthrough:stage up --fresh # an empty database every time: MFA credentials cannot be deleted, so a stack is used for one run
+
+# soft recon (a failed step is recorded and the run carries on; evidence only, never a deliverable)
+WT_SOFT=1 WT_OUTPUT_ROOT=out/walkthrough/recon-run-N pnpm exec playwright test -c playwright.walkthrough.config.ts
+# the final run: strict, uninterrupted, from an empty database
+WT_FINAL=1 WT_OUTPUT_ROOT=out/walkthrough/final pnpm exec playwright test -c playwright.walkthrough.config.ts
+# deliverables from a green final run (refuses a soft or failed run or an unticked row)
+node tests/walkthrough/build-artifacts.mjs --out out/walkthrough/final --sha "$(git rev-parse --short HEAD)"
 ```
+
+`build-artifacts.mjs` writes `coverage-matrix.md`, `chapters.json`, `chapters.vtt`, `findings.md`, `walkthrough.pdf`
+(title page with the commit, contents, timeline, one screenshot per step, matrix, "Not demonstrable here", "Operator
+bootstrap", findings) and `walkthrough.mp4` / `walkthrough.webm` (the customer and admin recordings cut together by the
+timeline, with chapters). Needs ffmpeg (`FFMPEG=/path/to/ffmpeg` if it is not at `~/.local/bin/ffmpeg`). `--dry-run` checks the
+layout on a soft run and stamps the PDF DRAFT.
 
 ## Candidate findings noticed while planning (verify in recon)
 - Admin nav (`apps/admin/app/_components/ops-shell.tsx`) has hard-coded badge values (`3`, `4`, `2`, `6`, `99.8%`): fabricated numbers.
