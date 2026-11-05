@@ -203,16 +203,18 @@ export function OpsShell({
       <div className="app-body">
         {/* Pinned Lateral Sidebar */}
         <aside className="app-sidebar">
-          {/* Dual-Control Quorum Widget */}
-          <div className="sidebar-widget">
-            <div className="sidebar-widget-header">
-              <span>Dual-Control</span>
+          {/* Owner shortcut: only owners can use /owner, so no other role is shown a link to it. */}
+          {isOwner && (
+            <div className="sidebar-widget">
+              <div className="sidebar-widget-header">
+                <span>Dual-Control</span>
+              </div>
+              <Link href="/owner" className="sidebar-widget-link">
+                <span>Owner Control</span>
+                <span>&rarr;</span>
+              </Link>
             </div>
-            <Link href="/owner" className="sidebar-widget-link">
-              <span>Owner Control</span>
-              <span>&rarr;</span>
-            </Link>
-          </div>
+          )}
 
           {/* Independent Scroll Area (Items scroll, footer stays pinned) */}
           <div className="sidebar-scroll-area">

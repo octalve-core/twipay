@@ -115,3 +115,11 @@ test('WT-03: the loading spinner keyframes are in the stylesheet, not an inline 
 test('the staff sign-in page does not advertise its security implementation', () => {
   assert.doesNotMatch(read('login/page.tsx'), /Nonce CSP|HttpOnly/);
 });
+
+// Found in the final walkthrough: the sidebar shortcut to Owner Control was shown to every staff role, not only owners.
+test('WT-04: the Owner Control shortcut in the sidebar is shown to owners only', () => {
+  const shell = read('_components/ops-shell.tsx');
+  const widget = shell.indexOf('sidebar-widget"');
+  assert.ok(widget > 0);
+  assert.match(shell.slice(Math.max(0, widget - 200), widget), /\{isOwner && \(/);
+});
