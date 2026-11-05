@@ -32,7 +32,8 @@ node tests/walkthrough/build-artifacts.mjs --out out/walkthrough/final --sha "$(
 `build-artifacts.mjs` writes `coverage-matrix.md`, `chapters.json`, `chapters.vtt`, `findings.md`, `walkthrough.pdf`
 (title page with the commit, contents, timeline, one screenshot per step, matrix, "Not demonstrable here", "Operator
 bootstrap", findings) and `walkthrough.mp4` / `walkthrough.webm` (the customer and admin recordings cut together by the
-timeline, with chapters). Needs ffmpeg (`FFMPEG=/path/to/ffmpeg` if it is not at `~/.local/bin/ffmpeg`). `--dry-run` checks the
+timeline, with chapters, shown at 4x so it reads as a very fast person; `--speed N` changes that, and the real-time cut is kept
+as `walkthrough-realtime.mp4`; `--fast-only` re-makes the fast cut from it). Needs ffmpeg (`FFMPEG=/path/to/ffmpeg` if it is not at `~/.local/bin/ffmpeg`). `--dry-run` checks the
 layout on a soft run and stamps the PDF DRAFT.
 
 ## Candidate findings noticed while planning (verify in recon)

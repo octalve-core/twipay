@@ -2,7 +2,7 @@
 // Turns one finished walkthrough run into its deliverables. Usage:
 //   node tests/walkthrough/build-artifacts.mjs --out <run dir> --sha <commit> [--findings <md>] [--no-video]
 // It reads <run dir>/timeline.json, tabs.json, observations.json, bootstrap.sql and the recordings in _pw/, and writes
-// coverage-matrix.md, chapters.json, chapters.vtt, findings.md, walkthrough.pdf, walkthrough.mp4 and walkthrough.webm next to them.
+// coverage-matrix.md, chapters.json, chapters.vtt, findings.md, walkthrough.pdf, walkthrough.mp4 / .webm (fast cut) and walkthrough-realtime.mp4 next to them.
 // It refuses to produce deliverables from a run that failed, was soft, or left a coverage row unticked.
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
@@ -24,6 +24,9 @@ const fail = (message) => { process.stderr.write(`build-artifacts: ${dry ? 'DRY 
 const timeline = json('timeline.json');
 const observed = json('observations.json');
 const tabs = existsSync(join(out, 'tabs.json')) ? json('tabs.json') : { timelineStartedAt: 0, opened: {} };
+// The recording is shown at --speed times real time (default 4), so the journey reads as a very fast person using the app. The
+// real-time cut is kept as walkthrough-realtime.mp4. Captions are drawn inside the page, so they stay in the picture.
+const speed = Number(opt('--speed', '4'));
 const today = new Date().toISOString().slice(0, 10);
 
 // 1. Only a green, strict, fully ticked run is a deliverable.
@@ -43,7 +46,9 @@ for (const [i, step] of timeline.entries()) {
 }
 const stamp = (ms) => { const t = Math.max(0, Math.round(ms)); const p = (n, w = 2) => String(n).padStart(w, '0'); return `${p(Math.floor(t / 3600000))}:${p(Math.floor(t / 60000) % 60)}:${p(Math.floor(t / 1000) % 60)}.${p(t % 1000, 3)}`; };
 writeFileSync(join(out, 'chapters.json'), `${JSON.stringify(chapters, null, 2)}\n`);
-writeFileSync(join(out, 'chapters.vtt'), `WEBVTT\n\n${chapters.map((c, i) => `${i + 1}\n${stamp(c.startMs)} --> ${stamp(c.endMs)}\n${c.title}\n`).join('\n')}`);
+const vtt = (factor) => `WEBVTT\n\n${chapters.map((c, i) => `${i + 1}\n${stamp(c.startMs / factor)} --> ${stamp(c.endMs / factor)}\n${c.title}\n`).join('\n')}`;
+writeFileSync(join(out, 'chapters.vtt'), vtt(speed)); // matches walkthrough.mp4 / .webm
+writeFileSync(join(out, 'chapters-realtime.vtt'), vtt(1)); // matches walkthrough-realtime.mp4
 
 // 3. findings.md: the flow audit, headed by what the run measured.
 const axeTotals = new Map();
@@ -122,34 +127,41 @@ await browser.close();
 
 // 5. The recording: cut the customer tab and the admin tab together by the timeline, in real-time order.
 if (!args.includes('--no-video') && !dry) {
-  const videos = [];
-  const walk = (dir) => { for (const name of readdirSync(dir)) { const p = join(dir, name); if (statSync(p).isDirectory()) walk(p); else if (name.endsWith('.webm')) videos.push(p); } };
-  walk(join(out, '_pw'));
-  const tabNames = Object.keys(tabs.opened).sort((a, b) => tabs.opened[a] - tabs.opened[b]);
-  // Playwright also leaves a tiny stub recording for each screenshot; the real recordings are the largest, one per tab.
-  videos.sort((a, b) => statSync(b).size - statSync(a).size);
-  videos.splice(tabNames.length);
-  videos.sort((a, b) => statSync(a).birthtimeMs - statSync(b).birthtimeMs);
-  if (videos.length !== tabNames.length) fail(`expected ${tabNames.length} recordings (${tabNames.join(', ')}), found ${videos.length}`);
-  const videoOf = Object.fromEntries(tabNames.map((name, i) => [name, videos[i]]));
-  const runs = [];
-  for (const [i, step] of timeline.entries()) {
-    const from = i === 0 ? 0 : timeline[i - 1].endMs;
-    const last = runs.at(-1);
-    if (last && last.tab === step.tab) last.to = step.endMs; else runs.push({ tab: step.tab, from, to: step.endMs });
-  }
   const parts = join(out, '_parts'); mkdirSync(parts, { recursive: true });
-  const listing = [];
-  for (const [i, run] of runs.entries()) {
-    const seek = Math.max(0, tabs.timelineStartedAt + run.from - tabs.opened[run.tab]) / 1000;
-    const part = join(parts, `part${String(i).padStart(3, '0')}.mp4`);
-    execFileSync(ffmpeg, ['-y', '-loglevel', 'error', '-ss', seek.toFixed(3), '-i', videoOf[run.tab], '-t', ((run.to - run.from) / 1000).toFixed(3), '-vf', 'scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2,fps=25,format=yuv420p', '-an', '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '24', part]);
-    listing.push(`file '${part}'`);
+  const realtime = join(out, 'walkthrough-realtime.mp4');
+  const meta = (factor) => [';FFMETADATA1', ...chapters.flatMap((c) => ['[CHAPTER]', 'TIMEBASE=1/1000', `START=${Math.round(c.startMs / factor)}`, `END=${Math.round(c.endMs / factor)}`, `title=${c.title}`])].join('\n');
+  if (!args.includes('--fast-only')) {
+    const videos = [];
+    const walk = (dir) => { for (const name of readdirSync(dir)) { const p = join(dir, name); if (statSync(p).isDirectory()) walk(p); else if (name.endsWith('.webm')) videos.push(p); } };
+    walk(join(out, '_pw'));
+    const tabNames = Object.keys(tabs.opened).sort((a, b) => tabs.opened[a] - tabs.opened[b]);
+    // Playwright also leaves a tiny stub recording for each screenshot; the real recordings are the largest, one per tab.
+    videos.sort((a, b) => statSync(b).size - statSync(a).size);
+    videos.splice(tabNames.length);
+    videos.sort((a, b) => statSync(a).birthtimeMs - statSync(b).birthtimeMs);
+    if (videos.length !== tabNames.length) fail(`expected ${tabNames.length} recordings (${tabNames.join(', ')}), found ${videos.length}`);
+    const videoOf = Object.fromEntries(tabNames.map((name, i) => [name, videos[i]]));
+    const runs = [];
+    for (const [i, step] of timeline.entries()) {
+      const from = i === 0 ? 0 : timeline[i - 1].endMs;
+      const last = runs.at(-1);
+      if (last && last.tab === step.tab) last.to = step.endMs; else runs.push({ tab: step.tab, from, to: step.endMs });
+    }
+    const listing = [];
+    for (const [i, run] of runs.entries()) {
+      const seek = Math.max(0, tabs.timelineStartedAt + run.from - tabs.opened[run.tab]) / 1000;
+      const part = join(parts, `part${String(i).padStart(3, '0')}.mp4`);
+      execFileSync(ffmpeg, ['-y', '-loglevel', 'error', '-ss', seek.toFixed(3), '-i', videoOf[run.tab], '-t', ((run.to - run.from) / 1000).toFixed(3), '-vf', 'scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2,fps=25,format=yuv420p', '-an', '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '24', part]);
+      listing.push(`file '${part}'`);
+    }
+    writeFileSync(join(parts, 'list.txt'), `${listing.join('\n')}\n`);
+    writeFileSync(join(parts, 'chapters-realtime.ffmeta'), `${meta(1)}\n`);
+    execFileSync(ffmpeg, ['-y', '-loglevel', 'error', '-f', 'concat', '-safe', '0', '-i', join(parts, 'list.txt'), '-i', join(parts, 'chapters-realtime.ffmeta'), '-map_metadata', '1', '-c', 'copy', '-movflags', '+faststart', realtime]);
   }
-  writeFileSync(join(parts, 'list.txt'), `${listing.join('\n')}\n`);
-  const meta = [';FFMETADATA1', ...chapters.flatMap((c) => ['[CHAPTER]', 'TIMEBASE=1/1000', `START=${Math.round(c.startMs)}`, `END=${Math.round(c.endMs)}`, `title=${c.title}`])].join('\n');
-  writeFileSync(join(parts, 'chapters.ffmeta'), `${meta}\n`);
-  execFileSync(ffmpeg, ['-y', '-loglevel', 'error', '-f', 'concat', '-safe', '0', '-i', join(parts, 'list.txt'), '-i', join(parts, 'chapters.ffmeta'), '-map_metadata', '1', '-c', 'copy', '-movflags', '+faststart', join(out, 'walkthrough.mp4')]);
-  execFileSync(ffmpeg, ['-y', '-loglevel', 'error', '-i', join(out, 'walkthrough.mp4'), '-c:v', 'libvpx-vp9', '-b:v', '0', '-crf', '36', '-deadline', 'good', '-cpu-used', '5', '-row-mt', '1', '-an', join(out, 'walkthrough.webm')]);
+  // The deliverable cut: the same footage at `speed` times real time. Frames are dropped explicitly (select) because older ffmpeg
+  // builds re-duplicate them when the fps filter is used after setpts.
+  writeFileSync(join(parts, 'chapters-fast.ffmeta'), `${meta(speed)}\n`);
+  execFileSync(ffmpeg, ['-y', '-loglevel', 'error', '-i', realtime, '-i', join(parts, 'chapters-fast.ffmeta'), '-map', '0:v', '-map_metadata', '1', '-map_chapters', '1', '-vf', `select='floor((n+1)/${speed})-floor(n/${speed})',setpts=N/(25*TB),format=yuv420p`, '-an', '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '24', '-movflags', '+faststart', join(out, 'walkthrough.mp4')]);
+  execFileSync(ffmpeg, ['-y', '-loglevel', 'error', '-i', join(out, 'walkthrough.mp4'), '-map', '0:v', '-map_metadata', '0', '-map_chapters', '0', '-c:v', 'libvpx', '-crf', '18', '-b:v', '500k', '-deadline', 'good', '-cpu-used', '4', '-threads', '8', '-an', join(out, 'walkthrough.webm')]);
 }
 process.stdout.write(`built ${basename(out)}: ${timeline.length} steps, ${chapters.length} chapters, ${rows.length} rows\n`);
