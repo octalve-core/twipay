@@ -1143,3 +1143,11 @@ button, input, select, textarea {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+/* Sign-in page layout. These were inline style attributes, which the nonce-only CSP blocks on a server-rendered page. */
+.login-brand-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.login-card .login-eyebrow { margin: 0; }
+.login-subtitle { font-size: 11px; color: var(--text-muted); }
+.login-card .login-error { margin-top: 14px; padding: 10px 14px; font-size: 12px; }
+.login-card .login-submit { margin-top: 6px; }
+.login-footer { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-light); font-size: 11px; color: var(--text-muted); text-align: center; }

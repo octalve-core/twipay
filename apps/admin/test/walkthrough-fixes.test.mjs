@@ -123,3 +123,11 @@ test('WT-04: the Owner Control shortcut in the sidebar is shown to owners only',
   assert.ok(widget > 0);
   assert.match(shell.slice(Math.max(0, widget - 200), widget), /\{isOwner && \(/);
 });
+
+// WT-03: the sign-in page is server-rendered, so every inline style attribute on it is blocked by the nonce-only CSP and the page
+// came out half unstyled (large subtitle and footer). Its layout now lives in the stylesheet.
+test('WT-03: the staff sign-in page has no inline style attributes', () => {
+  assert.doesNotMatch(read('login/page.tsx'), /\sstyle=/);
+  const css = read('styles.css');
+  for (const cls of ['login-brand-row', 'login-subtitle', 'login-error', 'login-submit', 'login-footer']) assert.match(css, new RegExp(`\\.${cls}\\b`), cls);
+});
