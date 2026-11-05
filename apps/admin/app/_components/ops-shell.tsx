@@ -37,7 +37,6 @@ const SECTIONS: NavSectionDef[] = [
         title: "Disbursements",
         items: [
           { href: "/payouts", label: "Payout Batches", icon: "💳", permission: "ops.dashboard.read" },
-          { href: "/payouts/create", label: "Batch Calculator", icon: "⚡", permission: "ops.dashboard.read" },
           { href: "/refunds", label: "Refunds & Disputes", icon: "↩️", permission: "ops.disputes.review" }
         ]
       },

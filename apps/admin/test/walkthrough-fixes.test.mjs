@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { join } from 'node:path';
 
@@ -130,4 +130,35 @@ test('WT-03: the staff sign-in page has no inline style attributes', () => {
   assert.doesNotMatch(read('login/page.tsx'), /\sstyle=/);
   const css = read('styles.css');
   for (const cls of ['login-brand-row', 'login-subtitle', 'login-error', 'login-submit', 'login-footer']) assert.match(css, new RegExp(`\\.${cls}\\b`), cls);
+});
+
+// WT-22: the Batch Calculator was a mock (hard-coded beneficiaries, a "staged and authorized ... forwarded to checker" message and no
+// API call). It is hidden until it is wired to the real payout API: no page, no menu entry, no link.
+test('WT-22: the mock Batch Calculator is not reachable from the console', () => {
+  assert.equal(existsSync(new URL('payouts/create/page.tsx', appDir)), false);
+  assert.doesNotMatch(read('_components/ops-shell.tsx'), /payouts\/create|Batch Calculator/);
+  assert.doesNotMatch(read('payouts/page.tsx'), /payouts\/create|Batch Calculator/);
+  for (const file of appFiles) assert.doesNotMatch(readFileSync(file, 'utf8'), /staged and authorized|BATCH-202610-SIM01/, file);
+});
+
+// WT-23: Delivery Health showed a literal "Channel SLA 99.9%" that was never measured.
+async function loadDeliveryRate() {
+  const ts = require('typescript');
+  const js = ts.transpileModule(read('_lib/delivery.ts'), { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText;
+  return (await import(`data:text/javascript;base64,${Buffer.from(js).toString('base64')}`)).deliveryRate;
+}
+
+test('WT-23: the delivery rate is computed from real counts and says so when there are none', async () => {
+  const deliveryRate = await loadDeliveryRate();
+  assert.equal(deliveryRate(0, 0), null);
+  assert.equal(deliveryRate(97, 3), '97.0%');
+  assert.equal(deliveryRate(1, 1), '50.0%');
+  assert.equal(deliveryRate(5, 0), '100.0%');
+  assert.equal(deliveryRate(99999, 1), '99.9%'); // a failure is never shown as a clean 100%
+});
+
+test('WT-23: the Delivery Health page has no literal SLA figure', () => {
+  const page = read('notifications/page.tsx');
+  assert.doesNotMatch(page, /Channel SLA|99\.9%/);
+  assert.match(page, /deliveryRate\(totalDelivered, totalFailed\)/);
 });

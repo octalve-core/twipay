@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { OpsShell } from "../_components/ops-shell";
 import { Fail, Wait } from "../_components/state";
 import { money, opsGet, opsMutation, explainCode } from "../_lib/api";
@@ -65,11 +64,6 @@ export default function PayoutsPage() {
     <OpsShell
       title="Organizer Disbursements &amp; Payouts"
       eyebrow="Maker-Checker Dual-Control Settlement"
-      actions={
-        <Link href="/payouts/create" className="btn-pill primary">
-          + Batch Calculator Simulator &rarr;
-        </Link>
-      }
     >
       {error ? (
         <Fail code={error} />

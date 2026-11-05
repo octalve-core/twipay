@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { OpsShell } from "../_components/ops-shell";
 import { opsGet, explainCode } from "../_lib/api";
+import { deliveryRate } from "../_lib/delivery";
 
 type Summary = { counts: { status: string; suppressed: boolean; count: number }[] };
 
@@ -97,11 +98,11 @@ export default function NotificationOperationsPage() {
 
             <div className="metric-card">
               <div className="metric-data">
-                <span className="metric-label">Channel SLA</span>
+                <span className="metric-label">Delivery rate</span>
                 <span className="metric-value" style={{ color: "var(--brand-blue)" }}>
-                  99.9%
+                  {deliveryRate(totalDelivered, totalFailed) ?? "No outcomes yet"}
                 </span>
-                <span className="metric-delta">Resend &amp; Termii</span>
+                <span className="metric-delta">Delivered of delivered + failed or bounced</span>
               </div>
               <span style={{ fontSize: "24px" }}>⚡</span>
             </div>
