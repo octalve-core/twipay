@@ -99,3 +99,27 @@ test('WT-20: the primary heading on each sign-in and sign-up screen is an <h1>',
     assert.doesNotMatch(source, /<h2 className="text-4xl text-\[#101828\] font-medium">/, file);
   }
 });
+
+// WT-07: the logo image read "erhapay" while the copy said TwiPay. The brand is now one config file (name, operator, optional picture
+// logo) that the logo, the receipt and the footer read, so it can be changed in one place.
+test('WT-07: the brand lives in one config and the logo, receipt and footer use it', () => {
+  const brand = read('config/brand.ts');
+  assert.match(brand, /name: "TwiPay"/);
+  assert.match(brand, /logoImage: null/);
+  const logo = read('components/navbar/Logo.tsx');
+  assert.match(logo, /from "@\/config\/brand"/);
+  assert.doesNotMatch(logo, /\.png/);
+  const receipt = read('components/receipt/DesktopReceipt.tsx');
+  assert.match(receipt, /<BrandMark \/>/);
+  assert.doesNotMatch(receipt, /logo\.png/);
+  const footer = read('components/footer/Footer.tsx');
+  assert.match(footer, /\{brand\.name\}/);
+  assert.doesNotMatch(footer, /© 2026 TwiPay/);
+});
+
+test('WT-07: the favicon is a brand-neutral file, not the ErhaPay picture', () => {
+  const html = readFileSync(join(root, '..', 'index.html'), 'utf8');
+  // An inline data URI, so no new image file has to be added to the frozen visual-asset baseline.
+  assert.match(html, /rel="icon"[^>]*href="data:image\/svg\+xml,/);
+  assert.doesNotMatch(html, /Erhapay-logo/);
+});
