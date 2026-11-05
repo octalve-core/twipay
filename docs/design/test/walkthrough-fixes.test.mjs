@@ -77,7 +77,7 @@ test('WT-13: every <img> has an alt attribute (empty for decorative images)', ()
 });
 
 test('WT-14: the sidebar log-out button has an accessible name', () => {
-  assert.match(read('components/dashboard/sidebar/SidebarFooter.tsx'), /aria-label="Log out"/);
+  assert.match(read('components/dashboard/sidebar/SidebarFooter.tsx'), /aria-label="Sign out"/);
 });
 
 test('WT-15: each contact form label points at a field that exists', () => {

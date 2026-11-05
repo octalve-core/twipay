@@ -45,7 +45,7 @@ const SidebarFooter = () => {
                 </Link>
             </div>
 
-            {isLoggingOut ? <Loader2 className="animate-spin text-[#727884] size-4" /> : <button type="button" aria-label="Log out" onClick={() => mutate()} className="cursor-pointer">
+            {isLoggingOut ? <Loader2 className="animate-spin text-[#727884] size-4" /> : <button type="button" aria-label="Sign out" onClick={() => mutate()} className="cursor-pointer">
                 <GoSignOut className="text-[#727884] hover:text-[#112929] transition" />
             </button>}
         </div>
