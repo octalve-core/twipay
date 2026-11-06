@@ -30,9 +30,10 @@ function ensureSandbox(): void {
   // A product flag or a valid PIN can never activate an unqualified payment provider.
   if (process.env['NODE_ENV'] === 'production' || process.env['FINANCIAL_AUTHORIZATION_SANDBOX_ENABLED'] !== 'true') unavailable();
 }
-function positiveSeconds(raw: string | undefined, fallback: number): number {
+// `max` follows the bound the environment schema (platform/config/env.ts) already enforces for each setting.
+function positiveSeconds(raw: string | undefined, fallback: number, max = 3600): number {
   const n = raw === undefined ? fallback : Number(raw);
-  if (!Number.isInteger(n) || n < 1 || n > 3600) unavailable();
+  if (!Number.isInteger(n) || n < 1 || n > max) unavailable();
   return n;
 }
 
@@ -60,7 +61,7 @@ export class FinancialAuthorizationService {
     ]);
     if (!user || user.status !== 'ACTIVE') denied('FINANCIAL_ACCOUNT_NOT_ELIGIBLE');
     if (!user.emailVerifiedAt && !user.phoneVerifiedAt) denied('CONTACT_VERIFICATION_REQUIRED');
-    const idleMs = positiveSeconds(process.env['SESSION_IDLE_TTL_SECONDS'], SESSION_IDLE_TTL_SECONDS) * 1000;
+    const idleMs = positiveSeconds(process.env['SESSION_IDLE_TTL_SECONDS'], SESSION_IDLE_TTL_SECONDS, 604_800) * 1000;
     if (!session || session.userId !== input.userId || session.status !== 'ACTIVE' || session.expiresAt <= now || session.lastSeenAt <= new Date(now.getTime() - idleMs)) denied('FINANCIAL_SESSION_EXPIRED');
     if (mfaCount < 1 || !session.mfaSatisfiedAt || session.mfaSatisfiedAt > now || session.mfaSatisfiedAt <= new Date(now.getTime() - positiveSeconds(process.env['MFA_STEP_UP_MAX_AGE_SECONDS'], 600) * 1000)) denied('FINANCIAL_MFA_REQUIRED');
     if (verifiedBvn < 1) denied('VERIFIED_BVN_REQUIRED');
