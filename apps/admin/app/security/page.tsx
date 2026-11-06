@@ -272,7 +272,7 @@ export default function SecurityPage() {
           )}
 
           {codes.length > 0 && (
-            <div className="ops-panel" style={{ border: "2px solid #059669" }}>
+            <div className="ops-panel" style={{ border: "2px solid #047857" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <h2>Recovery Backup Codes</h2>
                 <span className="pill-badge" style={{ background: "var(--green-bg)", color: "var(--green-text)" }}>

@@ -174,7 +174,7 @@ export default function FinancialExceptionsPage() {
                         </div>
                         <span style={{ display: "block", fontSize: "11px", color: "var(--text-muted)", marginTop: "4px" }}>
                           Active holds: {item.financial?.holds.filter((h) => h.status === "ACTIVE").length ?? 0} &bull;{" "}
-                          <strong style={{ color: item.prepared ? "#059669" : "#D97706" }}>
+                          <strong style={{ color: item.prepared ? "#047857" : "#B45309" }}>
                             {item.prepared ? "Prepared for checker" : "Awaiting review"}
                           </strong>
                         </span>
@@ -289,7 +289,7 @@ export default function FinancialExceptionsPage() {
                 <label>
                   <span style={{ display: "flex", justifyContent: "space-between" }}>
                     <span>Factual Review Evidence (min 20 characters)</span>
-                    <span style={{ color: prepareEvidenceNote.trim().length >= 20 ? "#059669" : "#DC2626", fontWeight: 700, fontSize: "11px" }}>
+                    <span style={{ color: prepareEvidenceNote.trim().length >= 20 ? "#047857" : "#DC2626", fontWeight: 700, fontSize: "11px" }}>
                       {prepareEvidenceNote.trim().length} / 20 min chars
                     </span>
                   </span>

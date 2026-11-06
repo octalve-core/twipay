@@ -64,7 +64,7 @@ export default function NotificationOperationsPage() {
             <div className="metric-card">
               <div className="metric-data">
                 <span className="metric-label">Delivered Dispatches</span>
-                <span className="metric-value" style={{ color: "#059669" }}>
+                <span className="metric-value" style={{ color: "#047857" }}>
                   {totalDelivered.toLocaleString()}
                 </span>
                 <span className="metric-delta">Provider accepted</span>
@@ -75,7 +75,7 @@ export default function NotificationOperationsPage() {
             <div className="metric-card">
               <div className="metric-data">
                 <span className="metric-label">Suppressed Messages</span>
-                <span className="metric-value" style={{ color: "#D97706" }}>
+                <span className="metric-value" style={{ color: "#B45309" }}>
                   {totalSuppressed.toLocaleString()}
                 </span>
                 <span className="metric-delta">Customer opt-out</span>
@@ -89,7 +89,7 @@ export default function NotificationOperationsPage() {
                 <span className="metric-value" style={{ color: totalFailed ? "#DC2626" : "inherit" }}>
                   {totalFailed.toLocaleString()}
                 </span>
-                <span className="metric-delta" style={{ color: totalFailed ? "#DC2626" : "#059669" }}>
+                <span className="metric-delta" style={{ color: totalFailed ? "#DC2626" : "#047857" }}>
                   {totalFailed ? "Requires triage" : "Zero bounces"}
                 </span>
               </div>

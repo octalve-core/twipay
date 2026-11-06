@@ -72,7 +72,7 @@ export function FreezeRailModal({
         </div>
         <div className="summary-item-row">
           <span className="summary-item-label">Failover Secondary</span>
-          <span className="summary-item-val" style={{ color: "#059669" }}>Sterling Bank API (Operational)</span>
+          <span className="summary-item-val" style={{ color: "#047857" }}>Sterling Bank API (Operational)</span>
         </div>
       </div>
 
