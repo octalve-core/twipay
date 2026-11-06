@@ -39,7 +39,7 @@ const BankInfo = ({showAccForm}: {showAccForm: () =>void}) => {
         <div className="hidden md:block">
             <BackButton href="/dashboard/settings" className="mb-5" />  
             <h1 className="text-[#112929] font-bold text-[28px]">Bank info</h1>
-            <p className="text-[#727884]  text-sm mt-1">View your saved bank infos.</p>
+            <p className="text-[#667085]  text-sm mt-1">View your saved bank infos.</p>
         </div>
 
         <div className="mt-14 md:mt-12 flex flex-col gap-4">

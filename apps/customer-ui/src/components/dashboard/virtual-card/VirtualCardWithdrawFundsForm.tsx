@@ -74,7 +74,7 @@ const VirtualCardWithdrawFundsForm = () => {
         <div className="hidden md:block">
             <BackButton href="/dashboard/virtual-card" className="mb-8" />  
             <h1 className="text-[#112929] font-bold text-[28px]">Withdraw from virtual card</h1>
-            <p className="text-[#727884]  text-sm mt-1">Withdraw funds from your virtual card.</p>
+            <p className="text-[#667085]  text-sm mt-1">Withdraw funds from your virtual card.</p>
         </div>
 
         <form ref={formRef} onSubmit={handleSubmit(onSubmit)} className="w-full mt-14 md:mt-10">
@@ -96,7 +96,7 @@ const VirtualCardWithdrawFundsForm = () => {
                                     </SelectGroup>
                                 </SelectContent>
                             </Select>
-                            {errors.bank && <p className="text-red-500 text-sm mt-1">{errors.bank.message}</p>}
+                            {errors.bank && <p className="text-red-600 text-sm mt-1">{errors.bank.message}</p>}
                         </div>
                     )}
                 />
@@ -108,7 +108,7 @@ const VirtualCardWithdrawFundsForm = () => {
                     <div className="grid place-items-center size-6 rounded-full border-2 border-[#039855] bg-[#12B76A] text-white"><BsCheck2Circle className="size-2.5" /> </div>
                     <p className="text-sm font-medium">Anna Keshinro</p>
                 </div>
-                {errors.account_no && <p className="text-red-500 text-sm mt-1">{errors.account_no.message}</p>}
+                {errors.account_no && <p className="text-red-600 text-sm mt-1">{errors.account_no.message}</p>}
             </div>
 
             <div className="w-full mt-5 md:mt-10">
@@ -117,7 +117,7 @@ const VirtualCardWithdrawFundsForm = () => {
                     <input {...register("amount")} placeholder="5,000" className="w-full border-[0.5px] border-[#D0D5DD] rounded-lg py-2.5 px-3.5 pl-10 bg-white outline-none focus:border-[#112929] placeholder:text-sm placeholder:text-[#667085]" type="number" min={1} id="amount" />
                     <span className="absolute left-3.5 top-1/2 -translate-y-1/2">₦</span>
                 </div>
-                {errors.amount && <p className="text-red-500 text-sm mt-1">{errors.amount.message}</p>}
+                {errors.amount && <p className="text-red-600 text-sm mt-1">{errors.amount.message}</p>}
             </div>
 
             <AlertDialog open={openDialog} onOpenChange={setOpenDialog}>
@@ -135,7 +135,7 @@ const VirtualCardWithdrawFundsForm = () => {
                             <AlertDialogTitle className="text-black md:text-[#112929] text-[22px] md:text-[28px] font-medium md:font-bold leading-7">
                                 Withdraw from virtual card
                             </AlertDialogTitle>
-                            <AlertDialogDescription className="text-[#727884] text-sm mt-1 mb-3 max-md:hidden">
+                            <AlertDialogDescription className="text-[#667085] text-sm mt-1 mb-3 max-md:hidden">
                                 Withdraw funds span.
                             </AlertDialogDescription>
                         </AlertDialogHeader>

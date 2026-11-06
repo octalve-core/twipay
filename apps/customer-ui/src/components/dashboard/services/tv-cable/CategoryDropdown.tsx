@@ -85,7 +85,7 @@ const CategoryDropdown = ({categoriesArr, isLoading, error}: TCategoryDropdown) 
                 </Command>
             </PopoverContent>
         </Popover>
-        {error && <p className="text-red-500 text-sm mt-1">Failed to fetch providers, please refresh.</p>}
+        {error && <p className="text-red-600 text-sm mt-1">Failed to fetch providers, please refresh.</p>}
     </div>
   )
 }

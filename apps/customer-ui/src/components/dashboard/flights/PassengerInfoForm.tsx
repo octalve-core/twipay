@@ -177,7 +177,7 @@ const PassengerInfoForm = ({setShowDocumentForm, onNext, index, passenger}: TPas
                                 <input {...register("firstname")} placeholder="enter your first name" className="w-full border-[0.5px] border-[#D0D5DD] rounded-lg py-2.5 px-3.5 pl-10 bg-white outline-none focus:border-[#112929] placeholder:text-sm placeholder:text-[#667085]" id="firstname" />
                                 <span className="absolute left-3.5 top-1/2 -translate-y-1/2"><LuUser className="text-[#667085] size-5" /></span>
                             </div>
-                            {errors.firstname && <p className="text-red-500 text-sm mt-1">{errors.firstname.message}</p>}
+                            {errors.firstname && <p className="text-red-600 text-sm mt-1">{errors.firstname.message}</p>}
                         </div>
                         <div className="w-full">
                             <label className="text-sm text-[#344054] font-medium" htmlFor="lastname">Last name</label>
@@ -185,7 +185,7 @@ const PassengerInfoForm = ({setShowDocumentForm, onNext, index, passenger}: TPas
                                 <input {...register("lastname")} placeholder="enter your last name" className="w-full border-[0.5px] border-[#D0D5DD] rounded-lg py-2.5 px-3.5 pl-10 bg-white outline-none focus:border-[#112929] placeholder:text-sm placeholder:text-[#667085]" id="lastname" />
                                 <span className="absolute left-3.5 top-1/2 -translate-y-1/2"><LuUser className="text-[#667085] size-5" /></span>
                             </div>
-                            {errors.lastname && <p className="text-red-500 text-sm mt-1">{errors.lastname.message}</p>}
+                            {errors.lastname && <p className="text-red-600 text-sm mt-1">{errors.lastname.message}</p>}
                         </div>
                         <div className="w-full flex flex-col ">
                             <label className="text-sm text-[#344054] font-medium mb-1.5" htmlFor="departure-date">Date of birth</label>
@@ -251,7 +251,7 @@ const PassengerInfoForm = ({setShowDocumentForm, onNext, index, passenger}: TPas
                                                 
                                 )}
                             />
-                            {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>}
+                            {errors.phone && <p className="text-red-600 text-sm mt-1">{errors.phone.message}</p>}
                         </div>
                     </div>
                 </div>
@@ -268,7 +268,7 @@ const PassengerInfoForm = ({setShowDocumentForm, onNext, index, passenger}: TPas
                             <div className="w-full ">
                                 <label className="text-[#344054] text-sm font-medium" htmlFor="email">Email address</label>
                                 <input id="email" {...register("email")} type="email" placeholder="Enter your email address" className="w-full outline-0 bg-white py-2.5 px-3.5 border border-[#D0D5DD] shadow-[#1018280D] placeholder:text-sm placeholder:text-[#667085] rounded-md mt-1.5 focus:border-[#112929] transition" />
-                                {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
+                                {errors.email && <p className="text-red-600 text-sm mt-1">{errors.email.message}</p>}
                             </div>
                         <Controller
                             name="gender"

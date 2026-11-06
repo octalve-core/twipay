@@ -288,7 +288,7 @@ const RecipientDetails = () => {
                             </Command>
                         </PopoverContent>
                     </Popover>
-                    {fetchProvidersError && <p className="text-red-500 text-sm mt-1">Failed to fetch providers, please refresh.</p>}
+                    {fetchProvidersError && <p className="text-red-600 text-sm mt-1">Failed to fetch providers, please refresh.</p>}
                 </div>
 
                 <div className="w-full mt-5">
@@ -344,7 +344,7 @@ const RecipientDetails = () => {
                             </Command>
                         </PopoverContent>
                     </Popover>
-                    {fetchProductsError && <p className="text-red-500 text-sm mt-1">Failed to fetch products, please refresh.</p>}
+                    {fetchProductsError && <p className="text-red-600 text-sm mt-1">Failed to fetch products, please refresh.</p>}
                 </div>
 
                 <div className="w-full mt-5">
@@ -386,11 +386,11 @@ const RecipientDetails = () => {
                                         
                         )}
                     />
-                    {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>}
+                    {errors.phone && <p className="text-red-600 text-sm mt-1">{errors.phone.message}</p>}
 
 
                     {/* {
-                        (!isVerifying && verifyErrData ) && <p className="text-red-500 text-sm mt-1">Please input a valid {provider.replace("-airtime", "")} number</p>
+                        (!isVerifying && verifyErrData ) && <p className="text-red-600 text-sm mt-1">Please input a valid {provider.replace("-airtime", "")} number</p>
                     }
                     {isVerifying && <motion.div initial={{opacity: 0}} animate={{opacity: 1, transition: {duration: .5}}} className="flex items-center gap-2"><Loader2 className="animate-spin size-4 mt-2" /> <span className="italic text-sm">Verifying phone number</span></motion.div>}
                     {

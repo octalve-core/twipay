@@ -45,7 +45,7 @@ const TransferFundsForm = () => {
                 <div className="grid place-items-center size-6 rounded-full border-2 border-[#039855] bg-[#12B76A] text-white"><BsCheck2Circle className="size-2.5" /> </div>
                 <p className="text-sm font-medium">Anna Keshinro</p>
             </div> */}
-            {errors.user && <p className="text-red-500 text-sm mt-1">{errors.user.message}</p>}
+            {errors.user && <p className="text-red-600 text-sm mt-1">{errors.user.message}</p>}
         </div>
 
         <div className="w-full mt-5">
@@ -62,13 +62,13 @@ const TransferFundsForm = () => {
                 <input {...register("amount")} placeholder="5,000" className="w-full border-[0.5px] border-[#D0D5DD] rounded-lg py-2.5 px-3.5 pl-10 bg-white outline-none focus:border-[#112929] placeholder:text-sm placeholder:text-[#667085]" type="number" min={1} id="amount" />
                 <span className="absolute left-3.5 top-1/2 -translate-y-1/2">₦</span>
             </div>
-            {errors.amount && <p className="text-red-500 text-sm mt-1">{errors.amount.message}</p>}
+            {errors.amount && <p className="text-red-600 text-sm mt-1">{errors.amount.message}</p>}
         </div>
 
         {/* <div className="w-full mt-5">
             <label className="text-sm text-[#344054] font-medium" htmlFor="note">Note (optional)</label>
             <input {...register("note")} placeholder="enter a note" className="w-full mt-1.5 border-[0.5px] border-[#D0D5DD] rounded-lg py-2.5 px-3.5 bg-white outline-none focus:border-[#112929] placeholder:text-sm placeholder:text-[#667085]" type="text" id="note" />
-            {errors.note && <p className="text-red-500 text-sm mt-1">{errors.note.message}</p>}
+            {errors.note && <p className="text-red-600 text-sm mt-1">{errors.note.message}</p>}
         </div> */}
 
         <CustomButton className="mt-10 w-full">Proceed - <span className="opacity-60">Confirm transfer</span></CustomButton>

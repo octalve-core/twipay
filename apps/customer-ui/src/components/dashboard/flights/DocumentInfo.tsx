@@ -229,7 +229,7 @@ const DocumentInfo = ({setShowDocumentForm}: TDocumentInfo) => {
                                 </Command>
                             </PopoverContent>
                         </Popover>
-                        {(countriesError && !countries?.length) && <p className="text-red-500 mt-1 text-sm">Failed to load countries. Please refresh.</p>}
+                        {(countriesError && !countries?.length) && <p className="text-red-600 mt-1 text-sm">Failed to load countries. Please refresh.</p>}
                     </div>
                     {/* Place of birth */}
                     <div className="w-full">
@@ -283,7 +283,7 @@ const DocumentInfo = ({setShowDocumentForm}: TDocumentInfo) => {
                                 </Command>
                             </PopoverContent>
                         </Popover>
-                        {(pobStatesError && !pobStates?.length) && <p className="text-red-500 mt-1 text-sm">Failed to load states. Please refresh.</p>}
+                        {(pobStatesError && !pobStates?.length) && <p className="text-red-600 mt-1 text-sm">Failed to load states. Please refresh.</p>}
                     </div>
                     {/* Date of issuance */}
                     <div className="w-full flex flex-col ">
@@ -397,7 +397,7 @@ const DocumentInfo = ({setShowDocumentForm}: TDocumentInfo) => {
                                 </Command>
                             </PopoverContent>
                         </Popover>
-                        {(countriesError && !countries?.length) && <p className="text-red-500 mt-1 text-sm">Failed to load countries. Please refresh.</p>}
+                        {(countriesError && !countries?.length) && <p className="text-red-600 mt-1 text-sm">Failed to load countries. Please refresh.</p>}
                     </div>
                     {/* Issuance state */}
                     <div className="w-full">
@@ -451,7 +451,7 @@ const DocumentInfo = ({setShowDocumentForm}: TDocumentInfo) => {
                                 </Command>
                             </PopoverContent>
                         </Popover>
-                        {(soiStatesError && !soiStates?.length) && <p className="text-red-500 mt-1 text-sm">Failed to load states. Please refresh.</p>}
+                        {(soiStatesError && !soiStates?.length) && <p className="text-red-600 mt-1 text-sm">Failed to load states. Please refresh.</p>}
                     </div>
                     {/* Validity country */}
                     <div className="w-full">
@@ -511,7 +511,7 @@ const DocumentInfo = ({setShowDocumentForm}: TDocumentInfo) => {
                                 </Command>
                             </PopoverContent>
                         </Popover>
-                        {(countriesError && !countries?.length) && <p className="text-red-500 mt-1 text-sm">Failed to load countries. Please refresh.</p>}
+                        {(countriesError && !countries?.length) && <p className="text-red-600 mt-1 text-sm">Failed to load countries. Please refresh.</p>}
                     </div>
 
                     <CustomButton onClick={handleProceed} className="w-full mt-8">Proceed</CustomButton>

@@ -160,7 +160,7 @@ export default function SupportCentre() {
               required
             />
           </label>
-          <p className="text-xs text-[#727884]">
+          <p className="text-xs text-[#667085]">
             Attachments are not accepted. Our team will advise if more evidence is needed.
           </p>
           <button
@@ -179,7 +179,7 @@ export default function SupportCentre() {
         {cases.isPending && <p role="status">Loading requests…</p>}
         {cases.isError && <p role="alert">Support history is unavailable.</p>}
         {cases.data?.length === 0 && (
-          <p className="text-sm text-[#727884]">No support requests yet.</p>
+          <p className="text-sm text-[#667085]">No support requests yet.</p>
         )}
         <div className="space-y-2">
           {cases.data?.map((item) => (
@@ -243,7 +243,7 @@ export default function SupportCentre() {
               </form>
             )}
             {caseView.data?.status === "CLOSED" && (
-              <p className="text-sm text-[#727884]">
+              <p className="text-sm text-[#667085]">
                 This request has been closed. You can open a new request if you still need help.
               </p>
             )}

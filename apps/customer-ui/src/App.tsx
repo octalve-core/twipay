@@ -404,7 +404,7 @@ function App() {
           success: <FaCircleCheck className="text-green-800 size-4" />,
           warning: <AlertTriangle className="text-yellow-500 size-4" />,
           info: <Info className="text-blue-500 size-4" />,
-          error: <BiErrorCircle className="text-red-500 size-4" />
+          error: <BiErrorCircle className="text-red-600 size-4" />
         }}
       />
       <RouterProvider router={router} />

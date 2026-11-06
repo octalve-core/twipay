@@ -117,7 +117,7 @@ export default function IdentityVerificationSettings() {
       <div className="w-full max-w-[546px] mx-auto px-4 md:px-0 mt-10 md:mt-0">
         <BackButton href="/dashboard/settings" className="mb-5" />
         <h1 className="text-[#344054] font-bold text-2xl">Identity verification</h1>
-        <p className="text-[#727884] text-sm mt-1">Verify your identity to access more of your TwiPay account.</p>
+        <p className="text-[#667085] text-sm mt-1">Verify your identity to access more of your TwiPay account.</p>
 
         {step === "new" && (
           <form onSubmit={initiate} className="mt-8 space-y-5">

@@ -144,3 +144,20 @@ test('WT-11 / WT-12: the FAQ and contact pages are hidden', () => {
 test('the privacy policy stays reachable from the footer', () => {
   assert.match(read('components/footer/Footer.tsx'), /to="\/privacy-policy"[^>]*>Privacy policy<\/Link>/);
 });
+
+// WT-16: colour contrast. The walkthrough's axe scan found 383 grey captions (#727884, 4.4:1 on white, 4.2:1 on the page grey) and
+// 6 red error messages (#fb2c36, 3.8:1). Text needs 4.5:1; #667085 and Tailwind red-600 (#e7000b) both clear it on white and #f9fafb.
+test('WT-16: caption grey and error red meet 4.5:1 on white and the page grey', () => {
+  const lum = (hex) => { const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
+  const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
+  for (const fg of ['#667085', '#e7000b']) for (const bg of ['#ffffff', '#f9fafb']) assert.ok(ratio(fg, bg) >= 4.5, `${fg} on ${bg}`);
+  const offenders = [];
+  (function walk(dir) {
+    for (const name of readdirSync(dir)) {
+      const full = join(dir, name);
+      if (statSync(full).isDirectory()) walk(full);
+      else if (/\.tsx?$/.test(name) && /text-\[#727884\]|\btext-red-500\b/.test(readFileSync(full, 'utf8'))) offenders.push(full.slice(root.length));
+    }
+  })(root);
+  assert.deepEqual(offenders, []);
+});

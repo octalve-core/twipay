@@ -137,7 +137,7 @@ const RecipientDetails = () => {
                 <label className="text-sm text-[#344054] font-medium" htmlFor="smartcard-number">Smartcard number</label>
                 <input {...register("smartcardNo")} placeholder="Enter smartcard number" className="w-full mt-1.5 border-[0.5px] border-[#D0D5DD] rounded-lg py-2.5 px-3.5 bg-white outline-none focus:border-[#112929] placeholder:text-sm placeholder:text-[#667085]" type="text" id="smartcard-number" />
                 {
-                    (!isVerifying && verifyErrData ) && <p className="text-red-500 text-sm mt-1">{verifyErrData?.message}</p>
+                    (!isVerifying && verifyErrData ) && <p className="text-red-600 text-sm mt-1">{verifyErrData?.message}</p>
                 }
                 
                 {isVerifying && <motion.div initial={{opacity: 0}} animate={{opacity: 1, transition: {duration: .5}}} className="flex items-center gap-2"><Loader2 className="animate-spin size-4 mt-2" /> <span className="italic text-sm">Verifying smartcard number</span></motion.div>}
@@ -147,7 +147,7 @@ const RecipientDetails = () => {
                         <p className="text-sm font-medium">{verifiedCard.customerName}</p>
                     </motion.div>
                 }
-                {errors.smartcardNo && <p className="text-red-500 text-sm mt-1">{errors.smartcardNo.message}</p>}
+                {errors.smartcardNo && <p className="text-red-600 text-sm mt-1">{errors.smartcardNo.message}</p>}
             </div>
 
             <div className="w-full">

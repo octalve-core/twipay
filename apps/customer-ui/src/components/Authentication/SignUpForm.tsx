@@ -69,17 +69,17 @@ const SignUpForm = () => {
             <div className="w-full">
                 <label className="text-[#344054] text-sm font-medium" htmlFor="firstname">First name</label>
                 <input id="firstname" autoComplete="given-name" aria-invalid={!!errors.firstname} aria-describedby={errors.firstname ? "firstname-error" : undefined} {...register("firstname")} placeholder="Enter your First name" className="w-full outline-0 bg-white py-2.5 px-3.5 border border-[#D0D5DD] shadow-[#1018280D] placeholder:text-[#667085] rounded-md mt-1.5 focus:border-[#112929] transition" />
-                {errors.firstname && <p id="firstname-error" role="alert" className="text-red-500 text-sm mt-1">{errors.firstname.message}</p>}
+                {errors.firstname && <p id="firstname-error" role="alert" className="text-red-600 text-sm mt-1">{errors.firstname.message}</p>}
             </div>
             <div className="w-full mt-5">
                 <label className="text-[#344054] text-sm font-medium" htmlFor="lastname">Last name</label>
                 <input id="lastname" autoComplete="family-name" aria-invalid={!!errors.lastname} aria-describedby={errors.lastname ? "lastname-error" : undefined} {...register("lastname")} placeholder="Enter your Last name" className="w-full outline-0 bg-white py-2.5 px-3.5 border border-[#D0D5DD] shadow-[#1018280D] placeholder:text-[#667085] rounded-md mt-1.5 focus:border-[#112929] transition" />
-                {errors.lastname && <p id="lastname-error" role="alert" className="text-red-500 text-sm mt-1">{errors.lastname.message}</p>}
+                {errors.lastname && <p id="lastname-error" role="alert" className="text-red-600 text-sm mt-1">{errors.lastname.message}</p>}
             </div>
             <div className="w-full mt-5">
                 <label className="text-[#344054] text-sm font-medium" htmlFor="email">Email address</label>
                 <input id="email" autoComplete="email" aria-invalid={!!errors.email} aria-describedby={errors.email ? "email-error" : undefined} {...register("email")} type="email" placeholder="Enter your email address" className="w-full outline-0 bg-white py-2.5 px-3.5 border border-[#D0D5DD] shadow-[#1018280D] placeholder:text-[#667085] rounded-md mt-1.5 focus:border-[#112929] transition" />
-                {errors.email && <p id="email-error" role="alert" className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
+                {errors.email && <p id="email-error" role="alert" className="text-red-600 text-sm mt-1">{errors.email.message}</p>}
             </div>
             <div className="w-full mt-5">
                 <label className="text-sm text-[#344054] font-medium" htmlFor="password">Password</label>
@@ -89,7 +89,7 @@ const SignUpForm = () => {
                         {showPassword ? <IoEyeOffOutline /> : <IoEyeOutline />}
                     </button>
                 </div>
-                {errors.password && <p id="password-error" role="alert" className="text-red-500 text-sm mt-1">{errors.password.message}</p>}
+                {errors.password && <p id="password-error" role="alert" className="text-red-600 text-sm mt-1">{errors.password.message}</p>}
             </div>
             <CustomButton isLoading={isPending} disabled={isPending} className="w-full mt-6 px-2">Create account</CustomButton>
         </form>

@@ -136,7 +136,7 @@ const RecipientDetails = () => {
                         </Command>
                     </PopoverContent>
                 </Popover>
-                {fetchProvidersError && <p className="text-red-500 text-sm mt-1">Failed to load categories, please refresh.</p>}
+                {fetchProvidersError && <p className="text-red-600 text-sm mt-1">Failed to load categories, please refresh.</p>}
             </div>
             <div className="w-full md:hidden">
                 <label className="text-sm text-[#344054] font-medium" htmlFor="package">Select product</label>
@@ -191,7 +191,7 @@ const RecipientDetails = () => {
                         </Command>
                     </PopoverContent>
                 </Popover>
-                {fetchProductsError && <p className="text-red-500 text-sm mt-1">Failed to fetch products, please refresh.</p>}
+                {fetchProductsError && <p className="text-red-600 text-sm mt-1">Failed to fetch products, please refresh.</p>}
             </div>
 
             <AnimatePresence>                

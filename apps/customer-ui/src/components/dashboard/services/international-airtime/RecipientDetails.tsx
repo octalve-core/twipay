@@ -255,7 +255,7 @@ const RecipientDetails = () => {
                             </Command>
                         </PopoverContent>
                     </Popover>
-                    {fetchProvidersError && <p className="text-red-500 text-sm mt-1">Failed to fetch providers, please refresh.</p>}
+                    {fetchProvidersError && <p className="text-red-600 text-sm mt-1">Failed to fetch providers, please refresh.</p>}
                 </div>
 
                 <div className="w-full mt-5">
@@ -297,10 +297,10 @@ const RecipientDetails = () => {
                                         
                         )}
                     />
-                    {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>}
+                    {errors.phone && <p className="text-red-600 text-sm mt-1">{errors.phone.message}</p>}
 
                     {/* {
-                        (!isVerifying && verifyErrData ) && <p className="text-red-500 text-sm mt-1">Please input a valid {provider.replace("-airtime", "")} number</p>
+                        (!isVerifying && verifyErrData ) && <p className="text-red-600 text-sm mt-1">Please input a valid {provider.replace("-airtime", "")} number</p>
                     }
                     {isVerifying && <motion.div initial={{opacity: 0}} animate={{opacity: 1, transition: {duration: .5}}} className="flex items-center gap-2"><Loader2 className="animate-spin size-4 mt-2" /> <span className="italic text-sm">Verifying phone number</span></motion.div>}
                     {
@@ -339,7 +339,7 @@ const RecipientDetails = () => {
                         />
                         <span className="absolute left-3.5 top-1/2 -translate-y-1/2">{selectedCountry?.currencySymbol ?? "#"}</span>
                     </div>
-                    {errors.amount && <p className="text-red-500 text-sm mt-1">{errors.amount.message}</p>}
+                    {errors.amount && <p className="text-red-600 text-sm mt-1">{errors.amount.message}</p>}
                 </div>
 
                 <CustomButton disabled={!country || !provider} className="w-full mt-5">Proceed - <span className="opacity-60">Confirm Purchase</span></CustomButton>

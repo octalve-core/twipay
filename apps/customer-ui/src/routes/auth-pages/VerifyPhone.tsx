@@ -181,12 +181,12 @@ const VerifyPhone = () => {
                         </div>
                     )}
                 />
-                {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>}
+                {errors.phone && <p className="text-red-600 text-sm mt-1">{errors.phone.message}</p>}
             </div>
             <div className="w-full mt-5">
                 <label className="text-[#344054] text-sm font-medium" htmlFor="lastname">Input code</label>
                 <input {...register("code")} placeholder="--- ---" className="w-full outline-0 bg-white py-2.5 px-3 border border-[#D0D5DD] shadow-[#1018280D] placeholder:text-[#667085] rounded-md mt-2 focus:border-[#112929] transition" />
-                {errors.code && <p className="text-red-500 text-sm mt-1">{errors.code.message}</p>}
+                {errors.code && <p className="text-red-600 text-sm mt-1">{errors.code.message}</p>}
             </div>
             <CustomButton isLoading={isVerifying} disabled={isVerifying} className="mt-6 w-full">Proceed</CustomButton>
             <CustomButton disabled={isVerifying} type="button" variant="primary" onClick={() => navigate("/auth/set-pin")} className="mt-1 w-full font-medium">skip</CustomButton>

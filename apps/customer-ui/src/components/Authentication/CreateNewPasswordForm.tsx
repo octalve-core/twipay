@@ -68,7 +68,7 @@ const CreateNewPasswordForm = ({showPasswordResetSuccessMessage, formData}: TCre
                     {showPassword ? <IoEyeOffOutline /> : <IoEyeOutline />}
                 </button>
             </div>
-            {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>}
+            {errors.password && <p className="text-red-600 text-sm mt-1">{errors.password.message}</p>}
         </div>      
         <div className="w-full mt-5">
             <label className="text-sm text-[#344054] font-medium" htmlFor="confirmPassword">Confirm Password</label>
@@ -78,7 +78,7 @@ const CreateNewPasswordForm = ({showPasswordResetSuccessMessage, formData}: TCre
                     {showConfirmPassword ? <IoEyeOffOutline /> : <IoEyeOutline />}
                 </button>
             </div>
-            {errors.confirmPassword && <p className="text-red-500 text-sm mt-1">{errors.confirmPassword.message}</p>}
+            {errors.confirmPassword && <p className="text-red-600 text-sm mt-1">{errors.confirmPassword.message}</p>}
         </div>      
 
         {/* password strength checker */}
