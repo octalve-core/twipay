@@ -162,3 +162,23 @@ test('WT-23: the Delivery Health page has no literal SLA figure', () => {
   assert.doesNotMatch(page, /Channel SLA|99\.9%/);
   assert.match(page, /deliveryRate\(totalDelivered, totalFailed\)/);
 });
+
+// WT-16: colour contrast. The walkthrough's axe scan recorded the failing colour pairs; the admin ones were the green and amber status
+// text (3.8:1 and 3.2:1 on white), and white-on-blue at 85% opacity in the staff support bubble. Text needs 4.5:1.
+function luminance(hex) {
+  const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+  return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+}
+const ratio = (a, b) => { const [x, y] = [luminance(a), luminance(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
+
+test('WT-16: the status greens and ambers used for text are at least 4.5:1 on white', () => {
+  assert.ok(ratio('#047857', '#ffffff') >= 4.5);
+  assert.ok(ratio('#B45309', '#ffffff') >= 4.5);
+  for (const file of appFiles) assert.doesNotMatch(readFileSync(file, 'utf8'), /#059669|#D97706/i, `${file} still uses a low-contrast status colour`);
+  assert.doesNotMatch(read('styles.css'), /#059669|#D97706/i);
+});
+
+test('WT-16: the staff support bubble header is not dimmed below 4.5:1', () => {
+  assert.match(read('support/page.tsx'), /opacity: isStaff \? 1 : 0\.85/);
+  assert.ok(ratio('#ffffff', '#0062e6') >= 4.5);
+});

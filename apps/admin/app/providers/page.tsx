@@ -206,11 +206,11 @@ export default function ProvidersPage() {
                     <span className="metric-label">{h.providerCode} &bull; {h.capability}</span>
                     <span
                       className="metric-value"
-                      style={{ color: isClosed ? "#059669" : isHalf ? "#D97706" : "#DC2626", fontSize: "18px" }}
+                      style={{ color: isClosed ? "#047857" : isHalf ? "#B45309" : "#DC2626", fontSize: "18px" }}
                     >
                       {h.circuitState}
                     </span>
-                    <span className="metric-delta" style={{ color: isClosed ? "#059669" : "#DC2626" }}>
+                    <span className="metric-delta" style={{ color: isClosed ? "#047857" : "#DC2626" }}>
                       {h.consecutiveFailures} Failures ({h.successCount} succ)
                     </span>
                   </div>

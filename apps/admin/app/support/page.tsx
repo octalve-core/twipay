@@ -384,7 +384,7 @@ export default function SupportOperationsPage() {
                           justifyContent: "space-between",
                           gap: "12px",
                           fontSize: "11px",
-                          opacity: 0.85,
+                          opacity: isStaff ? 1 : 0.85, // white on the staff bubble must stay 4.5:1
                           marginBottom: "4px",
                         }}
                       >
