@@ -5,7 +5,7 @@ import type { World } from '../lib/world.js';
 
 // The real nav (apps/admin/app/_components/ops-shell.tsx): label and the permission it needs. A matrix test keeps the rows honest.
 const NAV: Array<[string, string]> = [
-  ['Overview', 'ops.dashboard.read'], ['Payout Batches', 'ops.dashboard.read'], ['Batch Calculator', 'ops.dashboard.read'],
+  ['Overview', 'ops.dashboard.read'], ['Payout Batches', 'ops.dashboard.read'],
   ['Refunds & Disputes', 'ops.disputes.review'], ['Exceptions & Holds', 'ops.reconciliation.read'], ['Financial Tiers', 'ops.tiers.read'],
   ['Provider Circuits', 'ops.dashboard.read'], ['Delivery Health', 'ops.notifications.read'], ['Identity Review', 'ops.compliance.read'],
   ['Audit Journal', 'ops.audit.read'], ['Financial Reports', 'ops.reports.read'], ['Owner Control', 'SUPER_ADMIN'],

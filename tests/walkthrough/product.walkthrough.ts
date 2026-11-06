@@ -15,6 +15,7 @@ import { suspensionChapter } from './chapters/suspension.js';
 import { signUpEveryone } from './chapters/people.js';
 import { firstLoad } from './lib/nav.js';
 import { installOverlay } from './lib/overlay.js';
+import { idleSpans } from './lib/idle.js';
 import { observe } from './lib/observers.js';
 import { assertModeIsSane, failures, loadState, saveState } from './lib/soft.js';
 import type { Person, World } from './lib/world.js';
@@ -32,6 +33,7 @@ test.afterEach(() => {
   if (!saved) return;
   saved.timeline.write();
   saveState(statePath, { people: saved.world.people, secrets: saved.world.secrets });
+  writeFileSync(join(outputRoot, 'idle.json'), `${JSON.stringify(idleSpans)}\n`);
   writeFileSync(join(outputRoot, 'tabs.json'), `${JSON.stringify({ timelineStartedAt: saved.timeline.startedAt, opened: saved.world.opened })}\n`);
   writeFileSync(join(outputRoot, 'observations.json'), `${JSON.stringify({ failures, observations: saved.observations }, null, 2)}\n`);
 });

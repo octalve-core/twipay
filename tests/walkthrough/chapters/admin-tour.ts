@@ -17,7 +17,6 @@ export async function adminTour(w: World): Promise<void> {
   const stops: Stop[] = [
     { nav: 'Overview', title: 'Operations Overview & Telemetry', covers: ['A02'] },
     { nav: 'Payout Batches', title: 'Organizer Disbursements & Payouts', covers: ['A03'] },
-    { nav: 'Batch Calculator', title: 'Batch Payout Calculator & Simulator', covers: ['A04'] },
     { nav: 'Refunds & Disputes', title: 'Refunds, Disputes & Ledger Reversals', covers: ['A05'] },
     { nav: 'Exceptions & Holds', title: 'Financial Exceptions & Wallet Holds', covers: ['A06'] },
     { nav: 'Financial Tiers', title: 'Financial Tiers & Caps Governance', covers: ['A07'] },

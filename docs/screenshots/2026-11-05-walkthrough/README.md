@@ -1,6 +1,6 @@
-# Walkthrough screenshots (2026-11-05)
+# Walkthrough screenshots (2026-11-06 run)
 
-Curated from the strict final run of `tests/walkthrough` at commit `4f4e5cc` (steps are `sNNN` in its timeline). All accounts are fictional `.example` addresses on the isolated walkthrough stack. The customer ones are listed in the in-app `/guide` page.
+Curated from the strict final run of `tests/walkthrough` at commit `046a02c` (steps are `sNNN` in its timeline). All accounts are fictional `.example` addresses on the isolated walkthrough stack. The customer ones are listed in the in-app `/guide` page.
 
 | File | App | Step | What it shows |
 | :-- | :-- | :-- | :-- |
@@ -16,16 +16,16 @@ Curated from the strict final run of `tests/walkthrough` at commit `4f4e5cc` (st
 | wt-10-account-state-saved.png | customer | s057 | **Account details are saved**: A changed state is still there after leaving the page and coming back. |
 | wt-11-signed-out-guard.png | customer | s062 | **Signed-out guard**: After logging out, pressing Back does not show the dashboard. |
 | wt-12-two-factor-signed-in.png | customer | s067 | **Two-factor sign-in**: with two-factor authentication on, signing in asks for the six-digit code from the authenticator app; after the code the dashboard opens. |
-| wt-13-support-reply.png | customer | s146 | **Support reply in the help centre**: The customer reads the support agent's reply to their request. |
-| wt-14-suspended-refused.png | customer | s153 | **Suspended account**: A suspended customer cannot sign in. |
+| wt-13-support-reply.png | customer | s145 | **Support reply in the help centre**: The customer reads the support agent's reply to their request. |
+| wt-14-suspended-refused.png | customer | s152 | **Suspended account**: A suspended customer cannot sign in. |
 | wt-20-admin-wrong-password.png | admin | s089 | **Staff sign-in: wrong password**: The console refuses a wrong password with one message. |
 | wt-21-owner-needs-mfa.png | admin | s091 | **Owner Control before MFA**: Before an authenticator is enrolled the page explains that a step-up is needed. |
 | wt-22-admin-overview.png | admin | s098 | **Overview**: The operations overview after sign-in and step-up. |
-| wt-23-staff-governance.png | admin | s111 | **Staff governance**: Owners propose roles here; another owner must approve. |
-| wt-24-own-approval-refused.png | admin | s122 | **Owner approving their own proposal**: The console refuses and says a different owner must approve. |
-| wt-25-independent-approval.png | admin | s125 | **Independent approval**: The second owner approves the proposal. |
-| wt-26-support-agent-menu.png | admin | s130 | **Support agent menu**: a support agent sees only Support Cases and Security & MFA, and the case list asks for a step-up first. |
-| wt-27-finance-operator-menu.png | admin | s132 | **Finance operator menu**: A finance operator sees only the pages the role allows. |
-| wt-28-support-case-reply.png | admin | s143 | **Support case reply**: The support agent reviews a ticket and replies. |
-| wt-29-suspension-prepared.png | admin | s149 | **Suspension prepared**: An owner prepares a customer suspension; it needs a second owner. |
-| wt-30-suspension-approved.png | admin | s151 | **Suspension approved**: The second owner approves the suspension as checker. |
+| wt-23-staff-governance.png | admin | s110 | **Staff governance**: Owners propose roles here; another owner must approve. |
+| wt-24-own-approval-refused.png | admin | s121 | **Owner approving their own proposal**: The console refuses and says a different owner must approve. |
+| wt-25-independent-approval.png | admin | s124 | **Independent approval**: The second owner approves the proposal. |
+| wt-26-support-agent-menu.png | admin | s129 | **Support agent menu**: a support agent sees only Support Cases and Security & MFA, and the case list asks for a step-up first. |
+| wt-27-finance-operator-menu.png | admin | s131 | **Finance operator menu**: A finance operator sees only the pages the role allows. |
+| wt-28-support-case-reply.png | admin | s142 | **Support case reply**: The support agent reviews a ticket and replies. |
+| wt-29-suspension-prepared.png | admin | s148 | **Suspension prepared**: An owner prepares a customer suspension; it needs a second owner. |
+| wt-30-suspension-approved.png | admin | s150 | **Suspension approved**: The second owner approves the suspension as checker. |

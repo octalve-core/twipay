@@ -46,7 +46,7 @@ export async function stepUp(page: Page, secret: string): Promise<void> {
 // The approval dialog asks for six single-digit boxes; the first box takes focus and each digit moves on to the next.
 export async function typeDialogCode(page: Page, secret: string): Promise<void> {
   await page.locator('#totp-box-0').click();
-  await page.keyboard.type(await freshCode(page, secret), { delay: 90 });
+  await page.keyboard.type(await freshCode(page, secret), { delay: 35 });
 }
 
 // The admin console is its own tab (a different origin that no link joins to the customer app): open it once, on its sign-in page.

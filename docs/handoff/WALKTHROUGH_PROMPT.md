@@ -75,7 +75,7 @@ decided). Do not run on into the next phase when the report contains a question 
 
 ### 1. The one rule: act like a real user
 
-Every step of the journey is one of: click; type with real key presses at human speed (50 to 120 ms a key);
+Every step of the journey is one of: click; type with real key presses at the speed of a very fast typist (18 to 45 ms a key; owner preference, 2026-11-06);
 choose a file through the native file dialog; follow a link by clicking it; browser back and forward; sign
 out and sign in as another role.
 
@@ -180,7 +180,7 @@ Needs a decision with the options and your recommendation. Existing open decisio
    `isVisible`, `try {`, `localStorage`, `sessionStorage`, `cookies` and fails on any hit outside an
    allowlisted observer/stage file. It is tamper-tested (add a forbidden line, see it fail).
 4. Video legibility: a visible cursor, a click ripple, a caption bar drawn **inside the page** so it is in
-   the recording by construction (works with no ffmpeg), typing delay 50 to 120 ms.
+   the recording by construction (works with no ffmpeg), typing delay 18 to 45 ms (very fast human).
 5. `timeline.json`: `[{ id, chapter, role, name, covers: [rowIds], startMs, endMs, screenshot }]`. It
    generates the PDF captions, the coverage ticks, `chapters.vtt` and `chapters.json`.
 6. If `ffmpeg` exists, also make `walkthrough.mp4` with chapters. If it does not, say so; do not add it as a

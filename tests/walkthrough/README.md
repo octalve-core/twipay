@@ -7,7 +7,7 @@ suite and outside `pnpm test:repo`. Deliverables go to the gitignored `out/walkt
 | :-- | :-- | :-- |
 | Config | `playwright.walkthrough.config.ts` | 1280x720, video on, no retries, no timeout (one uninterrupted run) |
 | Isolated stack | `compose.walkthrough.yaml`, `stage.mjs` | own project `twipay-wt`, own Postgres (`wip_twipay_walkthrough`, tmpfs so it always starts empty), Redis, worker, mail sink (read through the floating inbox button inside the apps, so the journey stays in one tab and one video); ports 3102 UI, 3101 admin, 4100 API, 8125 mail, 5436 PG, 6383 Redis. Never touches the dev stack or its `twipay` database |
-| Rules | `lib/nav.ts` (goto once per tab), `lib/human.ts` (50-120 ms key presses), `guard-rules.mjs` + `walkthrough.guard.test.mjs` (forbidden code, tamper-tested) | |
+| Rules | `lib/nav.ts` (goto once per tab), `lib/human.ts` (18-45 ms key presses, a very fast typist), `guard-rules.mjs` + `walkthrough.guard.test.mjs` (forbidden code, tamper-tested) | |
 | Observers | `lib/overlay.ts` (cursor, ripple, caption bar), `lib/observers.ts` (console, pageerror, requestfailed, 4xx/5xx) | not actors |
 | Timeline | `lib/timeline.ts` | `step()` records `timeline.json`, screenshots and which coverage rows a step proves |
 | Simulators and stage | `lib/authenticator.ts` (TOTP, RFC 6238 vector tested), `lib/stage.ts` (the one allowed DB write: `SUPER_ADMIN` role rows for two owners) | labelled as such in the video and PDF |
@@ -32,13 +32,13 @@ node tests/walkthrough/build-artifacts.mjs --out out/walkthrough/final --sha "$(
 `build-artifacts.mjs` writes `coverage-matrix.md`, `chapters.json`, `chapters.vtt`, `findings.md`, `walkthrough.pdf`
 (title page with the commit, contents, timeline, one screenshot per step, matrix, "Not demonstrable here", "Operator
 bootstrap", findings) and `walkthrough.mp4` / `walkthrough.webm` (the customer and admin recordings cut together by the
-timeline, with chapters, shown at 4x so it reads as a very fast person; `--speed N` changes that, and the real-time cut is kept
+timeline, with chapters, shown at 2x on top of very fast typing, with the deliberate waits (rate limit, next code step) cut out; `--speed N` changes that, and the real-time cut is kept
 as `walkthrough-realtime.mp4`; `--fast-only` re-makes the fast cut from it). Needs ffmpeg (`FFMPEG=/path/to/ffmpeg` if it is not at `~/.local/bin/ffmpeg`). `--dry-run` checks the
 layout on a soft run and stamps the PDF DRAFT.
 
 ## Candidate findings noticed while planning (verify in recon)
 - Admin nav (`apps/admin/app/_components/ops-shell.tsx`) has hard-coded badge values (`3`, `4`, `2`, `6`, `99.8%`): fabricated numbers.
-- `/payouts/create` ("Batch Calculator") exists in the admin but was not in earlier page lists.
+- `/payouts/create` ("Batch Calculator") was a mock and is hidden (WT-22); the page, its menu entry and its link are gone.
 - Admin `/security` has no permission requirement, so any signed-in staff user reaches it (probably intended).
 - Customer funding, transfers, bills, events checkout and virtual accounts are behind sandbox flags and provider keys; with the stack
   defaults they will show their disabled state (see `gatedBy` in the matrix and the decision in the P0 report).

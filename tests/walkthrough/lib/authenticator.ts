@@ -1,3 +1,4 @@
+import { idleWait } from './idle.js';
 import { createHmac } from 'node:crypto';
 
 // LOCAL SIMULATOR (labelled as one in the video and the PDF): the authenticator app a person would hold. It turns the
@@ -31,7 +32,7 @@ const lastStep = new Map<string, number>();
 
 export async function freshCode(page: { waitForTimeout(ms: number): Promise<void> }, secret: string): Promise<string> {
   const step = () => Math.floor(Date.now() / 30_000);
-  if (lastStep.get(secret) === step()) await page.waitForTimeout(30_000 - (Date.now() % 30_000) + 1_500);
+  if (lastStep.get(secret) === step()) await idleWait(page, 30_000 - (Date.now() % 30_000) + 1_500);
   lastStep.set(secret, step());
   return totp(secret);
 }

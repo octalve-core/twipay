@@ -27,7 +27,7 @@ export function createTimeline(pages: Record<Tab, Page | undefined>, outputRoot:
     await caption(page, `${meta.role}: ${meta.name}`);
     // A failing assertion fails the run (strict) or is recorded and skipped (soft recon): either way it is a finding.
     const ok = await runStep(`${meta.role}: ${meta.name}`, action);
-    await page.waitForTimeout(1500); // let loading states finish, as a person would, before the screenshot is taken
+    await page.waitForTimeout(600); // a short beat for loading states to finish before the screenshot, as a fast person would
     const screenshot = `screenshots/${id}.png`;
     await page.screenshot({ path: join(outputRoot, screenshot) });
     const checks = await screenChecks(page);

@@ -712,12 +712,13 @@
   "roles": [
    "by-permission"
   ],
-  "proof": "Click the nav item",
+  "proof": "-",
   "api": [
    "*/operations/payouts*"
   ],
-  "demonstrable": "yes",
-  "permission": "ops.dashboard.read"
+  "demonstrable": "no",
+  "permission": "ops.dashboard.read",
+  "note": "Hidden until it is wired to the real payout API (WT-22): the page was a mock that printed \"staged and authorized\" without any API call, so its page, menu entry and link are removed."
  },
  {
   "id": "A05",

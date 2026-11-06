@@ -17,15 +17,15 @@ export async function ownersChapter(w: World): Promise<void> {
     await expect(admin.getByRole('heading', { name: 'Authorized staff sign-in' })).toBeVisible();
   });
   await step({ chapter: 'Owners', role: 'owner 1', tab: 'admin', name: 'Sign in with the wrong password and read the message', covers: [] }, async () => {
-    await admin.locator('input[name=email]').pressSequentially(o1.email, { delay: 30 });
-    await admin.locator('input[name=password]').pressSequentially('Not-the-right-pass-1', { delay: 30 });
+    await admin.locator('input[name=email]').pressSequentially(o1.email, { delay: 18 });
+    await admin.locator('input[name=password]').pressSequentially('Not-the-right-pass-1', { delay: 18 });
     await admin.getByRole('button', { name: 'Sign in' }).click();
     await expect(admin.getByText('Unable to authenticate. Verify operator credentials.')).toBeVisible();
   });
   await step({ chapter: 'Owners', role: 'owner 1', tab: 'admin', name: 'Sign in with the right password', covers: [] }, async () => {
     await admin.locator('input[name=password]').press('Control+A');
     await admin.locator('input[name=password]').press('Backspace');
-    await admin.locator('input[name=password]').pressSequentially(o1.password, { delay: 40 });
+    await admin.locator('input[name=password]').pressSequentially(o1.password, { delay: 22 });
     await admin.getByRole('button', { name: 'Sign in' }).click();
     await expect(admin).toHaveURL(/\/owner$/);
   });

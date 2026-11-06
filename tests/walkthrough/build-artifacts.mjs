@@ -24,9 +24,15 @@ const fail = (message) => { process.stderr.write(`build-artifacts: ${dry ? 'DRY 
 const timeline = json('timeline.json');
 const observed = json('observations.json');
 const tabs = existsSync(join(out, 'tabs.json')) ? json('tabs.json') : { timelineStartedAt: 0, opened: {} };
-// The recording is shown at --speed times real time (default 4), so the journey reads as a very fast person using the app. The
+// The recording is shown at --speed times real time (default 2), so the journey reads as a very fast person using the app. The
 // real-time cut is kept as walkthrough-realtime.mp4. Captions are drawn inside the page, so they stay in the picture.
-const speed = Number(opt('--speed', '4'));
+const speed = Number(opt('--speed', '2'));
+// Deliberate waits the journey could not avoid (sign-in rate limit, next one-time-code step), recorded by lib/idle.ts. Nothing happens
+// on screen during them, so the video leaves them out; `squeeze` maps a timeline time to the shortened video's time.
+const idle = (existsSync(join(out, 'idle.json')) ? json('idle.json') : [])
+  .map((s) => ({ from: s.from - tabs.timelineStartedAt, to: s.to - tabs.timelineStartedAt }))
+  .filter((s) => s.to > s.from).sort((a, b) => a.from - b.from);
+const squeeze = (ms) => ms - idle.reduce((sum, s) => sum + Math.max(0, Math.min(ms, s.to) - s.from), 0);
 const today = new Date().toISOString().slice(0, 10);
 
 // 1. Only a green, strict, fully ticked run is a deliverable.
@@ -46,7 +52,7 @@ for (const [i, step] of timeline.entries()) {
 }
 const stamp = (ms) => { const t = Math.max(0, Math.round(ms)); const p = (n, w = 2) => String(n).padStart(w, '0'); return `${p(Math.floor(t / 3600000))}:${p(Math.floor(t / 60000) % 60)}:${p(Math.floor(t / 1000) % 60)}.${p(t % 1000, 3)}`; };
 writeFileSync(join(out, 'chapters.json'), `${JSON.stringify(chapters, null, 2)}\n`);
-const vtt = (factor) => `WEBVTT\n\n${chapters.map((c, i) => `${i + 1}\n${stamp(c.startMs / factor)} --> ${stamp(c.endMs / factor)}\n${c.title}\n`).join('\n')}`;
+const vtt = (factor) => `WEBVTT\n\n${chapters.map((c, i) => `${i + 1}\n${stamp(squeeze(c.startMs) / factor)} --> ${stamp(squeeze(c.endMs) / factor)}\n${c.title}\n`).join('\n')}`;
 writeFileSync(join(out, 'chapters.vtt'), vtt(speed)); // matches walkthrough.mp4 / .webm
 writeFileSync(join(out, 'chapters-realtime.vtt'), vtt(1)); // matches walkthrough-realtime.mp4
 
@@ -129,7 +135,7 @@ await browser.close();
 if (!args.includes('--no-video') && !dry) {
   const parts = join(out, '_parts'); mkdirSync(parts, { recursive: true });
   const realtime = join(out, 'walkthrough-realtime.mp4');
-  const meta = (factor) => [';FFMETADATA1', ...chapters.flatMap((c) => ['[CHAPTER]', 'TIMEBASE=1/1000', `START=${Math.round(c.startMs / factor)}`, `END=${Math.round(c.endMs / factor)}`, `title=${c.title}`])].join('\n');
+  const meta = (factor) => [';FFMETADATA1', ...chapters.flatMap((c) => ['[CHAPTER]', 'TIMEBASE=1/1000', `START=${Math.round(squeeze(c.startMs) / factor)}`, `END=${Math.round(squeeze(c.endMs) / factor)}`, `title=${c.title}`])].join('\n');
   if (!args.includes('--fast-only')) {
     const videos = [];
     const walk = (dir) => { for (const name of readdirSync(dir)) { const p = join(dir, name); if (statSync(p).isDirectory()) walk(p); else if (name.endsWith('.webm')) videos.push(p); } };
@@ -148,11 +154,24 @@ if (!args.includes('--no-video') && !dry) {
       if (last && last.tab === step.tab) last.to = step.endMs; else runs.push({ tab: step.tab, from, to: step.endMs });
     }
     const listing = [];
-    for (const [i, run] of runs.entries()) {
-      const seek = Math.max(0, tabs.timelineStartedAt + run.from - tabs.opened[run.tab]) / 1000;
-      const part = join(parts, `part${String(i).padStart(3, '0')}.mp4`);
-      execFileSync(ffmpeg, ['-y', '-loglevel', 'error', '-ss', seek.toFixed(3), '-i', videoOf[run.tab], '-t', ((run.to - run.from) / 1000).toFixed(3), '-vf', 'scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2,fps=25,format=yuv420p', '-an', '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '24', part]);
-      listing.push(`file '${part}'`);
+    let n = 0;
+    for (const run of runs) {
+      // Cut the run around the idle spans: only the moving parts of the footage are kept.
+      let cursor = run.from;
+      const pieces = [];
+      for (const gap of idle) {
+        if (gap.to <= cursor || gap.from >= run.to) continue;
+        if (gap.from > cursor) pieces.push([cursor, gap.from]);
+        cursor = Math.max(cursor, gap.to);
+      }
+      if (cursor < run.to) pieces.push([cursor, run.to]);
+      for (const [from, to] of pieces) {
+        if (to - from < 120) continue;
+        const seek = Math.max(0, tabs.timelineStartedAt + from - tabs.opened[run.tab]) / 1000;
+        const part = join(parts, `part${String(n++).padStart(4, '0')}.mp4`);
+        execFileSync(ffmpeg, ['-y', '-loglevel', 'error', '-ss', seek.toFixed(3), '-i', videoOf[run.tab], '-t', ((to - from) / 1000).toFixed(3), '-vf', 'scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2,fps=25,format=yuv420p', '-an', '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '24', part]);
+        listing.push(`file '${part}'`);
+      }
     }
     writeFileSync(join(parts, 'list.txt'), `${listing.join('\n')}\n`);
     writeFileSync(join(parts, 'chapters-realtime.ffmeta'), `${meta(1)}\n`);
