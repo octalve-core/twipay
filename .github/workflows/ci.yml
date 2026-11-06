@@ -67,14 +67,15 @@ jobs:
       - run: corepack enable
       - name: Verify ErhaPay-based customer CI, visual assets and inactive financial flags
         run: node scripts/qualification/phase1-4-6-gates.mjs
-      - name: Original ErhaPay source design and visual asset integrity
-        run: |
-          node scripts/design/erhapay-ui-inventory.mjs --check
-          node --test docs/design/test/*.test.mjs
       - name: Require genuine lockfile
         run: test -f pnpm-lock.yaml || (echo 'pnpm-lock.yaml is required; run a genuine pnpm install and commit its generated lockfile' && exit 1)
       - run: node scripts/qualification/phase1-3-preflight.mjs --check-lock
       - run: pnpm install --frozen-lockfile
+      # After the install: some design tests load the TypeScript compiler from node_modules.
+      - name: Original ErhaPay source design and visual asset integrity
+        run: |
+          node scripts/design/erhapay-ui-inventory.mjs --check
+          node --test docs/design/test/*.test.mjs
       - run: pnpm db:generate
       - run: pnpm --filter @twipay/database prisma:validate
       - run: pnpm --filter @twipay/database prisma:deploy
