@@ -4,6 +4,8 @@ Defects, risks and UX problems found by review. One row per issue; details live 
 after the ID (copy [_template.md](_template.md)). Keep this index current: when you fix something, set `Status` to
 `FIXED (commit)`, never delete the row.
 
+Decisions that belong to the owner (ISS-001, ISS-002, ISS-003) are written up with options and a recommendation in [POLICY_DECISIONS.md](POLICY_DECISIONS.md).
+
 Product walkthrough findings use their own `WT-NN` IDs: see [WALKTHROUGH_FINDINGS_2026-11-04.md](WALKTHROUGH_FINDINGS_2026-11-04.md).
 
 Severity: `S1` blocks a core journey or leaks data, `S2` wrong behaviour with workaround, `S3` polish.
