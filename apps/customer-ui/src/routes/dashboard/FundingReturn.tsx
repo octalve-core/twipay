@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getFundingStatus, lastFundingReference, type FundingStatusDetail } from "@/lib/api/dashboard-apis/funding";
 import { formatNgnMinorUnits } from "@/lib/money";
+import { brand } from "@/config/brand";
 /** Provider redirects are untrusted. Only an owner-scoped API response can report a confirmed credit. */
 export default function FundingReturn() {
   const [reference] = useState(lastFundingReference);
@@ -25,7 +26,7 @@ export default function FundingReturn() {
   return <main className="w-full min-h-screen grid place-items-center px-5">
     <section className="w-full max-w-[360px] text-center">
       <h1 className="text-[#112929] font-medium text-2xl">Check your payment</h1>
-      <p className="text-[#667085] text-sm mt-4">Returning from the provider does not confirm payment. Your wallet is credited only after TwiPay verifies the transaction.</p>
+      <p className="text-[#667085] text-sm mt-4">Returning from the provider does not confirm payment. Your wallet is credited only after {brand.name} verifies the transaction.</p>
       {reference && <p className="text-xs mt-4 break-all text-[#667085]">Reference: {reference}</p>}
       {status && <div className="mt-5 text-sm" role="status">
         <p>Payment: <strong>{status.status}</strong></p>

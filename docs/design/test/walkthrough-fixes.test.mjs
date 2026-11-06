@@ -145,6 +145,32 @@ test('the privacy policy stays reachable from the footer', () => {
   assert.match(read('components/footer/Footer.tsx'), /to="\/privacy-policy"[^>]*>Privacy policy<\/Link>/);
 });
 
+// WT-07 follow-up: the name in user-visible copy comes from brand.name, so a rebrand is one edit in src/config/brand.ts (plus index.html).
+// The four strict wire-contract modules throw developer diagnostics ("Unexpected TwiPay wallet response") and are loaded by the migration tests
+// without the bundler's "@/" alias, so they keep the literal name; nothing a customer reads is built there.
+const diagnosticOnly = ['lib/api/dashboard-apis/billContracts.ts', 'lib/api/dashboard-apis/eventContracts.ts', 'lib/api/dashboard-apis/txnHistoryApis.ts', 'lib/api/dashboard-apis/walletApis.ts'];
+
+test('WT-07: no source file spells the brand name in code or copy; only comments and config/brand.ts do', () => {
+  const all = [];
+  (function walk(dir) {
+    for (const name of readdirSync(dir)) {
+      const full = join(dir, name);
+      if (statSync(full).isDirectory()) walk(full);
+      else if (/\.tsx?$/.test(name)) all.push(full);
+    }
+  })(root);
+  assert.ok(all.length > 100, 'expected to scan the whole source tree');
+  const offenders = [];
+  for (const file of all) {
+    if (file.endsWith('config/brand.ts') || diagnosticOnly.some((d) => file.endsWith(d))) continue;
+    readFileSync(file, 'utf8').split('\n').forEach((line, n) => {
+      if (/^\s*(\/\/|\/\*|\*)/.test(line)) return;
+      if (/TwiPay(?![A-Za-z])/.test(line)) offenders.push(`${file.slice(root.length)}:${n + 1}`);
+    });
+  }
+  assert.deepEqual(offenders, []);
+});
+
 // WT-16: colour contrast. The walkthrough's axe scan found 383 grey captions (#727884, 4.4:1 on white, 4.2:1 on the page grey) and
 // 6 red error messages (#fb2c36, 3.8:1). Text needs 4.5:1; #667085 and Tailwind red-600 (#e7000b) both clear it on white and #f9fafb.
 test('WT-16: caption grey and error red meet 4.5:1 on white and the page grey', () => {

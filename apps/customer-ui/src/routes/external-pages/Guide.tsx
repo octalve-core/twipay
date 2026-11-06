@@ -1,4 +1,5 @@
 import { authSteps, routeShots } from "./guideData";
+import { brand } from "@/config/brand";
 
 const base = "/guide/";
 const groups = ["Public pages", "Dashboard"] as const;
@@ -53,7 +54,7 @@ export default function Guide() {
         color: "#111827",
       }}
     >
-      <h1 style={{ fontSize: 28, marginBottom: 8 }}>TwiPay guide (development build)</h1>
+      <h1 style={{ fontSize: 28, marginBottom: 8 }}>{brand.name} guide (development build)</h1>
       <p style={{ color: "#4b5563", maxWidth: 720 }}>
         Screenshots of what the app does today, captured on 2026-10-13. Click an image to open it
         full size. Emails in this build arrive in the floating inbox button. Features that are

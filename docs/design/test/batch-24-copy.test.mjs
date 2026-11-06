@@ -17,7 +17,7 @@ test('customer login uses welcoming copy and avoids inactive authentication prom
  assert.match(login,/Welcome back/);assert.match(login,/Jump right back in/);
  assert.doesNotMatch(login,/to="\/faqs"/); // the FAQ page is hidden (WT-11)
  assert.doesNotMatch(login, /Remember for 30 days|not yet available|HttpOnly|localStorage/);
- assert.match(signup,/Get started with TwiPay/);
+ assert.match(signup,/Get started with \{brand\.name\}/);
  assert.doesNotMatch(signup,/Referral code \(not yet available\)|Enter a referral code/);
 });
 test('legacy simplified Next.js login no longer explains session internals to customers',()=>{

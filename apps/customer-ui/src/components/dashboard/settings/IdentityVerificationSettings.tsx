@@ -11,6 +11,7 @@ import {
   type IdentityType,
   type IdentityVerification,
 } from "@/lib/api/kycApi";
+import { brand } from "@/config/brand";
 
 const inputClass = "w-full outline-0 bg-white p-4 border border-[#D0D5DD] shadow-[#1018280D] text-[#344054] text-sm rounded-md mt-1 focus:border-[#112929]";
 
@@ -117,7 +118,7 @@ export default function IdentityVerificationSettings() {
       <div className="w-full max-w-[546px] mx-auto px-4 md:px-0 mt-10 md:mt-0">
         <BackButton href="/dashboard/settings" className="mb-5" />
         <h1 className="text-[#344054] font-bold text-2xl">Identity verification</h1>
-        <p className="text-[#667085] text-sm mt-1">Verify your identity to access more of your TwiPay account.</p>
+        <p className="text-[#667085] text-sm mt-1">Verify your identity to access more of your {brand.name} account.</p>
 
         {step === "new" && (
           <form onSubmit={initiate} className="mt-8 space-y-5">
@@ -135,7 +136,7 @@ export default function IdentityVerificationSettings() {
             </div>
             <label className="flex gap-3 items-start text-sm text-[#475467]">
               <input type="checkbox" className="mt-1" checked={consent} onChange={event => {setConsent(event.target.checked); resetKey();}} required />
-              <span>I authorize TwiPay to send this identity number to its contracted verification provider for identity verification.</span>
+              <span>I authorize {brand.name} to send this identity number to its contracted verification provider for identity verification.</span>
             </label>
             <button type="submit" disabled={pending || !consent || !/^\d{11}$/.test(identifier)} className="w-full md:w-auto rounded-lg bg-[#112929] text-white py-3 px-6 font-medium disabled:opacity-50">{pending ? "Submitting…" : "Verify identity"}</button>
           </form>

@@ -15,6 +15,7 @@ import {
 import Mobile_app_store_Apple from "../../assets/main-pages/Mobile app store badge Apple.png" 
 import Mobile_app_store_Google from "../../assets/main-pages/Mobile app store badge Google.png" 
 import AuthButtons from "../Authentication/AuthButtons"
+import { brand } from "@/config/brand";
 
 const MobileNav = () => {
 const [showMobileNav, setShowMobileNav] = useState(false)
@@ -33,7 +34,7 @@ const [showMobileNav, setShowMobileNav] = useState(false)
               </SheetTrigger>
               <SheetContent side="left" className="w-screen max-w-full">
                 <SheetTitle className="sr-only">Site menu</SheetTitle>
-                <SheetDescription className="sr-only">Navigate TwiPay public pages</SheetDescription>
+                <SheetDescription className="sr-only">Navigate {brand.name} public pages</SheetDescription>
                 <div className="w-full h-dvh overflow-y-auto bg-[#F5F7FF] flex flex-col justify-between px-4 pb-14 pt-10">
                   <div className="flex flex-col justify-between h-[52px]">
                     <div className="flex justify-between items-end p-4 h-full border-b border-[#1129291A]">

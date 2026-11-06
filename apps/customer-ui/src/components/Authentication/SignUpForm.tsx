@@ -14,6 +14,7 @@ import { useAuth } from "@/context/AuthContext"
 import { SignUpUser } from "@/lib/api/authApi"
 import { AxiosError } from "axios"
 import GoogleLoginButton from "./GoogleLoginButton"
+import { brand } from "@/config/brand";
 
 export type TFormData = z.infer<typeof signUpFormSchema>
 
@@ -38,7 +39,7 @@ const SignUpForm = () => {
                 // Registration sets a server-side session; the UI must verify it before navigation.
                 await refreshSession();
                 reset();
-                toast.success("Welcome to TwiPay. Verify your email to continue.");
+                toast.success(`Welcome to ${brand.name}. Verify your email to continue.`);
                 navigate("/auth/verify-email", {replace:true, state:{verificationDelivery:result.verificationDelivery}});
             } catch {
                 toast.error("Your account was created. Please sign in to continue.");
@@ -57,7 +58,7 @@ const SignUpForm = () => {
 
   return (
     <div className="mt-10 w-full">
-        <h1 className="text-4xl text-[#101828] font-medium">Get started with TwiPay</h1>
+        <h1 className="text-4xl text-[#101828] font-medium">Get started with {brand.name}</h1>
         <p className="mt-3 text-[#475467]">A few details and you’re on your way.</p>
 
         <div className="flex items-center gap-1 mt-3">
