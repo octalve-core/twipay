@@ -82,7 +82,6 @@ export async function customerTour(w: World): Promise<void> {
     { name: 'Settings, then My tickets', covers: ['C44'], go: async () => { await clickLink(page, 'Settings'); await link(page, /^My tickets/).click(); }, heading: 'My tickets' },
     { name: 'Settings, then Organizer centre', covers: ['C45'], go: async () => { await clickLink(page, 'Settings'); await link(page, /^Organizer centre/).click(); }, heading: 'Organizer centre' },
     { name: 'Event check-in', covers: ['C46'], go: async () => { await link(page, /^Event check-in/).click(); }, heading: 'Event check-in' },
-    { name: 'Settings, then FAQs', covers: ['C39'], go: async () => { await clickLink(page, 'Settings'); await link(page, /^FAQs/).click(); }, heading: 'FAQs' },
   ];
   for (const stop of stops) {
     await step({ chapter: 'Customer: every page', role: 'customer Ada', name: `Open ${stop.name}`, covers: stop.covers }, async () => {

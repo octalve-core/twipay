@@ -79,7 +79,7 @@ happens in P3.
 | WT-10 | Mostly by design, no change: the Owner page learns that a step-up is needed from the 403 on `owner/overview` and `owner/risk` (it shows "Confirm your authenticator code (step-up) to continue"), so gating those requests would remove the message. The remaining 403s (finance approver and operations roles asking for data their role cannot read, support agent asking for disputes) are harmless console noise; left alone. | |
 | WT-22 | Fixed: hidden (page, menu entry and link removed; coverage row A04 is now "not demonstrable: hidden") | `fix/wt-admin-quality` |
 | WT-23 | Fixed: delivery rate computed from real counts | `fix/wt-admin-quality` |
-| WT-11, WT-12 | Open: product decision | |
+| WT-11, WT-12 | Fixed at the owner's request: both pages are hidden (menu, footer, sign-in, support-centre and settings links removed; /contact, /faqs and /dashboard/settings/faqs redirect). Matrix rows C03, C04 and C39 are now "not demonstrable: hidden". The privacy policy, which only the contact form linked to, is now linked from the footer. | `fix/wt-customer-ui` |
 | WT-13 | Fixed (93 images) | `fix/wt-customer-ui` |
 | WT-14 | Fixed (0 `button-name` findings in the final run). | `fix/wt-customer-ui` |
 | WT-15 | Fixed (contact form) | `fix/wt-customer-ui` |

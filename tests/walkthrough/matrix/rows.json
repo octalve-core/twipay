@@ -31,9 +31,10 @@
   "roles": [
    "visitor"
   ],
-  "proof": "Click Contact; submit the form and read the honest outcome",
+  "proof": "-",
   "api": [],
-  "demonstrable": "yes"
+  "demonstrable": "no",
+  "note": "Hidden until there is a working inbox for the form (WT-12): no link leads to /contact and the address redirects home."
  },
  {
   "id": "C04",
@@ -43,9 +44,10 @@
   "roles": [
    "visitor"
   ],
-  "proof": "Click FAQs; open and close an accordion item",
+  "proof": "-",
   "api": [],
-  "demonstrable": "yes"
+  "demonstrable": "no",
+  "note": "Hidden until there are questions to show (WT-11): no link leads to /faqs and the address redirects home."
  },
  {
   "id": "C05",
@@ -498,9 +500,10 @@
   "roles": [
    "customer"
   ],
-  "proof": "Click through from the dashboard navigation",
+  "proof": "-",
   "api": [],
-  "demonstrable": "yes"
+  "demonstrable": "no",
+  "note": "Hidden with the FAQ page (WT-11): the Settings entry is gone and the address redirects to Settings."
  },
  {
   "id": "C40",

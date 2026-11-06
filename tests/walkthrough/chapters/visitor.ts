@@ -15,19 +15,9 @@ export async function visitorChapter(w: World): Promise<void> {
     await clickLink(page, 'About us');
     await expect(page).toHaveURL(/\/about$/);
   });
-  await step({ chapter: 'Visitor', role: 'visitor', name: 'Open Contact us and read the notice that the form cannot send', covers: ['C03'] }, async () => {
-    await clickLink(page, 'Contact us');
-    await expect(page).toHaveURL(/\/contact$/);
-    await expect(page.getByRole('status').filter({ hasText: 'We can’t receive messages through this form right now' })).toBeVisible();
-  });
-  await step({ chapter: 'Visitor', role: 'visitor', name: 'Follow the privacy policy link from the contact form', covers: ['C05'] }, async () => {
-    await clickLink(page, 'privacy policy.');
+  await step({ chapter: 'Visitor', role: 'visitor', name: 'Follow the footer link to the privacy policy', covers: ['C05'] }, async () => {
+    await clickLink(page, 'Privacy policy');
     await expect(page).toHaveURL(/\/privacy-policy$/);
-  });
-  await step({ chapter: 'Visitor', role: 'visitor', name: 'Open FAQs and wait for the questions (FINDING: there are none)', covers: ['C04'] }, async () => {
-    await clickLink(page, 'FAQs');
-    await expect(page).toHaveURL(/\/faqs$/);
-    await expect(page.getByText('No FAQs available')).toBeVisible({ timeout: 30_000 });
   });
   await step({ chapter: 'Visitor', role: 'visitor', name: 'Return Home', covers: [] }, async () => {
     await clickLink(page, 'Home');
