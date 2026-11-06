@@ -96,7 +96,6 @@ const LogInForm = () => {
             <div className="my-6 mt-3 flex justify-end">
                 <Link to="/auth/reset-password" className="text-[#112929] text-sm font-medium hover:underline">Forgot password?</Link>
             </div>
-            <p className="text-right text-xs -mt-3 mb-5"><Link to="/faqs" className="text-[#475467] hover:underline">Need help? Browse FAQs</Link></p>
 
             <CustomButton isLoading={isLoggingIn} disabled={isLoggingIn} className="w-full">Log in</CustomButton>
 

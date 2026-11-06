@@ -15,7 +15,7 @@ test('customer login uses welcoming copy and avoids inactive authentication prom
  const login=read(UI+'components/Authentication/LogInForm.tsx');
  const signup=read(UI+'components/Authentication/SignUpForm.tsx');
  assert.match(login,/Welcome back/);assert.match(login,/Jump right back in/);
- assert.match(login,/to="\/faqs"/);
+ assert.doesNotMatch(login,/to="\/faqs"/); // the FAQ page is hidden (WT-11)
  assert.doesNotMatch(login, /Remember for 30 days|not yet available|HttpOnly|localStorage/);
  assert.match(signup,/Get started with TwiPay/);
  assert.doesNotMatch(signup,/Referral code \(not yet available\)|Enter a referral code/);

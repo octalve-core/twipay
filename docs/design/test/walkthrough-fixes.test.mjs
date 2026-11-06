@@ -123,3 +123,19 @@ test('WT-07: the favicon is a brand-neutral file, not the ErhaPay picture', () =
   assert.match(html, /rel="icon"[^>]*href="data:image\/svg\+xml,/);
   assert.doesNotMatch(html, /Erhapay-logo/);
 });
+
+// WT-11 / WT-12: the FAQ page had no questions ("No FAQs available") and the contact form cannot send. Both are hidden until they
+// have real content and a working inbox: no menu or footer link, no link from the sign-in or support pages, and their addresses
+// redirect instead of rendering the page.
+test('WT-11 / WT-12: the FAQ and contact pages are hidden', () => {
+  const constants = read('lib/constants.ts');
+  assert.doesNotMatch(constants, /href: "\/contact"|href: "\/faqs"/);
+  assert.doesNotMatch(constants, /title: "FAQs"/);
+  assert.doesNotMatch(read('components/Authentication/LogInForm.tsx'), /\/faqs/);
+  assert.doesNotMatch(read('routes/dashboard/foundations/SupportCentre.tsx'), /settings\/faqs/);
+  const app = read('App.tsx');
+  assert.doesNotMatch(app, /import ContactPage|import Faq\b|import Faqs\b/);
+  for (const [path, target] of [['/contact', '/'], ['/faqs', '/'], ['settings/faqs', '/dashboard/settings']]) {
+    assert.match(app, new RegExp(`path: "${path}",\\s*element: <Navigate to="${target}" replace />`), path);
+  }
+});

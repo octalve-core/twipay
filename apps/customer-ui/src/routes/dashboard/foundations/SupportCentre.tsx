@@ -109,11 +109,6 @@ export default function SupportCentre() {
           title="Report a transaction issue"
           description="Open a dispute for a transaction on your account."
         />
-        <FoundationLink
-          to="/dashboard/settings/faqs"
-          title="Frequently asked questions"
-          description="Find answers to common questions."
-        />
       </FoundationPanel>
       <FoundationPanel
         title="Send a support request"
