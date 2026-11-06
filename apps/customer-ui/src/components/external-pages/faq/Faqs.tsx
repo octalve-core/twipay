@@ -6,6 +6,7 @@ import {
 } from "@/components/ui/accordion";
 import { getFaqs, TFaq } from "@/lib/api/dashboard-apis/faqApis";
 import { useQuery } from "@tanstack/react-query";
+import { brand } from "@/config/brand";
 
 const Faqs = () => {
   const { data: faqs, isLoading } = useQuery<TFaq[], Error>({
@@ -22,7 +23,7 @@ const Faqs = () => {
           </h1>
           <p className="text-[#475467] text-xl">
             Here you can find answers to your most pressing and commonly asked
-            questions about TwiPay and our services.
+            questions about {brand.name} and our services.
           </p>
         </div>
 

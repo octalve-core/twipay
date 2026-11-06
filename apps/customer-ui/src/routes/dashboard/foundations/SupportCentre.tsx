@@ -12,6 +12,7 @@ import {
   replySupportCase,
   type SupportCaseSummary,
 } from "@/lib/api/dashboard-apis/supportCases";
+import { brand } from "@/config/brand";
 const input =
   "w-full outline-0 bg-white py-2.5 px-3.5 border border-[#D0D5DD] text-[#344054] text-sm rounded-md mt-1 focus:border-[#112929]";
 const readable = (status: string) =>
@@ -209,7 +210,7 @@ export default function SupportCentre() {
               {caseView.data?.messages.map((item) => (
                 <div key={item.id} className="rounded-md bg-white p-3 border text-sm">
                   <p className="font-medium text-[#112929]">
-                    {item.authorType === "STAFF" ? "TwiPay support" : "You"} ·{" "}
+                    {item.authorType === "STAFF" ? `${brand.name} support` : "You"} ·{" "}
                     {new Date(item.createdAt).toLocaleString("en-NG")}
                   </p>
                   <p className="text-[#344054] whitespace-pre-wrap break-words mt-1">{item.text}</p>

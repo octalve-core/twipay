@@ -1,4 +1,5 @@
 import type { AxiosError } from 'axios'
+import { brand } from "@/config/brand";
 
 const MESSAGES: Record<string, string> = {
   INVALID_CREDENTIALS: 'Incorrect email or password.',
@@ -11,7 +12,7 @@ const MESSAGES: Record<string, string> = {
 /** Turns an auth API failure into text a person can act on. The API replies with `{ code }`, not `{ message }`. */
 export function authErrorMessage(error: AxiosError, fallback = 'Something went wrong, please try again'): string {
   const response = error.response
-  if (!response) return "We can't reach TwiPay right now. Check your connection and try again."
+  if (!response) return `We can't reach ${brand.name} right now. Check your connection and try again.`
   const data = (response.data ?? {}) as { code?: unknown; message?: unknown; retryAfterSeconds?: unknown }
   if (response.status === 429 || data.code === 'RATE_LIMITED') {
     const seconds = typeof data.retryAfterSeconds === 'number' ? data.retryAfterSeconds : 0

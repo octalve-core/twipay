@@ -63,7 +63,7 @@ test('preserved sign-up form includes safe browser autocomplete labels', () => {
   const x = source('Authentication/SignUpForm.tsx');
   for (const name of ['given-name','family-name','email','new-password']) assert.ok(x.includes(`autoComplete="${name}"`));
   assert.doesNotMatch(x, /Referral code \(not yet available\)/);
-  assert.match(x, /Get started with TwiPay/);
+  assert.match(x, /Get started with \{brand\.name\}/);
 });
 test('unsupported remember-me function is not misrepresented as active', () => {
   const x = source('Authentication/LogInForm.tsx');

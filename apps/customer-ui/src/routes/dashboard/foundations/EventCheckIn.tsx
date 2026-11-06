@@ -2,6 +2,7 @@ import {useCallback,useEffect,useRef,useState,type FormEvent} from 'react';
 import {useQuery} from '@tanstack/react-query';
 import {FoundationPage,FoundationPanel,FoundationUnavailable} from '@/components/design-system/ErhaFoundationUI';
 import {checkInTicket,listCheckInEvents,type CheckInResult} from '@/lib/api/dashboard-apis/ticketAccess';
+import { brand } from "@/config/brand";
 
 const field='w-full rounded-lg border border-[#D0D5DD] p-3 text-sm text-[#344054] focus-visible:outline-2 focus-visible:outline-[#112929]';
 const action='rounded-lg bg-[#112929] px-5 py-3 text-sm font-medium text-white disabled:opacity-50';
@@ -85,7 +86,7 @@ export default function EventCheckIn(){
     <video ref={video} aria-label="QR camera preview" playsInline muted className={cameraOn?'mt-4 w-full max-w-sm rounded-lg border border-[#D0D5DD]':'hidden'}/>
    </>}
    {error&&<p role="alert" className="text-red-700 mt-4 text-sm">{error}</p>}
-   {result&&<div role="status" className="mt-4 rounded-lg border border-[#D0D5DD] bg-[#F9FAFB] p-4"><p className="font-medium text-[#112929]">Admission confirmed by TwiPay</p><p className="text-sm text-[#344054] mt-1">{result.eventTitle} · {result.ticketType}</p><p className="text-xs text-[#667085] mt-1">Ticket {result.publicCode} · {new Date(result.checkedInAt).toLocaleString()}</p></div>}
+   {result&&<div role="status" className="mt-4 rounded-lg border border-[#D0D5DD] bg-[#F9FAFB] p-4"><p className="font-medium text-[#112929]">Admission confirmed by {brand.name}</p><p className="text-sm text-[#344054] mt-1">{result.eventTitle} · {result.ticketType}</p><p className="text-xs text-[#667085] mt-1">Ticket {result.publicCode} · {new Date(result.checkedInAt).toLocaleString()}</p></div>}
   </FoundationPanel>}
  </FoundationPage>;
 }

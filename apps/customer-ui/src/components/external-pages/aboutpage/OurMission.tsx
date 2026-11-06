@@ -1,4 +1,5 @@
 import Our_Mission_Image from "../../../assets/main-pages/our_mission.png";
+import { brand } from "@/config/brand";
 
 const OurMission = () => {
   return (
@@ -17,7 +18,7 @@ const OurMission = () => {
               their mobile and digital needs effortlessly. We aim to bridge the
               gap between technology and convenience, providing a platform
               that&apos;s not only user-friendly but also reliable and secure.
-              With TwiPay, you're in control, whether you&apos;re at home, at
+              With {brand.name}, you're in control, whether you&apos;re at home, at
               work, or on the go.
             </p>
           </div>
