@@ -109,8 +109,20 @@ export class SessionService {
         where: { id: session.id, status: 'ACTIVE', expiresAt: { gt: now }, lastSeenAt: { gt: idleCutoff, lte: touchCutoff } },
         data: { lastSeenAt: now },
       });
-      if (touched.count !== 1) throw new UnauthorizedException({ code: 'AUTHENTICATION_REQUIRED' });
-      session.lastSeenAt = now;
+      if (touched.count === 1) {
+        session.lastSeenAt = now;
+      } else {
+        // Parallel requests all see a stale lastSeenAt and race to touch it; only one update can match. A loser
+        // is not a revoked session: re-read and accept it unless it really ended or went idle in the meantime.
+        const latest = await this.prisma.session.findUnique({
+          where: { id: session.id },
+          select: { status: true, expiresAt: true, lastSeenAt: true },
+        });
+        if (!latest || latest.status !== 'ACTIVE' || latest.expiresAt <= now || latest.lastSeenAt <= idleCutoff) {
+          throw new UnauthorizedException({ code: 'AUTHENTICATION_REQUIRED' });
+        }
+        session.lastSeenAt = latest.lastSeenAt;
+      }
     }
     return session;
   }
