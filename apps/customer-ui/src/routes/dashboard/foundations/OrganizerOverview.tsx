@@ -5,6 +5,7 @@ import {listMyOrganizers} from '@/lib/api/dashboard-apis/organizers';
 import {listManagedEvents,createMyOrganizer,createEventDraft,addEventTicketType,publishManagedEvent} from '@/lib/api/dashboard-apis/organizerDrafts';
 import {formatNgnMinorUnits} from '@/lib/money';
 import EventStaffManagement from './EventStaffManagement';
+import { brand } from "@/config/brand";
 
 const field='w-full rounded-lg border border-[#D0D5DD] p-3 text-sm text-[#344054] focus-visible:outline-2 focus-visible:outline-[#112929]';
 const action='rounded-lg bg-[#112929] px-5 py-3 text-sm font-medium text-white disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#112929]';
@@ -26,7 +27,7 @@ export default function OrganizerOverview(){
  const publishEnabled=import.meta.env.VITE_TWIPAY_EVENT_ORGANIZER_SANDBOX_ENABLED==='true';
  const mutation=useMutation({mutationFn:async(task:()=>Promise<void>)=>task(),onSuccess:async()=>{setError('');setNotice('Your changes have been saved.');await client.invalidateQueries({queryKey:['twipay','my-organizers']});await client.invalidateQueries({queryKey:['twipay','managed-events']});},onError:(err:unknown)=>{setNotice('');setError(message(err));}});
  function submit(event:FormEvent,actionFn:()=>Promise<void>){event.preventDefault();setError('');setNotice('');if(!mutation.isPending)mutation.mutate(actionFn);}
- return <FoundationPage title="Organizer centre" description="Create your organizer profile and prepare events with TwiPay.">
+ return <FoundationPage title="Organizer centre" description={`Create your organizer profile and prepare events with ${brand.name}.`}>
   <FoundationPanel title="Organizer profiles" description="Event payments and public publishing remain restricted until independently approved.">
    {query.isPending&&<p className="mt-4 text-[#667085] text-sm" role="status">Loading your organizer details…</p>}
    {query.isError&&<p className="mt-4 text-red-700 text-sm" role="alert">We couldn't load your organizer details. Please try again later.</p>}
@@ -57,6 +58,6 @@ export default function OrganizerOverview(){
    {!publishEnabled&&<p role="status" className="mt-4 text-sm text-[#667085]">Public event publishing is not yet enabled. Your drafts remain private.</p>}
    {error&&<p role="alert" className="mt-4 text-red-700 text-sm">{error}</p>}{notice&&<p role="status" className="mt-4 text-[#112929] text-sm">{notice}</p>}
   </FoundationPanel>
-  <FoundationPanel title="Organizer settlements"><FoundationUnavailable title="Settlement payouts" description="Payout requests and settlement management are not available here yet."/><FoundationLink to="/dashboard/events" title="Browse events" description="See public events currently available on TwiPay."/><FoundationLink to="/dashboard/event-check-in" title="Event check-in" description="Authorized organizers and staff can verify admission when available."/></FoundationPanel>
+  <FoundationPanel title="Organizer settlements"><FoundationUnavailable title="Settlement payouts" description="Payout requests and settlement management are not available here yet."/><FoundationLink to="/dashboard/events" title="Browse events" description={`See public events currently available on ${brand.name}.`}/><FoundationLink to="/dashboard/event-check-in" title="Event check-in" description="Authorized organizers and staff can verify admission when available."/></FoundationPanel>
  </FoundationPage>;
 }

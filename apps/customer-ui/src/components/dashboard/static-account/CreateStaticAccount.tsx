@@ -13,6 +13,7 @@ import {
   type VirtualAccountProvider,
   type VirtualAccountResult,
 } from '@/lib/api/dashboard-apis/virtualAccounts';
+import { brand } from "@/config/brand";
 
 const enabled = import.meta.env.VITE_TWIPAY_VIRTUAL_ACCOUNT_SANDBOX_ENABLED === 'true';
 const field = 'w-full mt-1.5 border-[0.5px] border-[#D0D5DD] rounded-lg py-2.5 px-3.5 bg-white outline-none focus:border-[#112929] text-sm text-[#344054]';
@@ -88,7 +89,7 @@ export default function CreateStaticAccount({onRefresh}: {onRefresh:()=>Promise<
           value={pin} onChange={e=>setPin(e.target.value.replace(/\D/g,'').slice(0,4))} disabled={pending} required />
         <p className="text-xs text-[#717171] mt-2">We confirm your security PIN before requesting a new funding account.</p></div>
       <label className="mt-5 flex gap-3 items-start text-[#667085] text-sm"><input type="checkbox" checked={consent} onChange={e=>setConsent(e.target.checked)} disabled={pending} required className="mt-1"/>
-        <span>I authorize TwiPay to share my verified identity details with the selected bank-account provider to assign an NGN funding account.</span></label>
+        <span>I authorize {brand.name} to share my verified identity details with the selected bank-account provider to assign an NGN funding account.</span></label>
       <CustomButton disabled={pending || !consent || !validBank || kyc.isError || !/^\d{4}$/.test(pin)} isLoading={pending} className="mt-10 w-full">Proceed - <span className="opacity-60">Create account</span></CustomButton>
     </form>}
     {hasVirtualAccountIntent() && <button type="button" disabled={pending} onClick={resetAttempt} className="text-[#667085] text-xs underline mt-5">Check request status, then start another request</button>}

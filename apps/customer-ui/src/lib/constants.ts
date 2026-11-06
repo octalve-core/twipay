@@ -42,6 +42,7 @@ import nineMobile from "@/assets/dashboard/9mobile.svg";
 import glo from "@/assets/dashboard/globacom.svg";
 
 import { LuBell, LuBookOpenText, LuLink, LuMail } from "react-icons/lu";
+import { brand } from "@/config/brand";
 
 // NAVBAR
 export const navlinks = [
@@ -109,7 +110,7 @@ export const features = [
     image: StaticAccount,
     title: "Get static account.",
     description:
-      "See assigned funding-account details and track your account status alongside your TwiPay wallet.",
+      `See assigned funding-account details and track your account status alongside your ${brand.name} wallet.`,
   },
   {
     id: 3,
@@ -600,7 +601,7 @@ export const settingsData = [
     id: 3,
     title: "Bank info",
     path: "bank-info",
-    subTitle: "Bank accounts connected to your TwiPay account",
+    subTitle: `Bank accounts connected to your ${brand.name} account`,
     hasVerifiedTag: false,
     icon: LuLink,
   },

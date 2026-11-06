@@ -1,6 +1,7 @@
 import {useState,type FormEvent} from 'react';
 import {useMutation,useQuery,useQueryClient} from '@tanstack/react-query';
 import {inviteEventCheckInStaff,listEventStaff,revokeEventCheckInStaff} from '@/lib/api/dashboard-apis/staffAssignments';
+import { brand } from "@/config/brand";
 
 /** Organizer-scoped delegation; payout and financial privileges are never granted here. */
 export default function EventStaffManagement({eventId,eventTitle}:{eventId:string;eventTitle:string}){
@@ -10,7 +11,7 @@ export default function EventStaffManagement({eventId,eventTitle}:{eventId:strin
  function invite(event:FormEvent){event.preventDefault();if(!change.isPending){setError('');setNotice('');change.mutate(()=>inviteEventCheckInStaff(eventId,email));}}
  return <div className="mt-3 border-t border-[#F0F2F5] pt-4">
   <h4 className="font-medium text-[#112929]">Check-in staff · {eventTitle}</h4>
-  <p className="mt-1 text-xs text-[#667085]">Invite an existing TwiPay customer with a verified email. This grants admission-checking access only, not payments or payouts. Live check-in remains unavailable.</p>
+  <p className="mt-1 text-xs text-[#667085]">Invite an existing {brand.name} customer with a verified email. This grants admission-checking access only, not payments or payouts. Live check-in remains unavailable.</p>
   <form className="mt-3 flex flex-wrap items-end gap-2" onSubmit={invite}>
    <div className="min-w-[200px] flex-1"><label htmlFor={`staff-email-${eventId}`} className="block text-sm text-[#344054]">Staff email</label><input id={`staff-email-${eventId}`} className="mt-1 w-full rounded-lg border border-[#D0D5DD] p-3 text-sm" type="email" autoComplete="off" maxLength={320} required value={email} onChange={e=>setEmail(e.target.value)}/></div>
    <button type="submit" className="rounded-lg bg-[#112929] px-4 py-3 text-white text-sm disabled:opacity-50" disabled={change.isPending||!email.trim()}>Assign check-in access</button>

@@ -6,6 +6,7 @@ import CustomButton from '@/components/CustomButton';
 import { formatNgnMinorUnits } from '@/lib/money';
 import { billIdentifier, billIsFinal, billIsSuccess, billNairaToMinor, readBillPurchase, type BillCategory, type BillSubmission, type BillProduct, type BillValidation, type BillQuote } from '@/lib/api/dashboard-apis/billContracts';
 import { getBillPurchase, listBillProducts, listBillPurchases, submitBillPurchase, validateBillCustomer, requestBillQuote } from '@/lib/api/dashboard-apis/bills';
+import { brand } from "@/config/brand";
 
 type Stage = 'details'|'review'|'result';
 const titles: Record<BillCategory,string> = {AIRTIME:'Buy Airtime',DATA:'Buy Data',ELECTRICITY:'Pay Electricity',CABLE:'Buy TV/Cable'};
@@ -159,7 +160,7 @@ export default function IntegratedBillService({category}: {category:BillCategory
         <p><strong>Provider:</strong> {review.quote.provider}</p>
         <p className="text-[#717171]">Confirmation expires at {new Date(review.quote.expiresAt).toLocaleTimeString()}.</p>
         {review.contactPhoneE164 && <p><strong>Contact:</strong> {review.contactPhoneE164}</p>}
-        <p className="text-[#717171]">The provider and final receipt status are verified by TwiPay. No success is assumed from clicking Confirm.</p>
+        <p className="text-[#717171]">The provider and final receipt status are verified by {brand.name}. No success is assumed from clicking Confirm.</p>
       </div>
       <label htmlFor="bill-purchase-pin" className="text-sm font-medium text-[#344054]">Transaction PIN
         <input id="bill-purchase-pin" className={inputs} type="password" inputMode="numeric" autoComplete="off" maxLength={4}
@@ -179,7 +180,7 @@ export default function IntegratedBillService({category}: {category:BillCategory
         {!billIsFinal(result.status) && <p className="text-[#717171]">This purchase has not been confirmed successful. Reconciliation may still be ongoing. Do not purchase again automatically.</p>}
         {result.status==='FAILED' && <p className="text-red-700">The provider reported failure. Review transaction history and any reversal before a new attempt.</p>}
       </div>
-      <CustomButton type="button" disabled={checking} isLoading={checking} onClick={()=>void checkPurchaseStatus(result.reference)}>Refresh status from TwiPay</CustomButton>
+      <CustomButton type="button" disabled={checking} isLoading={checking} onClick={()=>void checkPurchaseStatus(result.reference)}>Refresh status from {brand.name}</CustomButton>
       <CustomButton type="button" variant="primary" href="/dashboard/history">View transaction history</CustomButton>
       <CustomButton type="button" variant="primary" onClick={clearPrevious}>Start a new purchase after reviewing history</CustomButton>
     </div>}

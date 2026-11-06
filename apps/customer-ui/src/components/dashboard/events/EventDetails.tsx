@@ -6,6 +6,7 @@ import {formatNgnMinorUnits} from '@/lib/money';
 import Clock from '@/assets/dashboard/clock-icon.svg';
 import Location from '@/assets/dashboard/location-icon.svg';
 import Tag from '@/assets/dashboard/tag-icon.svg';
+import { brand } from "@/config/brand";
 export default function EventDetails(){
  const {selectedEvent,selectedTicketTypeId,quantity,update}=useEventsStore();
  const catalogue=useQuery({queryKey:['twipay','published-events'],queryFn:listPublishedEvents,retry:false});
@@ -26,7 +27,7 @@ export default function EventDetails(){
       <label className="text-sm text-[#344054] font-medium" htmlFor="event-ticket-type">Ticket type</label>
       <select id="event-ticket-type" value={selectedTicketTypeId||''} onChange={e=>update({selectedTicketTypeId:e.target.value,quote:null})} className="bg-white border border-[#D0D5DD] rounded-lg py-2.5 px-3 text-[#344054]"><option value="">Choose a ticket</option>{event.ticketTypes.filter(t=>t.status==='ACTIVE').map(t=><option key={t.id} value={t.id}>{t.name} — {formatNgnMinorUnits(t.priceMinor)}</option>)}</select>
       <label className="text-sm text-[#344054] font-medium" htmlFor="event-quantity">Quantity (1–20)</label><input id="event-quantity" type="number" min={1} max={20} value={quantity} onChange={e=>update({quantity:Math.max(1,Math.min(20,Number(e.target.value)||1)),quote:null})} className="bg-white border border-[#D0D5DD] rounded-lg py-2.5 px-3 text-[#344054]"/>
-      <p className="text-xs text-[#667085]">Final price and platform fee will be calculated by TwiPay before confirmation.</p>
+      <p className="text-xs text-[#667085]">Final price and platform fee will be calculated by {brand.name} before confirmation.</p>
     </div>
     <CustomButton onClick={()=>update({step:2})} disabled={!ticket||ticket.status!=='ACTIVE'||event.status!=='PUBLISHED'} className="w-full">Proceed - <span className="opacity-60">enter details</span></CustomButton>
   </>}

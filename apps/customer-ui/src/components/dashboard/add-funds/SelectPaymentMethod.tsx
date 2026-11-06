@@ -8,6 +8,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
+import { brand } from "@/config/brand";
 
 // Based only on supported FinanceController provider enum, not a fabricated providers API.
 export type TPaymentProvider = { name: string; code: FundingProvider };
@@ -79,7 +80,7 @@ const SelectPaymentMethod = () => {
         }}>Start a separate funding attempt</button>
       </div>}
       {sandboxEnabled && <div className="mt-6 space-y-4">
-        <p className="text-sm text-[#344054]">You are requesting a payment of {amount} NGN using {paymentMethod?.name ?? 'your selected provider'}. Your wallet will be credited only after TwiPay verifies the payment.</p>
+        <p className="text-sm text-[#344054]">You are requesting a payment of {amount} NGN using {paymentMethod?.name ?? 'your selected provider'}. Your wallet will be credited only after {brand.name} verifies the payment.</p>
         <div><label htmlFor="funding-transaction-pin" className="text-sm font-medium text-[#344054]">Transaction PIN</label>
           <input id="funding-transaction-pin" type="password" inputMode="numeric" autoComplete="off" maxLength={4} pattern="[0-9]{4}"
             value={pin} onChange={e=>setPin(e.target.value.replace(/\D/g,'').slice(0,4))}

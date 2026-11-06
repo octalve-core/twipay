@@ -10,6 +10,7 @@ import { getCurrentSession, verify2FaOtp } from "@/lib/api/authApi";
 import BackButton from "@/components/Authentication/BackButton";
 import Logo from "@/components/navbar/Logo";
 import AuthLogomark from "@/assets/auth/AuthLogomark.png";
+import { brand } from "@/config/brand";
 
 export default function TwoFAOtp() {
   const [otp, setOtp] = useState("");
@@ -58,7 +59,7 @@ export default function TwoFAOtp() {
         <button type="button" onClick={() => {setUseRecovery(value => !value); setOtp("");}} className="block mt-4 text-sm text-[#112929] underline">
           {useRecovery ? "Use authenticator code instead" : "Use a recovery code"}
         </button>
-        <p className="text-[#667085] text-sm mt-6 text-center">TwiPay never sends authenticator-app codes by email.</p>
+        <p className="text-[#667085] text-sm mt-6 text-center">{brand.name} never sends authenticator-app codes by email.</p>
         <CustomButton isLoading={isPending} disabled={(useRecovery ? !/^[A-Z2-7-]{16,32}$/i.test(otp.trim()) : !/^\d{6}$/.test(otp)) || isPending} className="w-full mt-6">Verify and continue</CustomButton>
       </form>
     </div>

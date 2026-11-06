@@ -1,5 +1,6 @@
 import { HiOutlineChevronRight } from 'react-icons/hi';
 import { IoClose } from 'react-icons/io5';
+import { brand } from "@/config/brand";
 
 // Financial accounts require a reviewed closure/retention policy. The original
 // ErhaPay row remains recognizable, but intentionally provides no destructive action.
@@ -12,7 +13,7 @@ export default function DeactivateAccount() {
         </span>
         <div>
           <h2 className="text-[#101928] font-medium md:font-bold text-left">Account closure</h2>
-          <p id="account-closure-unavailable" className="text-xs text-[#667185]">Self-service closure is not available yet. Contact TwiPay support for assistance.</p>
+          <p id="account-closure-unavailable" className="text-xs text-[#667185]">Self-service closure is not available yet. Contact {brand.name} support for assistance.</p>
         </div>
       </div>
       <HiOutlineChevronRight className="hidden md:block size-5 text-[#98A2B3]" aria-hidden="true" />

@@ -1,6 +1,7 @@
 import {FoundationPage,FoundationPanel,FoundationLink,FoundationUnavailable} from '@/components/design-system/ErhaFoundationUI';
+import { brand } from "@/config/brand";
 export default function AccountSecurityOverview(){
- return <FoundationPage title="Account security" description="Manage the ways you keep your TwiPay account safe.">
+ return <FoundationPage title="Account security" description={`Manage the ways you keep your ${brand.name} account safe.`}>
   <FoundationPanel title="Protect your account" description="Choose how you sign in and review your identity details.">
    <FoundationLink to="/dashboard/settings/security" title="Security settings" description="Review available two-step verification settings."/>
    <FoundationLink to="/dashboard/settings/identity-verification" title="Identity verification" description="Check your verification progress."/>
