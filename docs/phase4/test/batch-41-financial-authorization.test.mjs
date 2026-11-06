@@ -75,6 +75,14 @@ test('PIN guessing increments persisted lockout and never emits raw secret',asyn
  await assert.rejects(h.auth('2586'),{code:'PIN_TEMPORARILY_LOCKED'});
  assert.ok(!JSON.stringify(h.state.events).includes('9999'));
 });
+test('the configured session idle window (default 86400 s, schema maximum 604800 s) does not make authorization unavailable',async()=>{
+ const before=process.env.SESSION_IDLE_TTL_SECONDS;
+ try{
+  process.env.SESSION_IDLE_TTL_SECONDS='86400';assert.equal((await harness().auth()).sessionId,'s1');
+  process.env.SESSION_IDLE_TTL_SECONDS='604800';assert.equal((await harness().auth()).sessionId,'s1');
+  process.env.SESSION_IDLE_TTL_SECONDS='604801';await assert.rejects(harness().auth(),{code:'FINANCIAL_OPERATIONS_NOT_RELEASE_QUALIFIED'});
+ }finally{if(before===undefined)delete process.env.SESSION_IDLE_TTL_SECONDS;else process.env.SESSION_IDLE_TTL_SECONDS=before;}
+});
 test('correct PIN authorizes a server-only artifact, consumes no client credential, and resets failures',async()=>{
  const h=harness();h.state.failed=3;
  const a=await h.auth();assert.equal(a.sessionId,'s1');assert.equal(a.userId,'u1');assert.equal(a.intent,'TRANSFER');assert.ok(a.pinChangedAt instanceof Date);assert.ok(!('transactionPin' in a));assert.equal(h.state.failed,0);
