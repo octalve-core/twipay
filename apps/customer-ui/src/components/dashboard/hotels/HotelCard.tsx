@@ -6,7 +6,7 @@ const HotelCard = () => {
   return (
     <div className="col-span-full md:col-span-1 rounded-lg bg-white p-4 cursor-pointer border border-transparent hover:border-[#112929] transition">
         <div className="flex gap-2 items-center">
-            <img className="size-3.5 object-cover rounded-full" />
+            <img alt="" className="size-3.5 object-cover rounded-full" />
             <h1 className="text-[#344054] font-medium">Eko hotels and suite</h1>
             <CustomStarRating starColor="#FFD700" readonly rating={5} small className="ml-auto" />
         </div>

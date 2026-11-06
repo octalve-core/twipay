@@ -17,7 +17,7 @@ const Status = () => {
   return (
     <div className="grid place-items-center min-h-full w-full">
         <section className="w-full max-w-[596px] flex flex-col items-center">
-            <img src={isSuccessful ? SuccessIcon : FailedIcon} />
+            <img alt="" src={isSuccessful ? SuccessIcon : FailedIcon} />
             <h1 className="font-medium text-2xl text-[#112929]">Transaction {isSuccessful ? "successful" : "failed"}</h1>
             <p className="md:text-[28px] md:leading-10 text-center mt-3 mb-12 md:mt-12 md:mb-12">Your transfer of ₦ <span className="font-medium">100,000</span> to <span className="font-medium">0000000000 (Anna Keshinro)</span> {isSuccessful ? "is successful" : "failed"}.</p>
             <div className="flex flex-col md:flex-row items-center w-full gap-2 md:gap-5">

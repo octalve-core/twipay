@@ -74,7 +74,7 @@ const SelectProvider = () => {
                         >
                             {provider
                                 ? <div className="text-[#344054] flex items-center gap-2">
-                                        <img src={selectedProvider?.logo} className="size-5 object-cover" />
+                                        <img alt="" src={selectedProvider?.logo} className="size-5 object-cover" />
                                         <span>{selectedProvider?.name}</span>
                                     </div>
                                 : `${isLoading ? "Loading electricity providers..." : "Select Electricity provider"}`}
@@ -99,7 +99,7 @@ const SelectProvider = () => {
                                         }}
                                     >
                                         <div className="text-[#344054] flex items-center gap-2">
-                                            <img src={prov.logo} className="size-5 object-cover" />
+                                            <img alt="" src={prov.logo} className="size-5 object-cover" />
                                             <span>{prov.name}</span>
                                         </div>
                                         <Check

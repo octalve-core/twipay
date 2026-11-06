@@ -14,8 +14,6 @@ import MfaChallengeRoute from "./routes/layout/MfaChallengeRoute";
 import Homepage from "./routes/external-pages/Homepage";
 import About from "./routes/external-pages/About";
 import MainLayout from "./routes/layout/MainLayout";
-import ContactPage from "./routes/external-pages/ContactPage";
-import Faq from "./routes/external-pages/Faq";
 import PrivacyPolicy from "./routes/external-pages/PrivacyPolicy";
 import TermsPage from "./routes/external-pages/TermsPage";
 import Guide from "./routes/external-pages/Guide";
@@ -68,7 +66,6 @@ import IdentityVerificationSettings from "./components/dashboard/settings/Identi
 import SecuritySettings from "./components/dashboard/settings/SecuritySettings";
 import BankInfoSettings from "./components/dashboard/settings/BankInfoSettings";
 import Support from "./components/dashboard/settings/Support";
-import Faqs from "./components/dashboard/settings/Faqs";
 import Hotels from "./routes/dashboard/Hotels";
 import CustomerInfo from "./components/dashboard/hotels/CustomerInfo";
 import ConfirmHotelPayment from "./components/dashboard/hotels/ConfirmHotelPayment";
@@ -112,12 +109,14 @@ function App() {
           element: <About />,
         },
         {
+          // Hidden until there is a working inbox for the form (WT-12): the page and its links are gone, the address goes home.
           path: "/contact",
-          element: <ContactPage />,
+          element: <Navigate to="/" replace />,
         },
         {
+          // Hidden until there are questions to show (WT-11).
           path: "/faqs",
-          element: <Faq />,
+          element: <Navigate to="/" replace />,
         },
         {
           path: "/privacy-policy",
@@ -321,7 +320,7 @@ function App() {
         },
         {
           path: "settings/faqs",
-          element: <Faqs />
+          element: <Navigate to="/dashboard/settings" replace />
         },
         {
           path: "settings/security-overview",

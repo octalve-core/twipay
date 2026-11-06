@@ -43,7 +43,7 @@ const Campaign = () => {
             <div className="absolute text-white z-10 bottom-5 md:bottom-10 left-5 md:left-10">
                 <p className="text-xs md:text-2xl">Tap to participate</p>
                 <div className="flex items-start">
-                    <p className="text-3xl md:text-6xl font-bold [line-height:.8]">Referral<img className="inline size-3.5 md:size-7 ml-2 md:ml-4 group-hover:translate-x-2 transition" src={DoubleArrow} /> <br />Campaign</p>
+                    <p className="text-3xl md:text-6xl font-bold [line-height:.8]">Referral<img alt="" className="inline size-3.5 md:size-7 ml-2 md:ml-4 group-hover:translate-x-2 transition" src={DoubleArrow} /> <br />Campaign</p>
                 </div>
             </div>
         </Link> */}

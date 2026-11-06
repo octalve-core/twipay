@@ -168,7 +168,7 @@ const UserDetails = () => {
             <Logo imgClassName="w-[91.5px] h-10 md:hidden" />
         </div>
         <div className="md:text-center mt-6 max-md:mt-10">
-            <h2 className="text-4xl text-[#101828] font-medium">Complete sign up <span className="text-[#112929]">(3/4)</span></h2>
+            <h1 className="text-4xl text-[#101828] font-medium">Complete sign up <span className="text-[#112929]">(3/4)</span></h1>
             <p className="mt-3 text-[#475467]">Complete sign up process</p>
         </div>
         <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-[410px] mt-8">
@@ -210,7 +210,7 @@ const UserDetails = () => {
                         >
                             {country
                                 ? <div className="text-[#344054] flex items-center gap-2">
-                                    <img src={selectedCountry?.flag} className="size-5 rounded-full object-cover" />
+                                    <img alt="" src={selectedCountry?.flag} className="size-5 rounded-full object-cover" />
                                     <span>{selectedCountry?.name}</span>
                                 </div>
                                 : `${fetchingCountries ? "Loading countries..." : "Select country"}`}
@@ -238,7 +238,7 @@ const UserDetails = () => {
                                         }}
                                     >
                                         <div className="text-[#344054] flex items-center gap-2">
-                                            <img src={ctry.flag} className="size-5 rounded-full bg-gray-100 object-cover" />
+                                            <img alt="" src={ctry.flag} className="size-5 rounded-full bg-gray-100 object-cover" />
                                             <span>{ctry.name}</span>
                                         </div>
                                         <Check

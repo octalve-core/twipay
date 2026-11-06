@@ -15,7 +15,7 @@ const Features = () => {
                     activeMarketingFeatures.map(({id, title, description, image}) => (
                         <article className={cn("flex flex-col md:flex-row items-center max-md:w-[292px] md:h-[480px] max-md:mx-auto", id%2===0 && "md:flex-row-reverse")} key={id}>
                             <div className="w-full h-[245px] md:h-full">
-                                <img className="w-[572px] h-full" src={image} />
+                                <img alt="" className="w-[572px] h-full" src={image} />
                             </div>
                             <div className={cn("w-full h-full grid place-items-center max-md:mt-7", id%2 === 0 ? "md:pr-24" : "md:pl-24")}>
                                 <div className="max-w-[500px] mx-auto">                                 

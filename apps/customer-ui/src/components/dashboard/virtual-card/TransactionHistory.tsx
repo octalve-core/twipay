@@ -13,7 +13,7 @@ const TransactionDetails = () => {
             <div className="bg-white p-2 rounded-lg flex justify-between border border-transparent hover:border-[#464E60] transition">
                 <div className="flex items-center gap-2">
                     <div className="grid place-items-center size-[36px] md:size-10 bg-[#F8F8F8] rounded-full">
-                        <img className="size-[18px] md:size-4 object-center" src={Icon} />
+                        <img alt="" className="size-[18px] md:size-4 object-center" src={Icon} />
                     </div>
                     <div>
                         <h3 className="text-[#1C1C1CCC] text-sm font-medium">Google purchase</h3>
@@ -29,7 +29,7 @@ const TransactionDetails = () => {
             <div className="bg-white p-2 rounded-lg flex justify-between border border-transparent hover:border-[#464E60] transition">
                 <div className="flex items-center gap-2">
                     <div className="grid place-items-center size-[36px] md:size-10 bg-[#F8F8F8] rounded-full">
-                        <img className="size-[18px] md:size-4 object-center" src={Icon} />
+                        <img alt="" className="size-[18px] md:size-4 object-center" src={Icon} />
                     </div>
                     <div>
                         <h3 className="text-[#1C1C1CCC] text-sm font-medium">Google purchase</h3>

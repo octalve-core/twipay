@@ -12,7 +12,7 @@ const Status = () => {
   return (
     <div className="grid place-items-center min-h-full w-full">
         <section className="w-full max-w-[325px] flex flex-col items-center">
-            <img className="h-[113px] w-[124px] md:w-[175px] md:h-[160px] object-cover" src={isSuccessful ? SuccessIcon : FailedIcon} />
+            <img alt="" className="h-[113px] w-[124px] md:w-[175px] md:h-[160px] object-cover" src={isSuccessful ? SuccessIcon : FailedIcon} />
             <h1 className="font-medium text-2xl text-[#112929] mt-2">Transaction {isSuccessful ? "successful" : "failed"}</h1>
             <p className="md:text-xl text-center mt-3 mb-12 md:my-10 max-md:text-[#717171]">
             Your ESIM Purchase from <span className="font-medium">Nigeria</span> for <span className="font-medium">{formatAmount(10000)}</span> {isSuccessful ? "is successful" : "failed"}.

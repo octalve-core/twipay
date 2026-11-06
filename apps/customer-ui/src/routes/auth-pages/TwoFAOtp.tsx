@@ -39,7 +39,7 @@ export default function TwoFAOtp() {
       </div>
       <img src={AuthLogomark} alt="" className="object-cover size-8 mb-1.5 mt-6 max-md:hidden" />
       <div className="md:text-center max-md:mt-10">
-        <h2 className="text-4xl text-[#101828] font-medium">2 factor authentication</h2>
+        <h1 className="text-4xl text-[#101828] font-medium">2 factor authentication</h1>
         <p className="mt-3 text-[#475467]">{useRecovery ? "Enter one of your unused recovery codes." : "Enter the current 6-digit code from your authenticator app."}</p>
       </div>
       <form onSubmit={onSubmit} className="w-full max-w-[410px] mt-8">

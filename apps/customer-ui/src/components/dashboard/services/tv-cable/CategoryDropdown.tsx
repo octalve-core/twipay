@@ -44,7 +44,7 @@ const CategoryDropdown = ({categoriesArr, isLoading, error}: TCategoryDropdown) 
                 >
                     {provider
                         ? <div className="text-[#344054] flex items-center gap-2">
-                            <img src={provider?.logo} className="size-5 object-cover" />
+                            <img alt="" src={provider?.logo} className="size-5 object-cover" />
                             <span>{provider?.name}</span>
                         </div>
                         : `${isLoading ? "Loading provider..." : "Select provider"}`}
@@ -69,7 +69,7 @@ const CategoryDropdown = ({categoriesArr, isLoading, error}: TCategoryDropdown) 
                                 }}
                     >
                                 <div className="text-[#344054] flex items-center gap-2">
-                                    <img src={prov.logo} className="size-5 object-cover" />
+                                    <img alt="" src={prov.logo} className="size-5 object-cover" />
                                     <span>{prov.name}</span>
                                 </div>
                                 <Check

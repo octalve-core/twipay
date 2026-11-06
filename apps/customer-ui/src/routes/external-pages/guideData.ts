@@ -81,18 +81,6 @@ export const routeShots = [
     note: "",
   },
   {
-    route: "/contact",
-    file: "route-ui-contact.png",
-    group: "Public pages",
-    note: "",
-  },
-  {
-    route: "/faqs",
-    file: "route-ui-faqs.png",
-    group: "Public pages",
-    note: "",
-  },
-  {
     route: "/privacy-policy",
     file: "route-ui-privacy-policy.png",
     group: "Public pages",
@@ -227,12 +215,6 @@ export const routeShots = [
   {
     route: "/dashboard/settings/support",
     file: "route-ui-dashboard-settings-support.png",
-    group: "Dashboard",
-    note: "",
-  },
-  {
-    route: "/dashboard/settings/faqs",
-    file: "route-ui-dashboard-settings-faqs.png",
     group: "Dashboard",
     note: "",
   },

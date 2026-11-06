@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import Logo from "../navbar/Logo";
 import MobileNavigation from "./MobileNavigation";
 import { useAuth } from "@/context/AuthContext";
+import UserAvatar from "@/components/dashboard/UserAvatar";
 
 const DashboardHeader = () => {
     const {buttonUrl, onClick} = useBackButtonStore();
@@ -36,7 +37,7 @@ const DashboardHeader = () => {
                 </Link>
                 <Link to="/dashboard/settings/account" aria-label="Account settings" className="hover:opacity-65 transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#112929] rounded-md">
                     <div className="relative size-8">
-                        <img src={user?.avatar || ""} alt="" className="size-full rounded-full object-cover bg-blue-100" />
+                        <UserAvatar avatar={user?.avatar} firstname={user?.firstname} lastname={user?.lastname} />
                         {/* No verification badge until an authoritative server status is exposed here. */}
                     </div>
                 </Link>

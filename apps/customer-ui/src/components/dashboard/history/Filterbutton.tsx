@@ -25,7 +25,7 @@ const Filterbutton = () => {
             <BsSliders2Vertical className="text-[#101828] size-5" />
           </div>
       </SheetTrigger>
-      <SheetContent side={isMobile ? "bottom" : "right"} className="bg-white border-none rounded-tl-xl max-md:rounded-tr-xl sm:max-w-[410px] max-md:h-[85vh]">
+      <SheetContent aria-label="Filter transactions" side={isMobile ? "bottom" : "right"} className="bg-white border-none rounded-tl-xl max-md:rounded-tr-xl sm:max-w-[410px] max-md:h-[85vh]">
         <ApplyFilters setOpen={setOpen} />
       </SheetContent>
     </Sheet>

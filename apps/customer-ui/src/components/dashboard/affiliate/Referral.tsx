@@ -85,7 +85,7 @@ const Referral = () => {
                         <div key={i} className="flex items-center justify-between bg-white rounded-lg py-2.5 px-3">
                             <div className="flex items-center gap-2">
                                 <div className="relative bg-[#F8F8F8] size-[36px] md:size-10 rounded-full grid place-items-center">
-                                    <img className="size-[36px] md:size-10" src={UserImage} />
+                                    <img alt="" className="size-[36px] md:size-10" src={UserImage} />
                                     <div className="size-2 bg-[#12B76A] rounded-full absolute right-0 bottom-0 z-10" />
                                 </div>
                                 <div className="text-xs md:text-sm">

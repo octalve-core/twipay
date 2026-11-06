@@ -5,17 +5,17 @@ import {readFileSync} from 'node:fs';
 const read=(path)=>readFileSync(new URL(`../../../${path}`,import.meta.url),'utf8');
 const UI='apps/customer-ui/src/';
 
-test('original logo remains unchanged as the temporary public favicon',()=>{
+test('the page title, favicon and description carry the TwiPay brand',()=>{
  const html=read('apps/customer-ui/index.html');
  assert.match(html, /<title>TwiPay<\/title>/);
- assert.match(html, /href="\/Erhapay-logo.jpg"/);
+ assert.match(html, /rel="icon" type="image\/svg\+xml" href="data:image\/svg\+xml,/);
  assert.match(html, /name="description" content="Keep your TwiPay account/);
 });
 test('customer login uses welcoming copy and avoids inactive authentication promises',()=>{
  const login=read(UI+'components/Authentication/LogInForm.tsx');
  const signup=read(UI+'components/Authentication/SignUpForm.tsx');
  assert.match(login,/Welcome back/);assert.match(login,/Jump right back in/);
- assert.match(login,/to="\/faqs"/);
+ assert.doesNotMatch(login,/to="\/faqs"/); // the FAQ page is hidden (WT-11)
  assert.doesNotMatch(login, /Remember for 30 days|not yet available|HttpOnly|localStorage/);
  assert.match(signup,/Get started with TwiPay/);
  assert.doesNotMatch(signup,/Referral code \(not yet available\)|Enter a referral code/);

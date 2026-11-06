@@ -16,12 +16,12 @@ const Card = () => {
                     <p className="text-sm md:text-base font-medium tracking-widest">1234 1234 1234 1234</p>
                 </div>
                 <div className="w-[45px] h-8 grid place-items-center bg-white/10 absolute right-[19%] bottom-8 z-10">
-                    <img src={MastercardIcon} className="object-cover w-7 h-4" />
+                    <img alt="" src={MastercardIcon} className="object-cover w-7 h-4" />
                 </div>
             </div>
         </div>
         <div className="col-span-1 bg-gradient-to-b from-purple-400 to-red-300 relative">
-            <img src={PayPass} className="2-4 md:w-5 hh-5 md:h-6 absolute top-4 right-4" />
+            <img alt="" src={PayPass} className="2-4 md:w-5 hh-5 md:h-6 absolute top-4 right-4" />
         </div>
     </div>
   )

@@ -206,7 +206,7 @@ const RecipientDetails = () => {
                         >
                             {providerName
                                 ? <div className="text-[#344054] flex items-center gap-2">
-                                    <img src={selectedProvider?.logo} className="size-5 object-cover" />
+                                    <img alt="" src={selectedProvider?.logo} className="size-5 object-cover" />
                                     <span>{selectedProvider?.name.replace("Data", "")}</span>
                                 </div>
                                 : `${isLoading ? "Loading network providers..." : "Select network provider"}`}
@@ -230,7 +230,7 @@ const RecipientDetails = () => {
                                         }}
                                     >
                                         <div className="text-[#344054] flex items-center gap-2">
-                                            <img src={prov.logo} className="size-5 object-cover" />
+                                            <img alt="" src={prov.logo} className="size-5 object-cover" />
                                             <span
                                                 // style={{
                                                 //     textColor
@@ -315,7 +315,7 @@ const RecipientDetails = () => {
                         >
                             {plan
                                 ? <div className="text-[#344054] flex items-center gap-2">
-                                    <img src={selectedPlan?.logo} className="size-5 rounded-full object-cover" />
+                                    <img alt="" src={selectedPlan?.logo} className="size-5 rounded-full object-cover" />
                                     <span className="text-left line-clamp-1">{selectedPlan?.name ? selectedPlan?.name : "Empty"}</span>
                                 </div>
                                 : `${fetchingPlans ? "Fetching plans..." : "Select plan"}`}
@@ -339,7 +339,7 @@ const RecipientDetails = () => {
                                         }}
                                     >
                                         <div className="text-[#344054] flex items-center gap-2">
-                                            <img src={dataplan.logo} className="size-5 rounded-full bg-gray-100 object-cover" />
+                                            <img alt="" src={dataplan.logo} className="size-5 rounded-full bg-gray-100 object-cover" />
                                             <span>{dataplan.name}</span>
                                         </div>
                                         <Check

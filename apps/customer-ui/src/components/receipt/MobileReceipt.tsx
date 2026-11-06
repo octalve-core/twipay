@@ -45,7 +45,7 @@ const MobileReceipt = ({txnDetails, fetchingDetails}:{txnDetails: Transaction | 
                         ) : null
                     }
                     </>}
-                    {txnLogo && <img src={txnLogo} className="size-full rounded-full object-cover" />}
+                    {txnLogo && <img alt="" src={txnLogo} className="size-full rounded-full object-cover" />}
                 </div>
                 <span className="text-lg capitalize shrink-0">{txnDetails?.metadata?.serviceName?.replaceAll("_", " ").replace("Airtime", "")}</span>
             </div>

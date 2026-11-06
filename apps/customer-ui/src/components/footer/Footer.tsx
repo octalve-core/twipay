@@ -1,5 +1,6 @@
 import { navlinks } from "@/lib/constants";
 import Logo from "../navbar/Logo";
+import { brand } from "@/config/brand";
 import { Link, NavLink } from "react-router-dom";
 
 import Twitter from "../../assets/main-pages/Twitter.png";
@@ -59,7 +60,7 @@ const Footer = () => {
             <div className="flex md:hidden items-center gap-6">
               {socialLinks.map(({ id, icon, href }) => (
                 <Link key={id} to={href}>
-                  <img className="size-4 object-cover" src={icon} />
+                  <img alt="" className="size-4 object-cover" src={icon} />
                 </Link>
               ))}
               <Link className="hover:scale-110 transition" to="/">
@@ -72,12 +73,13 @@ const Footer = () => {
         <div className="bg-[#EAECF0] h-[1px] mt-8 md:mt-16 mb-8 max-md:bg-transparent" />
         <div className="flex items-center justify-center md:justify-between">
           <p className="text-[#667085]">
-            © 2026 TwiPay. Operated by Octalve.
+            © 2026 {brand.name}. Operated by {brand.operator}.{" "}
+            <Link to="/privacy-policy" className="underline hover:text-[#112929]">Privacy policy</Link>
           </p>
           <div className="hidden md:flex items-center gap-4 md:gap-6">
             {socialLinks.map(({ id, icon, href }) => (
               <Link className="hover:scale-110 transition" key={id} to={href}>
-                <img className="size-4 object-cover" src={icon} />
+                <img alt="" className="size-4 object-cover" src={icon} />
               </Link>
             ))}
             <Link className="hover:scale-110 transition" to="/">

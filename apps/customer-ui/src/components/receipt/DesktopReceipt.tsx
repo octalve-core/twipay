@@ -1,6 +1,6 @@
 import { formatNgnMinorUnits } from "@/lib/money";
 import { Transaction, formatTransactionAmount } from "@/lib/api/dashboard-apis/txnHistoryApis"
-import SiteLogo from "../../assets/main-pages/logo.png"
+import { BrandMark } from "../navbar/Logo"
 import Loader from "../Loader";
 import { cn, copyToClipboard, formatDate } from "@/lib/utils";
 import { useState } from "react";
@@ -33,7 +33,7 @@ const DesktopReceipt = ({txnDetails, fetchingDetails}:{txnDetails: Transaction |
     <div className="hidden md:grid place-items-center min-h-full w-full">
         <section className="w-full max-w-[440px] flex flex-col items-center">
             <div className="w-full flex items-center gap-2 rounded-md text-center py-6 px-4 md:px-16 mb-9 bg-[#F0F5FB]">
-                <img className="object-cover w-[91.5px] h-10" src={SiteLogo} alt="TwiPay" />
+                <BrandMark />
                 <h1 className="text-2xl text-[#112929] font-medium">{txnDetails?.status === "success" ? "Transaction receipt" : "Transaction record"}</h1>
             </div>
 

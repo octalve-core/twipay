@@ -26,7 +26,7 @@ export const columns: ColumnDef<Referral>[] = [
         return <div className="flex items-center justify-start gap-3 px-4">
             <div className="grid place-items-center size-10 bg-[#F9F5FF] rounded-full">
                 {userImage ? (
-                    <img src={userImage} className="object-cover rounded-full" />
+                    <img alt="" src={userImage} className="object-cover rounded-full" />
                 ) : (
                     <span className="uppercase font-bold text-[#112929] text-sm">{firstname[0]}{lastname[0]}</span>
                 )}

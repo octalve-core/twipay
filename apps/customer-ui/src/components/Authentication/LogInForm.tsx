@@ -68,7 +68,7 @@ const LogInForm = () => {
     
   return (
     <div className="mt-10 w-full">
-        <h2 className="text-4xl text-[#101828] font-medium">Welcome back</h2>
+        <h1 className="text-4xl text-[#101828] font-medium">Welcome back</h1>
         <p className="mt-3 text-[#475467]">Jump right back in and pick up where you left off.</p>
 
         <div className="flex items-center gap-1 mt-3">
@@ -96,7 +96,6 @@ const LogInForm = () => {
             <div className="my-6 mt-3 flex justify-end">
                 <Link to="/auth/reset-password" className="text-[#112929] text-sm font-medium hover:underline">Forgot password?</Link>
             </div>
-            <p className="text-right text-xs -mt-3 mb-5"><Link to="/faqs" className="text-[#475467] hover:underline">Need help? Browse FAQs</Link></p>
 
             <CustomButton isLoading={isLoggingIn} disabled={isLoggingIn} className="w-full">Log in</CustomButton>
 

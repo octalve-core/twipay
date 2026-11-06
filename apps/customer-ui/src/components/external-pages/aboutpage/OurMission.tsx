@@ -5,7 +5,7 @@ const OurMission = () => {
     <section className="bg-[#F9FAFB]">
       <div className="container py-10 md:py-24 flex flex-col md:flex-row items-center max-md:w-[80vw] max-md:mx-auto">
         <div className="w-full h-[245px] md:h-[480px]">
-          <img className="" src={Our_Mission_Image} />
+          <img alt="" className="" src={Our_Mission_Image} />
         </div>
         <div className="w-full h-full grid place-items-center max-md:mt-7">
           <div className="max-w-[481px] mx-auto">

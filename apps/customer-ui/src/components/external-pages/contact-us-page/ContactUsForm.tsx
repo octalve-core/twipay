@@ -30,30 +30,30 @@ const ContactUsForm = () => {
             <form onSubmit={event => event.preventDefault()} className="w-full md:w-[640px] md:px-8">
                 <p role="status" className="text-[#667085] text-sm px-3">We can’t receive messages through this form right now. For a question about an existing transaction, sign in and open Support from your account settings.</p>
                 <fieldset disabled className="border-0 p-0 m-0 min-w-0">
-                <img src={ContactUsImg} className="object-cover rounded-md md:w-[490px] md:h-[333px] w-full h-[233px] mx-auto" />
+                <img alt="" src={ContactUsImg} className="object-cover rounded-md md:w-[490px] md:h-[333px] w-full h-[233px] mx-auto" />
                 <div className="md:p-12 max-md:mt-10">
 
                 {/* Form inputs */}
                     <div className="mt-10 md:mt-12">
                         <div className="flex flex-col md:flex-row items-center gap-8">
                             <div className="w-full">
-                                <label className="text-[#344054] text-sm font-medium" htmlFor="firstname">First name</label>
-                                <input {...register("firstname")} type="text" placeholder="First name" className="w-full outline-0 bg-white py-3 px-4 border border-[#D0D5DD] shadow-[#1018280D] placeholder:text-[#667085] rounded-md mt-2 focus:border-[#112929] transition" />
+                                <label className="text-[#344054] text-sm font-medium" htmlFor="contact-firstname">First name</label>
+                                <input id="contact-firstname" {...register("firstname")} type="text" placeholder="First name" className="w-full outline-0 bg-white py-3 px-4 border border-[#D0D5DD] shadow-[#1018280D] placeholder:text-[#667085] rounded-md mt-2 focus:border-[#112929] transition" />
                                 {errors.firstname && <p className="text-red-500 text-sm mt-1">{errors.firstname.message}</p>}
                             </div>
                             <div className="w-full">
-                                <label className="text-[#344054] text-sm font-medium" htmlFor="lastname">Last name</label>
-                                <input {...register("lastname")} type="text" placeholder="Last name" className="w-full outline-0 bg-white py-3 px-4 border border-[#D0D5DD] shadow-[#1018280D] placeholder:text-[#667085] rounded-md mt-2 focus:border-[#112929] transition" />
+                                <label className="text-[#344054] text-sm font-medium" htmlFor="contact-lastname">Last name</label>
+                                <input id="contact-lastname" {...register("lastname")} type="text" placeholder="Last name" className="w-full outline-0 bg-white py-3 px-4 border border-[#D0D5DD] shadow-[#1018280D] placeholder:text-[#667085] rounded-md mt-2 focus:border-[#112929] transition" />
                                 {errors.lastname && <p className="text-red-500 text-sm mt-1">{errors.lastname.message}</p>}
                             </div>
                         </div>
                         <div className="w-full mt-6">
-                            <label className="text-[#344054] text-sm font-medium" htmlFor="lastname">Email</label>
-                            <input {...register("email")} type="email" placeholder="Enter your email address" className="w-full outline-0 bg-white py-3 px-4 border border-[#D0D5DD] shadow-[#1018280D] placeholder:text-[#667085] rounded-md mt-2 focus:border-[#112929] transition" />
+                            <label className="text-[#344054] text-sm font-medium" htmlFor="contact-email">Email</label>
+                            <input id="contact-email" {...register("email")} type="email" placeholder="Enter your email address" className="w-full outline-0 bg-white py-3 px-4 border border-[#D0D5DD] shadow-[#1018280D] placeholder:text-[#667085] rounded-md mt-2 focus:border-[#112929] transition" />
                             {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
                         </div>
                         <div className="w-full mt-6">
-                            <label className="text-[#344054] text-sm font-medium mb-2" htmlFor="lastname">Phone number</label>
+                            <label className="text-[#344054] text-sm font-medium mb-2" htmlFor="contact-phone">Phone number</label>
                             <Controller
                                 name="phone"
                                 control={control}
@@ -69,6 +69,7 @@ const ContactUsForm = () => {
                                         }
                                         inputProps={{
                                             name: "phone",
+                                            id: "contact-phone",
                                             // required: true,
                                         }}
                                         buttonStyle={{ 
@@ -93,8 +94,8 @@ const ContactUsForm = () => {
                             {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>}
                         </div>
                         <div className="w-full mt-6">
-                            <label className="text-[#344054] text-sm font-medium" htmlFor="lastname">Message</label>
-                            <textarea {...register("message")} className="w-full outline-0 bg-white py-2.5 px-3.5 border border-[#D0D5DD] shadow-[#1018280D] rounded-md mt-2 focus:border-[#112929] transition" />
+                            <label className="text-[#344054] text-sm font-medium" htmlFor="contact-message">Message</label>
+                            <textarea id="contact-message" {...register("message")} className="w-full outline-0 bg-white py-2.5 px-3.5 border border-[#D0D5DD] shadow-[#1018280D] rounded-md mt-2 focus:border-[#112929] transition" />
                         </div>
                         <div className="mt-6 flex items-center">
                             <input {...register("policy")} type="checkbox" id="terms" className="w-4 h-4 accent-[#112929] cursor-pointer" />

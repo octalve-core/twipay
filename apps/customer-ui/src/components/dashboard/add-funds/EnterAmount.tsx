@@ -34,7 +34,7 @@ const EnterAmount = () => {
         <div className="max-md:hidden">
             <BackButton className="mb-8" href="/dashboard" />
             <h1 className="text-[#112929] font-medium text-2xl">Add funds</h1>
-            <p className="text-[#717171] mt-2">Entire the details below to add funds to this account</p>
+            <p className="text-[#717171] mt-2">Enter the details below to add funds to this account</p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="w-full mt-14 md:mt-5">

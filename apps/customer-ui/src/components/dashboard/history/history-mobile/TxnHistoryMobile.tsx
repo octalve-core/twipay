@@ -66,7 +66,7 @@ const TxnHistoryMobile = ({txnHistoryData, fetchingHistory}: TTxnHistoryMobile) 
                               ) : null
                             }
                           </>}
-                          {txnLogo && <img src={txnLogo} className="size-full rounded-full object-cover" />}
+                          {txnLogo && <img alt="" src={txnLogo} className="size-full rounded-full object-cover" />}
                         </div>
                         <div className="">
                           <h3 className=" truncate w-40">

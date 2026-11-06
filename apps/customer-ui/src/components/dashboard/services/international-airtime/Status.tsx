@@ -12,7 +12,7 @@ const Status = () => {
   return (
     <div className="grid place-items-center min-h-full w-full">
         <section className="w-full max-w-[325px] flex flex-col items-center">
-            <img className="h-[113px] w-[124px] md:w-[175px] md:h-[160px] object-cover" src={txnResult ? SuccessIcon : FailedIcon} />
+            <img alt="" className="h-[113px] w-[124px] md:w-[175px] md:h-[160px] object-cover" src={txnResult ? SuccessIcon : FailedIcon} />
             <h1 className="font-medium text-2xl text-[#112929] mt-2">Transaction {txnResult ? "successful" : "failed"}</h1>
             <p className="md:text-xl md:font-medium text-center mt-3 mb-12 md:my-10 max-md:text-[#717171]">
                 <span className="font-medium">You {country?.name} Airtime purchase for {country?.currencySymbol}{amount} on <span className="font-medium">{phone}</span> {txnResult ? "is successful" : "failed"}. </span>

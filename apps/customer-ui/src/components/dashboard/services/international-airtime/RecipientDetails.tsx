@@ -159,7 +159,7 @@ const RecipientDetails = () => {
                             >
                                 {country
                                     ? <div className="text-[#344054] flex items-center gap-2">
-                                        <img src={selectedCountry?.flag} className="size-5 object-cover" />
+                                        <img alt="" src={selectedCountry?.flag} className="size-5 object-cover" />
                                         <span>{selectedCountry?.name}</span>
                                     </div>
                                     : `${isLoading ? "Loading countries..." : "Select country"}`}
@@ -184,7 +184,7 @@ const RecipientDetails = () => {
                                             }}
                                         >
                                             <div className="text-[#344054] flex items-center gap-2">
-                                                <img src={ctry.flag} className="size-5 object-cover" />
+                                                <img alt="" src={ctry.flag} className="size-5 object-cover" />
                                                 <span
                                                 >{ctry.name}</span>
                                             </div>
@@ -214,7 +214,7 @@ const RecipientDetails = () => {
                             >
                                 {selectedProvider
                                     ? <div className="text-[#344054] flex items-center gap-2">
-                                        <img src={selectedProvider.logoUrl} className="size-5 object-cover" />
+                                        <img alt="" src={selectedProvider.logoUrl} className="size-5 object-cover" />
                                         <span className="text-left line-clamp-1">{selectedProvider.name}</span>
                                     </div>
                                     : `${fetchingProviders ? "Loading providers..." : "Select provider"}`}
@@ -239,7 +239,7 @@ const RecipientDetails = () => {
                                             }}
                                         >
                                             <div className="text-[#344054] flex items-center gap-2">
-                                                <img src={prov.logoUrl} className="size-5 object-cover" />
+                                                <img alt="" src={prov.logoUrl} className="size-5 object-cover" />
                                                 <span>{prov.name}</span>
                                             </div>
                                             <Check

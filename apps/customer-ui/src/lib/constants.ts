@@ -42,7 +42,6 @@ import nineMobile from "@/assets/dashboard/9mobile.svg";
 import glo from "@/assets/dashboard/globacom.svg";
 
 import { LuBell, LuBookOpenText, LuLink, LuMail } from "react-icons/lu";
-import { IoPhonePortraitOutline } from "react-icons/io5";
 
 // NAVBAR
 export const navlinks = [
@@ -56,21 +55,11 @@ export const navlinks = [
     label: "About us",
     href: "/about",
   },
-  {
-    id: 3,
-    label: "Contact us",
-    href: "/contact",
-  },
   // {
   //     id: 4,
   //     label: "Privacy Policy",
   //     href:"/privacy-policy"
   // },
-  {
-    id: 5,
-    label: "FAQs",
-    href: "/faqs",
-  },
   // {
   //     id: 6,
   //     label: "Terms & Conditions",
@@ -654,14 +643,6 @@ export const settingsData = [
     subTitle: "See your organizer profiles and events",
     hasVerifiedTag: false,
     icon: LuBriefcase,
-  },
-  {
-    id: 5,
-    title: "FAQs",
-    path: "faqs",
-    subTitle: "Get answers to some frequently asked questions",
-    hasVerifiedTag: false,
-    icon: IoPhonePortraitOutline,
   },
 ];
 
