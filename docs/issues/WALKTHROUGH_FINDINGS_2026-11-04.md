@@ -76,7 +76,7 @@ happens in P3.
 | WT-07 | Fixed: TwiPay, one config file (`config/brand.ts`) | `fix/wt-customer-ui` |
 | WT-08 | Fixed: `explainCode` / `statusLabel` at all call sites, and the failure card no longer says "Error Code:" | `fix/wt-admin-quality` |
 | WT-09 | Not a defect: the endpoint is gated by `FINANCIAL_TIER_REVIEW_SANDBOX_ENABLED` and answers 503 `FINANCIAL_TIER_REVIEW_NOT_QUALIFIED` by design. The page now says so in words. Recorded as "not demonstrable here". | |
-| WT-10 | Open: gate requests on role / step-up (S3, not started). The final run still shows 7 + 7 owner-endpoint 403s before step-up. | |
+| WT-10 | Mostly by design, no change: the Owner page learns that a step-up is needed from the 403 on `owner/overview` and `owner/risk` (it shows "Confirm your authenticator code (step-up) to continue"), so gating those requests would remove the message. The remaining 403s (finance approver and operations roles asking for data their role cannot read, support agent asking for disputes) are harmless console noise; left alone. | |
 | WT-22 | Fixed: hidden (page, menu entry and link removed; coverage row A04 is now "not demonstrable: hidden") | `fix/wt-admin-quality` |
 | WT-23 | Fixed: delivery rate computed from real counts | `fix/wt-admin-quality` |
 | WT-11, WT-12 | Open: product decision | |
