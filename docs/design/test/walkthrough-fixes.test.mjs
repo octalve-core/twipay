@@ -139,3 +139,8 @@ test('WT-11 / WT-12: the FAQ and contact pages are hidden', () => {
     assert.match(app, new RegExp(`path: "${path}",\\s*element: <Navigate to="${target}" replace />`), path);
   }
 });
+
+// Hiding the contact page left the privacy policy with no link (the contact form was the only one), so the footer carries it.
+test('the privacy policy stays reachable from the footer', () => {
+  assert.match(read('components/footer/Footer.tsx'), /to="\/privacy-policy"[^>]*>Privacy policy<\/Link>/);
+});
