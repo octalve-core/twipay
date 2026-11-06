@@ -1,0 +1,114 @@
+# Isolated stack for the product walkthrough. Own project name, own Postgres and Redis on their own ports and
+# volumes: the dev stack's `twipay` database, Redis and worker are never used. Driven by tests/walkthrough/stage.mjs,
+# which writes the env file (fresh secrets) and passes WT_* values. Local only; nothing here may reach the internet.
+name: twipay-wt
+
+x-api-env: &api-env
+  NODE_ENV: development
+  DATABASE_URL: postgresql://wt:${WT_PG_PASSWORD}@postgres:5432/wip_twipay_walkthrough
+  REDIS_URL: redis://redis:6379
+  APP_URL: http://localhost:${WT_UI_PORT:-3102}
+  ADMIN_URL: http://localhost:${WT_ADMIN_PORT:-3101}
+  API_URL: http://localhost:${WT_API_PORT:-4100}
+  API_PORT: "4000"
+  TRUST_PROXY: "false"
+  OPENAPI_DOCS_ENABLED: "false"
+  # Sandbox qualification switches for the owner area only (all refuse to work when NODE_ENV=production). Provider, wallet,
+  # transfer, bill and event-checkout switches stay OFF: those features are listed as not demonstrable. Printed in the PDF.
+  OWNER_GOVERNANCE_SANDBOX_ENABLED: "true"
+  OWNER_CONFIGURATION_SANDBOX_ENABLED: "true"
+  PROVIDER_OPERATIONS_SANDBOX_ENABLED: "true"
+  RESEND_BASE_URL: http://devmail:8025
+  RESEND_API_KEY: dev-inbox-not-a-real-key
+  RESEND_FROM: TwiPay Walkthrough <noreply@twipay.local>
+
+services:
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: wt
+      POSTGRES_PASSWORD: ${WT_PG_PASSWORD}
+      POSTGRES_DB: wip_twipay_walkthrough
+    ports: ["127.0.0.1:${WT_PG_PORT:-5436}:5432"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wt -d wip_twipay_walkthrough"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+    tmpfs: ["/var/lib/postgresql"]   # always starts empty, nothing survives `down`
+
+  redis:
+    image: redis:8-alpine
+    ports: ["127.0.0.1:${WT_REDIS_PORT:-6383}:6379"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  devmail:
+    image: node:24.21.0-bookworm-slim
+    command: ["node", "/app/server.mjs"]
+    volumes: ["../../infrastructure/dev-mail:/app:ro"]
+    user: node
+    ports: ["127.0.0.1:${WT_MAIL_PORT:-8125}:8025"]
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8025/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  migrate:
+    image: twipay-wt/api:local
+    build: { context: ../.., dockerfile: infrastructure/docker/Dockerfile.api }
+    env_file: ["${WT_ENV_FILE}"]
+    environment: *api-env
+    working_dir: /app/packages/database
+    command: ["/app/packages/database/node_modules/.bin/prisma", "migrate", "deploy"]
+    depends_on: { postgres: { condition: service_healthy } }
+    restart: "no"
+
+  api:
+    image: twipay-wt/api:local
+    env_file: ["${WT_ENV_FILE}"]
+    environment: *api-env
+    ports: ["127.0.0.1:${WT_API_PORT:-4100}:4000"]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      redis: { condition: service_healthy }
+      devmail: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('net').connect(4000,'127.0.0.1').on('connect',()=>process.exit(0)).on('error',()=>process.exit(1))"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  worker:
+    image: twipay-wt/worker:local
+    build: { context: ../.., dockerfile: infrastructure/docker/Dockerfile.worker }
+    env_file: ["${WT_ENV_FILE}"]
+    environment: *api-env
+    depends_on: { api: { condition: service_healthy } }
+
+  admin:
+    image: twipay-wt/admin:local
+    build:
+      context: ../..
+      dockerfile: infrastructure/docker/Dockerfile.admin
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:${WT_API_PORT:-4100}
+        NEXT_PUBLIC_DEV_MAIL: "true"
+    ports: ["127.0.0.1:${WT_ADMIN_PORT:-3101}:3001"]
+    depends_on: { api: { condition: service_healthy } }
+
+  customer-ui:
+    image: twipay-wt/customer-ui:local
+    build:
+      context: ../..
+      dockerfile: infrastructure/docker/Dockerfile.customer-ui
+      args:
+        VITE_TWIPAY_API_URL: http://localhost:${WT_API_PORT:-4100}
+        VITE_TWIPAY_DEV_MAIL: "true"
+        VITE_TWIPAY_DEV_GUIDE: "false"
+    ports: ["127.0.0.1:${WT_UI_PORT:-3102}:8080"]
+    depends_on: { api: { condition: service_healthy } }

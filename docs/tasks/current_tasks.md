@@ -58,6 +58,17 @@ Details and impact: [../security/auth-review-2026-10-13.md](../security/auth-rev
 
 ---
 
+## 3c. Product walkthrough (video + PDF + audit)
+Prompt and filled-in parameters: [../handoff/WALKTHROUGH_PROMPT.md](../handoff/WALKTHROUGH_PROMPT.md). Phases stop for a report each.
+- [x] P0 Plan (2026-11-04, branch `walkthrough/p0-harness`, see [tests/walkthrough/README.md](../../tests/walkthrough/README.md)): isolated stack definition and ports, guardrails (separate Playwright config, `goto` wrapper, guard test with tamper tests), coverage matrix (77 rows) computed against the code. Stack not built yet; decisions pending in the P0 report.
+- [x] P1 Recon (2026-11-04): 19 soft runs; findings WT-01..WT-23 in [docs/issues/WALKTHROUGH_FINDINGS_2026-11-04.md](../issues/WALKTHROUGH_FINDINGS_2026-11-04.md).
+- [x] P2 Fix (2026-11-05): `fix/wt-admin-quality` and `fix/wt-customer-ui`, each fix with a regression test that fails on the old code. Not merged, no PR yet.
+- [x] P3 Final (2026-11-05): strict run, 152 steps, all 79 coverage rows accounted for (66 ticked, 13 not demonstrable), at commit `046a02c`; the video is a very fast human (fast typing, idle waits cut, 2x), 7 minutes. Deliverables are in the git-ignored `out/walkthrough/final/`: `walkthrough.pdf`, `walkthrough.mp4`, `walkthrough.webm`, `walkthrough-realtime.mp4`, `findings.md`, `timeline.json`, `chapters.vtt`, `coverage-matrix.md`. Rebuild with `tests/walkthrough/build-artifacts.mjs` ([README](../../tests/walkthrough/README.md)).
+- [ ] P4 Ship: open the PRs (admin fixes, customer-UI fixes, harness, session-race fix #2, walkthrough prompt); the owner merges. Curated screenshots are in `docs/screenshots/2026-11-05-walkthrough/` and shown at `/guide`.
+- [ ] Owner decisions open after the walkthrough: WT-11/12 FAQ and contact form (seed or hide), WT-10 role-gated requests, WT-16 colour contrast (design task). Policy items ISS-001/002/003 are still open.
+
+---
+
 ## 4. Pending / In-Flight Backlog (unchanged)
 - [ ] **MFA Step-Up UI Flow**: TOTP QR enrollment and recovery code generation in the customer profile and ops console.
 - [ ] **Provider Sandbox Verification**: sandbox funding with Paystack and Monnify, utility and ticket flows.

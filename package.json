@@ -34,15 +34,20 @@
     "test:design": "node --test docs/design/test/*.test.mjs",
     "test:offline-regression": "node --experimental-strip-types --test docs/migration/test/*.test.mjs docs/design/test/*.test.mjs docs/integration/test/*.test.mjs docs/phase3/test/*.test.mjs docs/phase4/test/*.test.mjs docs/phase5/test/*.test.mjs docs/phase6/test/*.test.mjs docs/qualification/batch-f-ticket-security.test.mjs apps/admin/test/*.test.mjs scripts/test/stack-readiness.test.mjs",
     "test:betting-exclusion": "node scripts/qualification/betting-exclusion-check.mjs",
-    "test:betting-bundle": "node scripts/qualification/betting-exclusion-check.mjs --built"
+    "test:betting-bundle": "node scripts/qualification/betting-exclusion-check.mjs --built",
+    "test:walkthrough-guards": "node --test tests/walkthrough/*.test.mjs tests/walkthrough/matrix/*.test.mjs",
+    "walkthrough:stage": "node tests/walkthrough/stage.mjs",
+    "walkthrough:matrix": "node tests/walkthrough/matrix/build-matrix.mjs --out out/walkthrough/run",
+    "walkthrough:selftest": "WT_SELFTEST=1 playwright test -c playwright.walkthrough.config.ts"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
+    "@playwright/test": "1.63.0",
     "@types/node": "24.19.1",
     "eslint": "10.10.0",
     "prettier": "3.9.9",
     "turbo": "2.11.2",
     "typescript": "~5.8.3",
-    "typescript-eslint": "8.71.0",
-    "@playwright/test": "1.63.0"
+    "typescript-eslint": "8.71.0"
   }
 }

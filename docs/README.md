@@ -18,7 +18,7 @@ Documentation is a release artifact. Code, migrations, tests, ADRs, security con
 
 Development setup/debugging: `development/local-setup.md` and `development/debugging.md`.
 Running the whole stack in Docker (including the dev email inbox and remote access): `development/docker-stack.md`, `adr/021-local-dev-mail-inbox.md`. Latest authentication review: `security/auth-review-2026-10-13.md`.
-Hand-off for the next agent: `handoff/2026-10-13-session-handover.md`, `handoff/NEXT_AGENT_PROMPT.md`. Issue log: `issues/README.md`. User guide with screenshots: `guide/README.md`, `screenshots/README.md`. Browser review tooling: `../scripts/review-harness/README.md`.
+Product walkthrough prompt: `handoff/WALKTHROUGH_PROMPT.md`. Hand-off for the next agent: `handoff/2026-10-13-session-handover.md`, `handoff/NEXT_AGENT_PROMPT.md`. Issue log: `issues/README.md`. User guide with screenshots: `guide/README.md`, `screenshots/README.md`. Browser review tooling: `../scripts/review-harness/README.md`.
 
 ## Identity / financial references
 
