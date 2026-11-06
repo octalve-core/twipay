@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { OpsShell } from "../_components/ops-shell";
 import { Fail, Wait } from "../_components/state";
-import { opsGet, money } from "../_lib/api";
+import { opsGet, money, explainCode } from "../_lib/api";
 
 export default function Compliance() {
   const [data, setData] = useState<any>();
@@ -12,7 +12,7 @@ export default function Compliance() {
   useEffect(() => {
     opsGet<any>("/operations/compliance")
       .then(setData)
-      .catch((x) => setError(x.code || "REQUEST_FAILED"));
+      .catch((x) => setError(explainCode(x.code, "REQUEST_FAILED")));
   }, []);
 
   return (

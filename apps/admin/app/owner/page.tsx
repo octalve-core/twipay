@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { OpsShell } from "../_components/ops-shell";
 import { Fail, Wait } from "../_components/state";
-import { opsGet, money } from "../_lib/api";
+import { opsGet, money, explainCode } from "../_lib/api";
 
 export default function OwnerOverview() {
   const [data, setData] = useState<any>();
@@ -15,11 +15,11 @@ export default function OwnerOverview() {
   useEffect(() => {
     opsGet<any>("/operations/owner/overview")
       .then(setData)
-      .catch((e) => setError(e.code || "REQUEST_FAILED"));
+      .catch((e) => setError(explainCode(e.code, "REQUEST_FAILED")));
 
     opsGet<any>("/operations/owner/risk")
       .then(setRisk)
-      .catch((e) => setRiskError(e.code || "REQUEST_FAILED"));
+      .catch((e) => setRiskError(explainCode(e.code, "REQUEST_FAILED")));
   }, []);
 
   const report = data?.operations;

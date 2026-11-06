@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { OpsShell } from "../_components/ops-shell";
-import { opsGet, opsMutation } from "../_lib/api";
+import { opsGet, opsMutation, explainCode } from "../_lib/api";
 
 type Status = {
   enabled: boolean;
@@ -21,7 +21,7 @@ export default function SecurityPage() {
     try {
       setStatus((await opsGet<{ mfa: Status }>("/auth/mfa/status")).mfa);
     } catch (x: any) {
-      setMsg(x.code || "Unable to load MFA");
+      setMsg(explainCode(x.code, "Unable to load MFA"));
     }
   }
 
@@ -40,7 +40,7 @@ export default function SecurityPage() {
       setMsg("Enrollment started. Add the secret key to your authenticator app and confirm a fresh 6-digit code.");
       await load();
     } catch (x: any) {
-      setMsg(x.code || "Unable to enroll");
+      setMsg(explainCode(x.code, "Unable to enroll"));
     }
   }
 
@@ -56,7 +56,7 @@ export default function SecurityPage() {
       setMsg("MFA enabled and the admin session was rotated. Save the recovery codes now.");
       await load();
     } catch (x: any) {
-      setMsg(x.code || "Unable to confirm");
+      setMsg(explainCode(x.code, "Unable to confirm"));
     }
   }
 
@@ -69,7 +69,7 @@ export default function SecurityPage() {
       });
       setMsg(`Recent MFA satisfied using ${r.method}.`);
     } catch (x: any) {
-      setMsg(x.code || "Unable to step up");
+      setMsg(explainCode(x.code, "Unable to step up"));
     }
   }
 
@@ -84,7 +84,7 @@ export default function SecurityPage() {
       setMsg("Recovery codes replaced; previous unused codes are invalid.");
       await load();
     } catch (x: any) {
-      setMsg(x.code || "Unable to regenerate");
+      setMsg(explainCode(x.code, "Unable to regenerate"));
     }
   }
 
@@ -101,7 +101,7 @@ export default function SecurityPage() {
       setMsg("MFA disabled; other sessions were revoked. High-risk operations remain unavailable until re-enrollment and step-up.");
       await load();
     } catch (x: any) {
-      setMsg(x.code || "Unable to disable");
+      setMsg(explainCode(x.code, "Unable to disable"));
     }
   }
 

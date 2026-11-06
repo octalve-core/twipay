@@ -50,11 +50,11 @@ export default function OpsLogin() {
   return (
     <main className="ops-login">
       <div className="login-card">
-        <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
+        <div className="login-brand-row">
           <div className="app-brand-logo">T</div>
           <div>
-            <span className="eyebrow" style={{ margin: 0 }}>TwiPay Operations</span>
-            <div style={{ fontSize: "11px", color: "var(--text-muted)" }}>Restricted Administrative Console</div>
+            <span className="eyebrow login-eyebrow">TwiPay Operations</span>
+            <div className="login-subtitle">Restricted Administrative Console</div>
           </div>
         </div>
 
@@ -64,7 +64,7 @@ export default function OpsLogin() {
         </p>
 
         {msg && (
-          <div className="ops-banner danger" style={{ marginTop: "14px", padding: "10px 14px", fontSize: "12px" }}>
+          <div className="ops-banner danger login-error">
             <span>🛑</span>
             <div>{msg}</div>
           </div>
@@ -93,13 +93,13 @@ export default function OpsLogin() {
             />
           </label>
 
-          <button type="submit" disabled={loading} style={{ marginTop: "6px" }}>
+          <button type="submit" disabled={loading} className="login-submit">
             {loading ? "Authenticating..." : "Sign in"}
           </button>
         </form>
 
-        <div style={{ marginTop: "24px", paddingTop: "16px", borderTop: "1px solid var(--border-light)", fontSize: "11px", color: "var(--text-muted)", textAlign: "center" }}>
-          <span>🔒 SHA-256 Nonce CSP &bull; Cookie-based HttpOnly Authentication</span>
+        <div className="login-footer">
+          <span>🔒 Authorized staff only. Sign-ins and actions are audited.</span>
         </div>
       </div>
     </main>

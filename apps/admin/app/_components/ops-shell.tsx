@@ -36,15 +36,14 @@ const SECTIONS: NavSectionDef[] = [
       {
         title: "Disbursements",
         items: [
-          { href: "/payouts", label: "Payout Batches", icon: "💳", permission: "ops.dashboard.read", badge: "3", badgeType: "amber" },
-          { href: "/payouts/create", label: "Batch Calculator", icon: "⚡", permission: "ops.dashboard.read" },
-          { href: "/refunds", label: "Refunds & Disputes", icon: "↩️", permission: "ops.disputes.review", badge: "4", badgeType: "purple" }
+          { href: "/payouts", label: "Payout Batches", icon: "💳", permission: "ops.dashboard.read" },
+          { href: "/refunds", label: "Refunds & Disputes", icon: "↩️", permission: "ops.disputes.review" }
         ]
       },
       {
         title: "Reconciliation",
         items: [
-          { href: "/exceptions", label: "Exceptions & Holds", icon: "⚠️", permission: "ops.reconciliation.read", badge: "2", badgeType: "coral" },
+          { href: "/exceptions", label: "Exceptions & Holds", icon: "⚠️", permission: "ops.reconciliation.read" },
           { href: "/financial-tiers", label: "Financial Tiers", icon: "🎚️", permission: "ops.tiers.read" }
         ]
       }
@@ -57,14 +56,14 @@ const SECTIONS: NavSectionDef[] = [
       {
         title: "Infrastructure Rails",
         items: [
-          { href: "/providers", label: "Provider Circuits", icon: "🔌", permission: "ops.dashboard.read", badge: "99.8%", badgeType: "green" },
+          { href: "/providers", label: "Provider Circuits", icon: "🔌", permission: "ops.dashboard.read" },
           { href: "/notifications", label: "Delivery Health", icon: "📡", permission: "ops.notifications.read" }
         ]
       },
       {
         title: "Assurance & Logs",
         items: [
-          { href: "/compliance", label: "Identity Review", icon: "🛡️", permission: "ops.compliance.read", badge: "6", badgeType: "amber" },
+          { href: "/compliance", label: "Identity Review", icon: "🛡️", permission: "ops.compliance.read" },
           { href: "/audit", label: "Audit Journal", icon: "📜", permission: "ops.audit.read" },
           { href: "/reports", label: "Financial Reports", icon: "📈", permission: "ops.reports.read" }
         ]
@@ -203,17 +202,18 @@ export function OpsShell({
       <div className="app-body">
         {/* Pinned Lateral Sidebar */}
         <aside className="app-sidebar">
-          {/* Dual-Control Quorum Widget */}
-          <div className="sidebar-widget">
-            <div className="sidebar-widget-header">
-              <span>Dual-Control Quorum</span>
-              <span className="sidebar-status-pill">● ACTIVE</span>
+          {/* Owner shortcut: only owners can use /owner, so no other role is shown a link to it. */}
+          {isOwner && (
+            <div className="sidebar-widget">
+              <div className="sidebar-widget-header">
+                <span>Dual-Control</span>
+              </div>
+              <Link href="/owner" className="sidebar-widget-link">
+                <span>Owner Control</span>
+                <span>&rarr;</span>
+              </Link>
             </div>
-            <Link href="/owner" className="sidebar-widget-link">
-              <span>2 Owners Enrolled</span>
-              <span>&rarr;</span>
-            </Link>
-          </div>
+          )}
 
           {/* Independent Scroll Area (Items scroll, footer stays pinned) */}
           <div className="sidebar-scroll-area">

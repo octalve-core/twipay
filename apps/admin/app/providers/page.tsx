@@ -3,7 +3,7 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { OpsShell } from "../_components/ops-shell";
 import { Fail, Wait } from "../_components/state";
-import { money, opsGet, opsMutation } from "../_lib/api";
+import { money, opsGet, opsMutation, explainCode } from "../_lib/api";
 import { FreezeRailModal, ModalDialog } from "../_components/modals";
 
 type Health = {
@@ -55,7 +55,7 @@ export default function ProvidersPage() {
       setData(await opsGet<Snapshot>("/operations/providers"));
       setError("");
     } catch (cause: any) {
-      setError(cause.code ?? "REQUEST_FAILED");
+      setError(explainCode(cause.code, "REQUEST_FAILED"));
     }
   }
 
@@ -85,7 +85,7 @@ export default function ProvidersPage() {
       setMessage(`${offer.providerCode}/${offer.providerProductCode} enabled.`);
       await load();
     } catch (cause: any) {
-      setMessage(cause.code ?? "ACTION_BLOCKED");
+      setMessage(explainCode(cause.code, "ACTION_BLOCKED"));
     }
   }
 
@@ -101,7 +101,7 @@ export default function ProvidersPage() {
       setFreezeTarget(null);
       await load();
     } catch (cause: any) {
-      setMessage(cause.code ?? "ACTION_BLOCKED");
+      setMessage(explainCode(cause.code, "ACTION_BLOCKED"));
     }
   }
 
@@ -123,7 +123,7 @@ export default function ProvidersPage() {
       setMessage(`${offer.providerCode}/${offer.providerProductCode} routing controls updated.`);
       await load();
     } catch (cause: any) {
-      setMessage(cause.code ?? "ROUTING_CONTROL_BLOCKED");
+      setMessage(explainCode(cause.code, "ROUTING_CONTROL_BLOCKED"));
     }
   }
 
@@ -136,7 +136,7 @@ export default function ProvidersPage() {
       setResetReason("");
       await load();
     } catch (cause: any) {
-      setMessage(cause.code ?? "CIRCUIT_RESET_BLOCKED");
+      setMessage(explainCode(cause.code, "CIRCUIT_RESET_BLOCKED"));
     }
   }
 
@@ -161,7 +161,7 @@ export default function ProvidersPage() {
       setMessage(`${offer.providerCode}/${offer.providerProductCode} remapped only after server-side exact semantic validation.`);
       await load();
     } catch (cause: any) {
-      setMessage(cause.code ?? "SKU_MAPPING_BLOCKED");
+      setMessage(explainCode(cause.code, "SKU_MAPPING_BLOCKED"));
     }
   }
 

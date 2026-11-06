@@ -3,7 +3,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import { OpsShell } from "../../_components/ops-shell";
 import { Fail, Wait } from "../../_components/state";
-import { opsGet, opsMutation } from "../../_lib/api";
+import { opsGet, opsMutation, explainCode } from "../../_lib/api";
 import { ApproveModal, RejectModal } from "../../_components/modals";
 
 interface Suspension {
@@ -56,7 +56,7 @@ export default function OwnerCustomers() {
       setData(d.customers);
       setError("");
     } catch (e: any) {
-      setError(e.code || "REQUEST_FAILED");
+      setError(explainCode(e.code, "REQUEST_FAILED"));
     }
   }
 
@@ -64,7 +64,7 @@ export default function OwnerCustomers() {
     try {
       setReviews((await opsGet<{ reviews: Suspension[] }>("/operations/owner/customers/suspensions")).reviews);
     } catch (e: any) {
-      setError(e.code || "REQUEST_FAILED");
+      setError(explainCode(e.code, "REQUEST_FAILED"));
     }
   }
 
@@ -79,7 +79,7 @@ export default function OwnerCustomers() {
     try {
       setActivity(await opsGet<Activity>(`/operations/owner/customers/${encodeURIComponent(id)}/activity`));
     } catch (e: any) {
-      setActivityError(e.code || "ACTIVITY_UNAVAILABLE");
+      setActivityError(explainCode(e.code, "ACTIVITY_UNAVAILABLE"));
     }
   }
 
@@ -100,7 +100,7 @@ export default function OwnerCustomers() {
       (e.target as HTMLFormElement).reset();
       await loadReviews();
     } catch (err: any) {
-      setMessage(err.code || "ACTION_DENIED");
+      setMessage(explainCode(err.code, "ACTION_DENIED"));
     }
   }
 
@@ -113,7 +113,7 @@ export default function OwnerCustomers() {
       await loadReviews();
       await load(search.trim());
     } catch (err: any) {
-      setMessage(err.code || "ACTION_DENIED");
+      setMessage(explainCode(err.code, "ACTION_DENIED"));
     }
   }
 
@@ -125,7 +125,7 @@ export default function OwnerCustomers() {
       setRejectSuspensionTarget(null);
       await loadReviews();
     } catch (err: any) {
-      setMessage(err.code || "ACTION_DENIED");
+      setMessage(explainCode(err.code, "ACTION_DENIED"));
     }
   }
 
@@ -196,7 +196,7 @@ export default function OwnerCustomers() {
                 name="targetUserId"
                 required
                 maxLength={36}
-                pattern="[0-9a-fA-F-]{36}"
+                pattern="[0-9a-fA-F\-]{36}"
                 className="pill-input"
                 placeholder="e4fd536b-22e5-4f2d-9a61-7c48113994c5"
               />
