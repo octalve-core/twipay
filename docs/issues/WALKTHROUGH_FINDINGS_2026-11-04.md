@@ -1,7 +1,7 @@
 # Product walkthrough: findings from recon (P1)
 
 Source: the strict final run of `tests/walkthrough/product.walkthrough.ts` (the numbers in the generated `findings.md` header come from it), after soft recon runs 1-19. Product defects below were first seen in recon run 18 on the isolated stack (`twipay-wt`, database
-`wip_twipay_walkthrough`), 153 steps from an empty database. Evidence is the run's `timeline.json`, `observations.json` and
+`wip_twipay_walkthrough`), 149 steps from an empty database. Evidence is the run's `timeline.json`, `observations.json` and
 `screenshots/sNNN.png` (git-ignored under `out/walkthrough/recon-run-18/`). Step ids below (`sNNN`) refer to that run.
 Statuses are in the last section.
 
@@ -37,9 +37,9 @@ Node counts across the whole strict run. "Before" is recon run 18 (before the fi
 | WT-14 | critical | button-name | 63 | 0 | Fixed (sign-out button). |
 | WT-15 | critical | label | 1 | 0 | Fixed (contact form). |
 | WT-19 | serious | aria-dialog-name | 21 | 0 | Fixed (Filter drawer and shared sheet). |
-| WT-16 | serious | color-contrast | 572 | 528 | Open: muted grey text and disabled buttons on 45 pages. Design task. |
-| WT-17 | serious | link-name | 26 | 26 | Open: logo links on the public pages (/, /about, /contact, /privacy-policy, /faqs, /auth/verify-email). |
-| WT-18 | serious | label-content-name-mismatch | 64 | 128 | Open. The count grew because the sign-out button now has a name that is not its visible text, and the notification rows use "Unread: ..." names. |
+| WT-16 | serious | color-contrast | 572 | 1 | Fixed: caption grey `#727884` to `#667085`, error red to red-600, admin green/amber/support bubble/dev badge darkened (colour only). The one remaining node is the initials inside the disabled "change photo" button, an inactive control that WCAG 1.4.3 exempts. 517 failing nodes on 43 pages came from 12 colour pairs, recorded by the run. |
+| WT-17 | serious | link-name | 26 | 16 | Open: logo links on the public pages (/, /about, /contact, /privacy-policy, /faqs, /auth/verify-email). |
+| WT-18 | serious | label-content-name-mismatch | 64 | 127 | Open. The count grew because the sign-out button now has a name that is not its visible text, and the notification rows use "Unread: ..." names. |
 | WT-20 | moderate | heading-order, page-has-heading-one, landmark-unique | 18 / 21 / 6 | 18 / 1 / 6 | h1 fixed on the sign-in and sign-up screens; /contact still has none. |
 | WT-21 | minor | image-redundant-alt, empty-table-header | 15 / 2 | 15 / 2 | Open. |
 
@@ -83,7 +83,7 @@ happens in P3.
 | WT-13 | Fixed (93 images) | `fix/wt-customer-ui` |
 | WT-14 | Fixed (0 `button-name` findings in the final run). | `fix/wt-customer-ui` |
 | WT-15 | Fixed (contact form) | `fix/wt-customer-ui` |
-| WT-16 | Open: design task | |
+| WT-16 | Fixed (colour only, no layout change); 1 node left in an inactive control | `fix/wt-customer-ui`, `fix/wt-admin-quality` |
 | WT-17, WT-18, WT-21 | Open | |
 | WT-19 | Fixed | `fix/wt-customer-ui` |
 | WT-20 | Mostly fixed: h1 on the auth screens. /contact still has no h1. | `fix/wt-customer-ui` |
