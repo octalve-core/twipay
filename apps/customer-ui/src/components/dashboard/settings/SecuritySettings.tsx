@@ -7,6 +7,7 @@ import { useEffect, useState } from "react"
 import { listAccountSessions, revokeOtherAccountSessions, getGoogleAvailability, getGoogleLinkStatus, startGoogleAccountLink, getPasswordEnrollmentStatus } from "@/lib/api/authApi"
 import { toast } from "sonner"
 import PasswordEnrollmentForm from "./PasswordEnrollmentForm"
+import { brand } from "@/config/brand";
 
 const SecuritySettings = () => {
   const [sessions, setSessions] = useState<Awaited<ReturnType<typeof listAccountSessions>>['sessions']>([]);
@@ -83,9 +84,9 @@ const SecuritySettings = () => {
                 {hasPassword===false && <PasswordEnrollmentForm />}
                 {googleEnabled && hasPassword && <section className="mt-5 pt-5 border-t border-[#E9E9E9]" aria-labelledby="google-account-title">
                   <h2 id="google-account-title" className="text-[#112929] font-semibold text-base">Google sign-in</h2>
-                  {googleLinked ? <p className="text-sm text-[#667085] mt-2">Google is connected to your TwiPay account.</p>
+                  {googleLinked ? <p className="text-sm text-[#667085] mt-2">Google is connected to your {brand.name} account.</p>
                     : <>
-                      <p className="text-sm text-[#667085] mt-2">Connect your Google account to sign in more easily. Confirm your TwiPay password first.</p>
+                      <p className="text-sm text-[#667085] mt-2">Connect your Google account to sign in more easily. Confirm your {brand.name} password first.</p>
                       <label htmlFor="google-account-password" className="block text-sm text-[#344054] mt-3">Current password</label>
                       <input id="google-account-password" className="mt-1 w-full border border-[#D0D5DD] rounded-md px-3 py-2" type="password" autoComplete="current-password" value={googlePassword} onChange={(event) => setGooglePassword(event.target.value)} />
                       <button type="button" className="mt-3 rounded-md bg-[#112929] px-4 py-2 text-white text-sm disabled:opacity-50" disabled={!googlePassword || googlePending} onClick={() => void linkGoogle()}>Connect Google</button>

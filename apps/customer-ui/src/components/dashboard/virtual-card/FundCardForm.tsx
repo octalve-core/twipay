@@ -37,7 +37,7 @@ const FundCardForm = ({amount, setAmount, setShowPinForm}: TFundCardForm) => {
         <div className="hidden md:block">
             <BackButton href="/dashboard/virtual-card" className="mb-8" />  
             <h1 className="text-[#112929] font-bold text-[28px]">Fund virtual card</h1>
-            <p className="text-[#727884]  text-sm mt-1">Add funds to your virtual card.</p>
+            <p className="text-[#667085]  text-sm mt-1">Add funds to your virtual card.</p>
         </div>
 
         <div className="flex flex-col mt-5 md:hidden">
@@ -70,7 +70,7 @@ const FundCardForm = ({amount, setAmount, setShowPinForm}: TFundCardForm) => {
                         <AlertDialogTitle className="text-black md:text-[#112929] text-[22px] md:text-[28px] font-medium md:font-bold leading-7">
                             Fund virtual card
                         </AlertDialogTitle>
-                        <AlertDialogDescription className="text-[#727884] text-sm mt-1 mb-3 max-md:hidden">
+                        <AlertDialogDescription className="text-[#667085] text-sm mt-1 mb-3 max-md:hidden">
                             Add funds to your virtual card.
                         </AlertDialogDescription>
                     </AlertDialogHeader>

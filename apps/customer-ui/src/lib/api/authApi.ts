@@ -1,5 +1,6 @@
 import api from "./axios";
 import type { TFormData as SignUpFormData } from "@/components/Authentication/SignUpForm";
+import { brand } from "@/config/brand";
 
 type Profile = { id: string; email: string; givenName: string | null; familyName: string | null; countryCode?: string | null; stateRegion?: string | null; status: string;
   emailVerifiedAt?: string | null; phoneVerifiedAt?: string | null; contactVerified?: boolean;
@@ -24,7 +25,7 @@ export const GetMfaStatus = async () => (await api.get<{mfa: {enabled: boolean}}
 export const verify2FaOtp = async ({otp}: {otp: string}) => (await api.post("/auth/mfa/challenge", {code: otp})).data;
 
 // The following legacy ErhaPay API calls are deliberately disabled pending typed TwiPay contracts.
-function unavailable(): never { throw new Error("This account workflow is not yet integrated with TwiPay"); }
+function unavailable(): never { throw new Error(`This account workflow is not yet integrated with ${brand.name}`); }
 export const getGoogleAvailability = async (): Promise<{enabled:boolean}> => (await api.get('/auth/google/status')).data;
 export const startGoogleSignIn = async (): Promise<{authorizationUrl:string}> => (await api.post('/auth/google/start', {})).data;
 export const getGoogleLinkStatus = async (): Promise<{linked:boolean}> => (await api.get('/auth/google/link/status')).data;

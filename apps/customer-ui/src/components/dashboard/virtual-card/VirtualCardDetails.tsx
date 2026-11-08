@@ -15,7 +15,7 @@ const VirtualCardDetails = () => {
         <div className="hidden md:block">
             <BackButton href="/dashboard/virtual-card" className="mb-8" />  
             <h1 className="text-[#112929] font-bold text-[28px]">Virtual card</h1>
-            <p className="text-[#727884]  text-sm mt-1">Access a virtual card that works.</p>
+            <p className="text-[#667085]  text-sm mt-1">Access a virtual card that works.</p>
         </div>
 
         <div className="w-full flex flex-col gap-5 bg-white mt-5 md:mt-8 rounded-sm py-6 px-4">

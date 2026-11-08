@@ -1,6 +1,7 @@
-// The product's brand in one place. To rebrand, change the values here, replace the favicon (an inline SVG with the letter T) and the <title> in index.html,
-// then search the app for the old name: a few sentences of copy (about 30, mostly in src/components and src/routes) still spell it
-// out. The staff console has its own name in apps/admin/app/_components/ops-shell.tsx and layout.tsx.
+// The product's brand in one place. To rebrand, change the values here, replace the favicon (an inline SVG with the letter T) and the
+// <title> and description in index.html (static HTML cannot read this file). All user-visible copy in src reads brand.name; a test
+// fails if a literal copy of the old name creeps back into code. Comments may still use it. The staff console has its own name in
+// apps/admin/app/_components/ops-shell.tsx and layout.tsx.
 import type { ReactNode } from "react";
 
 export const brand = {

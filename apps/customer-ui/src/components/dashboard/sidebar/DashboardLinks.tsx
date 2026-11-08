@@ -21,7 +21,7 @@ const location = useLocation();
                             key={id} 
                             aria-current={isActive ? "page" : undefined}
                             {...(closeSidebar && {onClick: closeSidebar})}
-                            className={cn( isActive ? "text-[#112929] font-medium" : "text-[#727884] hover:text-[#112929] transition duration-300")} 
+                            className={cn( isActive ? "text-[#112929] font-medium" : "text-[#667085] hover:text-[#112929] transition duration-300")} 
                             to={link}
                         >
                             <div className="w-full h-full px-4 py-3 flex items-center gap-3">

@@ -48,7 +48,7 @@ const InfoFormStepOne = ({register, errors, control}: TInfoFormStepOne) => {
                         <input {...register("firstname")} placeholder="enter your first name" className="w-full border-[0.5px] border-[#D0D5DD] rounded-lg py-2.5 px-3.5 pl-10 bg-white outline-none focus:border-[#112929] placeholder:text-sm placeholder:text-[#667085]" id="firstname" />
                         <span className="absolute left-3.5 top-1/2 -translate-y-1/2"><LuUser className="text-[#667085] size-5" /></span>
                     </div>
-                    {errors.firstname && <p className="text-red-500 text-sm mt-1">{errors.firstname.message}</p>}
+                    {errors.firstname && <p className="text-red-600 text-sm mt-1">{errors.firstname.message}</p>}
                 </div>
 
                 <div className="w-full mt-5">
@@ -57,7 +57,7 @@ const InfoFormStepOne = ({register, errors, control}: TInfoFormStepOne) => {
                         <input {...register("middlename")} placeholder="enter your middle name" className="w-full border-[0.5px] border-[#D0D5DD] rounded-lg py-2.5 px-3.5 pl-10 bg-white outline-none focus:border-[#112929] placeholder:text-sm placeholder:text-[#667085]" id="middlename" />
                         <span className="absolute left-3.5 top-1/2 -translate-y-1/2"><LuUser className="text-[#667085] size-5" /></span>
                     </div>
-                    {errors.middlename && <p className="text-red-500 text-sm mt-1">{errors.middlename.message}</p>}
+                    {errors.middlename && <p className="text-red-600 text-sm mt-1">{errors.middlename.message}</p>}
                 </div>
 
                 <div className="w-full mt-5">
@@ -66,7 +66,7 @@ const InfoFormStepOne = ({register, errors, control}: TInfoFormStepOne) => {
                         <input {...register("lastname")} placeholder="enter your last name" className="w-full border-[0.5px] border-[#D0D5DD] rounded-lg py-2.5 px-3.5 pl-10 bg-white outline-none focus:border-[#112929] placeholder:text-sm placeholder:text-[#667085]" id="lastname" />
                         <span className="absolute left-3.5 top-1/2 -translate-y-1/2"><LuUser className="text-[#667085] size-5" /></span>
                     </div>
-                    {errors.lastname && <p className="text-red-500 text-sm mt-1">{errors.lastname.message}</p>}
+                    {errors.lastname && <p className="text-red-600 text-sm mt-1">{errors.lastname.message}</p>}
                 </div>
 
                 <div className="w-full flex flex-col mt-5">
@@ -130,7 +130,7 @@ const InfoFormStepOne = ({register, errors, control}: TInfoFormStepOne) => {
                                         
                         )}
                     />
-                    {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>}
+                    {errors.phone && <p className="text-red-600 text-sm mt-1">{errors.phone.message}</p>}
                 </div>
             </div>
   )

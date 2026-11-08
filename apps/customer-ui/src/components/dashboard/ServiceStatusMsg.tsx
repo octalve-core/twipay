@@ -9,8 +9,8 @@ const ServiceStatusMsg = ({ status, statusMsg }: { status: string | undefined; s
   return (
     <div className="min-h-full flex flex-col items-center justify-center px-4">
         {status === "coming-soon" && <BsHourglassTop size={50} className="mb-2 text-[#112929] opacity-60" />}
-        {status === "deactivated" && <MdBlockFlipped size={50} className="mb-2 text-red-500 opacity-60" />}
-        <p className={cn("text-center text-[#112929]", status === "deactivated" && "text-red-500")}>{statusMsg}</p>
+        {status === "deactivated" && <MdBlockFlipped size={50} className="mb-2 text-red-600 opacity-60" />}
+        <p className={cn("text-center text-[#112929]", status === "deactivated" && "text-red-600")}>{statusMsg}</p>
         <BackButton className="mt-8" action={() =>navigate(-1)} />
     </div>
   )

@@ -118,7 +118,7 @@ const AddNewBank = ({showBankInfo}: {showBankInfo: () => void}) => {
         <div className="hidden md:block">
             <BackButton action={showBankInfo} className="mb-5" />  
             <h1 className="text-[#112929] font-bold text-[28px]">Save bank info</h1>
-            <p className="text-[#727884]  text-sm mt-1">Enter a bank account for withdrawals</p>
+            <p className="text-[#667085]  text-sm mt-1">Enter a bank account for withdrawals</p>
         </div>
 
         <form className="mt-14 md:mt-12" onSubmit={handleSubmit(onSubmit)}>
@@ -171,7 +171,7 @@ const AddNewBank = ({showBankInfo}: {showBankInfo: () => void}) => {
                         </Command>
                     </PopoverContent>
                 </Popover>
-                {fetchBankError && <p className="text-red-500 mt-1 text-sm">Failed to load banks. Please refresh.</p>}
+                {fetchBankError && <p className="text-red-600 mt-1 text-sm">Failed to load banks. Please refresh.</p>}
             </div>
 
             <div className="w-full mt-5">
@@ -184,8 +184,8 @@ const AddNewBank = ({showBankInfo}: {showBankInfo: () => void}) => {
                         <p className="text-sm font-medium">{verifiedAccount.accountName}</p>
                     </motion.div>
                 }
-                {verAccError && <p className="text-red-500 text-sm mt-1">Something went wrong, please try again</p>}
-                {errors.accountNumber && <p className="text-red-500 text-sm mt-1">{errors.accountNumber.message}</p>}
+                {verAccError && <p className="text-red-600 text-sm mt-1">Something went wrong, please try again</p>}
+                {errors.accountNumber && <p className="text-red-600 text-sm mt-1">{errors.accountNumber.message}</p>}
             </div>  
 
             <CustomButton isLoading={addingAccount} disabled={isVerifying || !selectedBank || !verifiedAccount || addingAccount} className="mt-12 w-full">Save</CustomButton>             

@@ -292,7 +292,7 @@ const RecipientDetails = () => {
                     )}
                 />
                 {
-                    (!isVerifying && verifyErrData ) && <p className="text-red-500 text-sm mt-1">{verifyErrData?.message?.replace("-data", "")}</p>
+                    (!isVerifying && verifyErrData ) && <p className="text-red-600 text-sm mt-1">{verifyErrData?.message?.replace("-data", "")}</p>
                 }
                 {isVerifying && <motion.div initial={{opacity: 0}} animate={{opacity: 1, transition: {duration: .5}}} className="flex items-center gap-2"><Loader2 className="animate-spin size-4 mt-2" /> <span className="italic text-sm">Verifying phone number</span></motion.div>}
                 {
@@ -301,7 +301,7 @@ const RecipientDetails = () => {
                         <p className="text-sm font-medium">Verified</p>
                     </motion.div>
                 }
-                {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>}
+                {errors.phone && <p className="text-red-600 text-sm mt-1">{errors.phone.message}</p>}
             </div>
 
             <div className="w-full">
@@ -355,7 +355,7 @@ const RecipientDetails = () => {
                         </Command>
                     </PopoverContent>
                 </Popover>
-                {(fetchPlansError && providerId) && <p className="text-red-500 mt-1 text-sm">Failed to load data plans. Please refresh.</p>}
+                {(fetchPlansError && providerId) && <p className="text-red-600 mt-1 text-sm">Failed to load data plans. Please refresh.</p>}
             </div>
 
             <div className="w-full">

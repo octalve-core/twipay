@@ -175,7 +175,7 @@ const UserDetails = () => {
             <div className="w-full">
                 <label className="text-[#344054] text-sm font-medium" htmlFor="username">Username</label>
                 <input id="username" {...register("username")} placeholder="AnnaKe1" className="w-full outline-0 bg-white py-3 px-3.5 border border-[#D0D5DD] shadow-[#1018280D] placeholder:text-[#667085] rounded-md mt-1.5 focus:border-[#112929] transition" />
-                {errors.username && <p className="text-red-500 text-sm mt-1">{errors.username.message}</p>}
+                {errors.username && <p className="text-red-600 text-sm mt-1">{errors.username.message}</p>}
             </div> 
             {/*Gender select  */}
             <Controller
@@ -197,7 +197,7 @@ const UserDetails = () => {
                     </div>
                 )}
             />
-            {errors.gender && <p className="text-red-500 text-sm mt-1">{errors.gender.message}</p>}
+            {errors.gender && <p className="text-red-600 text-sm mt-1">{errors.gender.message}</p>}
             {/*Country select  */}
             <div className="mt-5 w-full">
                 <label className="text-[#344054] text-sm font-medium" htmlFor="country">Country</label>
@@ -254,7 +254,7 @@ const UserDetails = () => {
                         </Command>
                     </PopoverContent>
                 </Popover>
-                {(countriesError && !countries?.length) && <p className="text-red-500 mt-1 text-sm">Failed to load countries. Please refresh.</p>}
+                {(countriesError && !countries?.length) && <p className="text-red-600 mt-1 text-sm">Failed to load countries. Please refresh.</p>}
             </div>
             {/*state select  */}
             <div className="mt-5 w-full">
@@ -302,7 +302,7 @@ const UserDetails = () => {
                         </Command>
                     </PopoverContent>
                 </Popover>
-                {(statesError && !states?.length) && <p className="text-red-500 mt-1 text-sm">Failed to load states. Please refresh.</p>}
+                {(statesError && !states?.length) && <p className="text-red-600 mt-1 text-sm">Failed to load states. Please refresh.</p>}
             </div>
             <CustomButton isLoading={updatingProfile} disabled={!country || !state || updatingProfile} className="mt-6 w-full">Proceed - <span className="opacity-60">Verify phone</span></CustomButton>
         </form>

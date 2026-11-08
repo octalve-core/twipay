@@ -22,7 +22,7 @@ export function ErhaPageHeading({
     <header className={className}>
       {backHref ? <BackButton href={backHref} className="mb-10 md:mb-8 mt-2" /> : null}
       <h1 className="text-[#344054] md:text-[#112929] font-bold text-[28px]">{title}</h1>
-      {description ? <p className="text-[#727884] text-sm">{description}</p> : null}
+      {description ? <p className="text-[#667085] text-sm">{description}</p> : null}
     </header>
   );
 }

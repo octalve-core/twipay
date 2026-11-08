@@ -80,7 +80,7 @@ const LogInForm = () => {
             <div className="w-full">
                 <label className="text-[#344054] text-sm font-medium" htmlFor="email">Email</label>
                 <input id="email" aria-invalid={!!errors.email} aria-describedby={errors.email ? "email-error" : undefined} {...register("email")} type="email" placeholder="Enter your email address" className="w-full outline-0 bg-white py-2.5 px-3.5 border border-[#D0D5DD] shadow-[#1018280D] placeholder:text-[#667085] rounded-md mt-1.5 focus:border-[#112929] transition" autoComplete="email" />
-                {errors.email && <p id="email-error" role="alert" className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
+                {errors.email && <p id="email-error" role="alert" className="text-red-600 text-sm mt-1">{errors.email.message}</p>}
             </div>
             <div className="w-full mt-5">
                 <label className="text-sm text-[#344054] font-medium" htmlFor="password">Password</label>
@@ -90,7 +90,7 @@ const LogInForm = () => {
                         {showPassword ? <IoEyeOffOutline /> : <IoEyeOutline />}
                     </button>
                 </div>
-                {errors.password && <p id="password-error" role="alert" className="text-red-500 text-sm mt-1">{errors.password.message}</p>}
+                {errors.password && <p id="password-error" role="alert" className="text-red-600 text-sm mt-1">{errors.password.message}</p>}
             </div>
 
             <div className="my-6 mt-3 flex justify-end">

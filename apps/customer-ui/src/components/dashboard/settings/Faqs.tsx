@@ -26,7 +26,7 @@ const Faqs = () => {
             <div className="hidden md:block">
                 <BackButton href="/dashboard/settings" className="mb-5" />  
                 <h1 className="text-[#112929] font-bold text-[28px]">FAQs</h1>
-                <p className="text-[#727884]  text-sm mt-1">Answers to some questions</p>
+                <p className="text-[#667085]  text-sm mt-1">Answers to some questions</p>
             </div>
             
             <div className="w-full flex flex-col md:items-center gap-5 mt-14 md:mt-5">
@@ -62,7 +62,7 @@ const Faqs = () => {
                                 <motion.div
                                     initial={{height: 0}} animate={isSelected ? {height: "auto"}: {height: 0}}
                                     className={cn("overflow-hidden w-full")}>
-                                    <p className="text-sm text-[#727884] pb-3">{faq.answer}</p>
+                                    <p className="text-sm text-[#667085] pb-3">{faq.answer}</p>
                                 </motion.div>
                             </article>
                         )

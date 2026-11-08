@@ -21,7 +21,7 @@ export default function AccountSettings() {
           <div className="hidden md:block max-w-[152px]">
             <BackButton href="/dashboard/settings" className="mb-5" />
             <h2 className="text-[#344054] font-bold">Account</h2>
-            <p className="text-[#727884] text-sm">Make changes to your account here.</p>
+            <p className="text-[#667085] text-sm">Make changes to your account here.</p>
           </div>
           <div className="relative size-[6.25rem] md:size-[7.5rem]">
             {user?.avatar ? <img src={user.avatar} alt="Your avatar" className="size-full rounded-full object-cover" /> : <FaCircleUser aria-label="Default user avatar" className="size-full text-[#667085]" />}

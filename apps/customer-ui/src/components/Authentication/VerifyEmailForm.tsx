@@ -92,12 +92,12 @@ const VerifyEmailForm = ({showNewPasswordForm, setFormData}: TVerifyEmailForm ) 
                     )
                 }
             </div>
-            {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
+            {errors.email && <p className="text-red-600 text-sm mt-1">{errors.email.message}</p>}
         </div>
         <div className="w-full mt-5">
             <label className="text-[#344054] text-sm font-medium" htmlFor="reset-code">8-digit reset code</label>
             <input id="reset-code" inputMode="numeric" autoComplete="one-time-code" maxLength={8} {...register("code")} placeholder="00000000" className="w-full outline-0 bg-white py-2.5 px-3 border border-[#D0D5DD] shadow-[#1018280D] placeholder:text-[#667085] rounded-md mt-2 focus:border-[#112929] transition" />
-            {errors.code && <p className="text-red-500 text-sm mt-1">{errors.code.message}</p>}
+            {errors.code && <p className="text-red-600 text-sm mt-1">{errors.code.message}</p>}
         </div>
         <CustomButton className="w-full mt-6">Proceed - <span className="opacity-60">Set new password</span></CustomButton>
     </form>

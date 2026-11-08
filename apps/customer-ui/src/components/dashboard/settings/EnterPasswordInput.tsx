@@ -26,7 +26,7 @@ const EnterPasswordInput = ({register, errors, label, name, placeholder}: TEnter
                 {showPassword ? <IoEyeOffOutline /> : <IoEyeOutline />}
             </button>
         </div>
-        {errors[name] && <p className="text-red-500 text-sm mt-1">{errors[name].message}</p>}
+        {errors[name] && <p className="text-red-600 text-sm mt-1">{errors[name].message}</p>}
     </div>
   )
 }

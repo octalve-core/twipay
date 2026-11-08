@@ -91,7 +91,7 @@ const PackagesDropdown = ({packagesArr,isLoading, disable, error}: TPackagesDrop
                 </Command>
             </PopoverContent>
         </Popover>
-        {error && <p className="text-red-500 text-sm mt-1">Failed to fetch packages, please refresh.</p>}
+        {error && <p className="text-red-600 text-sm mt-1">Failed to fetch packages, please refresh.</p>}
     </div>
   )
 }

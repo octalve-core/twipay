@@ -3,13 +3,14 @@ import { Link } from "react-router-dom";
 import Hero_Image_desktop from "../../../assets/main-pages/hero_image.png"
 import Hero_Image_mobile from "../../../assets/main-pages/hero_image_mobile.png"
 import Partnerships from "./Partnerships"
+import { brand } from "@/config/brand";
 
 const Hero = () => {
   return (
     <section className="bg-[#F5F7FF]">
         <div className="max-sm:container pt-10 md:pt-24 text-center">
             <p className="bg-[#edf0fd] rounded-2xl py-2 px-4 text-[#101101] font-medium text-lg w-fit mx-auto">
-                Welcome to TwiPay
+                Welcome to {brand.name}
             </p>
             <h1 className="text-4xl md:text-5xl font-bold text-[#112929] mt-12 md:mt-6 max-w-[580px] mx-auto max-sm:px-8">Everyday payments, made simpler</h1>
             <p className="text-[#475467] text-xl mt-2.5 md:mt-4 max-w-[682px] mx-auto max-sm:px-8">One place to manage your account, explore everyday services and stay on top of your transactions.</p>

@@ -25,7 +25,7 @@ const SidebarLinkWithSubCat = ({id, label, link, icon: Icon, subCategories, clos
 
   return (
     <div className="flex flex-col">
-      <div className={cn('flex items-center', isActive ? 'text-[#112929] font-medium' : 'text-[#727884] hover:text-[#112929] transition duration-300')}>
+      <div className={cn('flex items-center', isActive ? 'text-[#112929] font-medium' : 'text-[#667085] hover:text-[#112929] transition duration-300')}>
         <Link to={link} onClick={() => { setShowSubCat(true); closeSidebar?.(); }}
           className="flex-1 min-w-0 px-4 py-3 flex items-center gap-3 rounded-md focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[#112929]"
           aria-current={location.pathname === link ? 'page' : undefined}>
@@ -47,7 +47,7 @@ const SidebarLinkWithSubCat = ({id, label, link, icon: Icon, subCategories, clos
             const selected = location.pathname === href;
             return <li key={childId} className="w-full">
               <Link to={href} onClick={closeSidebar} tabIndex={showSubCat ? undefined : -1} aria-current={selected ? 'page' : undefined}
-                className={cn('w-full text-left py-3 px-4 text-sm hover:text-black transition cursor-pointer inline-block rounded-md focus-visible:outline-2 focus-visible:outline-[#112929]', selected ? 'text-black' : 'text-[#727884]')}>
+                className={cn('w-full text-left py-3 px-4 text-sm hover:text-black transition cursor-pointer inline-block rounded-md focus-visible:outline-2 focus-visible:outline-[#112929]', selected ? 'text-black' : 'text-[#667085]')}>
                 {itemLabel}
               </Link>
             </li>;

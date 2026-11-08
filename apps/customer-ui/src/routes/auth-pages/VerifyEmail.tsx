@@ -10,6 +10,7 @@ import CustomButton from '@/components/CustomButton';
 import BackButton from '@/components/Authentication/BackButton';
 import Logo from '@/components/navbar/Logo';
 import AuthLogomark from '@/assets/auth/AuthLogomark.png';
+import { brand } from "@/config/brand";
 
 /** Original ErhaPay OTP controls, without the superseded four-step registration wizard. */
 export default function VerifyEmail() {
@@ -40,7 +41,7 @@ export default function VerifyEmail() {
       await confirm.mutateAsync(code);
       setCode('');
       await refreshSession();
-      toast.success("You're all set. Welcome to TwiPay!");
+      toast.success(`You're all set. Welcome to ${brand.name}!`);
       navigate('/dashboard', {replace:true});
     } catch {
       // Clear the rejected code: a full InputOTP only overwrites its last slot, so a pasted new code would be mangled.

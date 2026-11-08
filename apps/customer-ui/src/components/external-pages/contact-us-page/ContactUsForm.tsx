@@ -39,18 +39,18 @@ const ContactUsForm = () => {
                             <div className="w-full">
                                 <label className="text-[#344054] text-sm font-medium" htmlFor="contact-firstname">First name</label>
                                 <input id="contact-firstname" {...register("firstname")} type="text" placeholder="First name" className="w-full outline-0 bg-white py-3 px-4 border border-[#D0D5DD] shadow-[#1018280D] placeholder:text-[#667085] rounded-md mt-2 focus:border-[#112929] transition" />
-                                {errors.firstname && <p className="text-red-500 text-sm mt-1">{errors.firstname.message}</p>}
+                                {errors.firstname && <p className="text-red-600 text-sm mt-1">{errors.firstname.message}</p>}
                             </div>
                             <div className="w-full">
                                 <label className="text-[#344054] text-sm font-medium" htmlFor="contact-lastname">Last name</label>
                                 <input id="contact-lastname" {...register("lastname")} type="text" placeholder="Last name" className="w-full outline-0 bg-white py-3 px-4 border border-[#D0D5DD] shadow-[#1018280D] placeholder:text-[#667085] rounded-md mt-2 focus:border-[#112929] transition" />
-                                {errors.lastname && <p className="text-red-500 text-sm mt-1">{errors.lastname.message}</p>}
+                                {errors.lastname && <p className="text-red-600 text-sm mt-1">{errors.lastname.message}</p>}
                             </div>
                         </div>
                         <div className="w-full mt-6">
                             <label className="text-[#344054] text-sm font-medium" htmlFor="contact-email">Email</label>
                             <input id="contact-email" {...register("email")} type="email" placeholder="Enter your email address" className="w-full outline-0 bg-white py-3 px-4 border border-[#D0D5DD] shadow-[#1018280D] placeholder:text-[#667085] rounded-md mt-2 focus:border-[#112929] transition" />
-                            {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
+                            {errors.email && <p className="text-red-600 text-sm mt-1">{errors.email.message}</p>}
                         </div>
                         <div className="w-full mt-6">
                             <label className="text-[#344054] text-sm font-medium mb-2" htmlFor="contact-phone">Phone number</label>
@@ -91,7 +91,7 @@ const ContactUsForm = () => {
                                     
                                 )}
                             />
-                            {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>}
+                            {errors.phone && <p className="text-red-600 text-sm mt-1">{errors.phone.message}</p>}
                         </div>
                         <div className="w-full mt-6">
                             <label className="text-[#344054] text-sm font-medium" htmlFor="contact-message">Message</label>

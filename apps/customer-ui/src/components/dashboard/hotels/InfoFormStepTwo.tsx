@@ -118,7 +118,7 @@ const InfoFormStepTwo = ({ errors, register}: TInfoFormStepTwo) => {
         <div className="w-full mt-5">
             <label className="text-[#344054] text-sm font-medium" htmlFor="note">Additonal note <span className="font-normal">(optional)</span></label>
             <textarea id="note" {...register("note")} placeholder="Enter a note..." className="w-full outline-0 bg-white py-2.5 px-3.5 border border-[#D0D5DD] shadow-[#1018280D] placeholder:text-[#667085] rounded-md mt-1.5 focus:border-[#112929] transition" />
-            {errors.note && <p className="text-red-500 text-sm mt-1">{errors.note.message}</p>}
+            {errors.note && <p className="text-red-600 text-sm mt-1">{errors.note.message}</p>}
         </div>
     </div>
   )

@@ -12,6 +12,7 @@ import {
   replySupportCase,
   type SupportCaseSummary,
 } from "@/lib/api/dashboard-apis/supportCases";
+import { brand } from "@/config/brand";
 const input =
   "w-full outline-0 bg-white py-2.5 px-3.5 border border-[#D0D5DD] text-[#344054] text-sm rounded-md mt-1 focus:border-[#112929]";
 const readable = (status: string) =>
@@ -160,7 +161,7 @@ export default function SupportCentre() {
               required
             />
           </label>
-          <p className="text-xs text-[#727884]">
+          <p className="text-xs text-[#667085]">
             Attachments are not accepted. Our team will advise if more evidence is needed.
           </p>
           <button
@@ -179,7 +180,7 @@ export default function SupportCentre() {
         {cases.isPending && <p role="status">Loading requests…</p>}
         {cases.isError && <p role="alert">Support history is unavailable.</p>}
         {cases.data?.length === 0 && (
-          <p className="text-sm text-[#727884]">No support requests yet.</p>
+          <p className="text-sm text-[#667085]">No support requests yet.</p>
         )}
         <div className="space-y-2">
           {cases.data?.map((item) => (
@@ -209,7 +210,7 @@ export default function SupportCentre() {
               {caseView.data?.messages.map((item) => (
                 <div key={item.id} className="rounded-md bg-white p-3 border text-sm">
                   <p className="font-medium text-[#112929]">
-                    {item.authorType === "STAFF" ? "TwiPay support" : "You"} ·{" "}
+                    {item.authorType === "STAFF" ? `${brand.name} support` : "You"} ·{" "}
                     {new Date(item.createdAt).toLocaleString("en-NG")}
                   </p>
                   <p className="text-[#344054] whitespace-pre-wrap break-words mt-1">{item.text}</p>
@@ -243,7 +244,7 @@ export default function SupportCentre() {
               </form>
             )}
             {caseView.data?.status === "CLOSED" && (
-              <p className="text-sm text-[#727884]">
+              <p className="text-sm text-[#667085]">
                 This request has been closed. You can open a new request if you still need help.
               </p>
             )}
