@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { OpsShell } from "../_components/ops-shell";
 import { Fail } from "../_components/state";
-import { opsGet, opsMutation } from "../_lib/api";
+import { opsGet, opsMutation, explainCode, statusLabel } from "../_lib/api";
 
 type Summary = {
   reference: string;
@@ -43,7 +43,7 @@ export default function SupportOperationsPage() {
       setItems(res.cases);
       setError("");
     } catch (cause: any) {
-      setError(cause.code ?? "REQUEST_FAILED");
+      setError(explainCode(cause.code, "REQUEST_FAILED"));
     }
   }
 
@@ -82,7 +82,7 @@ export default function SupportOperationsPage() {
       const result = await opsGet<{ case: Detail }>(`/operations/support/cases/${reference}`);
       setSelected(result.case);
     } catch (cause: any) {
-      setNotice(cause.code ?? "ACCESS_DENIED");
+      setNotice(explainCode(cause.code, "ACCESS_DENIED"));
     }
   }
 
@@ -104,7 +104,7 @@ export default function SupportOperationsPage() {
       await select(selected.reference);
       await load();
     } catch (cause: any) {
-      setNotice(cause.code ?? "REPLY_NOT_CONFIRMED");
+      setNotice(explainCode(cause.code, "REPLY_NOT_CONFIRMED"));
     } finally {
       locked.current = false;
       setBusy(false);
@@ -122,7 +122,7 @@ export default function SupportOperationsPage() {
       await load();
       setSelected(null);
     } catch (cause: any) {
-      setNotice(cause.code ?? "CLOSE_BLOCKED");
+      setNotice(explainCode(cause.code, "CLOSE_BLOCKED"));
     } finally {
       locked.current = false;
       setBusy(false);
@@ -225,7 +225,7 @@ export default function SupportOperationsPage() {
                                 item.status === "OPEN" ? "var(--amber-text)" : "var(--green-text)",
                             }}
                           >
-                            {item.status}
+                            {statusLabel(item.status)}
                           </span>
                         </td>
                         <td style={{ textAlign: "right" }}>
@@ -347,7 +347,7 @@ export default function SupportOperationsPage() {
                     color: selected.status === "OPEN" ? "var(--amber-text)" : "var(--green-text)",
                   }}
                 >
-                  {selected.status}
+                  {statusLabel(selected.status)}
                 </span>
               </div>
 
@@ -384,7 +384,7 @@ export default function SupportOperationsPage() {
                           justifyContent: "space-between",
                           gap: "12px",
                           fontSize: "11px",
-                          opacity: 0.85,
+                          opacity: isStaff ? 1 : 0.85, // white on the staff bubble must stay 4.5:1
                           marginBottom: "4px",
                         }}
                       >

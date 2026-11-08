@@ -125,7 +125,7 @@ export function InviteStaffModal({ isOpen, onClose, onConfirm }: InviteStaffModa
           <label>
             <span style={{ display: "flex", justifyContent: "space-between" }}>
               <span>Business Justification (20–500 chars)</span>
-              <span style={{ color: reason.trim().length >= 20 ? "#059669" : "#DC2626", fontWeight: 700, fontSize: "11px" }}>
+              <span style={{ color: reason.trim().length >= 20 ? "#047857" : "#DC2626", fontWeight: 700, fontSize: "11px" }}>
                 {reason.trim().length} / 20 min chars
               </span>
             </span>

@@ -42,7 +42,10 @@ Staff sign in at the admin app. The owner area also needs a verified email, the 
 ## 7. Development inbox
 ![Inbox](../screenshots/2026-10-13-auth-review/12-dev-inbox-panel.png)
 
-## 8. Every customer page
+## 8. The product walkthrough (2026-11-05)
+Curated screenshots from the strict end-to-end run of `tests/walkthrough` (customer and staff console): [screenshots/2026-11-05-walkthrough](../screenshots/2026-11-05-walkthrough/README.md). The customer ones are also at `/guide` in the dev build.
+
+## 9. Every customer page
 Full-page captures of all customer routes: [screenshots/2026-10-13-customer-routes](../screenshots/2026-10-13-customer-routes/ROUTES.md).
 TODO (next agent): one section per dashboard area (wallet, services, settings, events, cards) with descriptions of each
 button and popup, and the admin pages.

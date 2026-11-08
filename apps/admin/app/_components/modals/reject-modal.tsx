@@ -91,7 +91,7 @@ export function RejectModal({
         <label>
           <span style={{ display: "flex", justifyContent: "space-between" }}>
             <span>Mandatory Rejection Justification</span>
-            <span style={{ color: isValid ? "#059669" : "#DC2626", fontWeight: 700, fontSize: "11px" }}>
+            <span style={{ color: isValid ? "#047857" : "#DC2626", fontWeight: 700, fontSize: "11px" }}>
               {charCount} / {minChars} min chars
             </span>
           </span>

@@ -3,7 +3,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import { OpsShell } from "../_components/ops-shell";
 import { Fail, Wait } from "../_components/state";
-import { opsGet, opsMutation } from "../_lib/api";
+import { opsGet, opsMutation, explainCode } from "../_lib/api";
 import { ApproveModal, RejectModal } from "../_components/modals";
 
 export default function Config() {
@@ -27,7 +27,7 @@ export default function Config() {
       setReviews(q.reviews);
       setE("");
     } catch (x: any) {
-      setE(x.code || "REQUEST_FAILED");
+      setE(explainCode(x.code, "REQUEST_FAILED"));
     }
   }
 
@@ -49,7 +49,7 @@ export default function Config() {
       setMsg("Disable request staged for independent approval.");
       await load();
     } catch (x: any) {
-      setMsg(x.code || "ACTION_BLOCKED");
+      setMsg(explainCode(x.code, "ACTION_BLOCKED"));
     }
   }
 
@@ -72,7 +72,7 @@ export default function Config() {
       setMsg("Brand change staged; another owner must approve.");
       await load();
     } catch (x: any) {
-      setMsg(x.code || "ACTION_BLOCKED");
+      setMsg(explainCode(x.code, "ACTION_BLOCKED"));
     }
   }
 
@@ -103,7 +103,7 @@ export default function Config() {
       setMsg("Deployment change staged; another owner must approve.");
       await load();
     } catch (x: any) {
-      setMsg(x.code || "ACTION_BLOCKED");
+      setMsg(explainCode(x.code, "ACTION_BLOCKED"));
     }
   }
 
@@ -115,7 +115,7 @@ export default function Config() {
       setApproveTarget(null);
       await load();
     } catch (x: any) {
-      setMsg(x.code || "ACTION_BLOCKED");
+      setMsg(explainCode(x.code, "ACTION_BLOCKED"));
     }
   }
 
@@ -127,7 +127,7 @@ export default function Config() {
       setRejectTarget(null);
       await load();
     } catch (x: any) {
-      setMsg(x.code || "ACTION_BLOCKED");
+      setMsg(explainCode(x.code, "ACTION_BLOCKED"));
     }
   }
 

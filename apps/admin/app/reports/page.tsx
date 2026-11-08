@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { OpsShell } from "../_components/ops-shell";
 import { Fail, Wait } from "../_components/state";
-import { opsGet, money } from "../_lib/api";
+import { opsGet, money, explainCode } from "../_lib/api";
 
 export default function Reports() {
   const [d, setD] = useState<any>();
@@ -12,7 +12,7 @@ export default function Reports() {
   useEffect(() => {
     opsGet<any>("/operations/reports")
       .then(setD)
-      .catch((x) => setE(x.code || "REQUEST_FAILED"));
+      .catch((x) => setE(explainCode(x.code, "REQUEST_FAILED")));
   }, []);
 
   return (
@@ -71,7 +71,7 @@ export default function Reports() {
             <div className="metric-card">
               <div className="metric-data">
                 <span className="metric-label">Platform Event Revenue</span>
-                <span className="metric-value" style={{ color: "#059669" }}>
+                <span className="metric-value" style={{ color: "#047857" }}>
                   {money(d.events?.platformFeeMinor || 0)}
                 </span>
                 <span className="metric-delta">Platform commission margin</span>
@@ -82,7 +82,7 @@ export default function Reports() {
             <div className="metric-card">
               <div className="metric-data">
                 <span className="metric-label">Bill Payment Commissions</span>
-                <span className="metric-value" style={{ color: "#D97706" }}>
+                <span className="metric-value" style={{ color: "#B45309" }}>
                   {money(d.bills?.observedProviderCommissionMinor || 0)}
                 </span>
                 <span className="metric-delta">Observed provider splits</span>
@@ -157,7 +157,7 @@ export default function Reports() {
                   </td>
                   <td>Internal treasury revenue ledger reservation</td>
                   <td style={{ textAlign: "right" }}>
-                    <span className="table-amount" style={{ color: "#059669" }}>
+                    <span className="table-amount" style={{ color: "#047857" }}>
                       {money(d.events?.platformFeeMinor || 0)}
                     </span>
                   </td>
@@ -176,7 +176,7 @@ export default function Reports() {
                   </td>
                   <td>Aggregator clearing statement validation</td>
                   <td style={{ textAlign: "right" }}>
-                    <span className="table-amount" style={{ color: "#D97706" }}>
+                    <span className="table-amount" style={{ color: "#B45309" }}>
                       {money(d.bills?.observedProviderCommissionMinor || 0)}
                     </span>
                   </td>

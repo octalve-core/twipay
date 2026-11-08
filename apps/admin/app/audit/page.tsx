@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { OpsShell } from "../_components/ops-shell";
 import { Fail, Wait } from "../_components/state";
-import { opsGet } from "../_lib/api";
+import { opsGet, explainCode } from "../_lib/api";
 
 export default function Audit() {
   const [d, setD] = useState<any>();
@@ -14,7 +14,7 @@ export default function Audit() {
   useEffect(() => {
     opsGet<any>("/operations/audit?limit=200")
       .then(setD)
-      .catch((x) => setE(x.code || "REQUEST_FAILED"));
+      .catch((x) => setE(explainCode(x.code, "REQUEST_FAILED")));
   }, []);
 
   const filteredEvents = useMemo(() => {

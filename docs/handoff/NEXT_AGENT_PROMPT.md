@@ -3,6 +3,9 @@
 Paste everything below the line into the agent. Read [2026-10-13-session-handover.md](2026-10-13-session-handover.md) first
 if you are a human.
 
+> **Newer, stricter procedure:** for the full browser review use [WALKTHROUGH_PROMPT.md](WALKTHROUGH_PROMPT.md) (phased, evidence-backed,
+> produces video, PDF and findings). This file stays as the context and constraints reference.
+
 ---
 
 ## Role

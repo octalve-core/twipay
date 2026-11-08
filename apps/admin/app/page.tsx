@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { OpsShell } from "./_components/ops-shell";
 import { Fail, Wait } from "./_components/state";
-import { opsGet, money } from "./_lib/api";
+import { opsGet, money, explainCode } from "./_lib/api";
 
 export default function Home() {
   const [d, setD] = useState<any>();
@@ -13,7 +13,7 @@ export default function Home() {
   useEffect(() => {
     opsGet<any>("/operations/dashboard")
       .then(setD)
-      .catch((x) => setE(x.code || "REQUEST_FAILED"));
+      .catch((x) => setE(explainCode(x.code, "REQUEST_FAILED")));
   }, []);
 
   return (
@@ -61,10 +61,10 @@ export default function Home() {
             <div className="metric-card">
               <div className="metric-data">
                 <span className="metric-label">Open Disputes</span>
-                <span className="metric-value" style={{ color: d.queues?.openDisputes ? "#D97706" : "inherit" }}>
+                <span className="metric-value" style={{ color: d.queues?.openDisputes ? "#B45309" : "inherit" }}>
                   {d.queues?.openDisputes ?? 0}
                 </span>
-                <span className="metric-delta" style={{ color: "#D97706" }}>
+                <span className="metric-delta" style={{ color: "#B45309" }}>
                   {d.queues?.openDisputes ? "Requires triage" : "Clear"}
                 </span>
               </div>

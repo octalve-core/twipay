@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { OpsShell } from "../_components/ops-shell";
 import { Fail, Wait } from "../_components/state";
-import { money, opsGet, opsMutation } from "../_lib/api";
+import { money, opsGet, opsMutation, explainCode } from "../_lib/api";
 import { ModalDialog } from "../_components/modals";
 
 type Case = {
@@ -53,7 +53,7 @@ export default function FinancialExceptionsPage() {
       setData(await opsGet<Queue>("/operations/financial-exceptions"));
       setError("");
     } catch (cause: any) {
-      setError(cause.code ?? "REQUEST_FAILED");
+      setError(explainCode(cause.code, "REQUEST_FAILED"));
     }
   }
 
@@ -70,7 +70,7 @@ export default function FinancialExceptionsPage() {
       setPrepareEvidenceNote("");
       await load();
     } catch (cause: any) {
-      setMessage(cause.code ?? "PREPARE_BLOCKED");
+      setMessage(explainCode(cause.code, "PREPARE_BLOCKED"));
     }
   }
 
@@ -82,7 +82,7 @@ export default function FinancialExceptionsPage() {
       setCloseCaseId(null);
       await load();
     } catch (cause: any) {
-      setMessage(cause.code ?? "CLOSURE_BLOCKED");
+      setMessage(explainCode(cause.code, "CLOSURE_BLOCKED"));
     }
   }
 
@@ -174,7 +174,7 @@ export default function FinancialExceptionsPage() {
                         </div>
                         <span style={{ display: "block", fontSize: "11px", color: "var(--text-muted)", marginTop: "4px" }}>
                           Active holds: {item.financial?.holds.filter((h) => h.status === "ACTIVE").length ?? 0} &bull;{" "}
-                          <strong style={{ color: item.prepared ? "#059669" : "#D97706" }}>
+                          <strong style={{ color: item.prepared ? "#047857" : "#B45309" }}>
                             {item.prepared ? "Prepared for checker" : "Awaiting review"}
                           </strong>
                         </span>
@@ -289,7 +289,7 @@ export default function FinancialExceptionsPage() {
                 <label>
                   <span style={{ display: "flex", justifyContent: "space-between" }}>
                     <span>Factual Review Evidence (min 20 characters)</span>
-                    <span style={{ color: prepareEvidenceNote.trim().length >= 20 ? "#059669" : "#DC2626", fontWeight: 700, fontSize: "11px" }}>
+                    <span style={{ color: prepareEvidenceNote.trim().length >= 20 ? "#047857" : "#DC2626", fontWeight: 700, fontSize: "11px" }}>
                       {prepareEvidenceNote.trim().length} / 20 min chars
                     </span>
                   </span>

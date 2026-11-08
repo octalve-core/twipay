@@ -24,7 +24,7 @@
     .fab:hover{background:#1f2630}
     .fab.pulse{animation:pulse 1s ease-in-out 3}
     @keyframes pulse{50%{transform:scale(1.12)}}
-    .badge{position:absolute;top:-4px;right:-4px;min-width:20px;height:20px;border-radius:10px;background:#e5484d;color:#fff;
+    .badge{position:absolute;top:-4px;right:-4px;min-width:20px;height:20px;border-radius:10px;background:#c62828;color:#fff;
       font-size:12px;font-weight:700;line-height:20px;padding:0 5px;display:none}
     .badge.on{display:block}
     .panel{position:fixed;right:20px;bottom:86px;width:min(400px,calc(100vw - 40px));max-height:min(620px,calc(100vh - 110px));

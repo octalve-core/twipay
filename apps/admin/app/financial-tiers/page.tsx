@@ -3,7 +3,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { OpsShell } from "../_components/ops-shell";
 import { Fail, Wait } from "../_components/state";
-import { money, opsGet, opsMutation } from "../_lib/api";
+import { money, opsGet, opsMutation, explainCode } from "../_lib/api";
 import { ApproveModal, RejectModal } from "../_components/modals";
 
 type Review = {
@@ -31,7 +31,7 @@ export default function FinancialTierPage() {
       setData(await opsGet("/operations/financial-eligibility/reviews"));
       setError("");
     } catch (e: any) {
-      setError(e.code ?? "REQUEST_FAILED");
+      setError(explainCode(e.code, "REQUEST_FAILED"));
     }
   }
 
@@ -57,7 +57,7 @@ export default function FinancialTierPage() {
       (event.target as HTMLFormElement).reset();
       await refresh();
     } catch (e: any) {
-      setMessage(e.code ?? "PREPARATION_BLOCKED");
+      setMessage(explainCode(e.code, "PREPARATION_BLOCKED"));
     }
   }
 
@@ -68,7 +68,7 @@ export default function FinancialTierPage() {
       setMessage("Tier approval recorded (financial features stay disabled).");
       await refresh();
     } catch (e: any) {
-      setMessage(e.code ?? "INDEPENDENT_REVIEW_BLOCKED");
+      setMessage(explainCode(e.code, "INDEPENDENT_REVIEW_BLOCKED"));
     }
   }
 
@@ -79,7 +79,7 @@ export default function FinancialTierPage() {
       setMessage("Tier upgrade review rejected.");
       await refresh();
     } catch (e: any) {
-      setMessage(e.code ?? "INDEPENDENT_REVIEW_BLOCKED");
+      setMessage(explainCode(e.code, "INDEPENDENT_REVIEW_BLOCKED"));
     }
   }
 
@@ -115,7 +115,7 @@ export default function FinancialTierPage() {
                 type="text"
                 required
                 className="pill-input"
-                pattern="[0-9a-fA-F-]{36}"
+                pattern="[0-9a-fA-F\-]{36}"
                 placeholder="e4fd536b-22e5-4f2d-9a61-7c48113994c5"
               />
             </label>
@@ -160,7 +160,7 @@ export default function FinancialTierPage() {
               <input
                 name="evidenceReference"
                 required
-                pattern="[0-9a-fA-F-]{36}"
+                pattern="[0-9a-fA-F\-]{36}"
                 className="pill-input"
                 placeholder="b182f091-a182-4112-9c12-718291001291"
               />

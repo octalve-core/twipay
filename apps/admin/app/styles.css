@@ -3,7 +3,6 @@
 /* Primary Brand: Royal Cobalt Blue (#0062E6)                  */
 /* ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 :root {
   --brand-blue: #0062E6;
@@ -59,7 +58,7 @@
 }
 
 body {
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--font-sans), 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background-color: var(--surface-subtle);
   color: var(--text-main);
   -webkit-font-smoothing: antialiased;
@@ -644,7 +643,7 @@ button, input, select, textarea {
 .metric-delta {
   font-size: 11px;
   font-weight: 700;
-  color: #059669;
+  color: #047857; /* 5.5:1 on white (was #047857, 3.8:1) */
 }
 .metric-delta.danger {
   color: #DC2626;
@@ -703,13 +702,13 @@ button, input, select, textarea {
 }
 
 .table-id-link {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono), 'JetBrains Mono', monospace;
   font-size: 12px;
   font-weight: 700;
   color: var(--brand-blue);
 }
 .table-amount {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono), 'JetBrains Mono', monospace;
   font-size: 13px;
   font-weight: 700;
   color: var(--text-main);
@@ -968,9 +967,9 @@ button, input, select, textarea {
   flex-shrink: 0;
 }
 .modal-badge-blue { background: #EFF6FF; color: #0062E6; border: 1px solid #BFDBFE; }
-.modal-badge-green { background: #ECFDF5; color: #059669; border: 1px solid #A7F3D0; }
+.modal-badge-green { background: #ECFDF5; color: #047857; border: 1px solid #A7F3D0; }
 .modal-badge-red { background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA; }
-.modal-badge-amber { background: #FFFBEB; color: #D97706; border: 1px solid #FDE68A; }
+.modal-badge-amber { background: #FFFBEB; color: #B45309; border: 1px solid #FDE68A; }
 .modal-badge-purple { background: #FAF5FF; color: #7E22CE; border: 1px solid #E9D5FF; }
 
 .modal-title-wrap h3 {
@@ -1030,7 +1029,7 @@ button, input, select, textarea {
 .summary-item-val {
   color: #0F172A;
   font-weight: 700;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono), 'JetBrains Mono', monospace;
 }
 
 .totp-input-grid {
@@ -1049,7 +1048,7 @@ button, input, select, textarea {
   text-align: center;
   color: var(--brand-blue);
   background: #FFFFFF;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono), 'JetBrains Mono', monospace;
 }
 .totp-box:focus {
   border-color: var(--brand-blue);
@@ -1138,3 +1137,17 @@ button, input, select, textarea {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* Loading spinner (state.tsx). Declared here, not in an inline <style>, because the CSP only allows nonce'd or same-origin styles. */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Sign-in page layout. These were inline style attributes, which the nonce-only CSP blocks on a server-rendered page. */
+.login-brand-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.login-card .login-eyebrow { margin: 0; }
+.login-subtitle { font-size: 11px; color: var(--text-muted); }
+.login-card .login-error { margin-top: 14px; padding: 10px 14px; font-size: 12px; }
+.login-card .login-submit { margin-top: 6px; }
+.login-footer { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-light); font-size: 11px; color: var(--text-muted); text-align: center; }

@@ -1,0 +1,88 @@
+{
+  "_note": "Snapshot of role -> permission seeds (roles/role_permissions tables of a migrated dev database, 2026-11-04). Regenerate when the permission seeds change.",
+  "roles": {
+    "AUDITOR": [
+      "ops.audit.read",
+      "ops.compliance.read",
+      "ops.dashboard.read",
+      "ops.reconciliation.read",
+      "ops.reports.read",
+      "ops.tiers.read"
+    ],
+    "COMPLIANCE": [
+      "ops.audit.read",
+      "ops.compliance.read",
+      "ops.dashboard.read",
+      "ops.disputes.review",
+      "ops.notifications.read",
+      "ops.reconciliation.read",
+      "ops.reports.read",
+      "ops.support.read",
+      "ops.tiers.prepare",
+      "ops.tiers.read"
+    ],
+    "FINANCE_APPROVER": [
+      "ops.dashboard.read",
+      "ops.payouts.approve",
+      "ops.reconciliation.approve",
+      "ops.reconciliation.read",
+      "ops.refunds.approve",
+      "ops.reports.read",
+      "ops.tiers.approve",
+      "ops.tiers.read"
+    ],
+    "FINANCE_OPERATOR": [
+      "ops.dashboard.read",
+      "ops.payouts.prepare",
+      "ops.reconciliation.prepare",
+      "ops.reconciliation.read",
+      "ops.refunds.prepare",
+      "ops.reports.read",
+      "ops.tiers.prepare",
+      "ops.tiers.read"
+    ],
+    "OPERATIONS": [
+      "ops.catalog.map",
+      "ops.dashboard.read",
+      "ops.disputes.review",
+      "ops.notifications.read",
+      "ops.providers.manage",
+      "ops.reconciliation.read",
+      "ops.reports.read",
+      "ops.support.read",
+      "ops.support.reply",
+      "ops.tiers.read"
+    ],
+    "SUPER_ADMIN": [
+      "ops.audit.read",
+      "ops.branding.manage",
+      "ops.catalog.map",
+      "ops.compliance.read",
+      "ops.dashboard.read",
+      "ops.disputes.review",
+      "ops.feature_flags.manage",
+      "ops.notifications.read",
+      "ops.owner.read",
+      "ops.owner.staff.approve",
+      "ops.owner.staff.prepare",
+      "ops.payouts.approve",
+      "ops.payouts.prepare",
+      "ops.providers.manage",
+      "ops.reconciliation.approve",
+      "ops.reconciliation.prepare",
+      "ops.reconciliation.read",
+      "ops.refunds.approve",
+      "ops.refunds.prepare",
+      "ops.reports.read",
+      "ops.support.read",
+      "ops.support.reply",
+      "ops.tiers.approve",
+      "ops.tiers.prepare",
+      "ops.tiers.read"
+    ],
+    "SUPPORT_AGENT": [
+      "ops.support.read",
+      "ops.support.reply"
+    ]
+  }
+}
