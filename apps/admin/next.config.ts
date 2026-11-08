@@ -14,10 +14,14 @@ const config: NextConfig = {
   async headers() { return [{ source: '/(.*)', headers: securityHeaders }]; },
   // Local development inbox only (compose.stack.yaml): same-origin read/clear proxy, evaluated at build time.
   async rewrites() {
-    if (process.env['NEXT_PUBLIC_DEV_MAIL'] !== 'true') return [];
+    // Demo hosting without a custom domain: the browser only talks to this origin and /api is forwarded to the API.
+    const apiProxy = process.env['TWIPAY_API_PROXY_TARGET'];
+    const proxy = apiProxy ? [{ source: '/api/:path*', destination: `${apiProxy}/:path*` }] : [];
+    if (process.env['NEXT_PUBLIC_DEV_MAIL'] !== 'true') return proxy;
     return [
       { source: '/__devmail/widget.js', destination: 'http://devmail:8025/widget.js' },
       { source: '/__devmail/api/messages', destination: 'http://devmail:8025/api/messages' },
+      ...proxy,
     ];
   },
 };
