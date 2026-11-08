@@ -61,10 +61,10 @@ export default function Home() {
             <div className="metric-card">
               <div className="metric-data">
                 <span className="metric-label">Open Disputes</span>
-                <span className="metric-value" style={{ color: d.queues?.openDisputes ? "#D97706" : "inherit" }}>
+                <span className="metric-value" style={{ color: d.queues?.openDisputes ? "#B45309" : "inherit" }}>
                   {d.queues?.openDisputes ?? 0}
                 </span>
-                <span className="metric-delta" style={{ color: "#D97706" }}>
+                <span className="metric-delta" style={{ color: "#B45309" }}>
                   {d.queues?.openDisputes ? "Requires triage" : "Clear"}
                 </span>
               </div>

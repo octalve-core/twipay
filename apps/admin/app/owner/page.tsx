@@ -66,7 +66,7 @@ export default function OwnerOverview() {
             <div className="metric-card">
               <div className="metric-data">
                 <span className="metric-label">Open Disputes</span>
-                <span className="metric-value" style={{ color: report.queues?.openDisputes ? "#D97706" : "inherit" }}>
+                <span className="metric-value" style={{ color: report.queues?.openDisputes ? "#B45309" : "inherit" }}>
                   {report.queues?.openDisputes ?? 0}
                 </span>
                 <span className="metric-delta">Chargeback exposure</span>
@@ -197,7 +197,7 @@ export default function OwnerOverview() {
                   <div className="metric-card">
                     <div className="metric-data">
                       <span className="metric-label">Non-Closed Circuits</span>
-                      <span className="metric-value" style={{ color: "#D97706" }}>
+                      <span className="metric-value" style={{ color: "#B45309" }}>
                         {risk.providerCircuits.filter((r: any) => r.circuitState !== "CLOSED").length}
                       </span>
                     </div>
