@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { createHash } from 'node:crypto';
-import type { JsonObject, NormalizedProviderStatus, VirtualAccountCreditEvent } from '@twipay/contracts';
+import type { CollectionResult, JsonObject, NormalizedProviderStatus, VirtualAccountCreditEvent } from '@twipay/contracts';
 import { fingerprintSensitiveValue } from '@twipay/security';
 import { PrismaService } from '../../../platform/database/prisma.service.js';
 import { FinancialAuthorizationService, type FinancialAuthorization } from './financial-authorization.service.js';
@@ -18,6 +18,8 @@ function providerOperationStatus(status: NormalizedProviderStatus) {
 
 @Injectable()
 export class PaymentService {
+  private readonly logger = new Logger(PaymentService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly authorization: FinancialAuthorizationService,
@@ -42,6 +44,7 @@ export class PaymentService {
       key: input.idempotencyKey,
       userId: input.userId,
       request: { userId: input.userId, providerCode: input.providerCode, amountMinor: input.amountMinor, currency: input.currency },
+      reclaimStale: true,
     });
     if (idem.replay) return { statusCode: idem.replay.status, body: idem.replay.body };
     const recordId = idem.recordId!;
@@ -73,8 +76,11 @@ export class PaymentService {
     });
     await this.idempotency.attachResource(recordId, 'financial_transaction', created.financial.id);
 
+    // Two failure domains, kept apart: the provider call (its outcome is genuinely unknown if it throws) and our own bookkeeping
+    // after the provider answered (the outcome is known, only the local record is behind).
+    let result: CollectionResult;
     try {
-      const result = await provider.createCollection({
+      result = await provider.createCollection({
         reference,
         amountMinor: input.amountMinor,
         currency: input.currency,
@@ -86,31 +92,7 @@ export class PaymentService {
         },
         callbackUrl: `${process.env['APP_URL']}/wallet/fund/complete`,
       });
-      await this.prisma.$transaction(async (tx) => {
-        await tx.providerOperation.update({
-          where: { id: created.operation.id },
-          data: {
-            providerReference: result.providerReference,
-            status: providerOperationStatus(result.status),
-            ...(result.rawStatus ? { rawStatus: result.rawStatus } : {}),
-          },
-        });
-        await this.financial.moveToProviderSubmittedWithTx(tx, created.financial.id);
-        if (result.status === 'PROCESSING') {
-          await this.financial.transitionWithTx(tx, created.financial.id, 'PROCESSING', 'PROVIDER_PROCESSING', 'PROVIDER');
-        }
-      });
-      const body: JsonObject = {
-        transactionReference: reference,
-        provider: input.providerCode,
-        status: result.status,
-        amountMinor: input.amountMinor.toString(),
-        currency: input.currency,
-        ...(result.checkoutUrl ? { checkoutUrl: result.checkoutUrl } : {}),
-      };
-      await this.idempotency.complete(recordId, 201, body);
-      return { statusCode: 201, body };
-    } catch (error) {
+    } catch {
       await this.prisma.$transaction(async (tx) => {
         await tx.providerOperation.update({ where: { id: created.operation.id }, data: { status: 'UNKNOWN' } });
         await this.financial.moveToProviderSubmittedWithTx(tx, created.financial.id);
@@ -128,6 +110,43 @@ export class PaymentService {
       await this.idempotency.complete(recordId, 202, body);
       return { statusCode: 202, body };
     }
+
+    // The provider accepted the request and the customer must get the checkout link. A transient database error here is retried
+    // once; if it persists the operation stays PENDING and the provider webhook or a requery settles it by merchant reference
+    // (`applyProviderOutcomeWithTx` moves AUTHORIZED forward itself). It is never recorded as UNKNOWN: that would drop the checkout
+    // link and claim an outcome we do know.
+    let recorded = false;
+    for (let attempt = 1; attempt <= 2 && !recorded; attempt += 1) {
+      try {
+        await this.prisma.$transaction(async (tx) => {
+          await tx.providerOperation.update({
+            where: { id: created.operation.id },
+            data: {
+              providerReference: result.providerReference,
+              status: providerOperationStatus(result.status),
+              ...(result.rawStatus ? { rawStatus: result.rawStatus } : {}),
+            },
+          });
+          await this.financial.moveToProviderSubmittedWithTx(tx, created.financial.id);
+          if (result.status === 'PROCESSING') {
+            await this.financial.transitionWithTx(tx, created.financial.id, 'PROCESSING', 'PROVIDER_PROCESSING', 'PROVIDER');
+          }
+        });
+        recorded = true;
+      } catch (error) {
+        this.logger.error({ event: 'COLLECTION_BOOKKEEPING_FAILED', attempt, reference, providerCode: input.providerCode, providerReference: result.providerReference, errorName: error instanceof Error ? error.name : 'UnknownError' });
+      }
+    }
+    const body: JsonObject = {
+      transactionReference: reference,
+      provider: input.providerCode,
+      status: result.status,
+      amountMinor: input.amountMinor.toString(),
+      currency: input.currency,
+      ...(result.checkoutUrl ? { checkoutUrl: result.checkoutUrl } : {}),
+    };
+    await this.idempotency.complete(recordId, 201, body);
+    return { statusCode: 201, body };
   }
 
   async verifyAndSettleCollection(providerCode: EnabledPaymentProvider, merchantReference: string): Promise<void> {

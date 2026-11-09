@@ -41,7 +41,7 @@ export class OrganizerPayoutService {
 
   async request(input: { ownerUserId: string; sessionId: string; organizerId: string; providerCode: EnabledPaymentProvider; amountMinor: bigint; bankCode: string; accountNumber: string; narration: string; idempotencyKey: string }): Promise<{ statusCode: number; body: JsonObject }> {
     await this.product.assertFeatureEnabled('operations.organizer_payouts', false);
-    const idem = await this.idempotency.begin({ scope: 'organizer:payout-request', key: input.idempotencyKey, userId: input.ownerUserId, request: { organizerId: input.organizerId, providerCode: input.providerCode, amountMinor: input.amountMinor.toString(), bankCode: input.bankCode, accountNumberFingerprint: fingerprintSensitiveValue(input.accountNumber, process.env['PII_FINGERPRINT_KEY']!), narration: input.narration } });
+    const idem = await this.idempotency.begin({ scope: 'organizer:payout-request', key: input.idempotencyKey, userId: input.ownerUserId, request: { organizerId: input.organizerId, providerCode: input.providerCode, amountMinor: input.amountMinor.toString(), bankCode: input.bankCode, accountNumberFingerprint: fingerprintSensitiveValue(input.accountNumber, process.env['PII_FINGERPRINT_KEY']!), narration: input.narration }, reclaimStale: true });
     if (idem.replay) return { statusCode: idem.replay.status, body: idem.replay.body };
     const idemId = idem.recordId!;
     try {

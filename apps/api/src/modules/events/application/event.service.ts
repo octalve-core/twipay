@@ -190,7 +190,7 @@ export class EventService {
     if (items.length < 1 || items.length > 10 || items.some((item) => !Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > 20)) {
       throw new BadRequestException({ code: 'EVENT_ORDER_ITEMS_INVALID' });
     }
-    const idem = await this.idempotency.begin({ scope: 'event:checkout', key: input.idempotencyKey, userId: input.userId, request: { eventId: input.eventId, items, issuedToName: input.issuedToName, expectedTotalMinor: input.expectedTotalMinor } });
+    const idem = await this.idempotency.begin({ scope: 'event:checkout', key: input.idempotencyKey, userId: input.userId, request: { eventId: input.eventId, items, issuedToName: input.issuedToName, expectedTotalMinor: input.expectedTotalMinor }, reclaimStale: true });
     if (idem.replay) return { statusCode: idem.replay.status, body: publicCheckoutResponse(idem.replay.body) };
     const idemId = idem.recordId!;
 

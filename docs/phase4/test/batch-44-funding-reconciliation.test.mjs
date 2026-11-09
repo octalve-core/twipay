@@ -115,7 +115,7 @@ function makeCollectionService({accountRef=account,accountNumber=account,status=
     $transaction:async()=>{events.transactions++;throw Error('WRONG: reached financial transaction without valid destination');},
   };
   const exports=load('apps/api/src/modules/finance/application/payment.service.ts', {
-    '@nestjs/common':{Injectable:()=>target=>target},'node:crypto':require('node:crypto'),
+    '@nestjs/common':{Injectable:()=>target=>target,Logger:class{error(){}}},'node:crypto':require('node:crypto'),
     '@twipay/security':{fingerprintSensitiveValue:()=> 'hash-1'},
     './reference.js':{createFinancialReference:()=> 'unused'},
     './virtual-account-credit-destination.js':{resolveDepositDestination},

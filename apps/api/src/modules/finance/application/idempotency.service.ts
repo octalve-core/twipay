@@ -29,6 +29,12 @@ function requestHash(value: unknown): string {
   return createHash('sha256').update(JSON.stringify(canonical(value))).digest('hex');
 }
 
+/**
+ * A request holding a key without having committed anything (no resource attached) cannot legitimately run this long: every
+ * caller is bounded by the provider timeout and the platform's request limit. Past this age the holder is considered dead.
+ */
+export const STALE_PROCESSING_MS = 5 * 60 * 1000;
+
 export interface IdempotencyStart {
   recordId?: string;
   replay?: { status: number; body: JsonObject };
@@ -38,7 +44,17 @@ export interface IdempotencyStart {
 export class IdempotencyService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async begin(input: { scope: string; key: string; userId: string; request: unknown; ttlHours?: number }): Promise<IdempotencyStart> {
+  /**
+   * `reclaimStale` is opt-in per caller. When set, a key left in PROCESSING with no resource attached for longer than
+   * STALE_PROCESSING_MS (the process died between `begin` and the first durable write) is released and claimed again instead of
+   * answering 409 until the TTL passes. Only pass it for flows whose steps before `attachResource` have no side effect that a
+   * second run would repeat (for example a one-time code sent to a provider).
+   */
+  async begin(input: { scope: string; key: string; userId: string; request: unknown; ttlHours?: number; reclaimStale?: boolean }): Promise<IdempotencyStart> {
+    return this.beginOnce(input, input.reclaimStale === true);
+  }
+
+  private async beginOnce(input: { scope: string; key: string; userId: string; request: unknown; ttlHours?: number }, mayReclaim: boolean): Promise<IdempotencyStart> {
     const key = validateIdempotencyKey(input.key);
     const hash = requestHash(input.request);
     const now = new Date();
@@ -72,6 +88,11 @@ export class IdempotencyService {
         throw new ConflictException({ code: 'IDEMPOTENCY_KEY_REUSED_WITH_DIFFERENT_REQUEST' });
       }
       if (existing.status === 'PROCESSING') {
+        if (mayReclaim && existing.resourceId === null && now.getTime() - existing.createdAt.getTime() >= STALE_PROCESSING_MS) {
+          // Same guard as releaseProcessing: the delete only matches while nothing durable has been attached.
+          const released = await this.prisma.idempotencyRecord.deleteMany({ where: { id: existing.id, status: 'PROCESSING', resourceId: null } });
+          if (released.count === 1) return this.beginOnce(input, false);
+        }
         throw new ConflictException({ code: 'IDEMPOTENCY_REQUEST_IN_PROGRESS' });
       }
       const body = existing.responseBodyCiphertext
@@ -131,5 +152,16 @@ export class IdempotencyService {
     await this.prisma.idempotencyRecord.deleteMany({
       where: { id: recordId, status: 'PROCESSING', resourceId: null },
     });
+  }
+
+  /**
+   * Removes records whose TTL has passed. `begin` only deletes an expired row when the same key is used again, so without this
+   * the table grows for ever. Bounded per call so one sweep never holds a long delete.
+   */
+  async purgeExpired(limit = 500, now = new Date()): Promise<number> {
+    const rows = await this.prisma.idempotencyRecord.findMany({ where: { expiresAt: { lte: now } }, select: { id: true }, take: limit, orderBy: { expiresAt: 'asc' } });
+    if (rows.length === 0) return 0;
+    const deleted = await this.prisma.idempotencyRecord.deleteMany({ where: { id: { in: rows.map((row) => row.id) }, expiresAt: { lte: now } } });
+    return deleted.count;
   }
 }
