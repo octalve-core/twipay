@@ -3,7 +3,7 @@ import { NestFactory } from '@nestjs/core';
 import { Worker, type ConnectionOptions } from 'bullmq';
 import pino from 'pino';
 import { createRecoverySweep } from './recovery-sweep.js';
-import { AppModule, BillService, NotificationService, WebhookService, validateEnvironment } from '@twipay/api/worker-entry';
+import { AppModule, BillService, IdempotencyService, NotificationService, WebhookService, validateEnvironment } from '@twipay/api/worker-entry';
 
 validateEnvironment(process.env);
 
@@ -31,6 +31,7 @@ if (!redisUrl) throw new Error('REDIS_URL_REQUIRED');
 const app = await NestFactory.createApplicationContext(AppModule, { logger: false });
 const bills = app.get(BillService);
 const notifications = app.get(NotificationService);
+const idempotency = app.get(IdempotencyService);
 const webhooks = app.get(WebhookService);
 const connection = redisConnection(redisUrl);
 
@@ -54,8 +55,8 @@ worker.on('failed', (job, error) => logger.error({ jobId: job?.id, jobName: job?
 worker.on('error', (error) => logger.error({ errorName: error.name }, 'TwiPay worker error'));
 
 const sweep = createRecoverySweep(async () => {
-  const [billCount, notificationCount, webhookCount] = await Promise.all([bills.reconcileDue(25), notifications.processPending(25), webhooks.recoverStale(25)]);
-  if (billCount || notificationCount || webhookCount) logger.info({ billCount, notificationCount, webhookCount }, 'TwiPay recovery sweep processed pending work');
+  const [billCount, notificationCount, webhookCount, purgedKeys] = await Promise.all([bills.reconcileDue(25), notifications.processPending(25), webhooks.recoverStale(25), idempotency.purgeExpired()]);
+  if (billCount || notificationCount || webhookCount || purgedKeys) logger.info({ billCount, notificationCount, webhookCount, purgedKeys }, 'TwiPay recovery sweep processed pending work');
 }, (error) => {
   logger.error({ errorName: error instanceof Error ? error.name : 'UnknownError' }, 'TwiPay recovery sweep failed');
 });

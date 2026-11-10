@@ -52,7 +52,7 @@ export class DisputeRefundService {
 
   async requestEventRefund(input: { userId: string; orderReference: string; reasonCode: string; details: string; idempotencyKey: string }): Promise<{ statusCode: number; body: JsonObject }> {
     await this.product.assertFeatureEnabled('events.refunds', false);
-    const idem = await this.idempotency.begin({ scope: 'event:refund-request', key: input.idempotencyKey, userId: input.userId, request: input });
+    const idem = await this.idempotency.begin({ scope: 'event:refund-request', key: input.idempotencyKey, userId: input.userId, request: input, reclaimStale: true });
     if (idem.replay) return { statusCode: idem.replay.status, body: idem.replay.body };
     const idemId = idem.recordId!;
     try {
