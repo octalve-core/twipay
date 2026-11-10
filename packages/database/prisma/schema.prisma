@@ -1101,6 +1101,8 @@ model WebhookEvent {
   failureCode       String?            @db.VarChar(100)
   receivedAt        DateTime           @default(now()) @db.Timestamptz(6)
   processedAt       DateTime?          @db.Timestamptz(6)
+  processingStartedAt       DateTime?  @db.Timestamptz(6)
+  recoveryPayloadCiphertext String?    @db.Text
 
   @@unique([providerCode, deduplicationKey])
   @@index([providerCode, externalEventId])
